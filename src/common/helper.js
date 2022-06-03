@@ -27,7 +27,7 @@ let busApiClient
 let esClient
 
 // validate ES refresh method
-validateESRefreshMethod(config.ES.ES_REFRESH)
+// validateESRefreshMethod(config.ES.ES_REFRESH)
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -42,7 +42,7 @@ const s3 = new AWS.S3()
  * @param {Function} fn the async function
  * @returns {Function} the wrapped function
  */
-function wrapExpress (fn) {
+function wrapExpress(fn) {
   return function (req, res, next) {
     fn(req, res, next).catch(next)
   }
@@ -56,7 +56,7 @@ const internalCache = new NodeCache({ stdTTL: config.INTERNAL_CACHE_TTL })
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
-function autoWrapExpress (obj) {
+function autoWrapExpress(obj) {
   if (_.isArray(obj)) {
     return obj.map(autoWrapExpress)
   }
@@ -78,7 +78,7 @@ function autoWrapExpress (obj) {
  * @param {Number} page the page number
  * @returns {String} link for the page
  */
-function getPageLink (req, page) {
+function getPageLink(req, page) {
   const q = _.assignIn({}, req.query, { page })
   return `${config.API_BASE_URL}${req.path}?${querystring.stringify(q)}`
 }
@@ -89,7 +89,7 @@ function getPageLink (req, page) {
  * @param {Object} res the HTTP response
  * @param {Object} result the operation result
  */
-function setResHeaders (req, res, result) {
+function setResHeaders(req, res, result) {
   const totalPages = Math.ceil(result.total / result.perPage)
   if (parseInt(result.page, 10) > 1) {
     res.set('X-Prev-Page', parseInt(result.page, 10) - 1)
@@ -118,7 +118,7 @@ function setResHeaders (req, res, result) {
  * Check if the user has admin role
  * @param {Object} authUser the user
  */
-function hasAdminRole (authUser) {
+function hasAdminRole(authUser) {
   if (authUser && authUser.roles) {
     for (let i = 0; i < authUser.roles.length; i++) {
       if (authUser.roles[i].toLowerCase() === constants.UserRoles.Admin.toLowerCase()) {
@@ -135,7 +135,7 @@ function hasAdminRole (authUser) {
  * @returns {Object} the new object with removed properties
  * @private
  */
-function _sanitizeObject (obj) {
+function _sanitizeObject(obj) {
   try {
     return JSON.parse(JSON.stringify(obj, (name, value) => {
       if (_.isArray(value) && value.length > 30) {
@@ -153,7 +153,7 @@ function _sanitizeObject (obj) {
  * @param {Object} obj the object
  * @returns {String} the string value
  */
-function toString (obj) {
+function toString(obj) {
   return util.inspect(_sanitizeObject(obj), { breakLength: Infinity })
 }
 
@@ -163,7 +163,7 @@ function toString (obj) {
  * @param {Array} source the array in which to search for the term
  * @param {Array | String} term the term to search
  */
-function checkIfExists (source, term) {
+function checkIfExists(source, term) {
   let terms
 
   if (!_.isArray(source)) {
@@ -195,7 +195,7 @@ function checkIfExists (source, term) {
  * @param {String} id The id value
  * @returns {Promise<void>}
  */
-async function getById (modelName, id) {
+async function getById(modelName, id) {
   return new Promise((resolve, reject) => {
     models[modelName].query('id').eq(id).exec((err, result) => {
       if (err) {
@@ -216,7 +216,7 @@ async function getById (modelName, id) {
  * @param {Array} ids The ids
  * @returns {Promise<Array>} the found entities
  */
-async function getByIds (modelName, ids) {
+async function getByIds(modelName, ids) {
   const entities = []
   const theIds = ids || []
   for (const id of theIds) {
@@ -232,7 +232,7 @@ async function getByIds (modelName, ids) {
  * @param {String} value The attribute value to be validated
  * @returns {Promise<void>}
  */
-async function validateDuplicate (modelName, name, value) {
+async function validateDuplicate(modelName, name, value) {
   const list = await scan(modelName)
   for (let i = 0; i < list.length; i++) {
     if (list[i][name] && String(list[i][name]).toLowerCase() === String(value).toLowerCase()) {
@@ -247,7 +247,7 @@ async function validateDuplicate (modelName, name, value) {
  * @param {Object} data The create data object
  * @returns {Promise<void>}
  */
-async function create (modelName, data) {
+async function create(modelName, data) {
   return new Promise((resolve, reject) => {
     const dbItem = new models[modelName](data)
     dbItem.save((err) => {
@@ -266,7 +266,7 @@ async function create (modelName, data) {
  * @param {Object} data The updated data object
  * @returns {Promise<void>}
  */
-async function update (dbItem, data) {
+async function update(dbItem, data) {
   Object.keys(data).forEach((key) => {
     dbItem[key] = data[key]
   })
@@ -287,7 +287,7 @@ async function update (dbItem, data) {
  * @param {Object} scanParams The scan parameters object
  * @returns {Promise<void>}
  */
-async function scan (modelName, scanParams) {
+async function scan(modelName, scanParams) {
   return new Promise((resolve, reject) => {
     models[modelName].scan(scanParams).exec((err, result) => {
       if (err) {
@@ -305,7 +305,7 @@ async function scan (modelName, scanParams) {
  * @param {Object} scanParams The scan parameters object
  * @returns {Array}
  */
-async function scanAll (modelName, scanParams) {
+async function scanAll(modelName, scanParams) {
   let results = await models[modelName].scan(scanParams).exec()
   let lastKey = results.lastKey
   while (!_.isUndefined(results.lastKey)) {
@@ -322,7 +322,7 @@ async function scanAll (modelName, scanParams) {
  * @param {String} value the value to test
  * @returns {Boolean} the match result
  */
-function partialMatch (filter, value) {
+function partialMatch(filter, value) {
   if (filter) {
     if (value) {
       const filtered = xss(filter)
@@ -339,7 +339,7 @@ function partialMatch (filter, value) {
  * Perform validation on phases.
  * @param {Array} phases the phases data.
  */
-async function validatePhases (phases) {
+async function validatePhases(phases) {
   if (!phases || phases.length === 0) {
     return
   }
@@ -360,7 +360,7 @@ async function validatePhases (phases) {
  * @param {String} key the key name
  * @return {Promise} promise resolved to downloaded data
  */
-async function downloadFromFileStack (url) {
+async function downloadFromFileStack(url) {
   const res = await axios.get(url)
   return {
     data: res.data,
@@ -374,7 +374,7 @@ async function downloadFromFileStack (url) {
  * @param {String} key the key name
  * @return {Promise} promise resolved to downloaded data
  */
-async function downloadFromS3 (bucket, key) {
+async function downloadFromS3(bucket, key) {
   const file = await s3.getObject({ Bucket: bucket, Key: key }).promise()
   return {
     data: file.Body,
@@ -388,7 +388,7 @@ async function downloadFromS3 (bucket, key) {
  * @param {String} key the key name
  * @return {Promise} promise resolved to deleted data
  */
-async function deleteFromS3 (bucket, key) {
+async function deleteFromS3(bucket, key) {
   return s3.deleteObject({ Bucket: bucket, Key: key }).promise()
 }
 
@@ -396,7 +396,7 @@ async function deleteFromS3 (bucket, key) {
  * Get M2M token.
  * @returns {Promise<String>} the M2M token
  */
-async function getM2MToken () {
+async function getM2MToken() {
   return m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
 }
 
@@ -405,7 +405,7 @@ async function getM2MToken () {
  * @param {String} challengeId the challenge id
  * @returns {Promise<Array>} the challenge resources
  */
-async function getChallengeResources (challengeId) {
+async function getChallengeResources(challengeId) {
   const token = await getM2MToken()
   const perPage = 100
   let page = 1
@@ -431,7 +431,7 @@ async function getChallengeResources (challengeId) {
  * @param {String} memberHandle the user's member handle
  * @param {String} roleId the resource role ID to assign
  */
-async function createResource (challengeId, memberHandle, roleId) {
+async function createResource(challengeId, memberHandle, roleId) {
   const token = await getM2MToken()
 
   const userObj = {
@@ -452,7 +452,7 @@ async function createResource (challengeId, memberHandle, roleId) {
  * @param {String} token The token
  * @returns
  */
-async function createSelfServiceProject (name, description, type, token) {
+async function createSelfServiceProject(name, description, type, token) {
   const projectObj = {
     name,
     description,
@@ -467,7 +467,7 @@ async function createSelfServiceProject (name, description, type, token) {
  * Get project id by roundId
  * @param {String} roundId the round id
  */
-async function getProjectIdByRoundId (roundId) {
+async function getProjectIdByRoundId(roundId) {
   const url = `${config.CHALLENGE_MIGRATION_APP_URL}/getChallengeProjectId/${roundId}`
   const res = await axios.get(url)
   return _.get(res, 'data.projectId')
@@ -477,7 +477,7 @@ async function getProjectIdByRoundId (roundId) {
  * Get project payment
  * @param {String} projectId the project id
  */
-async function getProjectPayment (projectId) {
+async function getProjectPayment(projectId) {
   const token = await getM2MToken()
   const url = `${config.CUSTOMER_PAYMENTS_URL}`
   const res = await axios.get(url, {
@@ -495,7 +495,7 @@ async function getProjectPayment (projectId) {
  * Charge payment
  * @param {String} paymentId the payment ID
  */
-async function capturePayment (paymentId) {
+async function capturePayment(paymentId) {
   const token = await getM2MToken()
   const url = `${config.CUSTOMER_PAYMENTS_URL}/${paymentId}/charge`
   logger.info(`Calling: ${url} to capture payment`)
@@ -511,7 +511,7 @@ async function capturePayment (paymentId) {
  * Cancel payment
  * @param {String} paymentId the payment ID
  */
-async function cancelPayment (paymentId) {
+async function cancelPayment(paymentId) {
   const token = await getM2MToken()
   const url = `${config.CUSTOMER_PAYMENTS_URL}/${paymentId}/cancel`
   const res = await axios.patch(url, {}, { headers: { Authorization: `Bearer ${token}` } })
@@ -527,7 +527,7 @@ async function cancelPayment (paymentId) {
  * @param {String} cancelReason the cancel reasonn
  * @param {Object} currentUser the current user
  */
-async function cancelProject (projectId, cancelReason, currentUser) {
+async function cancelProject(projectId, cancelReason, currentUser) {
   let payment = await getProjectPayment(projectId)
   const project = await ensureProjectExist(projectId, currentUser)
   if (project.status === 'cancelled') return // already canceled
@@ -558,7 +558,7 @@ async function cancelProject (projectId, cancelReason, currentUser) {
  * @param {String} projectId the project id
  * @param {Object} currentUser the current user
  */
-async function activateProject (projectId, currentUser, name, description) {
+async function activateProject(projectId, currentUser, name, description) {
   let payment
   let project
   try {
@@ -602,7 +602,7 @@ async function activateProject (projectId, currentUser, name, description) {
  * @param {*} workItemPlannedEndDate the planned end date of the work item
  * @param {*} currentUser the current user
  */
-async function updateSelfServiceProjectInfo (projectId, workItemPlannedEndDate, currentUser) {
+async function updateSelfServiceProjectInfo(projectId, workItemPlannedEndDate, currentUser) {
   const project = await ensureProjectExist(projectId, currentUser)
   const payment = await getProjectPayment(projectId)
   const token = await getM2MToken()
@@ -625,7 +625,7 @@ async function updateSelfServiceProjectInfo (projectId, workItemPlannedEndDate, 
  * Get resource roles
  * @returns {Promise<Array>} the challenge resources
  */
-async function getResourceRoles () {
+async function getResourceRoles() {
   const token = await getM2MToken()
   const res = await axios.get(config.RESOURCE_ROLES_API_URL, { headers: { Authorization: `Bearer ${token}` } })
   return res.data || []
@@ -636,7 +636,7 @@ async function getResourceRoles () {
  * @param {String} challengeId the challenge UUID
  * @param {String} userId the user ID
  */
-async function userHasFullAccess (challengeId, userId) {
+async function userHasFullAccess(challengeId, userId) {
   const resourceRoles = await getResourceRoles()
   const rolesWithFullAccess = _.map(_.filter(resourceRoles, r => r.fullWriteAccess), 'id')
   const challengeResources = await getChallengeResources(challengeId)
@@ -648,7 +648,7 @@ async function userHasFullAccess (challengeId, userId) {
  * @param {String} userId the user id
  * @returns {Promise<Array>} the user groups
  */
-async function getUserGroups (userId) {
+async function getUserGroups(userId) {
   const token = await getM2MToken()
   let allGroups = []
   // get search is paginated, we need to get all pages' data
@@ -681,7 +681,7 @@ async function getUserGroups (userId) {
  * @param {String} userId the user id
  * @returns {Promise<Array>} the user groups
  */
-async function getCompleteUserGroupTreeIds (userId) {
+async function getCompleteUserGroupTreeIds(userId) {
   const token = await getM2MToken()
   const result = await axios.get(`${config.GROUPS_API_URL}/memberGroups/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -698,7 +698,7 @@ async function getCompleteUserGroupTreeIds (userId) {
  * @param {String} groupId the group ID
  * @returns {Array<String>} an array with the groups ID and the IDs of all subGroups
  */
-async function expandWithSubGroups (groupId) {
+async function expandWithSubGroups(groupId) {
   const token = await getM2MToken()
   const result = await axios.get(`${config.GROUPS_API_URL}/${groupId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -715,7 +715,7 @@ async function expandWithSubGroups (groupId) {
  * @param {String} groupId the group ID
  * @returns {Array<String>} an array with the group ID and the IDs of all parent groups up the chain
  */
-async function expandWithParentGroups (groupId) {
+async function expandWithParentGroups(groupId) {
   const token = await getM2MToken()
   const result = await axios.get(`${config.GROUPS_API_URL}/${groupId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -742,7 +742,7 @@ async function expandWithParentGroups (groupId) {
  * @param {Array} arr the array to check
  * @param {String} name the array name
  */
-function ensureNoDuplicateOrNullElements (arr, name) {
+function ensureNoDuplicateOrNullElements(arr, name) {
   const a = arr || []
   for (let i = 0; i < a.length; i += 1) {
     if (_.isNil(a[i])) {
@@ -760,7 +760,7 @@ function ensureNoDuplicateOrNullElements (arr, name) {
  * Get Bus API Client
  * @return {Object} Bus API Client Instance
  */
-function getBusApiClient () {
+function getBusApiClient() {
   // if there is no bus API client instance, then create a new instance
   if (!busApiClient) {
     busApiClient = busApi(_.pick(config,
@@ -778,7 +778,7 @@ function getBusApiClient () {
  * @param {Object} payload the event payload
  * @param {Object} options the extra options to the message
  */
-async function postBusEvent (topic, payload, options = {}) {
+async function postBusEvent(topic, payload, options = {}) {
   const client = getBusApiClient()
   const message = {
     topic,
@@ -797,7 +797,7 @@ async function postBusEvent (topic, payload, options = {}) {
  * Get ES Client
  * @return {Object} Elasticsearch Client Instance
  */
-function getESClient () {
+function getESClient() {
   if (esClient) {
     return esClient
   }
@@ -827,7 +827,7 @@ function getESClient () {
  * @param {String} projectId the project id
  * @param {String} currentUser the user
  */
-async function ensureProjectExist (projectId, currentUser) {
+async function ensureProjectExist(projectId, currentUser) {
   let token = await getM2MToken()
   const url = `${config.PROJECTS_API_URL}/${projectId}`
   try {
@@ -856,7 +856,7 @@ async function ensureProjectExist (projectId, currentUser) {
  * Calculates challenge end date based on its phases
  * @param {any} challenge
  */
-function calculateChallengeEndDate (challenge, data) {
+function calculateChallengeEndDate(challenge, data) {
   if (!data) {
     data = challenge
   }
@@ -883,7 +883,7 @@ function calculateChallengeEndDate (challenge, data) {
  * @param {Number} memberId the member id
  * @returns {Promise<Array>} an array of challenge ids represents challenges that given member has access to.
  */
-async function listChallengesByMember (memberId) {
+async function listChallengesByMember(memberId) {
   const token = await getM2MToken()
   let allIds = []
   // get search is paginated, we need to get all pages' data
@@ -915,7 +915,7 @@ async function listChallengesByMember (memberId) {
  * @param {String} method method to be tested
  * @returns {String} method valid method
  */
-async function validateESRefreshMethod (method) {
+async function validateESRefreshMethod(method) {
   Joi.attempt(method, Joi.string().label('ES_REFRESH').valid(['true', 'false', 'wait_for']))
   return method
 }
@@ -926,7 +926,7 @@ async function validateESRefreshMethod (method) {
  * @param {Number} projectId The id of the project for which to get the default terms of use
  * @returns {Promise<Array<Number>>} An array containing the ids of the default project terms of use
  */
-async function getProjectDefaultTerms (projectId) {
+async function getProjectDefaultTerms(projectId) {
   const token = await getM2MToken()
   const projectUrl = `${config.PROJECTS_API_URL}/${projectId}`
   try {
@@ -948,7 +948,7 @@ async function getProjectDefaultTerms (projectId) {
  * @param {Number} projectId The id of the project for which to get the default terms of use
  * @returns {Promise<Number>} The billing account ID
  */
-async function getProjectBillingInformation (projectId) {
+async function getProjectBillingInformation(projectId) {
   const token = await getM2MToken()
   const projectUrl = `${config.PROJECTS_API_URL}/${projectId}/billingAccount`
   try {
@@ -981,7 +981,7 @@ async function getProjectBillingInformation (projectId) {
  *
  * @param {Array<Object>} terms The array of terms {id, roleId} to retrieve from terms API
  */
-async function validateChallengeTerms (terms = []) {
+async function validateChallengeTerms(terms = []) {
   const listOfTerms = []
   const token = await getM2MToken()
   for (let term of terms) {
@@ -1008,7 +1008,7 @@ async function validateChallengeTerms (terms = []) {
  * @param {Array} challenges the challenges to filter
  * @returns {Array} the challenges that can be accessed by current user
  */
-async function _filterChallengesByGroupsAccess (currentUser, challenges) {
+async function _filterChallengesByGroupsAccess(currentUser, challenges) {
   const res = []
   const needToCheckForGroupAccess = !currentUser ? true : !currentUser.isMachine && !hasAdminRole(currentUser)
   if (!needToCheckForGroupAccess) return challenges
@@ -1037,7 +1037,7 @@ async function _filterChallengesByGroupsAccess (currentUser, challenges) {
  * @param {Object} currentUser the user who perform operation
  * @param {Object} challenge the challenge to check
  */
-async function ensureAccessibleByGroupsAccess (currentUser, challenge) {
+async function ensureAccessibleByGroupsAccess(currentUser, challenge) {
   const filtered = await _filterChallengesByGroupsAccess(currentUser, [challenge])
   if (filtered.length === 0) {
     throw new errors.ForbiddenError("helper ensureAcessibilityToModifiedGroups :: You don't have access to this group!")
@@ -1050,7 +1050,7 @@ async function ensureAccessibleByGroupsAccess (currentUser, challenge) {
  * @param {Object} currentUser the user who perform operation
  * @param {Object} challenge the challenge to check
  */
-async function _ensureAccessibleForTaskChallenge (currentUser, challenge) {
+async function _ensureAccessibleForTaskChallenge(currentUser, challenge) {
   let challengeResourceIds
   // Check if challenge is task and apply security rules
   if (_.get(challenge, 'task.isTask', false) && _.get(challenge, 'task.isAssigned', false)) {
@@ -1073,7 +1073,7 @@ async function _ensureAccessibleForTaskChallenge (currentUser, challenge) {
  * @param {Object} currentUser the user who perform operation
  * @param {Object} challenge the challenge to check
  */
-async function ensureUserCanViewChallenge (currentUser, challenge) {
+async function ensureUserCanViewChallenge(currentUser, challenge) {
   // check groups authorization
   await ensureAccessibleByGroupsAccess(currentUser, challenge)
   // check if user can access a challenge that is a task
@@ -1087,7 +1087,7 @@ async function ensureUserCanViewChallenge (currentUser, challenge) {
  * @param {Object} challenge the challenge to check
  * @returns {undefined}
  */
-async function ensureUserCanModifyChallenge (currentUser, challenge) {
+async function ensureUserCanModifyChallenge(currentUser, challenge) {
   // check groups authorization
   await ensureAccessibleByGroupsAccess(currentUser, challenge)
   // check full access
@@ -1103,7 +1103,7 @@ async function ensureUserCanModifyChallenge (currentUser, challenge) {
   * @param {Array} prizes the list of prize
   * @returns {Number} the result prize
   */
-function sumOfPrizes (prizes) {
+function sumOfPrizes(prizes) {
   let sum = 0
   if (!prizes.length) {
     return sum
@@ -1119,7 +1119,7 @@ function sumOfPrizes (prizes) {
   * @param {String} groupId the group id
   * @returns {Promise<Object>} the group
   */
-async function getGroupById (groupId) {
+async function getGroupById(groupId) {
   const token = await getM2MToken()
   try {
     const result = await axios.get(`${config.GROUPS_API_URL}/${groupId}`, {
@@ -1139,7 +1139,7 @@ async function getGroupById (groupId) {
  * @param {String} challengeId the challenge id
  * @returns {Array} the submission
  */
-async function getChallengeSubmissions (challengeId) {
+async function getChallengeSubmissions(challengeId) {
   const token = await getM2MToken()
   let allSubmissions = []
   // get search is paginated, we need to get all pages' data
@@ -1170,7 +1170,7 @@ async function getChallengeSubmissions (challengeId) {
  * @param {String} userId the user ID
  * @returns {Object}
  */
-async function getMemberById (userId) {
+async function getMemberById(userId) {
   const token = await getM2MToken()
   const res = await axios.get(`${config.MEMBERS_API_URL}?userId=${userId}`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -1184,7 +1184,7 @@ async function getMemberById (userId) {
  * @param {String} handle the user handle
  * @returns {Object}
  */
-async function getMemberByHandle (handle) {
+async function getMemberByHandle(handle) {
   const token = await getM2MToken()
   const res = await axios.get(`${config.MEMBERS_API_URL}/${handle}`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -1198,7 +1198,7 @@ async function getMemberByHandle (handle) {
  * @param {Array} recipients the array of recipients in { userId || email || handle } format
  * @param {Object} data the data
  */
-async function sendSelfServiceNotification (type, recipients, data) {
+async function sendSelfServiceNotification(type, recipients, data) {
   try {
     await postBusEvent(constants.Topics.Notifications, {
       notifications: [
@@ -1228,7 +1228,7 @@ async function sendSelfServiceNotification (type, recipients, data) {
  * Submit a request to zendesk
  * @param {Object} request the request
  */
-async function submitZendeskRequest (request) {
+async function submitZendeskRequest(request) {
   try {
     const res = await axios.post(`${config.ZENDESK_API_URL}/api/v2/requests`, {
       request: {
@@ -1247,11 +1247,11 @@ async function submitZendeskRequest (request) {
   }
 }
 
-function getFromInternalCache (key) {
+function getFromInternalCache(key) {
   return internalCache.get(key)
 }
 
-function setToInternalCache (key, value) {
+function setToInternalCache(key, value) {
   internalCache.set(key, value)
 }
 

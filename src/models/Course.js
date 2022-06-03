@@ -1,5 +1,5 @@
 /**
- * This defines Attachment model.
+ * This defines Course model
  */
 
 const dynamoose = require('dynamoose')
@@ -12,28 +12,38 @@ const schema = new Schema({
     hashKey: true,
     required: true
   },
-  url: {
+  provider: {
     type: String,
     required: true
   },
-  fileSize: {
-    type: Number,
-    required: true
-  },
-  name: {
+  key: {
     type: String,
     required: true
   },
-  challengeId: {
+  title: {
     type: String,
     required: true
   },
-  description: {
-    type: String
+  certification: {
+    type: String,
+    required: true
+  },
+  introCopy: {
+    type: Array,
+    schema: [String],
+    required: false
+  },
+  note: {
+    type: String,
+    required: false,
+  },
+  modules: {
+    type: Array,
+    required: true,
   }
 },
-{
-  throughput: { read: 4, write: 2 }
-})
+  {
+    throughput: { read: 4, write: 2 }
+  })
 
 module.exports = schema

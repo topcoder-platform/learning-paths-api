@@ -23,10 +23,9 @@ Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/challenge-api/tree/d
 - [Frontend App](https://github.com/topcoder-platform/challenge-engine-ui)
 
 ## Prerequisites
-- [NodeJS](https://nodejs.org/en/) (v10)
+- [NodeJS](https://nodejs.org/en/) (v16)
 - [DynamoDB](https://aws.amazon.com/dynamodb/)
 - [AWS S3](https://aws.amazon.com/s3/)
-- [Elasticsearch v6](https://www.elastic.co/)
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 

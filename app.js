@@ -43,9 +43,6 @@ app.use(cors({
     'Link'
   ]
 }))
-app.use(fileUpload({
-  limits: { fileSize: config.FILE_UPLOAD_SIZE_LIMIT }
-}))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.set('port', config.PORT)

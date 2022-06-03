@@ -7,7 +7,6 @@
     "start": "node app.js",
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "init-es": "node src/init-es.js",
     "init-db": "node src/init-db.js",
     "drop-tables": "node src/scripts/drop-tables.js",
     "create-tables": "node src/scripts/create-tables.js",
@@ -20,10 +19,10 @@
     "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
     "services:down": "docker-compose -f ./local/docker-compose.yml down",
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
-    "local:init": "npm run local:reset && npm run seed-tables && npm run sync-es",
-    "local:reset": "npm run init-es force && npm run init-db force"
+    "local:init": "npm run local:reset && npm run seed-tables",
+    "local:reset": "npm run init-db force"
   },
-  "author": "Topcoder",
+  "author": "Topcoder.com",
   "license": "none",
   "repository": "https://github.com/topcoder-platform/learning-paths-api",
   "devDependencies": {

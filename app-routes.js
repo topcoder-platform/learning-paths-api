@@ -4,7 +4,7 @@
 
 const _ = require('lodash')
 const config = require('config')
-const HttpStatus = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 const helper = require('./src/common/helper')
 const errors = require('./src/common/errors')
 const routes = require('./src/routes')
@@ -102,11 +102,11 @@ module.exports = (app) => {
   // Check if the route is not found or HTTP method is not supported
   app.use('*', (req, res) => {
     if (routes[req.baseUrl]) {
-      res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
+      res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
         message: 'The requested HTTP method is not supported.'
       })
     } else {
-      res.status(HttpStatus.NOT_FOUND).json({
+      res.status(StatusCodes.NOT_FOUND).json({
         message: 'The requested resource cannot be found.'
       })
     }

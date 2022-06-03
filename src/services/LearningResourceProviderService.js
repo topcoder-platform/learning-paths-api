@@ -1,5 +1,5 @@
 /**
- * This service provides operations on Learning Path certifications.
+ * This service provides operations on Learning Path resource providers.
  */
 
 const _ = require('lodash')

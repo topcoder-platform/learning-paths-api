@@ -12,52 +12,52 @@ const { SCOPES: {
 } } = require('config')
 
 module.exports = {
-  // '/challenges': {
-  //   post: {
-  //     controller: 'ChallengeController',
-  //     method: 'createChallenge',
-  //     auth: 'jwt',
-  //     access: [constants.UserRoles.Admin, constants.UserRoles.SelfServiceCustomer, constants.UserRoles.Copilot, constants.UserRoles.Manager, constants.UserRoles.User],
-  //     scopes: [CREATE, ALL]
-  //   }
-  // },
   '/learning-paths/health': {
     get: {
       controller: 'HealthController',
       method: 'checkHealth'
     }
   },
-  '/challenge-types': {
+  '/learning-resource-providers': {
     get: {
-      controller: 'ChallengeTypeController',
-      method: 'searchChallengeTypes'
+      controller: 'LearningResourceProviderController',
+      method: 'searchLearningResourceProviders'
     },
-    post: {
-      controller: 'ChallengeTypeController',
-      method: 'createChallengeType',
-      auth: 'jwt',
-      access: [constants.UserRoles.Admin, constants.UserRoles.Copilot, constants.UserRoles.Manager],
-      scopes: [CREATE, ALL]
-    }
   },
-  '/challenge-types/:challengeTypeId': {
+  '/learning-resource-providers/:learningResourceProviderId': {
     get: {
-      controller: 'ChallengeTypeController',
-      method: 'getChallengeType'
+      controller: 'LearningResourceProviderController',
+      method: 'getLearningResourceProvider'
     },
-    put: {
-      controller: 'ChallengeTypeController',
-      method: 'fullyUpdateChallengeType',
-      auth: 'jwt',
-      access: [constants.UserRoles.Admin, constants.UserRoles.Copilot, constants.UserRoles.Manager],
-      scopes: [UPDATE, ALL]
+  },
+  '/certifications': {
+    get: {
+      controller: 'CertificationController',
+      method: 'searchCertifications'
     },
-    patch: {
-      controller: 'ChallengeTypeController',
-      method: 'partiallyUpdateChallengeType',
-      auth: 'jwt',
-      access: [constants.UserRoles.Admin, constants.UserRoles.Copilot, constants.UserRoles.Manager],
-      scopes: [UPDATE, ALL]
-    }
+  },
+  '/certifications/:certificationId': {
+    get: {
+      controller: 'CertificationController',
+      method: 'getCertification'
+    },
+  },
+  '/courses': {
+    get: {
+      controller: 'CourseController',
+      method: 'searchCourses'
+    },
+  },
+  '/courses/:courseId': {
+    get: {
+      controller: 'CourseController',
+      method: 'getCourse'
+    },
+  },
+  '/courses/:courseId/modules': {
+    get: {
+      controller: 'CourseController',
+      method: 'getCourseModules'
+    },
   },
 }

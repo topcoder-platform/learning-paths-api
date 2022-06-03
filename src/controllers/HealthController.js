@@ -23,7 +23,7 @@ async function checkHealth(req, res) {
   try {
     await service.searchLearningResourceProviders({ page: 1, perPage: 1 })
   } catch (e) {
-    throw new errors.ServiceUnavailableError(`There is database operation error, ${e.message}`)
+    throw new errors.ServiceUnavailableError(`An error occurred checking the database, ${e.message}`)
   }
   if (new Date().getTime() - timestampMS > Number(config.HEALTH_CHECK_TIMEOUT)) {
     throw new errors.ServiceUnavailableError('Database operation is slow.')

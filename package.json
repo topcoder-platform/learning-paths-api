@@ -1,0 +1,77 @@
+{
+  "name": "topcoder-learning-paths-api",
+  "version": "1.0.0",
+  "description": "TopCoder Learning Paths V5 API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "init-es": "node src/init-es.js",
+    "init-db": "node src/init-db.js",
+    "drop-tables": "node src/scripts/drop-tables.js",
+    "create-tables": "node src/scripts/create-tables.js",
+    "seed-tables": "node src/scripts/seed-tables.js",
+    "view-data": "node src/scripts/view-data.js",
+    "test": "mocha --require test/prepare.js -t 20000 test/unit/*.test.js --exit",
+    "e2e": "mocha --require test/prepare.js -t 20000 test/e2e/*.test.js --exit",
+    "test:cov": "nyc --reporter=html --reporter=text npm test",
+    "e2e:cov": "nyc --reporter=html --reporter=text npm run e2e",
+    "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
+    "services:down": "docker-compose -f ./local/docker-compose.yml down",
+    "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
+    "local:init": "npm run local:reset && npm run seed-tables && npm run sync-es",
+    "local:reset": "npm run init-es force && npm run init-db force"
+  },
+  "author": "Topcoder",
+  "license": "none",
+  "repository": "https://github.com/topcoder-platform/learning-paths-api",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "mocha": "^10.0.0",
+    "mocha-prepare": "^0.1.0",
+    "nyc": "^15.1.0",
+    "standard": "^17.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1148.0",
+    "axios": "^0.27.2",
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.20.0",
+    "config": "^3.3.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "dynamoose": "^2.8.5",
+    "express": "^4.18.1",
+    "express-interceptor": "^1.2.0",
+    "get-parameter-names": "^0.3.0",
+    "http-aws-es": "^6.0.0",
+    "http-status-codes": "^2.2.0",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.3",
+    "node-cache": "^5.1.2",
+    "swagger-ui-express": "^4.4.0",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.7",
+    "uuid": "^8.3.2",
+    "winston": "^3.7.2",
+    "xss": "^1.0.11",
+    "yamljs": "^0.3.0"
+  },
+  "standard": {
+    "ignore": [
+      "mock-api"
+    ],
+    "env": [
+      "mocha"
+    ]
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "volta": {
+    "node": "16.15.0"
+  }
+}

@@ -24,7 +24,7 @@ async function searchLearningResourceProviders(req, res) {
  * @param {Object} res the response
  */
 async function getLearningResourceProvider(req, res) {
-  const result = await service.getLearningResourceProvider(req.params.learningResourceProviderId)
+  const result = await service.getLearningResourceProvider(req.params.providerId)
   res.send(result)
 }
 

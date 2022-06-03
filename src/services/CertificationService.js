@@ -19,6 +19,13 @@ async function searchCertifications(criteria) {
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
 
+    // filter data by given criteria
+    if (criteria.providerName) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.providerName, e.providerName))
+    }
+
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 

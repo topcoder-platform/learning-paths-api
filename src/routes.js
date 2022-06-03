@@ -24,7 +24,13 @@ module.exports = {
       method: 'searchLearningResourceProviders'
     },
   },
-  '/learning-resource-providers/:learningResourceProviderId': {
+  '/learning-resource-providers/:providerId': {
+    get: {
+      controller: 'LearningResourceProviderController',
+      method: 'getLearningResourceProvider'
+    },
+  },
+  '/learning-resource-providers/:providerId': {
     get: {
       controller: 'LearningResourceProviderController',
       method: 'getLearningResourceProvider'

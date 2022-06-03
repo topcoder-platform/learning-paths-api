@@ -19,6 +19,13 @@ async function searchCourses(criteria) {
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
 
+    // filter data by given criteria
+    if (criteria.provider) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.provider, e.provider))
+    }
+
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 
@@ -40,12 +47,34 @@ searchCourses.schema = {
  * @returns {Object} the Course with given ID
  */
 async function getCourse(id) {
-    const ret = await helper.getById('Course', id)
-    return ret
+    var course = await helper.getById('Course', id)
+
+    decorateWithModuleCount(course);
+
+    return course
 }
 
 getCourse.schema = {
     id: Joi.id()
+}
+
+/**
+ * Decorates a Course object by adding a moduleCount 
+ * attribute with the number of modules in the course 
+ * 
+ * @param {Object} course the course to decorate
+ * @returns {Object} the decorated course
+ */
+function decorateWithModuleCount(course) {
+    if (!course) { return course }
+
+    if (course.modules) {
+        course.moduleCount = course.modules.length
+    }
+
+    decorateModules(course.modules);
+
+    return course;
 }
 
 /**
@@ -57,11 +86,38 @@ getCourse.schema = {
 async function getCourseModules(id) {
     const course = await helper.getById('Course', id)
 
-    ret = [];
+    var modules = [];
     if (course) {
-        ret = course.modules
+        modules = decorateModules(course.modules)
     }
-    return ret
+    return modules
+}
+
+/**
+ * Decorates each element of the collection with lession counts
+ * 
+ * @param {Array} modules a collection of course modules
+ * @returns the modules decorated with additional attributes
+ */
+function decorateModules(modules) {
+    modules.forEach(module => {
+        decorateWithLessonCount(module)
+    });
+
+    return modules
+}
+
+/**
+ * Adds a lessonCount attribute to a course module 
+ * 
+ * @param {Object} module the module to decorate
+ */
+function decorateWithLessonCount(module) {
+    if (!module.lessons) { return module }
+
+    module.meta.lessonCount = module.lessons.length
+
+    return module
 }
 
 getCourseModules.schema = {

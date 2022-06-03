@@ -19,7 +19,6 @@ dynamoose.AWS.config.update(awsConfigs)
 if (config.AMAZON.IS_LOCAL_DB) {
   dynamoose.local(config.AMAZON.DYNAMODB_URL)
 }
-console.log(config.AMAZON.DYNAMODB_URL);
 
 // console.log(config.AMAZON.IS_LOCAL_DB, config.AMAZON.AWS_ACCESS_KEY_ID, config.AMAZON.AWS_SECRET_ACCESS_KEY)
 // console.log(JSON.stringify(dynamoose.AWS.config))

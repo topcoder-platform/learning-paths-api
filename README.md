@@ -1,6 +1,6 @@
 # Topcoder Learning Paths API
 
-This microservice provides access and interaction with Topcoder Academy learning path certification and course content.
+This microservice provides access to and interaction with Topcoder Academy learning path certification and course content.
 
 ## Devlopment status
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/topcoder-platform/learning-paths-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/topcoder-platform/learning-paths-api/alerts/)[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/topcoder-platform/learning-paths-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/topcoder-platform/learning-paths-api/context:javascript)
@@ -17,12 +17,11 @@ Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/learning-paths-api/t
 
 ## Related repos
 
-- [Frontend App](https://github.com/topcoder-platform/freeCodeCamp)
+- [Frontend App](https://github.com/topcoder-platform/mfe-customer-work)
 
 ## Prerequisites
 - [NodeJS](https://nodejs.org/en/) (v16)
 - [DynamoDB](https://aws.amazon.com/dynamodb/)
-- [AWS S3](https://aws.amazon.com/s3/)
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
@@ -47,7 +46,6 @@ The following parameters can be set in config files or in env variables:
 - AMAZON.AWS_REGION: The Amazon certificate region to use when connecting. Use local dynamodb you can set fake value
 - AMAZON.IS_LOCAL_DB: Use Amazon DynamoDB Local or server
 - AMAZON.DYNAMODB_URL: The local url if using Amazon DynamoDB Local
-- AMAZON.ATTACHMENT_S3_BUCKET: the AWS S3 bucket to store attachments
 - HEALTH_CHECK_TIMEOUT: health check timeout in milliseconds
 - SCOPES: the configurable M2M token scopes, refer `config/default.js` for more details
 - M2M_AUDIT_HANDLE: the audit name used when perform create/update operation using M2M token
@@ -71,7 +69,7 @@ You can find sample `.env` files inside the `/docs` directory.
 - The seed data are located in `src/scripts/seed`
 
 ## Local Deployment
-0. Make sure to use Node v16+ by command `node -v`. We recommend using [NVM](https://github.com/nvm-sh/nvm) to quickly switch to the right version:
+0. Make sure to use Node v16+ -- check with command `node -v`. We recommend using [NVM](https://github.com/nvm-sh/nvm) to quickly switch to the right version specified in the included `.nvmrc` file:
 
    ```bash
    nvm use
@@ -84,7 +82,7 @@ You can find sample `.env` files inside the `/docs` directory.
    ```
 
 2. ⚙ Local config   
-  In the `learning-paths-api` root directory create `.env` file with the next environment variables. Values for **Auth0 config** should be shared with you on the forum.<br>
+  In the `learning-paths-api` root directory create an `.env` file with the following environment variables. Values for **Auth0 config** should be shared with you on the forum.<br>
      ```bash
      # Auth0 config
      AUTH0_URL=
@@ -101,35 +99,36 @@ You can find sample `.env` files inside the `/docs` directory.
     - Values from this file would be automatically used by many `npm` commands.
     - ⚠️ Never commit this file or its copy to the repository!
 
-3. 🚢 Start docker-compose with services which are required to start Topcoder Learning Paths API locally
+3. 🚢 Use docker-compose to start the services required to run the API locally (DynamoDB).
 
    ```bash
    npm run services:up
    ```
 
-4. ♻ Create tables.
+4. ♻ Create empty DynamoDB tables.
 
    ```bash
    npm run create-tables
    # Use `npm run drop-tables` to drop tables.
    ```
 
-5. ♻ Init DB.
+5. ♻ Initialize the local database.
 
    ```bash
    npm run local:init
    ```
 
    This command will do 2 things:
-  - Initialize the database by cleaning all the records.
-  - Import the data to the local database
+  - Initialize the database by deleting all the existing records.
+  - Seed the database with data from the JSON seed files
 
-7. 🚀 Start Topcoder Learning Paths API
+7. 🚀 Start the learning paths API. 
 
    ```bash
    npm start
    ```
-   The Topcoder Learning Paths API will be served on `http://localhost:3000`
+   The Topcoder Learning Paths API will be served on `http://localhost:3000`<br/>
+   To start with ExpressJS debug logging turned on, prepend `DEBUG=express:*` to the `npm start` command.
 
 ## Production deployment
 
@@ -150,7 +149,6 @@ The following test parameters can be set in config file or in env variables:
 - M2M_FULL_ACCESS_TOKEN: M2M full access token
 - M2M_READ_ACCESS_TOKEN: M2M read access token
 - M2M_UPDATE_ACCESS_TOKEN: M2M update (including 'delete') access token
-- S3_ENDPOINT: endpoint of AWS S3 API, for unit and e2e test only; default to `localhost:9000`
 
 ### Prepare
 - Start Local services in docker.

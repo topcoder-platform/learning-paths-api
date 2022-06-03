@@ -2,7 +2,7 @@
  * Controller for health check endpoint
  */
 const config = require('config')
-const service = require('../services/ChallengeTypeService')
+const service = require('../services/LearningResourceProviderService')
 const errors = require('../common/errors')
 
 // the topcoder-healthcheck-dropin library returns checksRun count,
@@ -14,14 +14,14 @@ let checksRun = 0
  * @param {Object} req the request
  * @param {Object} res the response
  */
-async function checkHealth (req, res) {
+async function checkHealth(req, res) {
   // perform a quick database access operation, if there is no error and is quick, then consider it healthy;
-  // there are just a few challenge types, so search challenge types should be efficient operation,
-  // and it just searches a single challenge type, it should be quick operation
+  // there are just a few learning resource providers, so searching them should be an efficient operation,
+  // and it just searches a single provider, it should be quick operation
   checksRun += 1
   const timestampMS = new Date().getTime()
   try {
-    await service.searchChallengeTypes({ page: 1, perPage: 1 })
+    await service.searchLearningResourceProviders({ page: 1, perPage: 1 })
   } catch (e) {
     throw new errors.ServiceUnavailableError(`There is database operation error, ${e.message}`)
   }

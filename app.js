@@ -9,10 +9,9 @@ const config = require('config')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const HttpStatus = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes')
 const logger = require('./src/common/logger')
 const interceptor = require('express-interceptor')
-const fileUpload = require('express-fileupload')
 const YAML = require('yamljs')
 const swaggerUi = require('swagger-ui-express')
 const challengeAPISwaggerDoc = YAML.load('./docs/swagger.yaml')
@@ -29,8 +28,8 @@ app.use((req, res, next) => {
   next()
 })
 
-// serve challenge V5 API swagger definition
-app.use('/v5/challenges/docs', swaggerUi.serve, swaggerUi.setup(challengeAPISwaggerDoc))
+// serve learning paths V5 API swagger definition
+app.use('/v5/learning-paths/docs', swaggerUi.serve, swaggerUi.setup(challengeAPISwaggerDoc))
 
 app.use(cors({
   exposedHeaders: [
@@ -80,7 +79,9 @@ require('./app-routes')(app)
 app.use((err, req, res, next) => {
   logger.logFullError(err, req.signature || `${req.method} ${req.url}`)
   const errorResponse = {}
-  const status = err.isJoi ? HttpStatus.BAD_REQUEST : (err.httpStatus || _.get(err, 'response.status') || HttpStatus.INTERNAL_SERVER_ERROR)
+  const status = err.isJoi ?
+    StatusCodes.BAD_REQUEST :
+    (err.httpStatus || _.get(err, 'response.status') || StatusCodes.INTERNAL_SERVER_ERROR)
 
   if (_.isArray(err.details)) {
     if (err.isJoi) {
@@ -101,7 +102,7 @@ app.use((err, req, res, next) => {
   }
 
   if (_.isUndefined(errorResponse.message)) {
-    if (err.message && status !== HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (err.message && status !== StatusCodes.INTERNAL_SERVER_ERROR) {
       errorResponse.message = err.message
     } else {
       errorResponse.message = 'Internal server error'

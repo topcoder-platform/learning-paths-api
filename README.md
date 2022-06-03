@@ -10,7 +10,7 @@ Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/learning-paths-api/t
 
 ## Swagger definition
 
-- [Swagger](TBD)
+- TBD
 
 ## Intended use
 - Production API

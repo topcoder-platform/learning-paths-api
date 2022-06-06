@@ -56,7 +56,7 @@ jobs:
     environment:
       DEPLOY_ENV: "PROD"
       LOGICAL_ENV: "prod"    
-      APPNAME: "learning-paths-api-api"  
+      APPNAME: "learning-paths-api"  
     steps: *builddeploy_steps
 
 workflows:

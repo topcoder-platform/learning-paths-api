@@ -63,3 +63,7 @@ typings/
 
 # MacOS
 .DS_Store
+
+# CircleCI deployment env var files
+.circleci/*appvar.json
+.circleci/*deployvar.json

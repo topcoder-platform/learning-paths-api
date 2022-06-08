@@ -20,7 +20,7 @@ class FreeCodeCampGenerator {
     CERTIFICATIONS_FILE = 'certifications.json';
     CURRICULUM_FILE = 'curriculum.json';
     INTRO_FILE = 'intro.json';
-    GENERATED_COURSES_FILE = 'freeCodeCamp_courses.json';
+    GENERATED_COURSES_FILE = 'generated_courses.json';
 
     generateCourseData() {
         console.log(`Generating learning path course data for provider ${this.PROVIDER}...`);
@@ -52,7 +52,27 @@ class FreeCodeCampGenerator {
             fs.writeFileSync(certPath, JSON.stringify(certifications, null, 2));
         }
 
-        return certifications.filter(cert => cert.state == this.ACTIVE_CERT_STATE);
+        const activeCerts = certifications.filter(cert => cert.state == this.ACTIVE_CERT_STATE);
+        this.displayActiveCerts(activeCerts);
+
+        return activeCerts;
+    }
+
+    // Displays to the console the certifications and courses that will be generated
+    displayActiveCerts(activeCerts) {
+        const certCount = activeCerts.length;
+        const certs = certCount == 1 ? 'certification' : 'certifications'
+
+        console.log(`** Found ${certCount} active ${certs} with courses:`);
+
+        activeCerts.forEach(cert => {
+            console.log(`  - ${cert.title}`);
+            console.log(`    -> Courses:`);
+            cert.courses.forEach(course => {
+                console.log(`      - ${course}`)
+            })
+            console.log("");
+        })
     }
 
     // Loads the curriculum and introductory description data 
@@ -71,26 +91,25 @@ class FreeCodeCampGenerator {
     loadRawCourses(certifications, curriculumData) {
         const { curriculum, intro } = curriculumData;
 
-        let rawCourses;
+        let rawCourses = [];
         certifications.forEach(certification => {
-            const courseKeys = certification.courses;
+            certification.courses.forEach(course => {
+                const courseIntro = intro[course];
 
-            rawCourses = courseKeys.map(key => {
-                const courseIntro = intro[key];
-
-                return {
+                const rawCourse = {
                     id: uuidv4(),
                     provider: this.PROVIDER,
-                    key: key,
+                    key: course,
                     title: courseIntro.title,
                     certification: certification.certification,
                     completionHours: certification.completionHours,
                     introCopy: courseIntro.intro,
                     note: courseIntro.note,
                     modules: [],
-                    blocks: curriculum[key].blocks,
+                    blocks: curriculum[course].blocks,
                     blockIntros: courseIntro.blocks
                 }
+                rawCourses.push(rawCourse);
             });
         });
 
@@ -162,7 +181,7 @@ class FreeCodeCampGenerator {
         const coursesFilePath = path.join(__dirname, this.GENERATED_COURSES_FILE);
         fs.writeFileSync(coursesFilePath, JSON.stringify(rawCourses, null, 2));
 
-        console.log(`Courses for ${this.PROVIDER} have been written to ${coursesFilePath.toString()}`)
+        console.log(`** Courses for ${this.PROVIDER} have been written to ${coursesFilePath.toString()}`)
     }
 
     compareChallenges(a, b) {

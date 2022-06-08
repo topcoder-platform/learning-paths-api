@@ -2,6 +2,7 @@
 
 'use strict';
 
+const { Console } = require('console');
 /**
  * freeCodeCamp course metadata parser/builder - generates a freecodecamp_courses.json file 
  * with all of the metadata needed to drive the Topcoder Academy API and wrapper around the 
@@ -89,7 +90,17 @@ function showAvailableProviders(providers) {
 }
 
 function runCourseGenerator(provider) {
-    const generator = new FreeCodeCampGenerator();
+    let generator;
+    switch (provider) {
+        case 'freeCodeCamp':
+            generator = new FreeCodeCampGenerator();
+            break;
+
+        default:
+            Console.log(`Unknown learing resource provider ${provider}`)
+            break;
+    }
+
     generator.generateCourseData();
 }
 

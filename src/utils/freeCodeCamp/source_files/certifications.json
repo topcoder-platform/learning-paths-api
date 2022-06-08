@@ -21,7 +21,9 @@
     "title": "Back End Development and APIs Certification",
     "certification": "back-end-development-and-apis",
     "completionHours": 400,
-    "courses": [],
+    "courses": [
+      "back-end-development-and-apis"
+    ],
     "state": "coming-soon",
     "category": "Web Development"
   },

@@ -111,7 +111,6 @@ function runCourseGenerator(provider) {
 const providers = loadAndIdentifyProviders();
 
 let provider;
-let providerName;
 
 // Parse the CLI args for the provider name, if given
 if (args.length == 2) {
@@ -126,6 +125,5 @@ if (args.length == 2) {
 
 // Load the course data for the given provider
 if (provider) {
-    providerName = provider.name;
-    runCourseGenerator(providerName);
+    runCourseGenerator(provider.name);
 }

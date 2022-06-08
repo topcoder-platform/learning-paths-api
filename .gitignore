@@ -68,5 +68,3 @@ typings/
 .circleci/*appvar.json
 .circleci/*deployvar.json
 
-# data generation test data
-freecodecamp/

@@ -208,7 +208,7 @@ Just add the course's unique key (name) to the certification's `courses` array. 
 ### Add the provider to `providers.json`
 Edit the `course-generator/providers.json` file to add the provider's information. Set the ID field as `"id": ""` and the tool will generate a UUID and rewrite the file.
 
-### Add certificaiton and curriculum and course data
+### Add certification and curriculum and course data
 Add a `certifications.json` file, following the format above, for the new provider. See "Add a new certification" above for details. 
 
 Each new learning resource provider also requires us generate one or more files equivalent to freeCodeCamp's `curriculum.json` file, which contains all of their course data, as well as any additional files like `intro.json`, and place these files in the `<provider>/source-files` directory. 

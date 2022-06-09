@@ -14,7 +14,7 @@ const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 class FreeCodeCampGenerator {
     PROVIDER = 'freeCodeCamp';
-    SOURCE_FILES_DIR = 'source_files';
+    SOURCE_FILES_DIR = 'source-files';
 
     ACTIVE_CERT_STATE = 'active';
     CERTIFICATIONS_FILE = 'certifications.json';

@@ -107,7 +107,7 @@ function runCourseGenerator(provider) {
 // ----------------- start of CLI -----------------
 
 // Start with the learning resource providers whose certifications 
-// and curriculum we have available.
+// and curriculum we want to make available.
 const providers = loadAndIdentifyProviders();
 
 let provider;

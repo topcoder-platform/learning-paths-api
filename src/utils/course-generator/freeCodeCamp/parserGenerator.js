@@ -41,7 +41,7 @@ class FreeCodeCampGenerator {
         // check to be sure each certification has a UUID and
         // set it if not.
         certifications.forEach(cert => {
-            if (!uuidValidate(cert.id)) {
+            if (!cert.id || !uuidValidate(cert.id)) {
                 cert.id = uuidv4();
                 dirty = true;
             }

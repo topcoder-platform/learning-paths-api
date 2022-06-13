@@ -18,49 +18,43 @@ module.exports = {
       method: 'checkHealth'
     }
   },
-  '/learning-resource-providers': {
+  '/learning-paths/providers': {
     get: {
       controller: 'LearningResourceProviderController',
       method: 'searchLearningResourceProviders'
     },
   },
-  '/learning-resource-providers/:providerId': {
+  '/learning-paths/providers/:providerId': {
     get: {
       controller: 'LearningResourceProviderController',
       method: 'getLearningResourceProvider'
     },
   },
-  '/learning-resource-providers/:providerId': {
-    get: {
-      controller: 'LearningResourceProviderController',
-      method: 'getLearningResourceProvider'
-    },
-  },
-  '/certifications': {
+  '/learning-paths/certifications': {
     get: {
       controller: 'CertificationController',
       method: 'searchCertifications'
     },
   },
-  '/certifications/:certificationId': {
+  '/learning-paths/certifications/:certificationId': {
     get: {
       controller: 'CertificationController',
       method: 'getCertification'
     },
   },
-  '/courses': {
+  '/learning-paths/courses': {
     get: {
       controller: 'CourseController',
       method: 'searchCourses'
     },
   },
-  '/courses/:courseId': {
+  '/learning-paths/courses/:courseId': {
     get: {
       controller: 'CourseController',
       method: 'getCourse'
     },
   },
-  '/courses/:courseId/modules': {
+  '/learning-paths/courses/:courseId/modules': {
     get: {
       controller: 'CourseController',
       method: 'getCourseModules'

@@ -16,7 +16,7 @@ const schema = new Schema({
         type: String,
         required: true
     },
-    providerId: {
+    providerCertificationId: {
         type: String,
         required: true
     },
@@ -30,6 +30,10 @@ const schema = new Schema({
     },
     certification: {
         type: String,
+        required: true
+    },
+    completionHours: {
+        type: Number,
         required: true
     },
     state: {

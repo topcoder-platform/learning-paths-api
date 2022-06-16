@@ -36,6 +36,7 @@ course-generator
 |    |    generated_courses.json
 |    |
 |    |----source-files
+|    |        additional-data.json
 |    |        certifications.json
 |    |        curriculum.json
 |    |        intro.json
@@ -80,10 +81,27 @@ Each supported learning resource provider is hosted in its own subdirectory alon
 - `parserGenerator.js` : the provider-specific parser and generator that extracts the course metadata
 - `generated_courses.json` : the generated course metadata file (won't exist until you run the CLI tool, and is gitignored)
 - `source-files` : contains the course curriculum information that is processed by the provider-specific parser
+- `source-files/additional-data.json` : extra Topcoder-created attributes to add to courses and certifications
 - `source-files/certifications.json` : lists the provider's certifications, in a generic format (see below)
 - `source-files/(other content)` : provider-specific course curriculum and associated files (varies by provider)
 
 Each `parserGenerator` class should expose a `generateCourseData()` method that the `generate-courses` CLI can import and call. What this code actually has to do is totally dependent on how the course curriculum data is structured by the specific provider. See the `freeCodeCamp` implementation for an example.
+
+The `additional-data.json` file allows us to "decorate courses and certifications with our own attributes, and the file is formatted as shown below:
+
+```json
+{
+    "course": {
+        "2022/responsive-web-design": {
+            "keyPoints": [
+                "This Responsive Web Design course will help you learn ..."
+            ]
+        }
+    }
+}
+```
+
+Valid top-level keys are `course` and `certification`. The specific key of the item we want to decorate must be next, and then any valid JSON data for the attribute to be added. The end result is this data appears in the specific course or certification in the final generated course JSON data.
 
 The provider `certifications.json` file follows a specific format for all providers, as shown here:
 ```json

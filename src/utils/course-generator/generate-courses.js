@@ -28,7 +28,27 @@ function providersPath() {
 }
 
 function loadProviders() {
-    return JSON.parse(fs.readFileSync(providersPath()));
+    let providers = JSON.parse(fs.readFileSync(providersPath()));
+    validateProviders(providers);
+
+    return providers;
+}
+
+function validateProviders(providers) {
+    const providerNames = providers.map(provider => provider.name);
+    const uniqueProviders = new Set(providerNames);
+    const filteredProviders = providerNames.filter(provider => {
+        if (uniqueProviders.has(provider)) {
+            uniqueProviders.delete(provider);
+        } else {
+            return provider;
+        }
+    });
+
+    const duplicateProviders = [...new Set(filteredProviders)]
+    if (duplicateProviders.length > 0) {
+        throw `Duplicate provider name(s) found: ${duplicateProviders.join(', ')}`;
+    }
 }
 
 function loadAndIdentifyProviders() {

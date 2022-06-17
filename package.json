@@ -5,17 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "eslint src --ext js,jsx",
+    "lint:fix": "eslint src --ext js,jsx --fix",
     "init-db": "node src/init-db.js",
     "drop-tables": "node src/scripts/drop-tables.js",
     "create-tables": "node src/scripts/create-tables.js",
     "seed-tables": "node src/scripts/seed-tables.js",
     "view-data": "node src/scripts/view-data.js",
-    "test": "mocha --require test/prepare.js -t 20000 test/unit/*.test.js --exit",
-    "e2e": "mocha --require test/prepare.js -t 20000 test/e2e/*.test.js --exit",
-    "test:cov": "nyc --reporter=html --reporter=text npm test",
-    "e2e:cov": "nyc --reporter=html --reporter=text npm run e2e",
     "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
     "services:down": "docker-compose -f ./local/docker-compose.yml down",
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
@@ -26,12 +22,14 @@
   "license": "none",
   "repository": "https://github.com/topcoder-platform/learning-paths-api",
   "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@babel/eslint-parser": "^7.18.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
+    "eslint": "^8.17.0",
     "mocha": "^10.0.0",
     "mocha-prepare": "^0.1.0",
-    "nyc": "^15.1.0",
-    "standard": "^17.0.0"
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "aws-sdk": "^2.1148.0",

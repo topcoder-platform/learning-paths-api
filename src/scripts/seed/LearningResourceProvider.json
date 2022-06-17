@@ -1,14 +1,8 @@
 [
     {
-        "id": "",
+        "id": "e8e74580-6586-4eb6-9023-bc758c742f1f",
         "name": "freeCodeCamp",
         "url": "freeCodeCamp.org",
         "attributionStatement": "This course was created by the <a href='https://www.freecodecamp.org'>freeCodeCamp.org community</a>."
-    },
-    {
-        "id": "",
-        "name": "Udemy",
-        "url": "udemy.com",
-        "attributionStatement": "Copyright 2022 by Udemy.com. All rights reserved."
     }
 ]

@@ -9,7 +9,7 @@ module.exports = {
   LOG_LEVEL: process.env.LOG_LEVEL || 'debug',
   PORT: process.env.PORT || 3000,
   // used to properly set the header response to api calls for services behind a load balancer
-  API_BASE_URL: process.env.API_BASE_URL || `http://localhost:3000`,
+  API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:3000',
   API_VERSION: process.env.API_VERSION || 'v5',
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
   VALID_ISSUERS: process.env.VALID_ISSUERS || '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/"]',
@@ -28,8 +28,9 @@ module.exports = {
   SCHEDULING_TOPIC: process.env.SCHEDULING_TOPIC || 'challenge.notification.schedule.update',
 
   AMAZON: {
-    // AWS_ACCESS_KEY_ID: process.env.AWS_FAKE_ID || 'FAKE_ACCESS_KEY',
-    // AWS_SECRET_ACCESS_KEY: process.env.AWS_FAKE_KEY || 'FAKE_SECRET_ACCESS_KEY',
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || 'FAKE_ACCESS_KEY',
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || 'FAKE_SECRET_ACCESS_KEY',
+    AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN || 'FAKE_SESSION_TOKEN',
     AWS_REGION: process.env.AWS_REGION || 'us-east-1',
     IS_LOCAL_DB: process.env.IS_LOCAL_DB || true,
     DYNAMODB_URL: process.env.DYNAMODB_URL || 'http://localhost:7777',

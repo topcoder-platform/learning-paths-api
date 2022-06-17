@@ -1,0 +1,231 @@
+{
+	"info": {
+		"_postman_id": "331ee769-02ed-45a2-bb87-1217c4726423",
+		"name": "Learning Paths",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19526465"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/health",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Learning Resource Providers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/providers",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"providers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Learning Resource Provider by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/providers/{{PROVIDER_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"providers",
+						"{{PROVIDER_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Certifications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certifications",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certifications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Certifications for Provider",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certifications?providerName=freeCodeCamp",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certifications"
+					],
+					"query": [
+						{
+							"key": "providerName",
+							"value": "freeCodeCamp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Certification by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certifications/{{CERTIFICATION_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certifications",
+						"{{CERTIFICATION_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Courses for Provider",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses?provider=freeCodeCamp",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses"
+					],
+					"query": [
+						{
+							"key": "provider",
+							"value": "freeCodeCamp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Courses for Certification",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses?certification=responsive-web-design",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses"
+					],
+					"query": [
+						{
+							"key": "certification",
+							"value": "responsive-web-design"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Course by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses/{{COURSE_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses",
+						"{{COURSE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Course Modules",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses/{{COURSE_ID}}/modules",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses",
+						"{{COURSE_ID}}",
+						"modules"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

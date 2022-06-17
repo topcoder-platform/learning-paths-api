@@ -26,6 +26,12 @@ async function searchCourses(criteria) {
             e => helper.partialMatch(criteria.provider, e.provider))
     }
 
+    if (criteria.certification) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.certification, e.certification))
+    }
+
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 

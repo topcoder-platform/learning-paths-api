@@ -32,7 +32,7 @@ module.exports = {
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || 'FAKE_SECRET_ACCESS_KEY',
     AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN || 'FAKE_SESSION_TOKEN',
     AWS_REGION: process.env.AWS_REGION || 'us-east-1',
-    IS_LOCAL_DB: process.env.IS_LOCAL_DB || true,
+    IS_LOCAL_DB: process.env.IS_LOCAL_DB ? process.env.IS_LOCAL_DB === 'true' : false,
     DYNAMODB_URL: process.env.DYNAMODB_URL || 'http://localhost:7777',
     S3_API_VERSION: process.env.S3_API_VERSION || '2006-03-01',
     BUCKET_WHITELIST: process.env.BUCKET_WHITELIST || 'topcoder_01, topcoder_02'

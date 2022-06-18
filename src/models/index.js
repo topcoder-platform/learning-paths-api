@@ -22,6 +22,7 @@ if (config.AMAZON.IS_LOCAL_DB) {
 }
 
 // console.log(config.AMAZON.IS_LOCAL_DB, config.AMAZON.AWS_ACCESS_KEY_ID, config.AMAZON.AWS_SECRET_ACCESS_KEY)
+console.log("Is local DB" + config.AMAZON.IS_LOCAL_DB )
 console.log(JSON.stringify(dynamoose.AWS.config))
 
 dynamoose.setDefaults({

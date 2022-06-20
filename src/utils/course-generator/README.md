@@ -241,3 +241,11 @@ To push the generated data into DynamoDB, provide the `-d` flag to the command:
 $ npm run generate-courses -- -d 
 ```
 
+The `DYAMODB_URL` environment variable determines where the data will be written, and defaults to localhost. If you want to write the data to DynamoDB in AWS you need to set that env var to point to AWS and provide a current set of AWS access key, secret key, and token for the target environment (dev or production), for example:
+
+```bash
+export DYNAMODB_URL="https://dynamodb.us-east-1.amazonaws.com"
+export AWS_ACCESS_KEY_ID="ASIA3Z6ZVO4YOWE5ONBV"
+export AWS_SECRET_ACCESS_KEY="etypTIZXWv8VRJbIynMJFoW8nA6Qdp8YtgpMOQIq6x"
+export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEBwaCXVzLWVhc3QtMSJIMEYCIQDhBqOcC1BD4dh0/tBWXaeD8dF62/...."
+```

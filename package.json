@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "start:debug": "DEBUG=express:* node app.js",
+    "generate-courses": "node src/utils/course-generator/generate-courses.js",
     "lint": "eslint src --ext js,jsx",
     "lint:fix": "eslint src --ext js,jsx --fix",
     "init-db": "node src/init-db.js",

@@ -4,10 +4,10 @@ The `course-generator` is a command line interface (CLI) tool that generates a J
 
 ## tl;dr - How do I run it?
 
-From the `utils/course-generator` directory (assumes `./freeCodeCamp` directory exists and contains course data):
+From anywhere in the project directory:
 
 ```bash
-$ ./generate-courses
+$ npm run generate-courses
 ```
 
 This will generate the course metadata for freeCodeCamp in the form of `./course-generator/freeCodeCamp/generated_courses.json`. Running it repeatedly with the same data will simply overwrite the output file.
@@ -233,3 +233,11 @@ Each new learning resource provider also requires us generate one or more files 
 
 ### Implement `parserGenerator.js`
 A provider-specific `parserGenerator.js` file will then have to be implemented to properly parse the curriculum data. This code will use the `source-files` to produce the generated course file. The provider's parser/generator will have to be imported into the `generate-courses` CLI tool and referenced appropriately. This parser/generator must output a properly formatted `generated_courses.json` file, following the format specified earlier.
+
+# Updating DynamoDB with the generated data
+To push the generated data into DynamoDB, provide the `-d` flag to the command:
+
+```bash
+$ npm run generate-courses -- -d 
+```
+

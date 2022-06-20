@@ -14,7 +14,9 @@
 
 const { Console } = require('console');
 const fs = require('fs');
-// const helper = require('../../common/helper');
+const { get, includes } = require('lodash')
+const helper = require('../../common/helper');
+const logger = require('../../common/logger')
 const models = require('../../models');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
@@ -26,7 +28,7 @@ const PROVIDERS_FILE = 'providers.json';
 const args = process.argv
 
 function providersPath() {
-    return path.join('./', PROVIDERS_FILE);
+    return path.join(__dirname, PROVIDERS_FILE);
 }
 
 function loadProviders() {
@@ -129,13 +131,13 @@ function runCourseGenerator(provider) {
     return generatedFile;
 }
 
-function writeCoursesToDB(courseFile) {
+async function writeCoursesToDB(courseFile) {
     // TODO -- do we want to do a wholesale remove and replace operation?
     console.log("Clearing Course table...");
-    // const courses = await helper.scan('Course')
-    // for (const course of courses) {
-    //     await course.delete()
-    // }
+    const courses = await helper.scan('Course')
+    for (const course of courses) {
+        await course.delete()
+    }
 
     console.log("\n** Writing course data to DynamoDB...");
     const promises = []

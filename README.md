@@ -128,7 +128,7 @@ You can find sample `.env` files inside the `/docs` directory.
    npm start
    ```
    The Topcoder Learning Paths API will be served on `http://localhost:3000`<br/>
-   To start with ExpressJS debug logging turned on, prepend `DEBUG=express:*` to the `npm start` command.
+   To start with ExpressJS debug logging turned on, run `npm start:debug`.
 
 ## Production deployment
 

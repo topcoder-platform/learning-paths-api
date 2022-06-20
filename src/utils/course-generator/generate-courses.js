@@ -2,7 +2,6 @@
 
 'use strict';
 
-const { Console } = require('console');
 /**
  * freeCodeCamp course metadata parser/builder - generates a freecodecamp_courses.json file 
  * with all of the metadata needed to drive the Topcoder Academy API and wrapper around the 
@@ -13,7 +12,10 @@ const { Console } = require('console');
  * localized intro.js files. 
  */
 
+const { Console } = require('console');
 const fs = require('fs');
+// const helper = require('../../common/helper');
+const models = require('../../models');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
@@ -121,7 +123,39 @@ function runCourseGenerator(provider) {
             break;
     }
 
-    generator.generateCourseData();
+    const generatedFile = generator.generateCourseData();
+    console.log(`** Courses for ${provider} have been written to ${generatedFile.toString()}`)
+
+    return generatedFile;
+}
+
+function writeCoursesToDB(courseFile) {
+    // TODO -- do we want to do a wholesale remove and replace operation?
+    console.log("Clearing Course table...");
+    // const courses = await helper.scan('Course')
+    // for (const course of courses) {
+    //     await course.delete()
+    // }
+
+    console.log("\n** Writing course data to DynamoDB...");
+    const promises = []
+
+    try {
+        const data = require(courseFile)
+        logger.info(`Inserting ${get(data, 'length')} courses`)
+        promises.push(models.Course.batchPut(data))
+    } catch (e) {
+        logger.warn(`An error occurred. No courses will be inserted.`)
+        logger.logFullError(e)
+    }
+
+    Promise.all(promises)
+        .then(() => {
+            logger.info('All course data has been inserted. The processes is run asynchronously')
+        })
+        .catch((err) => {
+            logger.logFullError(err)
+        })
 }
 
 // ----------------- start of CLI -----------------
@@ -132,18 +166,28 @@ const providers = loadAndIdentifyProviders();
 
 let provider;
 
+// Parse CLI flags
+const writeToDB = (args.indexOf('-d') > -1 ? true : false);
+
 // Parse the CLI args for the provider name, if given
-if (args.length == 2) {
+if (args.length == 2 || (args.length == 3 && writeToDB)) {
     provider = loadDefaultProvider(providers);
-} else if (args.length == 3) {
-    const givenProvider = args[2];
+} else if ((args.length == 3 && !writeToDB) || args.length == 4) {
+    const givenProvider = args[2]
     provider = loadSelectedProvider(providers, givenProvider)
 } else {
     console.log("Use the default provider or provide one provider name")
     showAvailableProviders(providers);
 }
 
-// Load the course data for the given provider
+// TODO - need to write the updated providers and/or certifications 
+// data to the DB, too.
+
+// Generate the course data for the given provider
+// and write it to the database if that flag was provided
 if (provider) {
-    runCourseGenerator(provider.name);
+    const courseFile = runCourseGenerator(provider.name);
+    if (writeToDB) {
+        writeCoursesToDB(courseFile);
+    }
 }

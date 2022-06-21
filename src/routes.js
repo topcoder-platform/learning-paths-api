@@ -3,13 +3,6 @@
  */
 
 const constants = require('../app-constants')
-const { SCOPES: {
-  READ,
-  CREATE,
-  UPDATE,
-  DELETE,
-  ALL
-} } = require('config')
 
 module.exports = {
   '/learning-paths/health': {

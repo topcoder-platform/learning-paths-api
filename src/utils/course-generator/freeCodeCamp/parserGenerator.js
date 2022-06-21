@@ -39,7 +39,7 @@ class FreeCodeCampGenerator {
 
         const rawCourses = this.buildRawCourses(certifications, curriculumData, additionalData);
         const courses = this.buildCourses(rawCourses);
-        this.writeCourseFile(courses);
+        return this.writeCourseFile(courses);
     }
 
     /**
@@ -287,12 +287,13 @@ class FreeCodeCampGenerator {
      * Writes the final course data to a JSON file.
      * 
      * @param {array of course data} courses 
+     * @returns {Path} the complete file path to the generated course JSON file
      */
     writeCourseFile(courses) {
         const coursesFilePath = path.join(__dirname, this.GENERATED_COURSES_FILE);
         fs.writeFileSync(coursesFilePath, JSON.stringify(courses, null, 2));
 
-        console.log(`** Courses for ${this.PROVIDER} have been written to ${coursesFilePath.toString()}`)
+        return coursesFilePath;
     }
 
     /**

@@ -33,6 +33,7 @@ dynamoose.setDefaults({
 
 module.exports = {
   Certification: dynamoose.model('Certification', require('./Certification')),
+  CertificationProgress: dynamoose.model('CertificationProgress', require('./CertificationProgress')),
   Course: dynamoose.model('Course', require('./Course')),
   LearningResourceProvider: dynamoose.model('LearningResourceProvider', require('./LearningResourceProvider')),
 }

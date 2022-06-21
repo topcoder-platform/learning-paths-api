@@ -53,4 +53,16 @@ module.exports = {
       method: 'getCourseModules'
     },
   },
+  '/learning-paths/certification-progresses': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'searchCertificationProgresses'
+    },
+  },
+  '/learning-paths/certification-progresses/:userId/certification/:certification': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'getCertificationProgress'
+    },
+  },
 }

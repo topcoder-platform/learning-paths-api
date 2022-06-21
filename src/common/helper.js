@@ -198,6 +198,28 @@ async function getById(modelName, id) {
 }
 
 /**
+ * Get Data by hashkey and rangekey
+ * @param {String} modelName The dynamoose model name
+ * @param {Object} tableKeys JSON object describing the table's hashKey and 
+ *    rangeKey attributes and their search values
+ * @returns {Promise<void>}
+ */
+async function getByTableKeys(modelName, tableKeys) {
+  return new Promise((resolve, reject) => {
+    models[modelName].get((tableKeys), (err, result) => {
+      if (err) {
+        return reject(err)
+      }
+      if (result) {
+        return resolve(result)
+      } else {
+        return reject(new errors.NotFoundError(`${modelName} with table keys: ${JSON.stringify(tableKeys, null, 2)} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
  * Get Data by model ids
  * @param {String} modelName The dynamoose model name
  * @param {Array} ids The ids
@@ -366,6 +388,7 @@ module.exports = {
   toString,
   getById,
   getByIds,
+  getByTableKeys,
   create,
   update,
   scan,

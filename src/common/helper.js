@@ -250,6 +250,17 @@ async function validateDuplicate(modelName, name, value) {
   }
 }
 
+function validateRequestPayload(method, payload) {
+  if (!method.schema) { return }
+
+  const schema = Joi.object().keys(method.schema)
+
+  const { error } = schema.validate({ payload })
+  if (error) {
+    throw error
+  }
+}
+
 /**
  * Create item in database
  * @param {Object} modelName The dynamoose model name
@@ -394,6 +405,7 @@ module.exports = {
   scan,
   scanAll,
   validateDuplicate,
+  validateRequestPayload,
   partialMatch,
   ensureNoDuplicateOrNullElements,
   getFromInternalCache,

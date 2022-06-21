@@ -64,5 +64,13 @@ module.exports = {
       controller: 'CertificationProgressController',
       method: 'getCertificationProgress'
     },
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCertificationProgress'
+    },
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCurrentLesson'
+    },
   },
 }

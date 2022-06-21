@@ -146,7 +146,7 @@ logger.decorateWithValidators = function (service) {
  */
 logger.buildService = (service) => {
   logger.decorateWithValidators(service)
-  // logger.decorateWithLogging(service)
+  logger.decorateWithLogging(service)
 }
 
 module.exports = logger

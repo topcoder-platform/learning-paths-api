@@ -26,10 +26,6 @@ const schema = new Schema({
         type: String,
         required: true
     },
-    percentCompleted: {
-        type: Number,
-        required: true
-    },
     modules: {
         type: Array,
         schema: [ModuleProgress],

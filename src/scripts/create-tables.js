@@ -13,7 +13,7 @@ const skipModels = ['ModuleProgress']
 
 Object.keys(models).forEach(modelName => {
   if (!includes(skipModels, modelName)) {
-    promises.push(models[modelName].$__.table.create())
+    promises.push(models[modelName].table.create.request())
   } else {
     logger.info(`Skipping ${modelName}`)
   }

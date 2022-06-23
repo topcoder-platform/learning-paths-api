@@ -28,7 +28,8 @@ async function searchCertificationProgresses(criteria) {
     }
 
     const total = records.length
-    const result = records.slice((page - 1) * perPage, page * perPage)
+    let result = records.slice((page - 1) * perPage, page * perPage)
+    decorateProgresses(result)
 
     return { total, page, perPage, result }
 }
@@ -50,11 +51,11 @@ searchCertificationProgresses.schema = {
  */
 async function getCertificationProgress(userId, certification) {
     const tableKeys = { userId: userId, certification: certification }
-    const ret = await helper.getByTableKeys('CertificationProgress', tableKeys)
+    const progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
 
-    decorateModuleProgress(ret);
+    decorateModuleProgress(progress);
 
-    return ret
+    return progress
 }
 
 getCertificationProgress.schema = {
@@ -68,6 +69,10 @@ getCertificationProgress.schema = {
  * @param {Object} progress the progress object to decorate
  */
 function decorateModuleProgress(progress) {
+    if (!progress.modules) {
+        return
+    }
+
     progress.modules.forEach(module => {
         const lessonCount = module.lessonCount || 0;
         const completedLessonCount = module.completedLessons.length || 0;
@@ -78,6 +83,17 @@ function decorateModuleProgress(progress) {
         }
 
         module.completedPercentage = completedPercentage;
+    })
+}
+
+/**
+ * Decorates a collection of certification progresses with additional data
+ * 
+ * @param {Array} progresses an array of CertificationProgress objects
+ */
+function decorateProgresses(progresses) {
+    progresses.forEach(progress => {
+        decorateModuleProgress(progress)
     })
 }
 
@@ -104,7 +120,13 @@ async function updateCurrentLesson(userId, certification, data) {
     const currentLessonData = {
         currentLesson: currentLesson
     }
-    return await helper.update(progress, currentLessonData)
+
+    let updatedProgress = await helper.update(progress, currentLessonData)
+    decorateModuleProgress(updatedProgress);
+
+    // NOTE: it seems that Dynamoose doesn't convert a Date object from a Unix
+    // timestamp to a JS Date object on +update+.
+    return updatedProgress
 }
 
 updateCurrentLesson.schema = {
@@ -146,13 +168,13 @@ async function completeLesson(userId, certification, data) {
     } else {
         const completedLesson = {
             dashedName: lesson,
-            completedDate: "2022-06-21T12:00:00.000Z"
+            completedDate: new Date()
         }
 
         const lessonPath = `modules[${moduleIndex}].completedLessons`;
         const addLessonUpdate = {
             $ADD: {
-                "modules": "foobar"
+                [lessonPath]: completedLesson
             }
         }
         return await CertificationProgress.update({ userId: userId, certification: certification }, addLessonUpdate)

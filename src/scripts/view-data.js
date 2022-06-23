@@ -9,7 +9,10 @@ const logger = require('../common/logger')
 const helper = require('../common/helper')
 
 const viewData = async (modelName) => {
-  const fieldNames = _.keys(models[modelName].$__.table.schema.attributes)
+  console.log("modelName", modelName)
+  // console.log("viewData", models[modelName].schemas[0].schemaObject)
+  const fieldNames = _.keys(models[modelName].schemas[0].schemaObject)
+  // console.log("fieldNames", fieldNames)
   const records = await helper.scan(modelName)
   console.log(_.map(records, e => _.pick(e, fieldNames)))
 }

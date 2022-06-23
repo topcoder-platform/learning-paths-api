@@ -26,7 +26,7 @@ if (config.AMAZON.IS_LOCAL_DB) {
 // console.log(JSON.stringify(dynamoose.AWS.config))
 
 dynamoose.model.defaults.set({
-  create: false,
+  create: true,
   update: false,
   waitForActive: false
 })

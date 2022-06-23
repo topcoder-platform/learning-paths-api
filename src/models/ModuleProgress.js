@@ -15,16 +15,22 @@ const schema = new Schema({
         type: Number,
         required: true
     },
-    completedLessons: [{
-        dashedName: {
-            type: String,
-            default: null
-        },
-        completedDate: {
-            type: Date,
-            default: null
-        }
-    }]
+    completedLessons: {
+        type: Array,
+        schema: [{
+            type: Object,
+            schema: {
+                dashedName: {
+                    type: String,
+                    default: null
+                },
+                completedDate: {
+                    type: Date,
+                    default: null
+                }
+            }
+        }]
+    }
 },
     {
         throughput: { read: 4, write: 2 }

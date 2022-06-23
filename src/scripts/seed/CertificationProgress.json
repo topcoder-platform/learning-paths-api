@@ -11,15 +11,15 @@
                 "completedLessons": [
                     {
                         "dashedName": "step-1",
-                        "completedDate": "2022-06-24T00:00:00.000Z"
+                        "completedDate": 1655956900000
                     },
                     {
                         "dashedName": "step-2",
-                        "completedDate": "2022-06-24T00:00:00.000Z"
+                        "completedDate": 1655956900000
                     },
                     {
                         "dashedName": "step-3",
-                        "completedDate": "2022-06-24T00:00:00.000Z"
+                        "completedDate": 1656043300000
                     }
                 ]
             }

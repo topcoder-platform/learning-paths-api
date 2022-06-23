@@ -5,6 +5,7 @@
 const _ = require('lodash')
 const Joi = require('joi')
 const helper = require('../common/helper')
+const { CertificationProgress } = require('../models')
 
 /**
  * Search Certification Progress
@@ -87,9 +88,6 @@ function decorateModuleProgress(progress) {
  * @returns {Object} the updated course progress
  */
 async function updateCurrentLesson(userId, certification, data) {
-    const tableKeys = { userId: userId, certification: certification }
-    const progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
-
     // Validate the data in the request
     const schema = Joi.object().keys(updateCurrentLesson.schema)
     const { error } = schema.validate({ data })
@@ -97,6 +95,11 @@ async function updateCurrentLesson(userId, certification, data) {
         throw error
     }
 
+    const progress = await getUserCertificationProgress(userId, certification);
+
+    // TODO: we don't do any validation here to see if the module + lesson
+    // are a valid combination for this certification -- would need to hit 
+    // a different API endpoint to retrieve that data if we feel it's necessary.
     const currentLesson = `${data.module}/${data.lesson}`
     const currentLessonData = {
         currentLesson: currentLesson
@@ -111,6 +114,81 @@ updateCurrentLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+/**
+ * @param {String} userId the user's ID
+ * @param {String} certification the certification key
+ * @param {Object} data the course data containing the module/lesson to complete
+ * @returns {Object} the updated course progress
+ */
+async function completeLesson(userId, certification, data) {
+    // Validate the data in the request
+    const schema = Joi.object().keys(completeLesson.schema)
+    const { error } = schema.validate({ data })
+    if (error) {
+        throw error
+    }
+
+    const progress = await getUserCertificationProgress(userId, certification);
+    const moduleName = data.module;
+    const lessonName = data.lesson;
+
+    const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
+    if (moduleIndex == -1) {
+        throw `Module '${moduleName}' not found in certification '${certification}'`
+    }
+
+    const lesson = progress.modules[moduleIndex].completedLessons.find(lesson => lesson.dashedName == lessonName)
+    if (lesson) {
+        // it's already been completed, so no-op and return an HTTP 204?
+        console.log("Lesson already completed", lesson);
+    } else {
+        const completedLesson = {
+            dashedName: lesson,
+            completedDate: "2022-06-21T12:00:00.000Z"
+        }
+
+        const lessonPath = `modules[${moduleIndex}].completedLessons`;
+        const addLessonUpdate = {
+            $ADD: {
+                "modules": "foobar"
+            }
+        }
+        return await CertificationProgress.update({ userId: userId, certification: certification }, addLessonUpdate)
+    }
+}
+
+completeLesson.schema = {
+    userId: Joi.string(),
+    certification: Joi.string(),
+    data: Joi.object().keys({
+        module: Joi.string().required(),
+        lesson: Joi.string().required()
+    }).required()
+}
+
+async function addCompletedLesson(userId, certification, moduleIndex, lesson) {
+
+    const completedLesson = {
+        dashedName: lesson,
+        completedDate: "2022-06-21T12:00:00.000Z"
+    }
+
+    await CertificationProgress.update({ userId: userId, certification: certification })
+
+
+}
+/**
+ * Retrieve a specific user certification progress record from the database
+ * 
+ * @param {String} userId the ID of the user
+ * @param {String} certification the certification key to update
+ * @returns {Object} the certification progress object
+ */
+async function getUserCertificationProgress(userId, certification) {
+    const tableKeys = { userId: userId, certification: certification }
+    return await helper.getByTableKeys('CertificationProgress', tableKeys)
 }
 
 /**
@@ -140,5 +218,6 @@ module.exports = {
     searchCertificationProgresses,
     getCertificationProgress,
     updateCurrentLesson,
-    updateCertificationProgress
+    updateCertificationProgress,
+    completeLesson
 }

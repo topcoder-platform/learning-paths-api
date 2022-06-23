@@ -73,4 +73,10 @@ module.exports = {
       method: 'updateCurrentLesson'
     },
   },
+  '/learning-paths/certification-progresses/:userId/certification/:certification/complete': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeLesson'
+    },
+  },
 }

@@ -43,6 +43,20 @@ async function updateCurrentLesson(req, res) {
 }
 
 /**
+ * Complete a lesson
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function completeLesson(req, res) {
+    const result = await service.completeLesson(
+        req.params.userId,
+        req.params.certification,
+        req.body)
+    res.send(result)
+}
+
+/**
  * Update a user's certification and course progress
  * 
  * @param {Object} req the request
@@ -60,5 +74,6 @@ module.exports = {
     searchCertificationProgresses,
     getCertificationProgress,
     updateCertificationProgress,
-    updateCurrentLesson
+    updateCurrentLesson,
+    completeLesson
 }

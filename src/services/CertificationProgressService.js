@@ -152,7 +152,8 @@ async function completeLesson(userId, certification, data) {
         throw error
     }
 
-    const progress = await getUserCertificationProgress(userId, certification);
+    let progress = await getUserCertificationProgress(userId, certification);
+    decorateModuleProgress(progress)
     const moduleName = data.module;
     const lessonName = data.lesson;
 
@@ -163,21 +164,24 @@ async function completeLesson(userId, certification, data) {
 
     const lesson = progress.modules[moduleIndex].completedLessons.find(lesson => lesson.dashedName == lessonName)
     if (lesson) {
-        // it's already been completed, so no-op and return an HTTP 204?
+        // it's already been completed, so no-op and return the current progress object
         console.log("Lesson already completed", lesson);
+        return progress
     } else {
         const completedLesson = {
-            dashedName: lesson,
+            dashedName: lessonName,
             completedDate: new Date()
         }
+        progress.modules[moduleIndex].completedLessons.push(completedLesson)
 
-        const lessonPath = `modules[${moduleIndex}].completedLessons`;
-        const addLessonUpdate = {
-            $ADD: {
-                [lessonPath]: completedLesson
-            }
+        const updatedModules = {
+            modules: progress.modules
         }
-        return await CertificationProgress.update({ userId: userId, certification: certification }, addLessonUpdate)
+
+        let updatedProgress = await helper.update(progress, updatedModules)
+        decorateModuleProgress(updatedProgress);
+
+        return updatedProgress
     }
 }
 

@@ -20,7 +20,16 @@ const schema = new Schema({
     },
     status: {
         type: String,
+        enum: ["in-progress", "completed"],
         required: true
+    },
+    startDate: {
+        type: Date,
+        required: true
+    },
+    completedDate: {
+        type: Date,
+        required: false
     },
     currentLesson: {
         type: String,

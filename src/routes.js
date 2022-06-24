@@ -64,6 +64,10 @@ module.exports = {
       controller: 'CertificationProgressController',
       method: 'getCertificationProgress'
     },
+    post: {
+      controller: 'CertificationProgressController',
+      method: 'startCertification'
+    },
     put: {
       controller: 'CertificationProgressController',
       method: 'updateCertificationProgress'
@@ -73,7 +77,13 @@ module.exports = {
       method: 'updateCurrentLesson'
     },
   },
-  '/learning-paths/certification-progresses/:userId/certification/:certification/complete': {
+  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-certification': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeCertification'
+    },
+  },
+  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-lesson': {
     put: {
       controller: 'CertificationProgressController',
       method: 'completeLesson'

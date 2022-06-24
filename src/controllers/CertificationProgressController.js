@@ -6,6 +6,35 @@ const service = require('../services/CertificationProgressService')
 const helper = require('../common/helper')
 
 /**
+ * Start a certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function startCertification(req, res) {
+    const result = await service.startCertification(
+        req.params.userId,
+        req.params.certification,
+        req.body)
+
+    res.send(result)
+}
+
+/**
+ * Complete a certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function completeCertification(req, res) {
+    const result = await service.completeCertification(
+        req.params.userId,
+        req.params.certification)
+
+    res.send(result)
+}
+
+/**
  * Search certification progress
  * 
  * @param {Object} req the request
@@ -14,6 +43,7 @@ const helper = require('../common/helper')
 async function searchCertificationProgresses(req, res) {
     const result = await service.searchCertificationProgresses(req.query)
     helper.setResHeaders(req, res, result)
+
     res.send(result.result)
 }
 
@@ -24,7 +54,10 @@ async function searchCertificationProgresses(req, res) {
  * @param {Object} res the response
  */
 async function getCertificationProgress(req, res) {
-    const result = await service.getCertificationProgress(req.params.userId, req.params.certification)
+    const result = await service.getCertificationProgress(
+        req.params.userId,
+        req.params.certification)
+
     res.send(result)
 }
 
@@ -39,6 +72,7 @@ async function updateCurrentLesson(req, res) {
         req.params.userId,
         req.params.certification,
         req.body)
+
     res.send(result)
 }
 
@@ -53,6 +87,7 @@ async function completeLesson(req, res) {
         req.params.userId,
         req.params.certification,
         req.body)
+
     res.send(result)
 }
 
@@ -71,6 +106,8 @@ async function updateCertificationProgress(req, res) {
 }
 
 module.exports = {
+    startCertification,
+    completeCertification,
     searchCertificationProgresses,
     getCertificationProgress,
     updateCertificationProgress,

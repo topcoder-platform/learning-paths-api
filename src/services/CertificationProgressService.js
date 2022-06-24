@@ -8,6 +8,100 @@ const helper = require('../common/helper')
 const { CertificationProgress } = require('../models')
 
 /**
+ * Create a new certification progress record 
+ * 
+ * @param {String} userId the user's ID
+ * @param {String} certification the certification to start
+ * @param {Object} data the module and lesson the user has started
+ * @returns {Object} the new CertificationProgress object, or the existing one for the certification
+ */
+async function startCertification(userId, certification, data) {
+    let progress;
+    try {
+        progress = await getCertificationProgress(userId, certification)
+    } catch (NotFoundError) {
+        // no-op 
+    }
+
+    // if the certification has already been started, just return it
+    if (progress) {
+        console.log(`User '${userId}' has already started certification '${certification}'`)
+        return progress
+    } else {
+        // create a new certification progress record
+        console.log(`Starting certification '${certification}' for user '${userId}'`)
+        validateWithSchema(startCertification.schema, data)
+
+        // TODO: do we need the +lessonCount+ attribute here?
+        const newCertificationProgress = {
+            userId: userId,
+            certification: certification,
+            status: "in-progress",
+            startDate: new Date(),
+            currentLesson: `${data.module}/${data.lesson}`,
+            modules: [
+                {
+                    module: data.module,
+                    lessonCount: 0,
+                    completedLessons: [],
+                    completedPercentage: 0
+                }
+            ]
+        }
+
+        return await helper.create('CertificationProgress', newCertificationProgress)
+    }
+}
+
+startCertification.schema = {
+    userId: Joi.string(),
+    certification: Joi.string(),
+    data: Joi.object().keys({
+        module: Joi.string().required(),
+        lesson: Joi.string().required()
+    }).required()
+}
+
+/**
+ * Marks a certification as completed
+ * 
+ * @param {String} userId the user's ID
+ * @param {String} certification the certification key
+ * @param {Object} data the course data containing the current module and lesson
+ * @returns {Object} the updated course progress
+ */
+async function completeCertification(userId, certification) {
+    const progress = await getUserCertificationProgress(userId, certification);
+
+    const certificationCompletionData = {
+        completedDate: new Date()
+    }
+
+    // TODO: What kind of validation should we do here to verify that the user has 
+    // completed all of the required modules and lessons to earn a certification?
+    let updatedProgress = await helper.update(progress, certificationCompletionData)
+    decorateModuleProgress(updatedProgress);
+
+    // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
+    // timestamp to a JS Date object on +update+.
+    return updatedProgress
+}
+
+/**
+ * Validate the body of an API request against a model schema
+ * 
+ * @param {Object} modelSchema a Dynamoose Schema defined on a model
+ * @param {Object} data an object containing the raw JSON body of the request
+ */
+function validateWithSchema(modelSchema, data) {
+    const schema = Joi.object().keys(modelSchema)
+    const { error } = schema.validate({ data })
+    if (error) {
+        throw error
+    }
+}
+
+/**
  * Search Certification Progress
  * 
  * @param {Object} criteria the search criteria
@@ -51,7 +145,7 @@ searchCertificationProgresses.schema = {
  */
 async function getCertificationProgress(userId, certification) {
     const tableKeys = { userId: userId, certification: certification }
-    const progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
+    let progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
 
     decorateModuleProgress(progress);
 
@@ -104,18 +198,13 @@ function decorateProgresses(progresses) {
  * @returns {Object} the updated course progress
  */
 async function updateCurrentLesson(userId, certification, data) {
-    // Validate the data in the request
-    const schema = Joi.object().keys(updateCurrentLesson.schema)
-    const { error } = schema.validate({ data })
-    if (error) {
-        throw error
-    }
+    validateWithSchema(updateCurrentLesson.schema, data)
 
     const progress = await getUserCertificationProgress(userId, certification);
 
-    // TODO: we don't do any validation here to see if the module + lesson
-    // are a valid combination for this certification -- would need to hit 
-    // a different API endpoint to retrieve that data if we feel it's necessary.
+    // TODO: we don't do any validation here to see if the module + lesson here
+    // are a valid combination for this certification -- would need to look up
+    // that data if we want to validate it.
     const currentLesson = `${data.module}/${data.lesson}`
     const currentLessonData = {
         currentLesson: currentLesson
@@ -124,7 +213,7 @@ async function updateCurrentLesson(userId, certification, data) {
     let updatedProgress = await helper.update(progress, currentLessonData)
     decorateModuleProgress(updatedProgress);
 
-    // NOTE: it seems that Dynamoose doesn't convert a Date object from a Unix
+    // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
     // timestamp to a JS Date object on +update+.
     return updatedProgress
 }
@@ -194,17 +283,6 @@ completeLesson.schema = {
     }).required()
 }
 
-async function addCompletedLesson(userId, certification, moduleIndex, lesson) {
-
-    const completedLesson = {
-        dashedName: lesson,
-        completedDate: "2022-06-21T12:00:00.000Z"
-    }
-
-    await CertificationProgress.update({ userId: userId, certification: certification })
-
-
-}
 /**
  * Retrieve a specific user certification progress record from the database
  * 
@@ -241,6 +319,8 @@ updateCertificationProgress.schema = {
 }
 
 module.exports = {
+    startCertification,
+    completeCertification,
     searchCertificationProgresses,
     getCertificationProgress,
     updateCurrentLesson,

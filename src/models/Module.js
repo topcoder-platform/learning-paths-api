@@ -7,62 +7,61 @@ const dynamoose = require('dynamoose')
 
 const Schema = dynamoose.Schema
 
-const schema = new Schema(
-    {
-        key: {
-            type: String,
-            required: true
+const schema = new Schema({
+    key: {
+        type: String,
+        required: true
+    },
+    meta: {
+        type: Object,
+        schema: {
+            name: {
+                type: String,
+                required: true
+            },
+            dashedName: {
+                type: String,
+                required: true
+            },
+            estimatedCompletionTime: {
+                type: Object,
+                schema: {
+                    value: {
+                        type: Number,
+                        required: true
+                    },
+                    units: {
+                        type: String,
+                        required: true
+                    }
+                }
+            },
+            introCopy: {
+                type: Array,
+                schema: [String],
+                required: false,
+                default: []
+            }
         },
-        meta: {
+        required: true
+    },
+    lessons: {
+        type: Array,
+        schema: [{
             type: Object,
             schema: {
-                name: {
+                title: {
                     type: String,
                     required: true
                 },
                 dashedName: {
                     type: String,
                     required: true
-                },
-                estimatedCompletionTime: {
-                    type: Object,
-                    schema: {
-                        value: {
-                            type: Number,
-                            required: true
-                        },
-                        units: {
-                            type: String,
-                            required: true
-                        }
-                    }
-                },
-                introCopy: {
-                    type: Array,
-                    schema: [String],
-                    required: false,
-                    default: []
                 }
-            },
-            required: true
-        },
-        lessons: {
-            type: Array,
-            schema: [{
-                type: Object,
-                schema: {
-                    title: {
-                        type: String,
-                        required: true
-                    },
-                    dashedName: {
-                        type: String,
-                        required: true
-                    }
-                }
-            }]
-        }
-    },
+            }
+        }]
+    }
+},
     {
         throughput: { read: 4, write: 2 }
     })

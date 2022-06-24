@@ -5,6 +5,8 @@
 const config = require('config')
 const dynamoose = require('dynamoose')
 
+console.log("** Loading Dynamoose models...")
+
 const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
   accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
@@ -22,6 +24,7 @@ if (config.AMAZON.IS_LOCAL_DB) {
 
 // console.log(config.AMAZON.IS_LOCAL_DB, config.AMAZON.AWS_ACCESS_KEY_ID, config.AMAZON.AWS_SECRET_ACCESS_KEY)
 console.log("Is local DB: " + config.AMAZON.IS_LOCAL_DB)
+console.log("DynamoDB URL: " + config.AMAZON.DYNAMODB_URL)
 console.log("AWS config", JSON.stringify(awsConfigs, null, 2))
 
 dynamoose.model.defaults.set({

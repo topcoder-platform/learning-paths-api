@@ -16,7 +16,7 @@ const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
   region: config.AMAZON.AWS_REGION
 }
 
-dynamoose.aws.sdk.config.update(awsConfigs)
+// dynamoose.aws.sdk.config.update(awsConfigs)
 
 if (config.AMAZON.IS_LOCAL_DB) {
   dynamoose.aws.ddb.local(config.AMAZON.DYNAMODB_URL)

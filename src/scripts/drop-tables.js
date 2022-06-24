@@ -2,6 +2,7 @@
  * Drop tables in database. All data will be cleared.
  */
 
+const dynamoose = require('dynamoose')
 const models = require('../models')
 const { includes } = require('lodash')
 const logger = require('../common/logger')
@@ -11,9 +12,22 @@ logger.info('Requesting to delete tables...')
 const promises = []
 const skipModels = ['DynamoDB']
 
+function deleteTable(tableName) {
+  return new Promise((resolve, reject) => {
+    let dynamoDB = dynamoose.aws.ddb();
+    dynamoDB.deleteTable({ TableName: tableName }, (err, resp) => {
+      if (err) {
+        console.error(err);
+      }
+      console.log(resp);
+    })
+  })
+}
+
 Object.keys(models).forEach(modelName => {
   if (!includes(skipModels, modelName)) {
-    promises.push(models[modelName].$__.table.delete())
+    // promises.push(models[modelName].$__.table.delete())
+    promises.push(deleteTable(modelName))
   } else {
     logger.info(`Skipping ${modelName}`)
   }

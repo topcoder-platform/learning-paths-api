@@ -198,6 +198,28 @@ async function getById(modelName, id) {
 }
 
 /**
+ * Get Data by hashkey and rangekey
+ * @param {String} modelName The dynamoose model name
+ * @param {Object} tableKeys JSON object describing the table's hashKey and 
+ *    rangeKey attributes and their search values
+ * @returns {Promise<void>}
+ */
+async function getByTableKeys(modelName, tableKeys) {
+  return new Promise((resolve, reject) => {
+    models[modelName].get((tableKeys), (err, result) => {
+      if (err) {
+        return reject(err)
+      }
+      if (result) {
+        return resolve(result)
+      } else {
+        return reject(new errors.NotFoundError(`${modelName} with table keys: ${JSON.stringify(tableKeys, null, 2)} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
  * Get Data by model ids
  * @param {String} modelName The dynamoose model name
  * @param {Array} ids The ids
@@ -225,6 +247,17 @@ async function validateDuplicate(modelName, name, value) {
     if (list[i][name] && String(list[i][name]).toLowerCase() === String(value).toLowerCase()) {
       throw new errors.ConflictError(`${modelName} with ${name}: ${value} already exist`)
     }
+  }
+}
+
+function validateRequestPayload(method, payload) {
+  if (!method.schema) { return }
+
+  const schema = Joi.object().keys(method.schema)
+
+  const { error } = schema.validate({ payload })
+  if (error) {
+    throw error
   }
 }
 
@@ -366,11 +399,13 @@ module.exports = {
   toString,
   getById,
   getByIds,
+  getByTableKeys,
   create,
   update,
   scan,
   scanAll,
   validateDuplicate,
+  validateRequestPayload,
   partialMatch,
   ensureNoDuplicateOrNullElements,
   getFromInternalCache,

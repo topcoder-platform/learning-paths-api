@@ -135,5 +135,3 @@ module.exports = {
     getCourse,
     getCourseModules,
 }
-
-  // logger.buildService(module.exports)

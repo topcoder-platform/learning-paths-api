@@ -123,6 +123,158 @@
 			"response": []
 		},
 		{
+			"name": "Start Certification",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"certification",
+						"{{CERTIFICATION}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Certifications Progresses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certifications",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certifications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Certification Progress for User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"certification",
+						"{{CERTIFICATION}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Current Lesson",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-4\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"certification",
+						"{{CERTIFICATION}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Lesson",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-5\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}/complete-lesson",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"certification",
+						"{{CERTIFICATION}}",
+						"complete-lesson"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Certification",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}/complete-certification",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"certification",
+						"{{CERTIFICATION}}",
+						"complete-certification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get All Courses",
 			"request": {
 				"method": "GET",
@@ -226,6 +378,12 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "NEW_CERTIFICATION",
+			"value": "react-web-design"
 		}
 	]
 }

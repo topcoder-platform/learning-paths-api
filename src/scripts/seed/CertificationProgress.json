@@ -1,0 +1,29 @@
+[
+    {
+        "userId": "testflyjets",
+        "certification": "responsive-web-design",
+        "status": "in-progress",
+        "startDate": 1655956900000,
+        "currentLesson": "learn-html-by-building-a-cat-photo-app/step-4",
+        "modules": [
+            {
+                "module": "learn-html-by-building-a-cat-photo-app",
+                "lessonCount": 67,
+                "completedLessons": [
+                    {
+                        "dashedName": "step-1",
+                        "completedDate": 1655956900000
+                    },
+                    {
+                        "dashedName": "step-2",
+                        "completedDate": 1655956900000
+                    },
+                    {
+                        "dashedName": "step-3",
+                        "completedDate": 1656043300000
+                    }
+                ]
+            }
+        ]
+    }
+]

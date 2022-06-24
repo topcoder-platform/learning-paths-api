@@ -53,4 +53,40 @@ module.exports = {
       method: 'getCourseModules'
     },
   },
+  '/learning-paths/certification-progresses': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'searchCertificationProgresses'
+    },
+  },
+  '/learning-paths/certification-progresses/:userId/certification/:certification': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'getCertificationProgress'
+    },
+    post: {
+      controller: 'CertificationProgressController',
+      method: 'startCertification'
+    },
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCertificationProgress'
+    },
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCurrentLesson'
+    },
+  },
+  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-certification': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeCertification'
+    },
+  },
+  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-lesson': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeLesson'
+    },
+  },
 }

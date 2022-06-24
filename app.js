@@ -97,8 +97,9 @@ app.use((err, req, res, next) => {
     }
   }
   if (_.get(err, 'response.status')) {
-    // extra error message from axios http response(v4 and v5 tc api)
-    errorResponse.message = _.get(err, 'response.data.result.content.message') || _.get(err, 'response.data.message')
+    errorResponse.message =
+      _.get(err, 'response.data.result.content.message') ||
+      _.get(err, 'response.data.message')
   }
 
   if (_.isUndefined(errorResponse.message)) {

@@ -8,6 +8,7 @@
         "modules": [
             {
                 "module": "learn-html-by-building-a-cat-photo-app",
+                "moduleStatus": "in-progress",
                 "lessonCount": 67,
                 "completedLessons": [
                     {

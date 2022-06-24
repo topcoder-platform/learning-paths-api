@@ -32,7 +32,6 @@ async function startCertification(userId, certification, data) {
         console.log(`Starting certification '${certification}' for user '${userId}'`)
         validateWithSchema(startCertification.schema, data)
 
-        // TODO: do we need the +lessonCount+ attribute here?
         const newCertificationProgress = {
             userId: userId,
             certification: certification,
@@ -42,7 +41,8 @@ async function startCertification(userId, certification, data) {
             modules: [
                 {
                     module: data.module,
-                    lessonCount: 0,
+                    moduleStatus: "in-progress",
+                    lessonCount: 0, // TODO: retrieve this value from the course info
                     completedLessons: [],
                     completedPercentage: 0
                 }

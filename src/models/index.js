@@ -17,17 +17,22 @@ const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
   region: config.AMAZON.AWS_REGION
 }
 
-
-dynamoose.AWS.config.update(awsConfigs)
+dynamoose.aws.sdk.config.update(awsConfigs)
+//dynamoose.AWS.config.update(awsConfigs)
 
 if (config.AMAZON.IS_LOCAL_DB) {
-  dynamoose.local(config.AMAZON.DYNAMODB_URL)
+  dynamoose.aws.ddb.local(config.AMAZON.DYNAMODB_URL)
+}
+
+//if (config.AMAZON.IS_LOCAL_DB) {
+//  dynamoose.local(config.AMAZON.DYNAMODB_URL)//
 }
 
 // console.log(config.AMAZON.IS_LOCAL_DB, config.AMAZON.AWS_ACCESS_KEY_ID, config.AMAZON.AWS_SECRET_ACCESS_KEY)
 // console.log("Is local DB" + config.AMAZON.IS_LOCAL_DB )
 // console.log("AWS config" + JSON.stringify(awsConfigs) )
 console.log(JSON.stringify(dynamoose.AWS.config))
+console.log(JSON.stringify(dynamoose.aws.sdk.config))
 
 console.log("Setting dynamoose model defaults...")
 dynamoose.model.defaults.set({

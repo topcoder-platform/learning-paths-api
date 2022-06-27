@@ -7,16 +7,13 @@ const dynamoose = require('dynamoose')
 
 console.log("** Loading Dynamoose models...")
 
-if ( config.AMAZON.IS_LOCAL_DB )
-{
- const awsConfigs = {
+const awsConfigs = config.AMAZON.IS_LOCAL_DB == true ? {
   accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
   sessionToken: config.AMAZON.AWS_SESSION_TOKEN,
   region: config.AMAZON.AWS_REGION
-  }
-} else {
-  const awsConfigs = { region: config.AMAZON.AWS_REGION }
+} : {
+  region: config.AMAZON.AWS_REGION
 }
 
 // dynamoose.aws.sdk.config.update(awsConfigs)

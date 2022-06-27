@@ -28,7 +28,7 @@ console.log("AWS credentials: ",
   config.AMAZON.AWS_SECRET_ACCESS_KEY)
 
 console.log("Is local DB: " + config.AMAZON.IS_LOCAL_DB)
-// console.log("DynamoDB URL: " + config.AMAZON.DYNAMODB_URL)
+console.log("DynamoDB URL: " + config.AMAZON.DYNAMODB_URL)
 // console.log("AWS config", JSON.stringify(awsConfigs, null, 2))
 
 console.log("Setting dynamoose model defaults...")

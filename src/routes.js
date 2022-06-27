@@ -59,34 +59,34 @@ module.exports = {
       method: 'searchCertificationProgresses'
     },
   },
-  '/learning-paths/certification-progresses/:userId/certification/:certification': {
+  '/learning-paths/certification-progresses/:certificationProgressId': {
     get: {
       controller: 'CertificationProgressController',
       method: 'getCertificationProgress'
     },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/current-lesson': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCurrentLesson'
+    }
+  },
+  '/learning-paths/certification-progresses/:userId': {
     post: {
       controller: 'CertificationProgressController',
       method: 'startCertification'
     },
-    put: {
-      controller: 'CertificationProgressController',
-      method: 'updateCertificationProgress'
-    },
-    put: {
-      controller: 'CertificationProgressController',
-      method: 'updateCurrentLesson'
-    },
   },
-  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-certification': {
-    put: {
-      controller: 'CertificationProgressController',
-      method: 'completeCertification'
-    },
-  },
-  '/learning-paths/certification-progresses/:userId/certification/:certification/complete-lesson': {
+  '/learning-paths/certification-progresses/:certificationProgressId/complete-lesson': {
     put: {
       controller: 'CertificationProgressController',
       method: 'completeLesson'
+    },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/complete-certification': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeCertification'
     },
   },
 }

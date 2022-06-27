@@ -3,36 +3,46 @@
  */
 
 const _ = require('lodash')
-const Joi = require('joi')
-const helper = require('../common/helper')
 const { CertificationProgress } = require('../models')
+const helper = require('../common/helper')
+const Joi = require('joi')
+const { v4: uuidv4 } = require('uuid');
+
+const STATUS_COMPLETED = "completed";
+const STATUS_IN_PROGRESS = "in-progress";
 
 /**
  * Create a new certification progress record 
  * 
  * @param {String} userId the user's ID
- * @param {String} certification the certification to start
- * @param {Object} data the module and lesson the user has started
+ * @param {Object} data object containing the provier, certification, module and lesson the user has started
  * @returns {Object} the new CertificationProgress object, or the existing one for the certification
  */
-async function startCertification(userId, certification, data) {
-    let progress;
+async function startCertification(userId, data) {
+    let existingProgress;
+    const { provider, certification } = { data }
     try {
-        progress = await getCertificationProgress(userId, certification)
+        const searchCriteria = {
+            userId: userId,
+            provider: provider,
+            certification: certification
+        }
+        existingProgress = await searchCertificationProgresses(searchCriteria)
     } catch (NotFoundError) {
         // no-op 
     }
 
     // if the certification has already been started, just return it
-    if (progress) {
-        console.log(`User '${userId}' has already started certification '${certification}'`)
-        return progress
+    if (existingProgress) {
+        console.log(`User '${userId}' has already started the ${provider} '${certification}' certification`)
+        return existingProgress
     } else {
         // create a new certification progress record
-        console.log(`Starting certification '${certification}' for user '${userId}'`)
+        console.log(`Starting certification ${provider} '${certification}' certification for user '${userId}'`)
         validateWithSchema(startCertification.schema, data)
 
         const newCertificationProgress = {
+            id: uuidv4(),
             userId: userId,
             certification: certification,
             status: "in-progress",
@@ -55,31 +65,37 @@ async function startCertification(userId, certification, data) {
 
 startCertification.schema = {
     userId: Joi.string(),
-    certification: Joi.string(),
     data: Joi.object().keys({
+        provider: Joi.string().required(),
+        certification: Joi.string().required(),
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
 }
 
 /**
- * Marks a certification as completed
+ * Marks a certification as completed in the Certification Progress record
  * 
- * @param {String} userId the user's ID
- * @param {String} certification the certification key
+ * @param {String} certificationProgressId the ID of the user's certification progress to complete
  * @param {Object} data the course data containing the current module and lesson
  * @returns {Object} the updated course progress
  */
-async function completeCertification(userId, certification) {
-    const progress = await getUserCertificationProgress(userId, certification);
+async function completeCertification(certificationProgressId) {
+    const progress = await getCertificationProgress(certificationProgressId);
 
-    const certificationCompletionData = {
-        completedDate: new Date()
+    const userId = progress.userId;
+    const provider = progress.provider;
+    const certification = progress.certification;
+
+    const completionData = {
+        completedDate: new Date(),
+        status: STATUS_COMPLETED
     }
 
     // TODO: What kind of validation should we do here to verify that the user has 
     // completed all of the required modules and lessons to earn a certification?
-    let updatedProgress = await helper.update(progress, certificationCompletionData)
+    let updatedProgress = await helper.update(progress, completionData)
+    console.log(`User [${userId}] has completed [${provider}] certification [${certification}]`);
     decorateModuleProgress(updatedProgress);
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
@@ -108,19 +124,32 @@ function validateWithSchema(modelSchema, data) {
  * @returns {Object} the search result
  */
 async function searchCertificationProgresses(criteria) {
-
     records = await helper.scanAll('CertificationProgress')
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
 
     // filter data by given criteria
-    if (criteria.userCertificationId) {
+    // filter by user ID
+    if (criteria.userId) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.userCertificationId, e.userCertificationId))
+            e => helper.partialMatch(criteria.userId, e.userId))
     }
 
+    // filter by certification
+    if (criteria.certification) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.certification, e.certification))
+    }
+
+    // filter by provider 
+    if (criteria.provider) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.provider, e.provider))
+    }
     const total = records.length
     let result = records.slice((page - 1) * perPage, page * perPage)
     decorateProgresses(result)
@@ -132,6 +161,8 @@ searchCertificationProgresses.schema = {
     criteria: Joi.object().keys({
         page: Joi.page(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
+        userId: Joi.string(),
+        certification: Joi.string(),
         provider: Joi.string(),
     })
 }
@@ -139,13 +170,11 @@ searchCertificationProgresses.schema = {
 /**
  * Get CertificationProgress by user ID and certification
  * 
- * @param {String} userId the user ID
- * @param {String} certification the certification key
+ * @param {String} progressId the ID of the CertificationProgress 
  * @returns {Object} the certification progress for the given user and certification
  */
-async function getCertificationProgress(userId, certification) {
-    const tableKeys = { userId: userId, certification: certification }
-    let progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
+async function getCertificationProgress(progressId) {
+    let progress = await helper.getById('CertificationProgress', progressId)
 
     decorateModuleProgress(progress);
 
@@ -153,8 +182,7 @@ async function getCertificationProgress(userId, certification) {
 }
 
 getCertificationProgress.schema = {
-    userId: Joi.string(),
-    certification: Joi.string()
+    progressId: Joi.string()
 }
 
 /**
@@ -192,15 +220,14 @@ function decorateProgresses(progresses) {
 }
 
 /**
- * @param {String} userId the user's ID
- * @param {String} certification the certification key
+ * @param {String} certificationProgressId the ID of the certification progress record
  * @param {Object} data the course data containing the current module and lesson
  * @returns {Object} the updated course progress
  */
-async function updateCurrentLesson(userId, certification, data) {
+async function updateCurrentLesson(certificationProgressId, data) {
     validateWithSchema(updateCurrentLesson.schema, data)
 
-    const progress = await getUserCertificationProgress(userId, certification);
+    const progress = await getCertificationProgress(certificationProgressId);
 
     // TODO: we don't do any validation here to see if the module + lesson here
     // are a valid combination for this certification -- would need to look up
@@ -219,8 +246,7 @@ async function updateCurrentLesson(userId, certification, data) {
 }
 
 updateCurrentLesson.schema = {
-    userId: Joi.string(),
-    certification: Joi.string(),
+    certificationProgressId: Joi.string(),
     data: Joi.object().keys({
         module: Joi.string().required(),
         lesson: Joi.string().required()
@@ -228,12 +254,13 @@ updateCurrentLesson.schema = {
 }
 
 /**
- * @param {String} userId the user's ID
- * @param {String} certification the certification key
+ * Marks a lesson as complete in the Certification Progress
+ * 
+ * @param {String} certificationProgressId the certification progress Id
  * @param {Object} data the course data containing the module/lesson to complete
  * @returns {Object} the updated course progress
  */
-async function completeLesson(userId, certification, data) {
+async function completeLesson(certificationProgressId, data) {
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
     const { error } = schema.validate({ data })
@@ -241,8 +268,11 @@ async function completeLesson(userId, certification, data) {
         throw error
     }
 
-    let progress = await getUserCertificationProgress(userId, certification);
+    let progress = await getCertificationProgress(certificationProgressId);
+    const userId = progress.userId;
+    const certification = progress.certification;
     decorateModuleProgress(progress)
+
     const moduleName = data.module;
     const lessonName = data.lesson;
 
@@ -251,10 +281,12 @@ async function completeLesson(userId, certification, data) {
         throw `Module '${moduleName}' not found in certification '${certification}'`
     }
 
-    const lesson = progress.modules[moduleIndex].completedLessons.find(lesson => lesson.dashedName == lessonName)
+    const lesson = progress.modules[moduleIndex].completedLessons.find(
+        lesson => lesson.dashedName == lessonName)
+
     if (lesson) {
-        // it's already been completed, so no-op and return the current progress object
-        console.log("Lesson already completed", lesson);
+        // it's already been completed, so just log it and return the current progress object
+        console.log(`User [${userId}] has already completed ${certification}/${moduleName}/${lessonName}`);
         return progress
     } else {
         const completedLesson = {
@@ -268,31 +300,19 @@ async function completeLesson(userId, certification, data) {
         }
 
         let updatedProgress = await helper.update(progress, updatedModules)
-        decorateModuleProgress(updatedProgress);
+        console.log(`User [${userId}] completed ${certification}/${moduleName}/${lessonName}`);
 
+        decorateModuleProgress(updatedProgress);
         return updatedProgress
     }
 }
 
 completeLesson.schema = {
-    userId: Joi.string(),
-    certification: Joi.string(),
+    certificationProgressId: Joi.string(),
     data: Joi.object().keys({
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
-}
-
-/**
- * Retrieve a specific user certification progress record from the database
- * 
- * @param {String} userId the ID of the user
- * @param {String} certification the certification key to update
- * @returns {Object} the certification progress object
- */
-async function getUserCertificationProgress(userId, certification) {
-    const tableKeys = { userId: userId, certification: certification }
-    return await helper.getByTableKeys('CertificationProgress', tableKeys)
 }
 
 /**

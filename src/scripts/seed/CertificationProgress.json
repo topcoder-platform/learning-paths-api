@@ -1,7 +1,9 @@
 [
     {
+        "id": "927abff4-7af9-4145-8ba1-577c16e64e3d",
         "userId": "testflyjets",
         "certification": "responsive-web-design",
+        "provider": "freeCodeCamp",
         "status": "in-progress",
         "startDate": 1655956900000,
         "currentLesson": "learn-html-by-building-a-cat-photo-app/step-4",

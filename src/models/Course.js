@@ -15,7 +15,8 @@ const schema = new Schema({
   },
   provider: {
     type: String,
-    required: true
+    rangeKey: true,
+    required: true,
   },
   key: {
     type: String,

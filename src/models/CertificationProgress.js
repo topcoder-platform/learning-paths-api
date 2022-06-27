@@ -8,7 +8,7 @@ const ModuleProgress = require('./ModuleProgress')
 const Schema = dynamoose.Schema
 
 const schema = new Schema({
-    userId: {
+    id: {
         type: String,
         hashKey: true,
         required: true
@@ -17,6 +17,22 @@ const schema = new Schema({
         type: String,
         rangeKey: true,
         required: true
+    },
+    userId: {
+        type: String,
+        required: true,
+        index: {
+            name: "userCertificationProgressIndex",
+            global: true,
+        }
+    },
+    provider: {
+        type: String,
+        required: true,
+        index: {
+            name: 'providerCertificationProgressIndex',
+            global: true
+        }
     },
     status: {
         type: String,

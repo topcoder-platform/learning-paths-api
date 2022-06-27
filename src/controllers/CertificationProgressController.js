@@ -6,7 +6,7 @@ const service = require('../services/CertificationProgressService')
 const helper = require('../common/helper')
 
 /**
- * Start a certification
+ * Start a certification for a user
  * 
  * @param {Object} req the request
  * @param {Object} res the response
@@ -14,7 +14,6 @@ const helper = require('../common/helper')
 async function startCertification(req, res) {
     const result = await service.startCertification(
         req.params.userId,
-        req.params.certification,
         req.body)
 
     res.send(result)
@@ -28,8 +27,7 @@ async function startCertification(req, res) {
  */
 async function completeCertification(req, res) {
     const result = await service.completeCertification(
-        req.params.userId,
-        req.params.certification)
+        req.params.certificationProgressId)
 
     res.send(result)
 }
@@ -55,8 +53,7 @@ async function searchCertificationProgresses(req, res) {
  */
 async function getCertificationProgress(req, res) {
     const result = await service.getCertificationProgress(
-        req.params.userId,
-        req.params.certification)
+        req.params.certificationProgressId)
 
     res.send(result)
 }
@@ -69,8 +66,7 @@ async function getCertificationProgress(req, res) {
  */
 async function updateCurrentLesson(req, res) {
     const result = await service.updateCurrentLesson(
-        req.params.userId,
-        req.params.certification,
+        req.params.certificationProgressId,
         req.body)
 
     res.send(result)
@@ -84,8 +80,7 @@ async function updateCurrentLesson(req, res) {
  */
 async function completeLesson(req, res) {
     const result = await service.completeLesson(
-        req.params.userId,
-        req.params.certification,
+        req.params.certificationProgressId,
         req.body)
 
     res.send(result)
@@ -106,11 +101,11 @@ async function updateCertificationProgress(req, res) {
 }
 
 module.exports = {
-    startCertification,
     completeCertification,
-    searchCertificationProgresses,
+    completeLesson,
     getCertificationProgress,
+    searchCertificationProgresses,
+    startCertification,
     updateCertificationProgress,
     updateCurrentLesson,
-    completeLesson
 }

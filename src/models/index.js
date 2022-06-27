@@ -16,8 +16,8 @@ const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
 } : {
   region: config.AMAZON.AWS_REGION
 }
-dynamoose.aws.ddb.set(awsConfigs);
-//dynamoose.aws.sdk.config.update(awsConfigs)
+
+dynamoose.aws.sdk.config.update(awsConfigs)
 //dynamoose.AWS.config.update(awsConfigs)
 
 if (config.AMAZON.IS_LOCAL_DB) {
@@ -32,7 +32,7 @@ if (config.AMAZON.IS_LOCAL_DB) {
 // console.log("Is local DB" + config.AMAZON.IS_LOCAL_DB )
 // console.log("AWS config" + JSON.stringify(awsConfigs) )
 // console.log(JSON.stringify(dynamoose.AWS.config))
-console.log(JSON.stringify(dynamoose.aws.ddb))
+console.log(JSON.stringify(dynamoose.aws.sdk.config))
 
 console.log("Setting dynamoose model defaults...")
 dynamoose.model.defaults.set({

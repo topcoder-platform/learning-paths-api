@@ -9,9 +9,9 @@ console.log("** Loading Dynamoose models...")
 console.log(typeof config.AMAZON.IS_LOCAL_DB);
 
 const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
-  accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
-  secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
-  sessionToken: config.AMAZON.AWS_SESSION_TOKEN,
+  accessKeyId: config.AMAZON.LOCAL_AWS_ACCESS_KEY_ID,
+  secretAccessKey: config.AMAZON.LOCAL_AWS_SECRET_ACCESS_KEY,
+  sessionToken: config.AMAZON.LOCAL_AWS_SESSION_TOKEN,
   region: config.AMAZON.AWS_REGION
 } : {
   region: config.AMAZON.AWS_REGION

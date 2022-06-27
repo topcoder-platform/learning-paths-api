@@ -10,6 +10,7 @@
     "lint": "eslint src --ext js,jsx",
     "lint:fix": "eslint src --ext js,jsx --fix",
     "init-db": "node src/init-db.js",
+    "rebuild-tables": "npm run drop-tables && npm run create-tables && npm run seed-tables",
     "drop-tables": "node src/scripts/drop-tables.js",
     "create-tables": "node src/scripts/create-tables.js",
     "seed-tables": "node src/scripts/seed-tables.js",

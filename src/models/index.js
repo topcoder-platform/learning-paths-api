@@ -32,7 +32,7 @@ if (config.AMAZON.IS_LOCAL_DB) {
 // console.log("Is local DB" + config.AMAZON.IS_LOCAL_DB )
 // console.log("AWS config" + JSON.stringify(awsConfigs) )
 console.log(JSON.stringify(dynamoose.AWS.config))
-console.log(JSON.stringify(dynamoose.aws.ddb.config))
+console.log(JSON.stringify(dynamoose.aws.ddb))
 
 console.log("Setting dynamoose model defaults...")
 dynamoose.model.defaults.set({

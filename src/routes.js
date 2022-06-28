@@ -71,7 +71,7 @@ module.exports = {
       method: 'updateCurrentLesson'
     }
   },
-  '/learning-paths/certification-progresses/:userId': {
+  '/learning-paths/certification-progresses/:userId/:certificationId/:courseId': {
     post: {
       controller: 'CertificationProgressController',
       method: 'startCertification'

@@ -14,6 +14,8 @@ const helper = require('../common/helper')
 async function startCertification(req, res) {
     const result = await service.startCertification(
         req.params.userId,
+        req.params.certificationId,
+        req.params.courseId,
         req.body)
 
     res.send(result)

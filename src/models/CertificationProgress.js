@@ -18,6 +18,18 @@ const schema = new Schema({
         rangeKey: true,
         required: true
     },
+    certificationId: {
+        type: String,
+        required: true
+    },
+    courseKey: {
+        type: String,
+        required: true
+    },
+    courseId: {
+        type: String,
+        required: true
+    },
     userId: {
         type: String,
         required: true,

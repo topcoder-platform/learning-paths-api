@@ -4,6 +4,7 @@
 
 const _ = require('lodash')
 const { CertificationProgress } = require('../models')
+const errors = require('../common/errors')
 const helper = require('../common/helper')
 const Joi = require('joi')
 const { v4: uuidv4 } = require('uuid');
@@ -18,59 +19,96 @@ const STATUS_IN_PROGRESS = "in-progress";
  * @param {Object} data object containing the provier, certification, module and lesson the user has started
  * @returns {Object} the new CertificationProgress object, or the existing one for the certification
  */
-async function startCertification(userId, data) {
+async function startCertification(userId, certificationId, courseId, data) {
     let existingProgress;
-    const { provider, certification } = { data }
     try {
         const searchCriteria = {
             userId: userId,
-            provider: provider,
-            certification: certification
+            certificationId: certificationId,
+            courseId: courseId
         }
-        existingProgress = await searchCertificationProgresses(searchCriteria)
+        results = await searchCertificationProgresses(searchCriteria)
+        existingProgress = results.result[0];
     } catch (NotFoundError) {
         // no-op 
     }
 
     // if the certification has already been started, just return it
     if (existingProgress) {
-        console.log(`User '${userId}' has already started the ${provider} '${certification}' certification`)
+        const provider = existingProgress.provider;
+        const certification = existingProgress.certification;
+        const startDate = existingProgress.startDate;
+
+        console.log(`User [${userId}] already started the [${provider}] [${certification}] certification on [${startDate}]`)
         return existingProgress
     } else {
-        // create a new certification progress record
-        console.log(`Starting certification ${provider} '${certification}' certification for user '${userId}'`)
-        validateWithSchema(startCertification.schema, data)
-
-        const newCertificationProgress = {
-            id: uuidv4(),
-            userId: userId,
-            certification: certification,
-            status: "in-progress",
-            startDate: new Date(),
-            currentLesson: `${data.module}/${data.lesson}`,
-            modules: [
-                {
-                    module: data.module,
-                    moduleStatus: "in-progress",
-                    lessonCount: 0, // TODO: retrieve this value from the course info
-                    completedLessons: [],
-                    completedPercentage: 0
-                }
-            ]
-        }
-
-        return await helper.create('CertificationProgress', newCertificationProgress)
+        return await buildNewCertificationProgress(userId, certificationId, courseId, data);
     }
 }
 
 startCertification.schema = {
     userId: Joi.string(),
+    certificationId: Joi.string(),
+    courseId: Joi.string(),
     data: Joi.object().keys({
-        provider: Joi.string().required(),
-        certification: Joi.string().required(),
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+/**
+ * Creates a new Certification Progress record for the given user and certification.
+ * This method looks up the Certification record to validate it and also retrieves some
+ * metadata about the associated course, such as the lessonCount.
+ * 
+ * @param {String} userId the user ID
+ * @param {String} certificationId the UUID of the certification to start
+ * @param {String} courseId the UUID of the course
+ * @param {Object} data the module and lesson in the course on which the user is starting
+ * @returns 
+ */
+async function buildNewCertificationProgress(userId, certificationId, courseId, data) {
+    // next call will throw and return an error if the certificationId doesn't exist,
+    // so just let that happen since the API will return the error to the client
+    const certification = await helper.getById('Certification', certificationId);
+
+    const course = await helper.getById('Course', courseId);
+    const module = course.modules.find(mod => mod.key == data.module);
+    if (!module) {
+        throw `Did not find module [${data.module}] in course [${course.key}]`
+    }
+    const lessonCount = module.lessons.length;
+
+    // create a new certification progress record
+    const providerName = certification.providerName;
+    const certificationName = certification.certification;
+    console.log(`User [${userId}] is starting [${providerName}] certification [${certificationName}] now`)
+
+    validateWithSchema(startCertification.schema, data)
+
+    const newCertificationProgress = {
+        id: uuidv4(),
+        userId: userId,
+        provider: providerName,
+        certification: certificationName,
+        certificationId: certificationId,
+        courseKey: course.key,
+        courseId: courseId,
+        status: STATUS_IN_PROGRESS,
+        startDate: new Date(),
+        currentLesson: `${data.module}/${data.lesson}`,
+        modules: [
+            {
+                module: data.module,
+                moduleStatus: STATUS_IN_PROGRESS,
+                lessonCount: lessonCount,
+                completedLessons: [],
+                completedPercentage: 0
+            }
+        ]
+    }
+
+    return await helper.create('CertificationProgress', newCertificationProgress)
 }
 
 /**
@@ -144,6 +182,20 @@ async function searchCertificationProgresses(criteria) {
             e => helper.partialMatch(criteria.certification, e.certification))
     }
 
+    // filter by certification ID
+    if (criteria.certificationId) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.certificationId, e.certificationId))
+    }
+
+    // filter by course ID
+    if (criteria.courseId) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.courseId, e.courseId))
+    }
+
     // filter by provider 
     if (criteria.provider) {
         records = _.filter(
@@ -168,7 +220,7 @@ searchCertificationProgresses.schema = {
 }
 
 /**
- * Get CertificationProgress by user ID and certification
+ * Get CertificationProgress by certification progress ID
  * 
  * @param {String} progressId the ID of the CertificationProgress 
  * @returns {Object} the certification progress for the given user and certification
@@ -228,10 +280,14 @@ async function updateCurrentLesson(certificationProgressId, data) {
     validateWithSchema(updateCurrentLesson.schema, data)
 
     const progress = await getCertificationProgress(certificationProgressId);
+    const module = data.module;
+    const lesson = data.lesson;
 
-    // TODO: we don't do any validation here to see if the module + lesson here
-    // are a valid combination for this certification -- would need to look up
-    // that data if we want to validate it.
+    // Validate that the given module and lesson are correct for the 
+    // certification/course. Will throw an error that is propagated back 
+    // to the client if validation fails
+    await validateCourseLesson(progress, module, lesson)
+
     const currentLesson = `${data.module}/${data.lesson}`
     const currentLessonData = {
         currentLesson: currentLesson
@@ -240,8 +296,6 @@ async function updateCurrentLesson(certificationProgressId, data) {
     let updatedProgress = await helper.update(progress, currentLessonData)
     decorateModuleProgress(updatedProgress);
 
-    // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
-    // timestamp to a JS Date object on +update+.
     return updatedProgress
 }
 
@@ -251,6 +305,33 @@ updateCurrentLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+/**
+ * Validates that the given module/lesson exist in the course 
+ * 
+ * @param {Object} progress the CertificationProgress object 
+ * @param {String} moduleName the module name (key) to validate
+ * @param {String} lessonName the lesson name to validate
+ * @returns {Promise<void>} 
+ */
+async function validateCourseLesson(progress, moduleName, lessonName) {
+    const provider = progress.provider;
+    const course = await helper.getById('Course', progress.courseId);
+
+    return new Promise((resolve, reject) => {
+        const module = course.modules.find(mod => mod.key == moduleName)
+        if (!module) {
+            reject(new errors.NotFoundError(`Module '${moduleName}' not found in ${provider} course '${course.key}'`))
+        }
+
+        const lesson = module.lessons.find(less => less.dashedName == lessonName)
+        if (!lesson) {
+            reject(new errors.NotFoundError(`Lesson '${lessonName}' not found in ${provider} course '${course.key}' module '${moduleName}'`))
+        }
+
+        resolve(true)
+    })
 }
 
 /**

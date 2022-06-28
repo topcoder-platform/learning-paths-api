@@ -123,6 +123,43 @@
 			"response": []
 		},
 		{
+			"name": "Get All Certifications Progresses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Certification Progress by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Start Certification",
 			"request": {
 				"method": "POST",
@@ -137,7 +174,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/{{CERTIFICATION_ID}}/{{COURSE_ID}}",
 					"host": [
 						"{{URL}}"
 					],
@@ -145,47 +182,8 @@
 						"learning-paths",
 						"certification-progresses",
 						"{{USER_ID}}",
-						"certification",
-						"{{CERTIFICATION}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get All Certifications Progresses",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certifications",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certifications"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Certification Progress for User",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-progresses",
-						"{{USER_ID}}",
-						"certification",
-						"{{CERTIFICATION}}"
+						"{{CERTIFICATION_ID}}",
+						"{{COURSE_ID}}"
 					]
 				}
 			},
@@ -206,16 +204,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/current-lesson",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses",
-						"{{USER_ID}}",
-						"certification",
-						"{{CERTIFICATION}}"
+						"{{CERTIFICATION_PROGRESS_ID}}",
+						"current-lesson"
 					]
 				}
 			},
@@ -228,7 +225,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-5\"\n}",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-8\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -236,16 +233,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}/complete-lesson",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-lesson",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses",
-						"{{USER_ID}}",
-						"certification",
-						"{{CERTIFICATION}}",
+						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-lesson"
 					]
 				}
@@ -258,16 +253,14 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/certification/{{CERTIFICATION}}/complete-certification",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-certification",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses",
-						"{{USER_ID}}",
-						"certification",
-						"{{CERTIFICATION}}",
+						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-certification"
 					]
 				}

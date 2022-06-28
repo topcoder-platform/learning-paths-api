@@ -113,7 +113,7 @@ function showAvailableProviders(providers) {
     console.log('\n')
 }
 
-function runCourseGenerator(provider) {
+function getCourseGenerator(provider) {
     let generator;
     switch (provider) {
         case 'freeCodeCamp':
@@ -121,20 +121,18 @@ function runCourseGenerator(provider) {
             break;
 
         default:
-            Console.log(`Unknown learing resource provider ${provider}`)
+            Console.log(`Unknown learning resource provider ${provider}`)
             break;
     }
 
-    const generatedFile = generator.generateCourseData();
-    console.log(`** Courses for ${provider} have been written to ${generatedFile.toString()}`)
-
-    return generatedFile;
+    return generator;
 }
 
 async function writeCoursesToDB(courseFile) {
     // TODO -- do we want to do a wholesale remove and replace operation?
     console.log("Clearing Course table...");
     const courses = await helper.scan('Course')
+    console.log(`Deleting ${courses.length} courses...`)
     for (const course of courses) {
         await course.delete()
     }
@@ -144,7 +142,8 @@ async function writeCoursesToDB(courseFile) {
 
     try {
         const data = require(courseFile)
-        logger.info(`Inserting ${get(data, 'length')} courses`)
+        const numCourses = get(data, 'length');
+        logger.info(`Inserting ${helper.pluralize(numCourses, 'course')}`)
         promises.push(models.Course.batchPut(data))
     } catch (e) {
         logger.warn(`An error occurred. No courses will be inserted.`)
@@ -154,6 +153,35 @@ async function writeCoursesToDB(courseFile) {
     Promise.all(promises)
         .then(() => {
             logger.info('All course data has been inserted. The processes is run asynchronously')
+        })
+        .catch((err) => {
+            logger.logFullError(err)
+        })
+}
+
+async function writeCertificationsToDB(certificationsFile) {
+    console.log("Clearing Certifications table...");
+    const certifications = await helper.scan('Certification')
+    for (const certification of certifications) {
+        await certification.delete()
+    }
+
+    console.log("\n** Writing certification data to DynamoDB...");
+    const promises = []
+
+    try {
+        const data = require(certificationsFile)
+        const numCerts = get(data, 'length');
+        logger.info(`Inserting ${helper.pluralize(numCerts, 'certification')}`)
+        promises.push(models.Certification.batchPut(data))
+    } catch (e) {
+        logger.warn(`An error occurred. No certifications will be inserted.`)
+        logger.logFullError(e)
+    }
+
+    Promise.all(promises)
+        .then(() => {
+            logger.info('All certification data has been inserted. The processes is run asynchronously')
         })
         .catch((err) => {
             logger.logFullError(err)
@@ -188,8 +216,13 @@ if (args.length == 2 || (args.length == 3 && writeToDB)) {
 // Generate the course data for the given provider
 // and write it to the database if that flag was provided
 if (provider) {
-    const courseFile = runCourseGenerator(provider.name);
+    const generator = getCourseGenerator(provider.name);
+    const generatedCourseFilePath = generator.generateCourseData();
+    console.log(`** Courses for ${provider.name} have been written to ${generatedCourseFilePath.toString()}`)
+
     if (writeToDB) {
-        writeCoursesToDB(courseFile);
+        console.log("\nWriting generated course data to the database")
+        writeCoursesToDB(generatedCourseFilePath);
+        writeCertificationsToDB(generator.certificationsFilePath)
     }
 }

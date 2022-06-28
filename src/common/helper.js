@@ -382,6 +382,10 @@ function ensureNoDuplicateOrNullElements(arr, name) {
   }
 }
 
+function pluralize(count, noun, suffix = 's') {
+  return `${count} ${noun}${count !== 1 ? suffix : ''}`
+}
+
 function getFromInternalCache(key) {
   return internalCache.get(key)
 }
@@ -407,6 +411,7 @@ module.exports = {
   validateDuplicate,
   validateRequestPayload,
   partialMatch,
+  pluralize,
   ensureNoDuplicateOrNullElements,
   getFromInternalCache,
   setToInternalCache

@@ -147,6 +147,7 @@ class FreeCodeCampGenerator {
                     provider: this.PROVIDER,
                     key: course,
                     title: courseIntro.title,
+                    certificationId: certification.id,
                     certification: certification.certification,
                     completionHours: certification.completionHours,
                     introCopy: courseIntro.intro,

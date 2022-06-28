@@ -26,7 +26,6 @@ function deleteTable(tableName) {
 
 Object.keys(models).forEach(modelName => {
   if (!includes(skipModels, modelName)) {
-    // promises.push(models[modelName].$__.table.delete())
     promises.push(deleteTable(modelName))
   } else {
     logger.info(`Skipping ${modelName}`)

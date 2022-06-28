@@ -3,6 +3,7 @@
  */
 
 const dynamoose = require('dynamoose')
+const Module = require('./Module')
 
 const Schema = dynamoose.Schema
 
@@ -14,7 +15,8 @@ const schema = new Schema({
   },
   provider: {
     type: String,
-    required: true
+    rangeKey: true,
+    required: true,
   },
   key: {
     type: String,
@@ -44,7 +46,8 @@ const schema = new Schema({
   },
   modules: {
     type: Array,
-    required: true,
+    schema: [Module],
+    required: true
   }
 },
   {

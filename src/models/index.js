@@ -5,9 +5,10 @@
 const config = require('config')
 const dynamoose = require('dynamoose')
 
-console.log("** Loading Dynamoose models...")
-console.log(typeof config.AMAZON.IS_LOCAL_DB);
-
+// NOTE! We are using AWS config vars here prefixed with LOCAL_ because 
+// Dynamoose internally uses the aws-sdk and it will blindly 
+// use any existing AWS env vars despite the call to  
+// dynamoose.aws.sdk.config.update(). 
 const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
   accessKeyId: config.AMAZON.LOCAL_AWS_ACCESS_KEY_ID,
   secretAccessKey: config.AMAZON.LOCAL_AWS_SECRET_ACCESS_KEY,
@@ -18,29 +19,18 @@ const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
 }
 
 dynamoose.aws.sdk.config.update(awsConfigs)
-//dynamoose.AWS.config.update(awsConfigs)
 
 if (config.AMAZON.IS_LOCAL_DB) {
   dynamoose.aws.ddb.local(config.AMAZON.DYNAMODB_URL)
 }
 
-//if (config.AMAZON.IS_LOCAL_DB) {
-//  dynamoose.local(config.AMAZON.DYNAMODB_URL)//
-//}
+// console.log(JSON.stringify(dynamoose.aws.sdk.config))
 
-// console.log(config.AMAZON.IS_LOCAL_DB, config.AMAZON.AWS_ACCESS_KEY_ID, config.AMAZON.AWS_SECRET_ACCESS_KEY)
-// console.log("Is local DB" + config.AMAZON.IS_LOCAL_DB )
-// console.log("AWS config" + JSON.stringify(awsConfigs) )
-// console.log(JSON.stringify(dynamoose.AWS.config))
-console.log(JSON.stringify(dynamoose.aws.sdk.config))
-
-console.log("Setting dynamoose model defaults...")
 dynamoose.model.defaults.set({
   create: true,
   update: false,
   waitForActive: false
 })
-console.log("calling module.exports...")
 
 module.exports = {
   Certification: dynamoose.model('Certification', require('./Certification')),

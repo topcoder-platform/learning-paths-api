@@ -11,8 +11,14 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    moduleStatus: {
+        type: String,
+        enum: ["not-started", "in-progress", "completed"],
+        required: true
+    },
     lessonCount: {
         type: Number,
+        default: 0,
         required: true
     },
     completedLessons: {

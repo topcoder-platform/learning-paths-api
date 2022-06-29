@@ -23,6 +23,9 @@ class FreeCodeCampGenerator {
     ADDITIONAL_DATA_FILE = 'additional-data.json';
     GENERATED_COURSES_FILE = 'generated_courses.json';
 
+    generatedCourseFilePath = null;
+    certificationsFilePath = null;
+
     /**
      * Top level class method that the CLI module will call. This method does all 
      * of the work to generate the standard course data for this particular provider.
@@ -39,7 +42,10 @@ class FreeCodeCampGenerator {
 
         const rawCourses = this.buildRawCourses(certifications, curriculumData, additionalData);
         const courses = this.buildCourses(rawCourses);
-        return this.writeCourseFile(courses);
+
+        this.generatedCourseFilePath = this.writeCourseFile(courses);
+
+        return this.generatedCourseFilePath;
     }
 
     /**
@@ -49,8 +55,9 @@ class FreeCodeCampGenerator {
      * @returns active certifications with unique IDs
      */
     loadAndIdentifyActiveCertifications() {
-        const certPath = path.join(__dirname, this.SOURCE_FILES_DIR, this.CERTIFICATIONS_FILE);
-        const certifications = JSON.parse(fs.readFileSync(certPath));
+        this.certificationsFilePath = path.join(__dirname, this.SOURCE_FILES_DIR, this.CERTIFICATIONS_FILE);
+        const certificationsFile = fs.readFileSync(this.certificationsFilePath);
+        const certifications = JSON.parse(certificationsFile);
 
         let dirty = false;
 
@@ -63,8 +70,8 @@ class FreeCodeCampGenerator {
             }
         })
 
+        // if the certifications were updated, write the data back to the JSON file
         if (dirty) {
-            // if the certifications were updated, write the data back to JSON
             fs.writeFileSync(certPath, JSON.stringify(certifications, null, 2));
         }
 
@@ -147,6 +154,7 @@ class FreeCodeCampGenerator {
                     provider: this.PROVIDER,
                     key: course,
                     title: courseIntro.title,
+                    certificationId: certification.id,
                     certification: certification.certification,
                     completionHours: certification.completionHours,
                     introCopy: courseIntro.intro,
@@ -190,10 +198,10 @@ class FreeCodeCampGenerator {
      * @param {intro data object} blockIntro 
      * @returns course metadata object
      */
-    parseModuleMeta(meta, blockIntro) {
+    parseModuleMeta(key, meta, blockIntro) {
         return {
             name: meta.name,
-            dashedName: meta.dashedName,
+            dashedName: meta.dashedName || key,
             order: meta.order,
             estimatedCompletionTime: this.parseLessonCompletionTime(meta.time),
             introCopy: blockIntro,
@@ -211,7 +219,7 @@ class FreeCodeCampGenerator {
     parseLessonCompletionTime(completionTime) {
         const timeParts = completionTime.split(' ');
         return {
-            value: timeParts[0],
+            value: parseInt(timeParts[0], 10),
             units: timeParts[1]
         }
     }
@@ -266,7 +274,7 @@ class FreeCodeCampGenerator {
 
                 const module = {
                     key: meta.dashedName || key,
-                    meta: this.parseModuleMeta(meta, blockIntros[key].intro),
+                    meta: this.parseModuleMeta(key, meta, blockIntros[key].intro),
                     lessons: this.parseChallenges(block.challenges)
                 }
                 course.modules.push(module);

@@ -123,7 +123,7 @@
 			"response": []
 		},
 		{
-			"name": "Get All Certifications Progresses",
+			"name": "Get All Certification Progresses",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -135,6 +135,30 @@
 					"path": [
 						"learning-paths",
 						"certification-progresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Certification Progresses for User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{USER_ID}}"
+						}
 					]
 				}
 			},

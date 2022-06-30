@@ -23,13 +23,13 @@ async function searchCourses(criteria) {
     if (criteria.provider) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.provider, e.provider))
+            e => helper.fullyMatch(criteria.provider, e.provider))
     }
 
     if (criteria.certification) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.certification, e.certification))
+            e => helper.fullyMatch(criteria.certification, e.certification))
     }
 
     const total = records.length

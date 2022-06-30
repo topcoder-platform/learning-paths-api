@@ -23,7 +23,7 @@ async function searchCertifications(criteria) {
     if (criteria.providerName) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.providerName, e.providerName))
+            e => helper.fullyMatch(criteria.providerName, e.providerName))
     }
 
     const total = records.length

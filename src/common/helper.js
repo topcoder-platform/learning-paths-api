@@ -356,6 +356,25 @@ function partialMatch(filter, value) {
 }
 
 /**
+ * Test whether the given value fully matches the filter.
+ * @param {String} filter the filter
+ * @param {String} value the value to test
+ * @returns {Boolean} the match result
+ */
+function fullyMatch(filter, value) {
+  if (filter) {
+    if (value) {
+      const filtered = xss(filter)
+      return _.toLower(value) === _.toLower(filtered)
+    } else {
+      return false
+    }
+  } else {
+    return true
+  }
+}
+
+/**
  * Get M2M token.
  * @returns {Promise<String>} the M2M token
  */
@@ -395,24 +414,25 @@ function setToInternalCache(key, value) {
 }
 
 module.exports = {
-  wrapExpress,
   autoWrapExpress,
-  setResHeaders,
   checkIfExists,
-  hasAdminRole,
-  toString,
+  create,
+  ensureNoDuplicateOrNullElements,
+  fullyMatch,
   getById,
   getByIds,
   getByTableKeys,
-  create,
-  update,
-  scan,
-  scanAll,
-  validateDuplicate,
-  validateRequestPayload,
+  getFromInternalCache,
+  hasAdminRole,
   partialMatch,
   pluralize,
-  ensureNoDuplicateOrNullElements,
-  getFromInternalCache,
-  setToInternalCache
+  scan,
+  scanAll,
+  setResHeaders,
+  setToInternalCache,
+  toString,
+  validateDuplicate,
+  validateRequestPayload,
+  update,
+  wrapExpress,
 }

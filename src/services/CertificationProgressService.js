@@ -31,35 +31,35 @@ async function searchCertificationProgresses(criteria) {
     if (criteria.userId) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.userId, e.userId))
+            e => helper.fullyMatch(criteria.userId, e.userId))
     }
 
     // filter by certification
     if (criteria.certification) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.certification, e.certification))
+            e => helper.fullyMatch(criteria.certification, e.certification))
     }
 
     // filter by certification ID
     if (criteria.certificationId) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.certificationId, e.certificationId))
+            e => helper.fullyMatch(criteria.certificationId, e.certificationId))
     }
 
     // filter by course ID
     if (criteria.courseId) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.courseId, e.courseId))
+            e => helper.fullyMatch(criteria.courseId, e.courseId))
     }
 
     // filter by provider 
     if (criteria.provider) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.provider, e.provider))
+            e => helper.fullyMatch(criteria.provider, e.provider))
     }
 
     const total = records.length

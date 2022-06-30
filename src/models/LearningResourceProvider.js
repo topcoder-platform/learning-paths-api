@@ -24,9 +24,9 @@ const schema = new Schema({
         type: String,
         required: true
     }
-},
-    {
-        throughput: { read: 4, write: 2 }
-    })
+}, {
+    timestamps: true,
+    throughput: { read: 4, write: 2 }
+})
 
 module.exports = schema

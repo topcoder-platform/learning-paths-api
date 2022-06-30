@@ -37,9 +37,8 @@ const schema = new Schema({
             }
         }]
     }
-},
-    {
-        throughput: { read: 4, write: 2 }
-    })
+}, {
+    throughput: { read: 4, write: 2 }
+})
 
 module.exports = schema

@@ -12,7 +12,7 @@ const { v4: uuidv4 } = require('uuid')
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
-const STATUS_NOT_STARTED = "non-started";
+const STATUS_NOT_STARTED = "not-started";
 
 /**
  * Search Certification Progress
@@ -163,7 +163,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         }
     })
 
-    const newCertificationProgress = {
+    const progress = {
         id: uuidv4(),
         userId: userId,
         provider: providerName,
@@ -178,7 +178,11 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         modules: modules
     }
 
-    return await helper.create('CertificationProgress', newCertificationProgress)
+
+    const newProgress = await helper.create('CertificationProgress', progress)
+    decorateProgressCompletion(newProgress);
+
+    return newProgress;
 }
 
 /**
@@ -204,7 +208,7 @@ async function completeCertification(certificationProgressId) {
     // completed all of the required modules and lessons to earn a certification?
     let updatedProgress = await helper.update(progress, completionData)
     console.log(`User [${userId}] has completed [${provider}] certification [${certification}]`);
-    decorateModuleProgress(updatedProgress);
+    decorateProgressCompletion(updatedProgress);
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
     // timestamp to a JS Date object on +update+.
@@ -234,7 +238,7 @@ function validateWithSchema(modelSchema, data) {
 async function getCertificationProgress(progressId) {
     let progress = await helper.getById('CertificationProgress', progressId)
 
-    decorateModuleProgress(progress);
+    decorateProgressCompletion(progress);
 
     return progress
 }
@@ -262,27 +266,69 @@ getCertificationProgress.schema = {
 }
 
 /**
- * Adds completedLessonCount and percentCompleted for each course.
+ * Adds course and module completion progress information
  * 
  * @param {Object} progress the progress object to decorate
  */
-function decorateModuleProgress(progress) {
+function decorateProgressCompletion(progress) {
     if (!progress.modules) {
         return
     }
 
     progress.modules.forEach(module => {
-        const lessonCount = module.lessonCount || 0;
-        const completedLessonCount = module.completedLessons.length || 0;
-        module.completedLessonCount = completedLessonCount;
-
-        let completedPercentage = 0;
-        if (completedLessonCount > 0) {
-            completedPercentage = Math.floor((completedLessonCount / lessonCount) * 100);
-        }
-
-        module.completedPercentage = completedPercentage;
+        computeModuleProgress(module)
     })
+
+    computeCourseProgress(progress)
+}
+
+/**
+ * Computes module progress in terms of completed lessons and percent complete.
+ * 
+ * @param {Object} module course module to add progress information
+ */
+function computeModuleProgress(module) {
+    const lessonCount = module.lessonCount || 0;
+    const completedLessonCount = module.completedLessons.length || 0;
+    module.completedLessonCount = completedLessonCount;
+
+    let completedPercentage = 0;
+    if (lessonCount > 0 && completedLessonCount > 0) {
+        completedPercentage = Math.floor((completedLessonCount / lessonCount) * 100);
+    }
+
+    module.completedPercentage = completedPercentage;
+}
+
+/**
+ * Computes overall course completion progress percentage
+ * 
+ * @param {Object} progress course progress object over which to compute progress
+ */
+function computeCourseProgress(progress) {
+    let courseProgressPercentage = 0;
+    let lessonCount = 0;
+    let completedLessonCount = 0;
+
+    // sum up the total number of lessons and completed lessons to compute
+    // an overall completion percentage
+    progress.modules.forEach(module => {
+        lessonCount += module.lessonCount;
+        completedLessonCount += module.completedLessonCount;
+    })
+
+    if (lessonCount > 0) {
+        const rawCompletion = (completedLessonCount / lessonCount);
+        courseProgressPercentage = Math.floor(rawCompletion * 100);
+
+        // Round any non-zero value less than 1% completion up to 1% so we show the 
+        // user some progress even if they've only completed a few lessons
+        if (rawCompletion > 0 && courseProgressPercentage == 0) {
+            courseProgressPercentage = 1
+        }
+    }
+
+    progress.courseProgressPercentage = courseProgressPercentage;
 }
 
 /**
@@ -292,7 +338,7 @@ function decorateModuleProgress(progress) {
  */
 function decorateProgresses(progresses) {
     progresses.forEach(progress => {
-        decorateModuleProgress(progress)
+        decorateProgressCompletion(progress)
     })
 }
 
@@ -319,7 +365,7 @@ async function updateCurrentLesson(certificationProgressId, data) {
     }
 
     let updatedProgress = await helper.update(progress, currentLessonData)
-    decorateModuleProgress(updatedProgress);
+    decorateProgressCompletion(updatedProgress);
 
     return updatedProgress
 }
@@ -377,7 +423,7 @@ async function completeLesson(certificationProgressId, data) {
     let progress = await getCertificationProgress(certificationProgressId);
     const userId = progress.userId;
     const certification = progress.certification;
-    decorateModuleProgress(progress)
+    decorateProgressCompletion(progress)
 
     const moduleName = data.module;
     const lessonName = data.lesson;
@@ -408,7 +454,7 @@ async function completeLesson(certificationProgressId, data) {
         let updatedProgress = await helper.update(progress, updatedModules)
         console.log(`User [${userId}] completed ${certification}/${moduleName}/${lessonName}`);
 
-        decorateModuleProgress(updatedProgress);
+        decorateProgressCompletion(updatedProgress);
         return updatedProgress
     }
 }

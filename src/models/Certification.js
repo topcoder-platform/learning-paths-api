@@ -44,6 +44,11 @@ const schema = new Schema({
         type: String,
         required: true,
     },
+    trackType: {
+        type: String,
+        enum: ['QA', 'DEV', 'DATASCIENCE', 'DESIGN'],
+        required: true
+    }
 },
     {
         throughput: { read: 4, write: 2 }

@@ -11,7 +11,8 @@
             "2022/responsive-web-design"
         ],
         "state": "active",
-        "category": "Web Development"
+        "category": "Web Development",
+        "trackType": "DEV"
     },
     {
         "id": "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
@@ -25,7 +26,8 @@
             "2022/javascript-algorithms-and-data-structures"
         ],
         "state": "active",
-        "category": "Web Development"
+        "category": "Web Development",
+        "trackType": "DEV"
     },
     {
         "id": "6909044d-508b-4c6e-9b90-999bea2b82b0",
@@ -37,7 +39,8 @@
         "completionHours": 400,
         "courses": [],
         "state": "coming-soon",
-        "category": "Web Development"
+        "category": "Web Development",
+        "trackType": "DEV"
     },
     {
         "id": "9796fe32-d2f9-4b1b-92ee-c6003e4400ac",
@@ -51,7 +54,8 @@
             "scientific-computing-with-python"
         ],
         "state": "coming-soon",
-        "category": "Data Science"
+        "category": "Data Science",
+        "trackType": "DATASCIENCE"
     },
     {
         "id": "269f7d9d-fb10-402b-a942-600f025b0c0f",
@@ -65,6 +69,7 @@
             "data-analysis-with-python"
         ],
         "state": "coming-soon",
-        "category": "Data Science"
+        "category": "Data Science",
+        "trackType": "DATASCIENCE"
     }
 ]

@@ -12,6 +12,72 @@ const { v4: uuidv4 } = require('uuid');
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
 
+
+/**
+ * Search Certification Progress
+ * 
+ * @param {Object} criteria the search criteria
+ * @returns {Object} the search result
+ */
+async function searchCertificationProgresses(criteria) {
+    records = await helper.scanAll('CertificationProgress')
+
+    const page = criteria.page || 1
+    const perPage = criteria.perPage || 50
+
+    // filter data by given criteria
+    // filter by user ID
+    if (criteria.userId) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.userId, e.userId))
+    }
+
+    // filter by certification
+    if (criteria.certification) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.certification, e.certification))
+    }
+
+    // filter by certification ID
+    if (criteria.certificationId) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.certificationId, e.certificationId))
+    }
+
+    // filter by course ID
+    if (criteria.courseId) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.courseId, e.courseId))
+    }
+
+    // filter by provider 
+    if (criteria.provider) {
+        records = _.filter(
+            records,
+            e => helper.partialMatch(criteria.provider, e.provider))
+    }
+
+    const total = records.length
+    let result = records.slice((page - 1) * perPage, page * perPage)
+    decorateProgresses(result)
+
+    return { total, page, perPage, result }
+}
+
+searchCertificationProgresses.schema = {
+    criteria: Joi.object().keys({
+        page: Joi.page(),
+        perPage: Joi.number().integer().min(1).max(100).default(100),
+        userId: Joi.string(),
+        certification: Joi.string(),
+        provider: Joi.string(),
+    })
+}
+
 /**
  * Create a new certification progress record 
  * 
@@ -153,70 +219,6 @@ function validateWithSchema(modelSchema, data) {
     if (error) {
         throw error
     }
-}
-
-/**
- * Search Certification Progress
- * 
- * @param {Object} criteria the search criteria
- * @returns {Object} the search result
- */
-async function searchCertificationProgresses(criteria) {
-    records = await helper.scanAll('CertificationProgress')
-
-    const page = criteria.page || 1
-    const perPage = criteria.perPage || 50
-
-    // filter data by given criteria
-    // filter by user ID
-    if (criteria.userId) {
-        records = _.filter(
-            records,
-            e => helper.partialMatch(criteria.userId, e.userId))
-    }
-
-    // filter by certification
-    if (criteria.certification) {
-        records = _.filter(
-            records,
-            e => helper.partialMatch(criteria.certification, e.certification))
-    }
-
-    // filter by certification ID
-    if (criteria.certificationId) {
-        records = _.filter(
-            records,
-            e => helper.partialMatch(criteria.certificationId, e.certificationId))
-    }
-
-    // filter by course ID
-    if (criteria.courseId) {
-        records = _.filter(
-            records,
-            e => helper.partialMatch(criteria.courseId, e.courseId))
-    }
-
-    // filter by provider 
-    if (criteria.provider) {
-        records = _.filter(
-            records,
-            e => helper.partialMatch(criteria.provider, e.provider))
-    }
-    const total = records.length
-    let result = records.slice((page - 1) * perPage, page * perPage)
-    decorateProgresses(result)
-
-    return { total, page, perPage, result }
-}
-
-searchCertificationProgresses.schema = {
-    criteria: Joi.object().keys({
-        page: Joi.page(),
-        perPage: Joi.number().integer().min(1).max(100).default(100),
-        userId: Joi.string(),
-        certification: Joi.string(),
-        provider: Joi.string(),
-    })
 }
 
 /**

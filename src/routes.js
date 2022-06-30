@@ -64,6 +64,10 @@ module.exports = {
       controller: 'CertificationProgressController',
       method: 'getCertificationProgress'
     },
+    delete: {
+      controller: 'CertificationProgressController',
+      method: 'deleteCertificationProgress'
+    },
   },
   '/learning-paths/certification-progresses/:certificationProgressId/current-lesson': {
     put: {

@@ -184,6 +184,25 @@
 			"response": []
 		},
 		{
+			"name": "Delete Certification Progress by ID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Start Certification",
 			"request": {
 				"method": "POST",

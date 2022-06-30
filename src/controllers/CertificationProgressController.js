@@ -20,6 +20,32 @@ async function searchCertificationProgresses(req, res) {
 }
 
 /**
+ * Get certification progress for a particular user and certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function getCertificationProgress(req, res) {
+    const result = await service.getCertificationProgress(
+        req.params.certificationProgressId)
+
+    res.send(result)
+}
+
+/**
+ * Delete certification progress for a particular user and certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function deleteCertificationProgress(req, res) {
+    const result = await service.deleteCertificationProgress(
+        req.params.certificationProgressId)
+
+    res.send(result)
+}
+
+/**
  * Start a certification for a user
  * 
  * @param {Object} req the request
@@ -43,19 +69,6 @@ async function startCertification(req, res) {
  */
 async function completeCertification(req, res) {
     const result = await service.completeCertification(
-        req.params.certificationProgressId)
-
-    res.send(result)
-}
-
-/**
- * Get certification progress for a particular user and certification
- * 
- * @param {Object} req the request
- * @param {Object} res the response
- */
-async function getCertificationProgress(req, res) {
-    const result = await service.getCertificationProgress(
         req.params.certificationProgressId)
 
     res.send(result)
@@ -106,6 +119,7 @@ async function updateCertificationProgress(req, res) {
 module.exports = {
     completeCertification,
     completeLesson,
+    deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,
     startCertification,

@@ -7,11 +7,12 @@ const { CertificationProgress } = require('../models')
 const errors = require('../common/errors')
 const helper = require('../common/helper')
 const Joi = require('joi')
-const { v4: uuidv4 } = require('uuid');
+const models = require('../models')
+const { v4: uuidv4 } = require('uuid')
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
-
+const STATUS_NOT_STARTED = "non-started";
 
 /**
  * Search Certification Progress
@@ -137,20 +138,30 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     // next call will throw and return an error if the certificationId doesn't exist,
     // so just let that happen since the API will return the error to the client
     const certification = await helper.getById('Certification', certificationId);
+    validateWithSchema(startCertification.schema, data)
 
     const course = await helper.getById('Course', courseId);
-    const module = course.modules.find(mod => mod.key == data.module);
-    if (!module) {
-        throw `Did not find module [${data.module}] in course [${course.key}]`
+    const courseModules = course.modules;
+    const currentModule = courseModules.find(mod => mod.key == data.module);
+    if (!currentModule) {
+        throw new errors.NotFoundError(`Did not find module [${data.module}] in course [${course.key}]`)
     }
-    const lessonCount = module.lessons.length;
 
     // create a new certification progress record
     const providerName = certification.providerName;
     const certificationName = certification.certification;
     console.log(`User [${userId}] is starting [${providerName}] certification [${certificationName}] now`)
 
-    validateWithSchema(startCertification.schema, data)
+    const modules = courseModules.map(module => {
+        return {
+            module: module.key,
+            moduleStatus: module.key == data.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
+            lessonCount: module.lessons.length,
+            completedLessonCount: 0,
+            completedLessons: [],
+            completedPercentage: 0
+        }
+    })
 
     const newCertificationProgress = {
         id: uuidv4(),
@@ -161,17 +172,10 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         courseKey: course.key,
         courseId: courseId,
         status: STATUS_IN_PROGRESS,
+        courseProgressPercentage: 0,
         startDate: new Date(),
         currentLesson: `${data.module}/${data.lesson}`,
-        modules: [
-            {
-                module: data.module,
-                moduleStatus: STATUS_IN_PROGRESS,
-                lessonCount: lessonCount,
-                completedLessons: [],
-                completedPercentage: 0
-            }
-        ]
+        modules: modules
     }
 
     return await helper.create('CertificationProgress', newCertificationProgress)
@@ -240,7 +244,25 @@ getCertificationProgress.schema = {
 }
 
 /**
- * Adds percentCompleted for each course.
+ * Delete CertificationProgress by certification progress ID
+ * 
+ * @param {String} progressId the ID of the CertificationProgress 
+ * @returns {Object} the deleted CertificationProgress
+ */
+async function deleteCertificationProgress(progressId) {
+    let progress = await helper.getById('CertificationProgress', progressId)
+
+    await models.CertificationProgress.delete(progress)
+
+    return progress
+}
+
+getCertificationProgress.schema = {
+    progressId: Joi.string()
+}
+
+/**
+ * Adds completedLessonCount and percentCompleted for each course.
  * 
  * @param {Object} progress the progress object to decorate
  */
@@ -252,6 +274,7 @@ function decorateModuleProgress(progress) {
     progress.modules.forEach(module => {
         const lessonCount = module.lessonCount || 0;
         const completedLessonCount = module.completedLessons.length || 0;
+        module.completedLessonCount = completedLessonCount;
 
         let completedPercentage = 0;
         if (completedLessonCount > 0) {
@@ -422,11 +445,12 @@ updateCertificationProgress.schema = {
 }
 
 module.exports = {
-    startCertification,
     completeCertification,
-    searchCertificationProgresses,
+    completeLesson,
+    deleteCertificationProgress,
     getCertificationProgress,
-    updateCurrentLesson,
+    searchCertificationProgresses,
+    startCertification,
     updateCertificationProgress,
-    completeLesson
+    updateCurrentLesson,
 }

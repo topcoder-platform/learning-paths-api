@@ -34,6 +34,19 @@ const schema = new Schema({
     type: String,
     required: true
   },
+  estimatedCompletionTime: {
+    type: Object,
+    schema: {
+      value: {
+        type: Number,
+        required: true
+      },
+      units: {
+        type: String,
+        required: true
+      }
+    }
+  },
   introCopy: {
     type: Array,
     schema: [String],

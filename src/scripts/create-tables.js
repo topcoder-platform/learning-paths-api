@@ -9,9 +9,18 @@ const logger = require('../common/logger')
 logger.info('Requesting to create tables...')
 
 const promises = []
-const skipModels = []
+const skipModels = ['Certification', 'CertificationProgress', 'LearningResourceProvider']
+let createModels = []
 
-Object.keys(models).forEach(modelName => {
+// Handle creating all model tables, or a specific one 
+// if the user provides a model name
+if (process.argv.length === 2) {
+  createModels = Object.keys(models)
+} else if (process.argv.length === 3) {
+  createModels.push(process.argv[2])
+}
+
+createModels.forEach(modelName => {
   if (!includes(skipModels, modelName)) {
     promises.push(models[modelName].table.create.request())
   } else {
@@ -21,7 +30,11 @@ Object.keys(models).forEach(modelName => {
 
 Promise.all(promises)
   .then(() => {
-    logger.info('All tables have been requested to be created. Creating processes is run asynchronously')
+    if (createModels.length > 1) {
+      logger.info('All tables have been requested to be created. Creating processes is run asynchronously.')
+    } else {
+      logger.info(`The ${createModels[0]} table has been requested to be created. Creation runs asynchronously.`)
+    }
     process.exit()
   })
   .catch((err) => {

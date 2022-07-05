@@ -9,6 +9,7 @@
  */
 
 const fs = require('fs');
+const { result } = require('lodash');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
@@ -266,6 +267,7 @@ class FreeCodeCampGenerator {
     buildCourses(rawCourses) {
         rawCourses.forEach(course => {
             course.modules = [];
+            let moduleCompletionTimes = [];
 
             const blockIntros = course.blockIntros;
 
@@ -278,7 +280,10 @@ class FreeCodeCampGenerator {
                     lessons: this.parseChallenges(block.challenges)
                 }
                 course.modules.push(module);
+                moduleCompletionTimes.push(module.meta.estimatedCompletionTime);
             }
+
+            course.estimatedCompletionTime = this.computeCourseCompletionTime(moduleCompletionTimes);
 
             // sort the modules in the order they should be shown
             course.modules.sort(this.compareModules);
@@ -289,6 +294,40 @@ class FreeCodeCampGenerator {
         })
 
         return rawCourses;
+    }
+
+    /**
+     * Computes the overall estimated course completion time based on the estimate time for each module. 
+     * The module completion time is represented as an object of the form:
+     *   {
+     *     value: 5,
+     *     units: 'hours'
+     *   }
+     * This function aggregates the times for all of the same units into a new object with the units 
+     * and the summed times. 
+     * 
+     * TODO: for now it only expects one time unit (hours) and will throw an error if more than one 
+     * time unit is listed, for example if some modules are estimated in hours and others in minutes.
+     * 
+     * @param {Array} moduleCompletionTimes array of objects containing time units and value for each module's completion time
+     * @returns an array of summed times for each unit present (most typically just hours, but trying to be flexible here)
+     */
+    computeCourseCompletionTime(moduleCompletionTimes) {
+        let completionTimes = [];
+
+        moduleCompletionTimes.reduce(function (res, time) {
+            if (!res[time.units]) {
+                res[time.units] = { units: time.units, value: 0 };
+                completionTimes.push(res[time.units])
+            }
+            res[time.units].value += time.value;
+            return res;
+        })
+
+        if (completionTimes.length > 1) {
+            throw "Found more than one time unit in module completion times"
+        }
+        return completionTimes[0];
     }
 
     /**

@@ -184,7 +184,7 @@ function checkIfExists(source, term) {
  */
 async function getById(modelName, id) {
   return new Promise((resolve, reject) => {
-    models[modelName].query('id').eq(id).exec((err, result) => {
+    models[modelName].query('id').eq(id).consistent().exec((err, result) => {
       if (err) {
         return reject(err)
       }

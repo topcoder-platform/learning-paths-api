@@ -348,6 +348,8 @@ function decorateProgresses(progresses) {
  * @returns {Object} the updated course progress
  */
 async function updateCurrentLesson(certificationProgressId, data) {
+    console.log("** starting updateCurrentLesson for", certificationProgressId);
+
     validateWithSchema(updateCurrentLesson.schema, data)
 
     const progress = await getCertificationProgress(certificationProgressId);
@@ -366,6 +368,8 @@ async function updateCurrentLesson(certificationProgressId, data) {
 
     let updatedProgress = await helper.update(progress, currentLessonData)
     decorateProgressCompletion(updatedProgress);
+
+    console.log(`Set current lesson for user ${progress.userId} to ${currentLesson}`)
 
     return updatedProgress
 }
@@ -388,7 +392,13 @@ updateCurrentLesson.schema = {
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
     const provider = progress.provider;
-    const course = await helper.getById('Course', progress.courseId);
+
+    let course = helper.getFromInternalCache(progress.courseId);
+    if (course == null) {
+        console.log("cache miss looking up", progress.courseId);
+        course = await helper.getById('Course', progress.courseId);
+        helper.setToInternalCache(progress.courseId, course);
+    }
 
     return new Promise((resolve, reject) => {
         const module = course.modules.find(mod => mod.key == moduleName)
@@ -413,6 +423,8 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @returns {Object} the updated course progress
  */
 async function completeLesson(certificationProgressId, data) {
+    console.log("** starting completeLesson for", certificationProgressId);
+
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
     const { error } = schema.validate({ data })
@@ -438,7 +450,7 @@ async function completeLesson(certificationProgressId, data) {
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User [${userId}] has already completed ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} has already completed ${certification}/${moduleName}/${lessonName}`);
         return progress
     } else {
         const completedLesson = {
@@ -452,7 +464,7 @@ async function completeLesson(certificationProgressId, data) {
         }
 
         let updatedProgress = await helper.update(progress, updatedModules)
-        console.log(`User [${userId}] completed ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
 
         decorateProgressCompletion(updatedProgress);
         return updatedProgress
@@ -467,29 +479,6 @@ completeLesson.schema = {
     }).required()
 }
 
-/**
- * Update a user's certification and course progress
- * 
- * @param {String} userId the user's ID
- * @param {String} certification the certification key
- * @param {Object} data the course progress data to be updated
- * @returns {Object} the updated course progress type
- */
-async function updateCertificationProgress(userId, certification, data) {
-    const tableKeys = { userId: userId, certification: certification }
-    const progress = await helper.getByTableKeys('CertificationProgress', tableKeys)
-
-    return await helper.update(progress, data)
-}
-
-updateCertificationProgress.schema = {
-    userId: Joi.string(),
-    certification: Joi.string(),
-    data: Joi.object().keys({
-
-    }).required()
-}
-
 module.exports = {
     completeCertification,
     completeLesson,
@@ -497,6 +486,5 @@ module.exports = {
     getCertificationProgress,
     searchCertificationProgresses,
     startCertification,
-    updateCertificationProgress,
     updateCurrentLesson,
 }

@@ -15,7 +15,6 @@ const axios = require('axios')
 const NodeCache = require('node-cache')
 const HttpStatus = require('http-status-codes')
 const xss = require('xss')
-const logger = require('./logger')
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -206,14 +205,15 @@ async function getById(modelName, id) {
  */
 async function getByTableKeys(modelName, tableKeys) {
   return new Promise((resolve, reject) => {
-    models[modelName].get((tableKeys), (err, result) => {
+    models[modelName].get((tableKeys), { "consistent": true }, (err, result) => {
       if (err) {
         return reject(err)
       }
       if (result) {
         return resolve(result)
       } else {
-        return reject(new errors.NotFoundError(`${modelName} with table keys: ${JSON.stringify(tableKeys, null, 2)} doesn't exist`))
+        return reject(new errors.NotFoundError(
+          `${modelName} with table keys: ${JSON.stringify(tableKeys, null, 2)} doesn't exist`))
       }
     })
   })
@@ -326,10 +326,10 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
-  let results = await models[modelName].scan(scanParams).exec()
+  let results = await models[modelName].scan(scanParams).consistent().exec()
   let lastKey = results.lastKey
   while (!_.isUndefined(results.lastKey)) {
-    const newResult = await models[modelName].scan(scanParams).startAt(lastKey).exec()
+    const newResult = await models[modelName].scan(scanParams).consistent().startAt(lastKey).exec()
     results = [...results, ...newResult]
     lastKey = newResult.lastKey
   }

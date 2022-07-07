@@ -59,6 +59,10 @@ const schema = new Schema({
         type: Date,
         required: false
     },
+    academicHonestyPolicyAcceptedAt: {
+        type: Date,
+        required: false
+    },
     currentLesson: {
         type: String,
         required: true

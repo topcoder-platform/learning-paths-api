@@ -69,6 +69,12 @@ module.exports = {
       method: 'deleteCertificationProgress'
     },
   },
+  '/learning-paths/certification-progresses/:certificationProgressId/honesty-policy': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'acceptAcademicHonestyPolicy'
+    }
+  },
   '/learning-paths/certification-progresses/:certificationProgressId/current-lesson': {
     put: {
       controller: 'CertificationProgressController',

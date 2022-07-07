@@ -9,7 +9,7 @@ const logger = require('../common/logger')
 logger.info('Requesting to create tables...')
 
 const promises = []
-const skipModels = ['Certification', 'CertificationProgress', 'LearningResourceProvider']
+const skipModels = []
 let createModels = []
 
 // Handle creating all model tables, or a specific one 

@@ -146,7 +146,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}",
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp&certification=responsive-web-design",
 					"host": [
 						"{{URL}}"
 					],
@@ -158,6 +158,14 @@
 						{
 							"key": "userId",
 							"value": "{{USER_ID}}"
+						},
+						{
+							"key": "provider",
+							"value": "freeCodeCamp"
+						},
+						{
+							"key": "certification",
+							"value": "responsive-web-design"
 						}
 					]
 				}
@@ -166,6 +174,26 @@
 		},
 		{
 			"name": "Get Certification Progress by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if(pm.response.status === 'OK') {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.id).to.eq(pm.environment.get('CERTIFICATION_PROGRESS_ID'))",
+							"    // pm.expect(response.currentLesson).to.eq(\"learn-html-by-building-a-cat-photo-app/step-2\")",
+							"    // pm.expect(response.modules[0].completedLessonCount).to.eq(1)",
+							"    // pm.expect(response.modules[0].completedLessons.length).to.eq(1)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -189,14 +217,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
+					"raw": "{{URL}}/learning-paths/certification-progresses/927abff4-7af9-4145-8ba1-577c16e64e3d",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses",
-						"{{CERTIFICATION_PROGRESS_ID}}"
+						"927abff4-7af9-4145-8ba1-577c16e64e3d"
 					]
 				}
 			},
@@ -234,12 +262,39 @@
 		},
 		{
 			"name": "Update Current Lesson",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"NEXT_LESSON\", \"step-3\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if(pm.response.status === 'OK') {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.id).to.eq(pm.environment.get('CERTIFICATION_PROGRESS_ID'))",
+							"    pm.expect(response.currentLesson).to.eq(\"learn-html-by-building-a-cat-photo-app/step-3\")",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-4\"\n}",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"{{NEXT_LESSON}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -263,12 +318,40 @@
 		},
 		{
 			"name": "Complete Lesson",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"LESSON_TO_COMPLETE\", \"step-2\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if(pm.response.status === 'OK') {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.id).to.eq(pm.environment.get('CERTIFICATION_PROGRESS_ID'))",
+							"    // pm.expect(response.completedLessonCount).to.eq(2)",
+							"    // pm.expect(response.modules[0].completedLessons.length).to.eq(2)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-8\"\n}",
+					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-4\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -305,6 +388,26 @@
 						"certification-progresses",
 						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-certification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accept Academic Honesty policy",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/honesty-policy",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}",
+						"honesty-policy"
 					]
 				}
 			},
@@ -420,6 +523,18 @@
 		{
 			"key": "NEW_CERTIFICATION",
 			"value": "react-web-design"
+		},
+		{
+			"key": "STEP_TO_COMPLETE",
+			"value": ""
+		},
+		{
+			"key": "NEXT_LESSON",
+			"value": ""
+		},
+		{
+			"key": "LESSON_TO_COMPLETE",
+			"value": ""
 		}
 	]
 }

@@ -102,7 +102,21 @@ async function completeLesson(req, res) {
     res.send(result)
 }
 
+/**
+ * Accept the academic honesty policy for a certification/course
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function acceptAcademicHonestyPolicy(req, res) {
+    const result = await service.acceptAcademicHonestyPolicy(
+        req.params.certificationProgressId)
+
+    res.send(result)
+}
+
 module.exports = {
+    acceptAcademicHonestyPolicy,
     completeCertification,
     completeLesson,
     deleteCertificationProgress,

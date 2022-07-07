@@ -479,7 +479,34 @@ completeLesson.schema = {
     }).required()
 }
 
+/**
+ * @param {String} certificationProgressId the ID of the certification progress record
+ * @returns {Object} the updated course progress
+ */
+async function acceptAcademicHonestyPolicy(certificationProgressId) {
+    const progress = await getCertificationProgress(certificationProgressId);
+
+    // No need to update if they've already accepted the policy, so just return 
+    // the progress data
+    if (progress.academicHonestyPolicyAccepted === true) {
+        return progress
+    }
+
+    // Create the update
+    const acceptanceData = {
+        academicHonestyPolicyAccepted: true
+    }
+
+    let updatedProgress = await helper.update(progress, acceptanceData)
+    decorateProgressCompletion(updatedProgress);
+
+    console.log(`User ${progress.userId} accepted the academic honesty policy for the ${progress.certification} certification`)
+
+    return updatedProgress
+}
+
 module.exports = {
+    acceptAcademicHonestyPolicy,
     completeCertification,
     completeLesson,
     deleteCertificationProgress,

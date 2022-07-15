@@ -24,8 +24,6 @@ if (config.AMAZON.IS_LOCAL_DB) {
   dynamoose.aws.ddb.local(config.AMAZON.DYNAMODB_URL)
 }
 
-// console.log(JSON.stringify(dynamoose.aws.sdk.config))
-
 dynamoose.model.defaults.set({
   create: true,
   update: false,

@@ -9,7 +9,6 @@
  */
 
 const fs = require('fs');
-const { result } = require('lodash');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
@@ -73,7 +72,7 @@ class FreeCodeCampGenerator {
 
         // if the certifications were updated, write the data back to the JSON file
         if (dirty) {
-            fs.writeFileSync(certPath, JSON.stringify(certifications, null, 2));
+            fs.writeFileSync(this.certificationsFilePath, JSON.stringify(certifications, null, 2));
         }
 
         const activeCerts = certifications.filter(cert => cert.state == this.ACTIVE_CERT_STATE);
@@ -159,10 +158,16 @@ class FreeCodeCampGenerator {
                     certification: certification.certification,
                     completionHours: certification.completionHours,
                     introCopy: courseIntro.intro,
-                    note: courseIntro.note,
                     modules: [],
                     blocks: curriculum[course].blocks,
                     blockIntros: courseIntro.blocks
+                }
+
+                // Add the +note+ attribute if it's not an empty string
+                // DynamoDB will not accept an empty string as the value for an 
+                // attribute, even if that attr is not required.
+                if (courseIntro.note && courseIntro.note.length > 0) {
+                    rawCourse.note = courseIntro.note
                 }
                 this.decorateCourseWithAdditionalData(rawCourse, additionalData);
 
@@ -322,7 +327,7 @@ class FreeCodeCampGenerator {
             }
             res[time.units].value += time.value;
             return res;
-        })
+        }, {})
 
         if (completionTimes.length > 1) {
             throw "Found more than one time unit in module completion times"

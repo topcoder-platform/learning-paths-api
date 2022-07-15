@@ -15,8 +15,8 @@
 const { Console } = require('console');
 const fs = require('fs');
 const { get, includes } = require('lodash')
-const helper = require('../../common/helper');
 const logger = require('../../common/logger')
+const helper = require('../../common/helper');
 const models = require('../../models');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
@@ -221,6 +221,9 @@ if (provider) {
     console.log(`** Courses for ${provider.name} have been written to ${generatedCourseFilePath.toString()}`)
 
     if (writeToDB) {
+        // const helper = require('../../common/helper');
+        // const models = require('../../models');
+
         console.log("\nWriting generated course data to the database")
         writeCoursesToDB(generatedCourseFilePath);
         writeCertificationsToDB(generator.certificationsFilePath)

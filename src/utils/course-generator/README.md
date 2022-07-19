@@ -118,7 +118,8 @@ The provider `certifications.json` file follows a specific format for all provid
       "2022/responsive-web-design"
     ],
     "state": "active",
-    "category": "Web Development"
+    "category": "Web Development",
+    "certType": "certification"
   },
   ...
 ]
@@ -127,13 +128,14 @@ A description of this file format:
 - `id` : Topcoder's unique ID for this certification (assigned by this tool)
 - `key` : provider's unique name for this certification among all of the provider's certifications
 - `providerName` : Topcoder's name (case sensitive) for the learning resource provider
-- `providerCertificationId` : provider's unique ID for the certification
+- `providerCertificationId` : provider's unique ID for the certification (can be missing for non-certification courses)
 - `title` : provider's given title for this certification
 - `certification` : provider's description of this certification
 - `completionHours` : the number of hours the provider estimates this certification will require
 - `courses` : an array of unique provider course names that must be completed to earn this certification
 - `state` : the state of this certification in Topcoder's learning paths, currently either `active` or `coming-soon`. Only certifications in the `active` state will be generated to the metadata file by this tool.
 - `category` : the Topcoder learning path category for this certification (valid values still TBD)
+- `certType` : the Topcoder classification of whether the certificate earned is a certification, or a certificate of course completion (since some courses don't result in an "actual" certification)
 
 Data from the provider's source files has to be collected and added manually to the `certifications.json` file. Some data, for example in the case of freeCodeCamp, is located in JavaScript source files, such as `config/certification-settings.ts`.
 

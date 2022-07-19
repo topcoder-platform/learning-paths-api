@@ -18,7 +18,7 @@ const schema = new Schema({
     },
     providerCertificationId: {
         type: String,
-        required: true
+        required: false
     },
     providerName: {
         type: String,
@@ -47,6 +47,12 @@ const schema = new Schema({
     trackType: {
         type: String,
         enum: ['QA', 'DEV', 'DATASCIENCE', 'DESIGN'],
+        required: true
+    },
+    certType: {
+        type: String,
+        enum: ['certification', 'course-completion'],
+        default: 'certification',
         required: true
     }
 }, {

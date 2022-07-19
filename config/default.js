@@ -28,7 +28,8 @@ module.exports = {
     LOCAL_AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
     AWS_REGION: process.env.AWS_REGION || 'us-east-1',
     IS_LOCAL_DB: process.env.IS_LOCAL_DB ? process.env.IS_LOCAL_DB === 'true' : false,
-    DYNAMODB_URL: process.env.DYNAMODB_URL || 'http://localhost:7777',
+    USE_REMOTE_DYNAMODB: process.env.USE_REMOTE_DYNAMODB === 'true' || false,
+    DYNAMODB_URL: process.env.DYNAMODB_URL || 'http://localhost:8000',
   },
 
   // health check timeout in milliseconds

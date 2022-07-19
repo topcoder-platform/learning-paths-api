@@ -12,7 +12,8 @@
         ],
         "state": "active",
         "category": "Web Development",
-        "trackType": "DEV"
+        "trackType": "DEV",
+        "certType": "certification"
     },
     {
         "id": "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
@@ -27,7 +28,8 @@
         ],
         "state": "active",
         "category": "Web Development",
-        "trackType": "DEV"
+        "trackType": "DEV",
+        "certType": "certification"
     },
     {
         "id": "6909044d-508b-4c6e-9b90-999bea2b82b0",
@@ -40,7 +42,8 @@
         "courses": [],
         "state": "coming-soon",
         "category": "Web Development",
-        "trackType": "DEV"
+        "trackType": "DEV",
+        "certType": "certification"
     },
     {
         "id": "9796fe32-d2f9-4b1b-92ee-c6003e4400ac",
@@ -55,7 +58,8 @@
         ],
         "state": "coming-soon",
         "category": "Data Science",
-        "trackType": "DATASCIENCE"
+        "trackType": "DATASCIENCE",
+        "certType": "certification"
     },
     {
         "id": "269f7d9d-fb10-402b-a942-600f025b0c0f",
@@ -70,6 +74,7 @@
         ],
         "state": "coming-soon",
         "category": "Data Science",
-        "trackType": "DATASCIENCE"
+        "trackType": "DATASCIENCE",
+        "certType": "certification"
     }
 ]

@@ -22,6 +22,10 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    certType: {
+        type: String,
+        required: true
+    },
     courseKey: {
         type: String,
         required: true

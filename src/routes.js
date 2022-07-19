@@ -99,4 +99,10 @@ module.exports = {
       method: 'completeCertification'
     },
   },
+  '/learning-paths/completed-certifications/:userId': {
+    get: {
+      controller: 'CompletedCertificationsController',
+      method: 'getCompletedCertifications'
+    },
+  },
 }

@@ -212,6 +212,39 @@
 			"response": []
 		},
 		{
+			"name": "Get Completed Certifications for user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/completed-certifications/{{USER_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"completed-certifications",
+						"{{USER_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Delete Certification Progress by ID",
 			"request": {
 				"method": "DELETE",

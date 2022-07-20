@@ -263,10 +263,6 @@ async function deleteCertificationProgress(progressId) {
     return progress
 }
 
-getCertificationProgress.schema = {
-    progressId: Joi.string()
-}
-
 /**
  * Adds course and module completion progress information
  * 
@@ -462,7 +458,8 @@ async function completeLesson(certificationProgressId, data) {
         progress.modules[moduleIndex].completedLessons.push(completedLesson)
 
         // checks to see if the module has been completed and marks it accordingly
-        checkAndSetModuleCompletion(progress.modules[moduleIndex])
+        checkAndSetModuleCompletion(userId, progress.modules[moduleIndex])
+        // checkAndSetCourseCompletion(userId, progress)
 
         const updatedModules = {
             modules: progress.modules
@@ -490,11 +487,30 @@ completeLesson.schema = {
  * 
  * @param {Object} module the module to check for completion
  */
-function checkAndSetModuleCompletion(module) {
+function checkAndSetModuleCompletion(userId, module) {
     const moduleCompleted = (module.lessonCount == module.completedLessons.length);
 
     if (moduleCompleted) {
+        console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
+    }
+}
+
+/**
+ * Checks if all modules in a course have been completed and 
+ * sets the course status to "completed" if so
+ * 
+ * @param {Object} course the course progress to check for completion
+ */
+function checkAndSetCourseCompletion(userId, course) {
+    const courseCompleted = course.modules.every(module => {
+        module.moduleStatus == STATUS_COMPLETED
+    })
+
+    if (courseCompleted) {
+        console.log(`User ${userId} completed course ${course.courseKey}`)
+        course.status = STATUS_COMPLETED
+        course.completedDate = new Date()
     }
 }
 

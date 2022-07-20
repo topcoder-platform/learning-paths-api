@@ -3,8 +3,8 @@
 'use strict';
 
 /**
- * freeCodeCamp course metadata parser/builder - generates a freecodecamp_courses.json file 
- * with all of the metadata needed to drive the Topcoder Academy API and wrapper around the 
+ * freeCodeCamp course metadata parser and course generator - generates a freecodecamp_courses.json  
+ * file with all of the metadata needed to drive the Topcoder Academy API and wrapper around the 
  * fcc.org course execution/code editor tool.
  * 
  * Curriculum data is spread across multiple files, including a curriculum.json file
@@ -14,7 +14,7 @@
 
 const { Console } = require('console');
 const fs = require('fs');
-const { get, includes } = require('lodash')
+const { get } = require('lodash')
 const logger = require('../../common/logger')
 const helper = require('../../common/helper');
 const models = require('../../models');
@@ -221,9 +221,6 @@ if (provider) {
     console.log(`** Courses for ${provider.name} have been written to ${generatedCourseFilePath.toString()}`)
 
     if (writeToDB) {
-        // const helper = require('../../common/helper');
-        // const models = require('../../models');
-
         console.log("\nWriting generated course data to the database")
         writeCoursesToDB(generatedCourseFilePath);
         writeCertificationsToDB(generator.certificationsFilePath)

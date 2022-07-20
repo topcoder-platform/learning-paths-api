@@ -70,3 +70,6 @@ typings/
 
 # generated course data
 generated_courses.json
+
+# local docker volume
+local/docker

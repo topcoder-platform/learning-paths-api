@@ -5,10 +5,6 @@
 const config = require('config')
 const dynamoose = require('dynamoose')
 
-// NOTE! We are using AWS config vars here prefixed with LOCAL_ because 
-// Dynamoose internally uses the aws-sdk and it will blindly 
-// use any existing AWS env vars despite the call to  
-// dynamoose.aws.sdk.config.update(). 
 const awsConfigs = config.AMAZON.IS_LOCAL_DB ? {
   accessKeyId: config.AMAZON.LOCAL_AWS_ACCESS_KEY_ID,
   secretAccessKey: config.AMAZON.LOCAL_AWS_SECRET_ACCESS_KEY,

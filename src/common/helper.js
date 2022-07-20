@@ -15,6 +15,7 @@ const axios = require('axios')
 const NodeCache = require('node-cache')
 const HttpStatus = require('http-status-codes')
 const xss = require('xss')
+const { CertificationProgress } = require('../models')
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -22,6 +23,18 @@ AWS.config.update({
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
   region: config.AMAZON.AWS_REGION
 })
+
+const completedCertAttributes = [
+  "id",
+  "certificationId",
+  "userId",
+  "certification",
+  "certType",
+  "provider",
+  "startDate",
+  "completedDate",
+  "status"
+]
 
 /**
  * Wrap async function to standard express function
@@ -214,6 +227,37 @@ async function getByTableKeys(modelName, tableKeys) {
       } else {
         return reject(new errors.NotFoundError(
           `${modelName} with table keys: ${JSON.stringify(tableKeys, null, 2)} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
+ * Get Data by secondary index
+ * 
+ * @param {String} modelName The dynamoose model name
+ * @param {String} attribute The attribute to query
+ * @param {String} id The attribute value value
+ * @param {String} index The name of the secondary index to query
+ * 
+ * @returns {Promise<void>}
+ */
+async function queryCompletedCertifications(userId) {
+  return new Promise((resolve, reject) => {
+    let queryStatement = CertificationProgress.
+      query("userId").eq(userId).
+      using("userCertificationProgressIndex").
+      attributes(completedCertAttributes).
+      where("status").eq("completed");
+
+    queryStatement.exec((err, results) => {
+      if (err) {
+        return reject(err)
+      }
+      if (results.length > 0) {
+        return resolve(results)
+      } else {
+        return resolve(results)
       }
     })
   })
@@ -426,6 +470,7 @@ module.exports = {
   hasAdminRole,
   partialMatch,
   pluralize,
+  queryCompletedCertifications,
   scan,
   scanAll,
   setResHeaders,

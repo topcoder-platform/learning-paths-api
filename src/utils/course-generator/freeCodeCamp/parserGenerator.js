@@ -288,7 +288,7 @@ class FreeCodeCampGenerator {
                 moduleCompletionTimes.push(module.meta.estimatedCompletionTime);
             }
 
-            course.estimatedCompletionTime = this.computeCourseCompletionTime(moduleCompletionTimes);
+            course.estimatedCompletionTime = this.computeCourseCompletionTime(course, moduleCompletionTimes);
 
             // sort the modules in the order they should be shown
             course.modules.sort(this.compareModules);
@@ -317,10 +317,13 @@ class FreeCodeCampGenerator {
      * @param {Array} moduleCompletionTimes array of objects containing time units and value for each module's completion time
      * @returns an array of summed times for each unit present (most typically just hours, but trying to be flexible here)
      */
-    computeCourseCompletionTime(moduleCompletionTimes) {
+    computeCourseCompletionTime(course, moduleCompletionTimes) {
         let completionTimes = [];
 
         moduleCompletionTimes.reduce(function (res, time) {
+            // Handle single units by converting them to plural
+            if (time.units.slice(-1) !== "s") { time.units = time.units.concat("s") }
+
             if (!res[time.units]) {
                 res[time.units] = { units: time.units, value: 0 };
                 completionTimes.push(res[time.units])
@@ -330,6 +333,8 @@ class FreeCodeCampGenerator {
         }, {})
 
         if (completionTimes.length > 1) {
+            console.log(`Computing completion time for course ${course.key}, found:`)
+            completionTimes.forEach(t => console.log(t));
             throw "Found more than one time unit in module completion times"
         }
         return completionTimes[0];

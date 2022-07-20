@@ -461,6 +461,9 @@ async function completeLesson(certificationProgressId, data) {
         }
         progress.modules[moduleIndex].completedLessons.push(completedLesson)
 
+        // checks to see if the module has been completed and marks it accordingly
+        checkAndSetModuleCompletion(progress.modules[moduleIndex])
+
         const updatedModules = {
             modules: progress.modules
         }
@@ -479,6 +482,20 @@ completeLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+/**
+ * Checks if all lessons in a module have been completed and 
+ * sets the modules moduleStatus to "completed" if so
+ * 
+ * @param {Object} module the module to check for completion
+ */
+function checkAndSetModuleCompletion(module) {
+    const moduleCompleted = (module.lessonCount == module.completedLessons.length);
+
+    if (moduleCompleted) {
+        module.moduleStatus = STATUS_COMPLETED
+    }
 }
 
 /**

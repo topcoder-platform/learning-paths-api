@@ -210,6 +210,29 @@ async function getById(modelName, id) {
 }
 
 /**
+ * Get Data by model id scoped to the given user ID
+ * 
+ * @param {String} modelName The dynamoose model name
+ * @param {String} id The id value
+ * @param {String} userId The id of the user to scope responses to
+ * @returns {Promise<void>}
+ */
+async function getByIdAndUser(modelName, id, userId) {
+  return new Promise((resolve, reject) => {
+    models[modelName].query('id').eq(id).where('userId').eq(userId).consistent().exec((err, result) => {
+      if (err) {
+        return reject(err)
+      }
+      if (result.length > 0) {
+        return resolve(result[0])
+      } else {
+        return reject(new errors.NotFoundError(`${modelName} with id: ${id} for userId: ${userId} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
  * Get Data by hashkey and rangekey
  * @param {String} modelName The dynamoose model name
  * @param {Object} tableKeys JSON object describing the table's hashKey and 
@@ -445,6 +468,31 @@ function ensureNoDuplicateOrNullElements(arr, name) {
   }
 }
 
+/**
+ * Ensure the user can view a certification progress record
+ *
+ * @param {Object} currentUser the user who perform operation
+ * @param {Object} progress the certification progress to check
+ */
+function ensureUserCanViewProgress(currentUser, progress) {
+  // TODO: enable scopes to allow admins or m2m to access any data
+  return ensureRequestForCurrentUser(currentUser, progress.userId)
+}
+
+/**
+ * Ensure the current user matches the user whose data is being requested
+ *
+ * @param {Object} currentUser the user who initiated the request
+ * @param {Object} reqUserId the user ID of the requested data
+ */
+function ensureRequestForCurrentUser(currentUser, reqUserId) {
+  if (currentUser.userId != reqUserId) {
+    throw new errors.ForbiddenError(`You don't have access to this data`)
+  } else {
+    return true
+  }
+}
+
 function pluralize(count, noun, suffix = 's') {
   return `${count} ${noun}${count !== 1 ? suffix : ''}`
 }
@@ -462,8 +510,11 @@ module.exports = {
   checkIfExists,
   create,
   ensureNoDuplicateOrNullElements,
+  ensureRequestForCurrentUser,
+  ensureUserCanViewProgress,
   fullyMatch,
   getById,
+  getByIdAndUser,
   getByIds,
   getByTableKeys,
   getFromInternalCache,

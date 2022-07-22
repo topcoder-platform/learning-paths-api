@@ -12,7 +12,7 @@ module.exports = {
   API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:3000',
   API_VERSION: process.env.API_VERSION || 'v5',
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
-  VALID_ISSUERS: process.env.VALID_ISSUERS || '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/"]',
+  VALID_ISSUERS: process.env.VALID_ISSUERS || '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://auth.topcoder-dev.com/"]',
 
   // used to get M2M token
   AUTH0_URL: process.env.AUTH0_URL,

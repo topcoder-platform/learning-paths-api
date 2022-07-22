@@ -27,6 +27,7 @@ async function searchCertificationProgresses(req, res) {
  */
 async function getCertificationProgress(req, res) {
     const result = await service.getCertificationProgress(
+        req.authUser,
         req.params.certificationProgressId)
 
     res.send(result)
@@ -40,6 +41,7 @@ async function getCertificationProgress(req, res) {
  */
 async function deleteCertificationProgress(req, res) {
     const result = await service.deleteCertificationProgress(
+        req.authUser,
         req.params.certificationProgressId)
 
     res.send(result)
@@ -53,6 +55,7 @@ async function deleteCertificationProgress(req, res) {
  */
 async function startCertification(req, res) {
     const result = await service.startCertification(
+        req.authUser,
         req.params.userId,
         req.params.certificationId,
         req.params.courseId,
@@ -69,6 +72,7 @@ async function startCertification(req, res) {
  */
 async function completeCertification(req, res) {
     const result = await service.completeCertification(
+        req.authUser,
         req.params.certificationProgressId)
 
     res.send(result)
@@ -82,6 +86,7 @@ async function completeCertification(req, res) {
  */
 async function updateCurrentLesson(req, res) {
     const result = await service.updateCurrentLesson(
+        req.authUser,
         req.params.certificationProgressId,
         req.body)
 
@@ -96,6 +101,7 @@ async function updateCurrentLesson(req, res) {
  */
 async function completeLesson(req, res) {
     const result = await service.completeLesson(
+        req.authUser,
         req.params.certificationProgressId,
         req.body)
 
@@ -110,6 +116,7 @@ async function completeLesson(req, res) {
  */
 async function acceptAcademicHonestyPolicy(req, res) {
     const result = await service.acceptAcademicHonestyPolicy(
+        req.authUser,
         req.params.certificationProgressId)
 
     res.send(result)

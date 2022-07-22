@@ -56,47 +56,55 @@ module.exports = {
   '/learning-paths/certification-progresses': {
     get: {
       controller: 'CertificationProgressController',
-      method: 'searchCertificationProgresses'
+      method: 'searchCertificationProgresses',
+      auth: 'jwt'
     },
   },
   '/learning-paths/certification-progresses/:certificationProgressId': {
     get: {
       controller: 'CertificationProgressController',
-      method: 'getCertificationProgress'
+      method: 'getCertificationProgress',
+      auth: 'jwt'
     },
     delete: {
       controller: 'CertificationProgressController',
-      method: 'deleteCertificationProgress'
+      method: 'deleteCertificationProgress',
+      auth: 'jwt'
     },
   },
   '/learning-paths/certification-progresses/:certificationProgressId/honesty-policy': {
     put: {
       controller: 'CertificationProgressController',
-      method: 'acceptAcademicHonestyPolicy'
+      method: 'acceptAcademicHonestyPolicy',
+      auth: 'jwt'
     }
   },
   '/learning-paths/certification-progresses/:certificationProgressId/current-lesson': {
     put: {
       controller: 'CertificationProgressController',
-      method: 'updateCurrentLesson'
+      method: 'updateCurrentLesson',
+      auth: 'jwt'
     }
   },
   '/learning-paths/certification-progresses/:userId/:certificationId/:courseId': {
     post: {
       controller: 'CertificationProgressController',
-      method: 'startCertification'
+      method: 'startCertification',
+      auth: 'jwt'
     },
   },
   '/learning-paths/certification-progresses/:certificationProgressId/complete-lesson': {
     put: {
       controller: 'CertificationProgressController',
-      method: 'completeLesson'
+      method: 'completeLesson',
+      auth: 'jwt'
     },
   },
   '/learning-paths/certification-progresses/:certificationProgressId/complete-certification': {
     put: {
       controller: 'CertificationProgressController',
-      method: 'completeCertification'
+      method: 'completeCertification',
+      auth: 'jwt'
     },
   },
   '/learning-paths/completed-certifications/:userId': {

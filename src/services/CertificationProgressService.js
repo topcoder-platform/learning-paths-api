@@ -86,7 +86,9 @@ searchCertificationProgresses.schema = {
  * @param {Object} data object containing the provier, certification, module and lesson the user has started
  * @returns {Object} the new CertificationProgress object, or the existing one for the certification
  */
-async function startCertification(userId, certificationId, courseId, data) {
+async function startCertification(currentUser, userId, certificationId, courseId, data) {
+    helper.ensureRequestForCurrentUser(currentUser, userId)
+
     let existingProgress;
     try {
         const searchCriteria = {
@@ -194,8 +196,8 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  * @param {Object} data the course data containing the current module and lesson
  * @returns {Object} the updated course progress
  */
-async function completeCertification(certificationProgressId) {
-    const progress = await getCertificationProgress(certificationProgressId);
+async function completeCertification(currentUser, certificationProgressId) {
+    const progress = await getCertificationProgress(currentUser, certificationProgressId);
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -237,8 +239,8 @@ function validateWithSchema(modelSchema, data) {
  * @param {String} progressId the ID of the CertificationProgress 
  * @returns {Object} the certification progress for the given user and certification
  */
-async function getCertificationProgress(progressId) {
-    let progress = await helper.getById('CertificationProgress', progressId)
+async function getCertificationProgress(currentUser, progressId) {
+    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
 
     decorateProgressCompletion(progress);
 
@@ -252,14 +254,16 @@ getCertificationProgress.schema = {
 /**
  * Delete CertificationProgress by certification progress ID
  * 
+ * @param {String} currentUser the user making the request
  * @param {String} progressId the ID of the CertificationProgress 
  * @returns {Object} the deleted CertificationProgress
  */
-async function deleteCertificationProgress(progressId) {
-    let progress = await helper.getById('CertificationProgress', progressId)
+async function deleteCertificationProgress(currentUser, progressId) {
+    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
 
-    await models.CertificationProgress.delete(progress)
-
+    if (progress) {
+        await models.CertificationProgress.delete(progress)
+    }
     return progress
 }
 
@@ -345,12 +349,10 @@ function decorateProgresses(progresses) {
  * @param {Object} data the course data containing the current module and lesson
  * @returns {Object} the updated course progress
  */
-async function updateCurrentLesson(certificationProgressId, data) {
-    console.log("** starting updateCurrentLesson for", certificationProgressId);
-
+async function updateCurrentLesson(currentUser, certificationProgressId, data) {
     validateWithSchema(updateCurrentLesson.schema, data)
 
-    const progress = await getCertificationProgress(certificationProgressId);
+    const progress = await getCertificationProgress(currentUser, certificationProgressId);
     const module = data.module;
     const lesson = data.lesson;
 
@@ -420,9 +422,7 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @param {Object} data the course data containing the module/lesson to complete
  * @returns {Object} the updated course progress
  */
-async function completeLesson(certificationProgressId, data) {
-    console.log("** starting completeLesson for", certificationProgressId);
-
+async function completeLesson(currentUser, certificationProgressId, data) {
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
     const { error } = schema.validate({ data })
@@ -430,7 +430,7 @@ async function completeLesson(certificationProgressId, data) {
         throw error
     }
 
-    let progress = await getCertificationProgress(certificationProgressId);
+    let progress = await getCertificationProgress(currentUser, certificationProgressId);
     const userId = progress.userId;
     const certification = progress.certification;
     decorateProgressCompletion(progress)
@@ -448,7 +448,7 @@ async function completeLesson(certificationProgressId, data) {
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} has already completed ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} previously completed ${certification}/${moduleName}/${lessonName}`);
         return progress
     } else {
         const completedLesson = {
@@ -458,8 +458,7 @@ async function completeLesson(certificationProgressId, data) {
         progress.modules[moduleIndex].completedLessons.push(completedLesson)
 
         // checks to see if the module has been completed and marks it accordingly
-        checkAndSetModuleCompletion(userId, progress.modules[moduleIndex])
-        // checkAndSetCourseCompletion(userId, progress)
+        checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
 
         const updatedModules = {
             modules: progress.modules
@@ -482,35 +481,22 @@ completeLesson.schema = {
 }
 
 /**
- * Checks if all lessons in a module have been completed and 
- * sets the modules moduleStatus to "completed" if so
+ * Checks and sets the module status as follows:
+ *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
+ *   - if all of the lessons have been completed, it's set to 'completed'
  * 
  * @param {Object} module the module to check for completion
  */
-function checkAndSetModuleCompletion(userId, module) {
-    const moduleCompleted = (module.lessonCount == module.completedLessons.length);
+function checkAndSetModuleStatus(userId, module) {
+    const moduleInProgress = (module.completedLessons.length < module.lessonCount)
+    const moduleCompleted = (module.completedLessons.length == module.lessonCount)
 
-    if (moduleCompleted) {
+    if (moduleInProgress) {
+        console.log(`User ${userId} started module ${module.module}`)
+        module.moduleStatus = STATUS_IN_PROGRESS
+    } else if (moduleCompleted) {
         console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
-    }
-}
-
-/**
- * Checks if all modules in a course have been completed and 
- * sets the course status to "completed" if so
- * 
- * @param {Object} course the course progress to check for completion
- */
-function checkAndSetCourseCompletion(userId, course) {
-    const courseCompleted = course.modules.every(module => {
-        module.moduleStatus == STATUS_COMPLETED
-    })
-
-    if (courseCompleted) {
-        console.log(`User ${userId} completed course ${course.courseKey}`)
-        course.status = STATUS_COMPLETED
-        course.completedDate = new Date()
     }
 }
 
@@ -520,8 +506,8 @@ function checkAndSetCourseCompletion(userId, course) {
  * @param {String} certificationProgressId the ID of the certification progress record
  * @returns {Object} the updated course progress
  */
-async function acceptAcademicHonestyPolicy(certificationProgressId) {
-    const progress = await getCertificationProgress(certificationProgressId);
+async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId) {
+    const progress = await getCertificationProgress(currentUser, certificationProgressId);
 
     // No need to update if they've already accepted the policy, so just return 
     // the progress data

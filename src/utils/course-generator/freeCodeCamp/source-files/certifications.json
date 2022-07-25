@@ -16,6 +16,22 @@
     "certType": "certification"
   },
   {
+    "id": "9bd93a8a-1fcb-405a-b2e3-4a283915bbcd",
+    "key": "responsive-web-design-certification-qa",
+    "providerName": "freeCodeCamp",
+    "providerCertificationId": "561add10cb82ac38a17513bd",
+    "title": "Responsive Web Design Certification QA",
+    "certification": "responsive-web-design-qa",
+    "completionHours": 300,
+    "courses": [
+      "2022/responsive-web-design-qa"
+    ],
+    "state": "active",
+    "category": "Web Development",
+    "trackType": "DEV",
+    "certType": "certification"
+  },
+  {
     "id": "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
     "key": "javascript-algorithms-and-data-structures-certification",
     "providerCertificationId": "561abd10cb81ac38a17513bc",

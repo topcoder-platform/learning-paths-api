@@ -4,7 +4,7 @@
         "key": "responsive-web-design-certification",
         "providerName": "freeCodeCamp",
         "providerCertificationId": "561add10cb82ac38a17513bc",
-        "title": "QA Responsive Web Design Certification",
+        "title": "Responsive Web Design Certification",
         "certification": "responsive-web-design",
         "completionHours": 300,
         "courses": [
@@ -24,9 +24,9 @@
         "certification": "javascript-algorithms-and-data-structures",
         "completionHours": 300,
         "courses": [
-            "2022/javascript-algorithms-and-data-structures"
+            "javascript-algorithms-and-data-structures"
         ],
-        "state": "active",
+        "state": "coming-soon",
         "category": "Web Development",
         "trackType": "DEV",
         "certType": "certification"
@@ -37,12 +37,30 @@
         "providerCertificationId": "561acd10cb82ac38a17513bc",
         "providerName": "freeCodeCamp",
         "title": "Front End Development Libraries Certification",
-        "certification": "front-end-development-libraries",
-        "completionHours": 400,
-        "courses": [],
+        "certification": "front-end-development-libraries-certification",
+        "completionHours": 300,
+        "courses": [
+            "front-end-development-libraries"
+        ],
         "state": "coming-soon",
         "category": "Web Development",
         "trackType": "DEV",
+        "certType": "certification"
+    },
+    {
+        "id": "55597a63-e23e-4bc0-9a81-b4f5655a96eb",
+        "key": "data-visualization-certification",
+        "providerCertificationId": "5a553ca864b52e1d8bceea14",
+        "providerName": "freeCodeCamp",
+        "title": "Data Visualization",
+        "certification": "data-visualization",
+        "completionHours": 300,
+        "courses": [
+            "data-visualization"
+        ],
+        "state": "coming-soon",
+        "category": "Data Science",
+        "trackType": "DATASCIENCE",
         "certType": "certification"
     },
     {

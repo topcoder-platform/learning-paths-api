@@ -88,7 +88,7 @@ async function updateCurrentLesson(req, res) {
     const result = await service.updateCurrentLesson(
         req.authUser,
         req.params.certificationProgressId,
-        req.body)
+        req.query)
 
     res.send(result)
 }
@@ -103,7 +103,7 @@ async function completeLesson(req, res) {
     const result = await service.completeLesson(
         req.authUser,
         req.params.certificationProgressId,
-        req.body)
+        req.query)
 
     res.send(result)
 }

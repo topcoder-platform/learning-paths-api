@@ -59,7 +59,7 @@ async function startCertification(req, res) {
         req.params.userId,
         req.params.certificationId,
         req.params.courseId,
-        req.body)
+        req.query)
 
     res.send(result)
 }

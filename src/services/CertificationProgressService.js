@@ -83,10 +83,10 @@ searchCertificationProgresses.schema = {
  * Create a new certification progress record 
  * 
  * @param {String} userId the user's ID
- * @param {Object} data object containing the provier, certification, module and lesson the user has started
+ * @param {Object} query object containing the provier, certification, module and lesson the user has started
  * @returns {Object} the new CertificationProgress object, or the existing one for the certification
  */
-async function startCertification(currentUser, userId, certificationId, courseId, data) {
+async function startCertification(currentUser, userId, certificationId, courseId, query) {
     helper.ensureRequestForCurrentUser(currentUser, userId)
 
     let existingProgress;
@@ -108,10 +108,10 @@ async function startCertification(currentUser, userId, certificationId, courseId
         const certification = existingProgress.certification;
         const startDate = existingProgress.startDate;
 
-        console.log(`User [${userId}] already started the [${provider}] [${certification}] certification on [${startDate}]`)
+        console.log(`User [${userId}] already started the [${provider}] [${certification}] certification on ${startDate}`)
         return existingProgress
     } else {
-        return await buildNewCertificationProgress(userId, certificationId, courseId, data);
+        return await buildNewCertificationProgress(userId, certificationId, courseId, query);
     }
 }
 
@@ -119,7 +119,7 @@ startCertification.schema = {
     userId: Joi.string(),
     certificationId: Joi.string(),
     courseId: Joi.string(),
-    data: Joi.object().keys({
+    query: Joi.object().keys({
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
@@ -133,20 +133,20 @@ startCertification.schema = {
  * @param {String} userId the user ID
  * @param {String} certificationId the UUID of the certification to start
  * @param {String} courseId the UUID of the course
- * @param {Object} data the module and lesson in the course on which the user is starting
+ * @param {Object} query the module and lesson in the course on which the user is starting
  * @returns 
  */
-async function buildNewCertificationProgress(userId, certificationId, courseId, data) {
+async function buildNewCertificationProgress(userId, certificationId, courseId, query) {
     // next call will throw and return an error if the certificationId doesn't exist,
     // so just let that happen since the API will return the error to the client
     const certification = await helper.getById('Certification', certificationId);
-    validateWithSchema(startCertification.schema, data);
+    validateQueryWithSchema(startCertification.schema, query);
 
     const course = await helper.getById('Course', courseId);
     const courseModules = course.modules;
-    const currentModule = courseModules.find(mod => mod.key == data.module);
+    const currentModule = courseModules.find(mod => mod.key == query.module);
     if (!currentModule) {
-        throw new errors.NotFoundError(`Did not find module [${data.module}] in course [${course.key}]`)
+        throw new errors.NotFoundError(`Did not find module [${query.module}] in course [${course.key}]`)
     }
 
     // create a new certification progress record
@@ -158,7 +158,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     const modules = courseModules.map(module => {
         return {
             module: module.key,
-            moduleStatus: module.key == data.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
+            moduleStatus: module.key == query.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
             lessonCount: module.lessons.length,
             completedLessonCount: 0,
             completedLessons: [],
@@ -183,7 +183,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         academicHonestyPolicyAcceptedAt: new Date(),
         courseProgressPercentage: 0,
         startDate: new Date(),
-        currentLesson: `${data.module}/${data.lesson}`,
+        currentLesson: `${query.module}/${query.lesson}`,
         modules: modules
     }
 

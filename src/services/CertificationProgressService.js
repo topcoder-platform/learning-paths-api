@@ -233,6 +233,14 @@ function validateWithSchema(modelSchema, data) {
     }
 }
 
+function validateQueryWithSchema(modelSchema, query) {
+    const schema = Joi.object().keys(modelSchema)
+    const { error } = schema.validate({ query })
+    if (error) {
+        throw error
+    }
+}
+
 /**
  * Get CertificationProgress by certification progress ID
  * 
@@ -346,22 +354,22 @@ function decorateProgresses(progresses) {
 
 /**
  * @param {String} certificationProgressId the ID of the certification progress record
- * @param {Object} data the course data containing the current module and lesson
+ * @param {Object} query the course data containing the current module and lesson
  * @returns {Object} the updated course progress
  */
-async function updateCurrentLesson(currentUser, certificationProgressId, data) {
-    validateWithSchema(updateCurrentLesson.schema, data)
+async function updateCurrentLesson(currentUser, certificationProgressId, query) {
+    validateQueryWithSchema(updateCurrentLesson.schema, query)
 
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
-    const module = data.module;
-    const lesson = data.lesson;
+    const module = query.module;
+    const lesson = query.lesson;
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
     // to the client if validation fails
     await validateCourseLesson(progress, module, lesson)
 
-    const currentLesson = `${data.module}/${data.lesson}`
+    const currentLesson = `${query.module}/${query.lesson}`
     const currentLessonData = {
         currentLesson: currentLesson
     }
@@ -376,7 +384,7 @@ async function updateCurrentLesson(currentUser, certificationProgressId, data) {
 
 updateCurrentLesson.schema = {
     certificationProgressId: Joi.string(),
-    data: Joi.object().keys({
+    query: Joi.object().keys({
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
@@ -422,10 +430,10 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @param {Object} data the course data containing the module/lesson to complete
  * @returns {Object} the updated course progress
  */
-async function completeLesson(currentUser, certificationProgressId, data) {
+async function completeLesson(currentUser, certificationProgressId, query) {
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
-    const { error } = schema.validate({ data })
+    const { error } = schema.validate({ query })
     if (error) {
         throw error
     }
@@ -435,8 +443,8 @@ async function completeLesson(currentUser, certificationProgressId, data) {
     const certification = progress.certification;
     decorateProgressCompletion(progress)
 
-    const moduleName = data.module;
-    const lessonName = data.lesson;
+    const moduleName = query.module;
+    const lessonName = query.lesson;
 
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
     if (moduleIndex == -1) {
@@ -474,7 +482,7 @@ async function completeLesson(currentUser, certificationProgressId, data) {
 
 completeLesson.schema = {
     certificationProgressId: Joi.string(),
-    data: Joi.object().keys({
+    query: Joi.object().keys({
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()

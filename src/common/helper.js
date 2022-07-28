@@ -26,10 +26,13 @@ AWS.config.update({
 
 const completedCertAttributes = [
   "id",
+  "providerUrl",
   "certificationId",
   "userId",
   "certification",
+  "certificationTitle",
   "certType",
+  "certificationTrackType",
   "provider",
   "startDate",
   "completedDate",

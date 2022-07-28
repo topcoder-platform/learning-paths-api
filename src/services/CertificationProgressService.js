@@ -140,7 +140,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     // next call will throw and return an error if the certificationId doesn't exist,
     // so just let that happen since the API will return the error to the client
     const certification = await helper.getById('Certification', certificationId);
-    validateWithSchema(startCertification.schema, data)
+    validateWithSchema(startCertification.schema, data);
 
     const course = await helper.getById('Course', courseId);
     const courseModules = course.modules;
@@ -150,9 +150,10 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     }
 
     // create a new certification progress record
-    const providerName = certification.providerName;
+    const provider = await helper.getById('LearningResourceProvider', certification.providerId);
+
     const certificationName = certification.certification;
-    console.log(`User [${userId}] is starting [${providerName}] certification [${certificationName}] now`)
+    console.log(`User [${userId}] is starting [${provider.name}] certification [${certificationName}] now`)
 
     const modules = courseModules.map(module => {
         return {
@@ -168,9 +169,13 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     const progress = {
         id: uuidv4(),
         userId: userId,
-        provider: providerName,
-        certification: certificationName,
+        providerId: provider.id,
+        provider: provider.name,
+        providerUrl: provider.url,
         certificationId: certificationId,
+        certification: certificationName,
+        certificationTitle: certification.title,
+        certificationTrackType: certification.trackType,
         certType: certification.certType,
         courseKey: course.key,
         courseId: courseId,

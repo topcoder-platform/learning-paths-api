@@ -25,6 +25,51 @@
 			"response": []
 		},
 		{
+			"name": "Get Token",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "chris.mccann@topcoder.com",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "cruel-gable-ALUM9",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"client_id\": \"BXWXUWnilVUPdN01t2Se29Tw2ZYNGZvH\",\n    \"code\": \"wV-Aer45U1fN0ffV3PiJvfa6Mtnyx_V_qZ8mdDnKDIeP3\",\n    \"code_verifier\": \"2pOCS6mUqJe9C4iDW8fqiFTmTvURp9H22zXRVkdNCVh\",\n    \"grant_type\": \"authorization_code\",\n    \"redirect_uri\": \"https://accounts-auth0.topcoder-dev.com\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://auth.topcoder-dev.com/oauth/token",
+					"protocol": "https",
+					"host": [
+						"auth",
+						"topcoder-dev",
+						"com"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Learning Resource Providers",
 			"request": {
 				"method": "GET",
@@ -126,7 +171,13 @@
 			"name": "Get All Certification Progresses",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{URL}}/learning-paths/certification-progresses",
 					"host": [
@@ -144,7 +195,13 @@
 			"name": "Get Certification Progresses for User",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp&certification=responsive-web-design",
 					"host": [
@@ -196,7 +253,13 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
 					"host": [
@@ -231,14 +294,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/completed-certifications/{{USER_ID}}",
+					"raw": "{{URL}}/learning-paths/completed-certifications/88778831",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"completed-certifications",
-						"{{USER_ID}}"
+						"88778831"
 					]
 				}
 			},
@@ -248,16 +311,22 @@
 			"name": "Delete Certification Progress by ID",
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/927abff4-7af9-4145-8ba1-577c16e64e3d",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses",
-						"927abff4-7af9-4145-8ba1-577c16e64e3d"
+						"{{CERTIFICATION_PROGRESS_ID}}"
 					]
 				}
 			},
@@ -267,7 +336,13 @@
 			"name": "Start Certification",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-1\"\n}",
@@ -288,62 +363,6 @@
 						"{{USER_ID}}",
 						"{{CERTIFICATION_ID}}",
 						"{{COURSE_ID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update Current Lesson",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"pm.collectionVariables.set(\"NEXT_LESSON\", \"step-3\");"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"if(pm.response.status === 'OK') {",
-							"    const response = pm.response.json();",
-							"    pm.expect(response.id).to.eq(pm.environment.get('CERTIFICATION_PROGRESS_ID'))",
-							"    pm.expect(response.currentLesson).to.eq(\"learn-html-by-building-a-cat-photo-app/step-3\")",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"{{NEXT_LESSON}}\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/current-lesson",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-progresses",
-						"{{CERTIFICATION_PROGRESS_ID}}",
-						"current-lesson"
 					]
 				}
 			},
@@ -381,10 +400,16 @@
 			],
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-4\"\n}",
+					"raw": "{\n    \"module\": \"build-a-personal-portfolio-webpage-project\",\n    \"lesson\": \"build-a-personal-portfolio-webpage\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -407,10 +432,75 @@
 			"response": []
 		},
 		{
+			"name": "Update Current Lesson",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"NEXT_LESSON\", \"step-3\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/current-lesson?module=learn-html-by-building-a-cat-photo-app&lesson=step-1",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}",
+						"current-lesson"
+					],
+					"query": [
+						{
+							"key": "module",
+							"value": "learn-html-by-building-a-cat-photo-app"
+						},
+						{
+							"key": "lesson",
+							"value": "step-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Complete Certification",
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-certification",
 					"host": [
@@ -430,7 +520,13 @@
 			"name": "Accept Academic Honesty policy",
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/honesty-policy",
 					"host": [
@@ -546,6 +642,28 @@
 						"courses",
 						"{{COURSE_ID}}",
 						"modules"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user profile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.topcoder-dev.com/v5/members/steveburns",
+					"protocol": "https",
+					"host": [
+						"api",
+						"topcoder-dev",
+						"com"
+					],
+					"path": [
+						"v5",
+						"members",
+						"steveburns"
 					]
 				}
 			},

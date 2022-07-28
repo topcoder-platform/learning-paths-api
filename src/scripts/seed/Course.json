@@ -1,6 +1,7 @@
 [
     {
-        "id": "04116c43-05a6-4105-9f03-4471a955058d",
+        "id": "b33cc02c-302d-4dd7-8e1d-7ad980477fd9",
+        "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
         "provider": "freeCodeCamp",
         "key": "2022/responsive-web-design",
         "title": "(New) Responsive Web Design",
@@ -9,8 +10,8 @@
         "completionHours": 300,
         "introCopy": [
             "In this Responsive Web Design Certification, you'll learn the languages that developers use to build webpages: HTML (Hypertext Markup Language) for content, and CSS (Cascading Style Sheets) for design.",
-            "First, you'll build a cat photo app to learn the basics of HTML and CSS. Later, you'll learn modern techniques like CSS variables by building a penguin, and best practices for accessibility by building a quiz site.",
-            "Finally, you'll learn how to make webpages that respond to different screen sizes by building a photo gallery with Flexbox, and a magazine article layout with CSS Grid."
+            "First, you'll build a cat photo app to learn the basics of HTML and CSS. Later, you'll learn modern techniques like CSS variables by building a penguin, and best practices for accessibility by building a web form.",
+            "Finally, you'll learn how to make webpages that respond to different screen sizes by building a Twitter card with Flexbox, and a complex blog layout with CSS Grid."
         ],
         "modules": [
             {
@@ -6592,6 +6593,118 @@
         "estimatedCompletionTime": {
             "units": "hours",
             "value": 225
+        }
+    },
+    {
+        "id": "9c7544f4-85b0-4318-a0a0-d22eb3bd1d47",
+        "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+        "provider": "freeCodeCamp",
+        "key": "2022/responsive-web-design-qa",
+        "title": "(New) Responsive Web Design QA",
+        "certificationId": "9bd93a8a-1fcb-405a-b2e3-4a283915bbcd",
+        "certification": "responsive-web-design-qa",
+        "completionHours": 300,
+        "introCopy": [
+            "In this Responsive Web Design Certification, you'll learn the languages that developers use to build webpages: HTML (Hypertext Markup Language) for content, and CSS (Cascading Style Sheets) for design.",
+            "First, you'll build a cat photo app to learn the basics of HTML and CSS. Later, you'll learn modern techniques like CSS variables by building a penguin, and best practices for accessibility by building a web form.",
+            "Finally, you'll learn how to make webpages that respond to different screen sizes by building a Twitter card with Flexbox, and a complex blog layout with CSS Grid."
+        ],
+        "modules": [
+            {
+                "key": "learn-html-by-building-a-cat-photo-app-qa",
+                "meta": {
+                    "name": "Learn HTML by Building a Cat Photo App QA",
+                    "dashedName": "learn-html-by-building-a-cat-photo-app-qa",
+                    "order": 0,
+                    "estimatedCompletionTime": {
+                        "value": 5,
+                        "units": "hours"
+                    },
+                    "introCopy": [
+                        "HTML tags give a webpage its structure. You can use HTML tags to add photos, buttons, and other elements to your webpage.",
+                        "In this course, you'll learn the most common HTML tags by building your own cat photo app."
+                    ],
+                    "lessonCount": 2
+                },
+                "lessons": [
+                    {
+                        "id": "eeeeeeeeeeeeeeeeeeeeeeee",
+                        "title": "Step 1",
+                        "dashedName": "step-1",
+                        "order": -1
+                    },
+                    {
+                        "id": "ffffffffffffffffffffffff",
+                        "title": "Step 2",
+                        "dashedName": "step-2",
+                        "order": -1
+                    }
+                ]
+            },
+            {
+                "key": "learn-basic-css-by-building-a-cafe-menu-qa",
+                "meta": {
+                    "name": "Learn Basic CSS by Building a Cafe Menu QA",
+                    "dashedName": "learn-basic-css-by-building-a-cafe-menu-qa",
+                    "order": 1,
+                    "estimatedCompletionTime": {
+                        "value": 5,
+                        "units": "hours"
+                    },
+                    "introCopy": [
+                        "CSS tells the browser how to display your webpage. You can use CSS to set the color, font, size, and other aspects of HTML elements.",
+                        "In this course, you'll learn CSS by designing a menu page for a cafe webpage."
+                    ],
+                    "lessonCount": 2
+                },
+                "lessons": [
+                    {
+                        "id": "cccccccccccccccccccccccc",
+                        "title": "Step 1",
+                        "dashedName": "step-1",
+                        "order": -1
+                    },
+                    {
+                        "id": "dddddddddddddddddddddddd",
+                        "title": "Step 2",
+                        "dashedName": "step-2",
+                        "order": -1
+                    }
+                ]
+            },
+            {
+                "key": "build-a-personal-portfolio-webpage-project-qa",
+                "meta": {
+                    "name": "Build a Personal Portfolio Webpage Project QA",
+                    "dashedName": "build-a-personal-portfolio-webpage-project-qa",
+                    "order": 19,
+                    "estimatedCompletionTime": {
+                        "value": 30,
+                        "units": "hours"
+                    },
+                    "introCopy": [
+                        "This is one of the required projects to earn your certification.",
+                        "For this project, you will build your own personal portfolio page."
+                    ],
+                    "lessonCount": 1
+                },
+                "lessons": [
+                    {
+                        "id": "bbbbbbbbbbbbbbbbbbbbbbbb",
+                        "title": "Build a Personal Portfolio Webpage QA",
+                        "dashedName": "build-a-personal-portfolio-webpage-qa",
+                        "order": 0
+                    }
+                ]
+            }
+        ],
+        "note": "Note: Some browser extensions, such as ad-blockers and dark mode extensions can interfere with the tests. If you face issues, we recommend disabling extensions that modify the content or layout of pages, while taking the course.",
+        "keyPoints": [
+            "This Responsive Web Design course will help you learn the key aspects of building a responsive website. This will include valuable skills such as HTML and CSS, the foundations for being a skilled web developer. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+        ],
+        "estimatedCompletionTime": {
+            "units": "hours",
+            "value": 40
         }
     }
 ]

@@ -18,6 +18,10 @@ const schema = new Schema({
     rangeKey: true,
     required: true,
   },
+  providerId: {
+    type: String,
+    required: true,
+  },
   key: {
     type: String,
     required: true

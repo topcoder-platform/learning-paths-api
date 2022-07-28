@@ -22,6 +22,14 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    certificationTitle: {
+        type: String,
+        required: true
+    },
+    certificationTrackType: {
+        type: String,
+        required: true,
+    },
     certType: {
         type: String,
         required: true
@@ -49,6 +57,10 @@ const schema = new Schema({
             name: 'providerCertificationProgressIndex',
             global: true
         }
+    },
+    providerUrl: {
+        type: String,
+        required: true
     },
     status: {
         type: String,

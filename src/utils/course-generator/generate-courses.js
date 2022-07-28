@@ -115,13 +115,13 @@ function showAvailableProviders(providers) {
 
 function getCourseGenerator(provider) {
     let generator;
-    switch (provider) {
+    switch (provider.name) {
         case 'freeCodeCamp':
-            generator = new FreeCodeCampGenerator();
+            generator = new FreeCodeCampGenerator(provider);
             break;
 
         default:
-            Console.log(`Unknown learning resource provider ${provider}`)
+            Console.log(`Unknown learning resource provider ${provider.name}`)
             break;
     }
 
@@ -216,7 +216,7 @@ if (args.length == 2 || (args.length == 3 && writeToDB)) {
 // Generate the course data for the given provider
 // and write it to the database if that flag was provided
 if (provider) {
-    const generator = getCourseGenerator(provider.name);
+    const generator = getCourseGenerator(provider);
     const generatedCourseFilePath = generator.generateCourseData();
     console.log(`** Courses for ${provider.name} have been written to ${generatedCourseFilePath.toString()}`)
 

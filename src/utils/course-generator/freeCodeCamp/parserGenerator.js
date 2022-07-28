@@ -13,7 +13,6 @@ const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 class FreeCodeCampGenerator {
-    PROVIDER = 'freeCodeCamp';
     SOURCE_FILES_DIR = 'source-files';
 
     ACTIVE_CERT_STATE = 'active';
@@ -26,6 +25,11 @@ class FreeCodeCampGenerator {
     generatedCourseFilePath = null;
     certificationsFilePath = null;
 
+    constructor(provider) {
+        this.provider = provider
+        this.providerName = provider.name
+    }
+
     /**
      * Top level class method that the CLI module will call. This method does all 
      * of the work to generate the standard course data for this particular provider.
@@ -34,7 +38,7 @@ class FreeCodeCampGenerator {
      * whose content we will ingest.
      */
     generateCourseData() {
-        console.log(`Generating learning path course data for provider ${this.PROVIDER}...`);
+        console.log(`Generating learning path course data for provider ${this.providerName}...`);
 
         const certifications = this.loadAndIdentifyActiveCertifications();
         const curriculumData = this.loadCurriculumData();
@@ -151,7 +155,8 @@ class FreeCodeCampGenerator {
 
                 const rawCourse = {
                     id: uuidv4(),
-                    provider: this.PROVIDER,
+                    providerId: this.provider.id,
+                    provider: this.providerName,
                     key: course,
                     title: courseIntro.title,
                     certificationId: certification.id,

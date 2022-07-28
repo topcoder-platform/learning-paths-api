@@ -20,6 +20,10 @@ const schema = new Schema({
         type: String,
         required: false
     },
+    providerId: {
+        type: String,
+        required: true
+    },
     providerName: {
         type: String,
         required: true

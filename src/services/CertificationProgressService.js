@@ -9,6 +9,7 @@ const helper = require('../common/helper')
 const Joi = require('joi')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
+const { performance } = require('perf_hooks');
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
@@ -21,6 +22,8 @@ const STATUS_NOT_STARTED = "not-started";
  * @returns {Object} the search result
  */
 async function searchCertificationProgresses(criteria) {
+    const startTime = performance.now()
+
     records = await helper.scanAll('CertificationProgress')
 
     const page = criteria.page || 1
@@ -65,6 +68,9 @@ async function searchCertificationProgresses(criteria) {
     const total = records.length
     let result = records.slice((page - 1) * perPage, page * perPage)
     decorateProgresses(result)
+
+    const endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'searchCertificationProgresses', true)
 
     return { total, page, perPage, result }
 }
@@ -253,9 +259,15 @@ function validateQueryWithSchema(modelSchema, query) {
  * @returns {Object} the certification progress for the given user and certification
  */
 async function getCertificationProgress(currentUser, progressId) {
-    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
+    // testing performance 
+    var startTime = performance.now()
 
+    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
     decorateProgressCompletion(progress);
+
+    // testing performance
+    var endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'getCertificationProgress')
 
     return progress
 }
@@ -303,6 +315,9 @@ function decorateProgressCompletion(progress) {
  * @param {Object} module course module to add progress information
  */
 function computeModuleProgress(module) {
+    // testing performance 
+    // var startTime = performance.now()
+
     const lessonCount = module.lessonCount || 0;
     const completedLessonCount = module.completedLessons.length || 0;
     module.completedLessonCount = completedLessonCount;
@@ -313,6 +328,10 @@ function computeModuleProgress(module) {
     }
 
     module.completedPercentage = completedPercentage;
+
+    // testing performance
+    // var endTime = performance.now()
+    // helper.logExecutionTime(startTime, endTime, 'computeModuleProgress')
 }
 
 /**
@@ -321,6 +340,9 @@ function computeModuleProgress(module) {
  * @param {Object} progress course progress object over which to compute progress
  */
 function computeCourseProgress(progress) {
+    // testing performance 
+    var startTime = performance.now()
+
     let courseProgressPercentage = 0;
     let lessonCount = 0;
     let completedLessonCount = 0;
@@ -344,6 +366,10 @@ function computeCourseProgress(progress) {
     }
 
     progress.courseProgressPercentage = courseProgressPercentage;
+
+    // testing performance
+    var endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'computeCourseProgress')
 }
 
 /**
@@ -352,9 +378,14 @@ function computeCourseProgress(progress) {
  * @param {Array} progresses an array of CertificationProgress objects
  */
 function decorateProgresses(progresses) {
+    const startTime = performance.now()
+
     progresses.forEach(progress => {
         decorateProgressCompletion(progress)
     })
+
+    const endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'decorateProgresses')
 }
 
 /**
@@ -363,16 +394,28 @@ function decorateProgresses(progresses) {
  * @returns {Object} the updated course progress
  */
 async function updateCurrentLesson(currentUser, certificationProgressId, query) {
+    const module = query.module;
+    const lesson = query.lesson;
+
+    console.log(`Updating current lesson to ${module}/${lesson}`)
+
+    // testing performance 
+    var startTime = performance.now()
+
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
-    const module = query.module;
-    const lesson = query.lesson;
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
     // to the client if validation fails
+
+    // testing performance 
+    var startTimeValidate = performance.now()
     await validateCourseLesson(progress, module, lesson)
+    // testing performance
+    var endTimeValidate = performance.now()
+    helper.logExecutionTime(startTimeValidate, endTimeValidate, 'validateCourseLesson')
 
     const currentLesson = `${query.module}/${query.lesson}`
     const currentLessonData = {
@@ -383,6 +426,10 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     decorateProgressCompletion(updatedProgress);
 
     console.log(`Set current lesson for user ${progress.userId} to ${currentLesson}`)
+
+    // testing performance
+    var endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'updateCurrentLesson', true)
 
     return updatedProgress
 }
@@ -404,11 +451,15 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
+    console.log(`Validating lesson ${moduleName}/${lessonName}`)
+
     const provider = progress.provider;
 
-    let course = helper.getFromInternalCache(progress.courseId);
-    if (course == null) {
-        console.log("cache miss looking up", progress.courseId);
+    let course = helper.getFromInternalCache(progress.courseId)
+    if (course) {
+        console.log("cache HIT for course", progress.courseId)
+    } else {
+        console.log("cache MISS looking up course", progress.courseId);
         course = await helper.getById('Course', progress.courseId);
         helper.setToInternalCache(progress.courseId, course);
     }
@@ -436,6 +487,13 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @returns {Object} the updated course progress
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
+    const moduleName = query.module;
+    const lessonName = query.lesson;
+
+    console.log(`Completing module ${moduleName} lesson ${lessonName}`)
+
+    const startTime = performance.now()
+
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
     const { error } = schema.validate({ query })
@@ -446,10 +504,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     let progress = await getCertificationProgress(currentUser, certificationProgressId);
     const userId = progress.userId;
     const certification = progress.certification;
-    decorateProgressCompletion(progress)
 
-    const moduleName = query.module;
-    const lessonName = query.lesson;
 
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
     if (moduleIndex == -1) {
@@ -462,6 +517,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
         console.log(`User ${userId} previously completed ${certification}/${moduleName}/${lessonName}`);
+        decorateProgressCompletion(progress)
         return progress
     } else {
         const completedLesson = {
@@ -481,6 +537,9 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
 
         decorateProgressCompletion(updatedProgress);
+
+        const endTime = performance.now()
+        helper.logExecutionTime(startTime, endTime, 'completeLesson', true)
         return updatedProgress
     }
 }

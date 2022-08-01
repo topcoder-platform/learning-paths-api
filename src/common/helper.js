@@ -1,6 +1,7 @@
 /**
  * This file defines helper methods
  */
+const axios = require('axios')
 const Joi = require('joi')
 const _ = require('lodash')
 const querystring = require('querystring')
@@ -11,11 +12,11 @@ const AWS = require('aws-sdk')
 const config = require('config')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
-const axios = require('axios')
 const NodeCache = require('node-cache')
 const HttpStatus = require('http-status-codes')
 const xss = require('xss')
 const { CertificationProgress } = require('../models')
+const { performance } = require('perf_hooks');
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -357,6 +358,8 @@ async function create(modelName, data) {
  * @returns {Promise<void>}
  */
 async function update(dbItem, data) {
+  const startTime = performance.now()
+
   Object.keys(data).forEach((key) => {
     dbItem[key] = data[key]
   })
@@ -365,6 +368,8 @@ async function update(dbItem, data) {
       if (err) {
         return reject(err)
       } else {
+        const endTime = performance.now()
+        logExecutionTime(startTime, endTime, 'helper.update')
         return resolve(dbItem)
       }
     })
@@ -396,6 +401,8 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
+  const startTime = performance.now()
+
   let results = await models[modelName].scan(scanParams).consistent().exec()
   let lastKey = results.lastKey
   while (!_.isUndefined(results.lastKey)) {
@@ -403,6 +410,9 @@ async function scanAll(modelName, scanParams) {
     results = [...results, ...newResult]
     lastKey = newResult.lastKey
   }
+  const endTime = performance.now()
+  logExecutionTime(startTime, endTime, 'scanAll');
+
   return results
 }
 
@@ -508,6 +518,12 @@ function setToInternalCache(key, value) {
   internalCache.set(key, value)
 }
 
+function logExecutionTime(start, end, functionName, linebreak = false) {
+  const duration = (end - start).toFixed(4)
+  console.log(`** call to ${functionName} took ${duration} ms`)
+  if (linebreak) console.log('')
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -522,6 +538,7 @@ module.exports = {
   getByTableKeys,
   getFromInternalCache,
   hasAdminRole,
+  logExecutionTime,
   partialMatch,
   pluralize,
   queryCompletedCertifications,

@@ -2,6 +2,9 @@
  * The application entry point
  */
 
+// Enable DataDog application tracing 
+const tracer = require('dd-trace').init();
+
 require('./app-bootstrap')
 
 const _ = require('lodash')

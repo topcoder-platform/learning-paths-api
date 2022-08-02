@@ -11,11 +11,7 @@ install_dependency: &install_dependency
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
   command: |
-<<<<<<< HEAD
-    git clone --branch  v1.4.8 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-=======
     git clone --branch v1.4.10 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
->>>>>>> develop
     cp ./../buildscript/master_deploy.sh .
     cp ./../buildscript/buildenv.sh .
     cp ./../buildscript/awsconfiguration.sh .

@@ -25,6 +25,8 @@ async function searchCertificationProgresses(criteria) {
     const startTime = performance.now()
 
     records = await helper.scanAll('CertificationProgress')
+    const endScanTime = performance.now()
+    logExecutionTime(startTime, endScanTime, `scanAll CertificationProgress`);
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
@@ -340,9 +342,6 @@ function computeModuleProgress(module) {
  * @param {Object} progress course progress object over which to compute progress
  */
 function computeCourseProgress(progress) {
-    // testing performance 
-    var startTime = performance.now()
-
     let courseProgressPercentage = 0;
     let lessonCount = 0;
     let completedLessonCount = 0;
@@ -366,10 +365,6 @@ function computeCourseProgress(progress) {
     }
 
     progress.courseProgressPercentage = courseProgressPercentage;
-
-    // testing performance
-    var endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'computeCourseProgress')
 }
 
 /**
@@ -378,14 +373,9 @@ function computeCourseProgress(progress) {
  * @param {Array} progresses an array of CertificationProgress objects
  */
 function decorateProgresses(progresses) {
-    const startTime = performance.now()
-
     progresses.forEach(progress => {
         decorateProgressCompletion(progress)
     })
-
-    const endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'decorateProgresses')
 }
 
 /**

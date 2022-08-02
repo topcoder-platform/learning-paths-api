@@ -401,8 +401,6 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
-  const startTime = performance.now()
-
   let results = await models[modelName].scan(scanParams).consistent().exec()
   let lastKey = results.lastKey
   while (!_.isUndefined(results.lastKey)) {
@@ -410,8 +408,6 @@ async function scanAll(modelName, scanParams) {
     results = [...results, ...newResult]
     lastKey = newResult.lastKey
   }
-  const endTime = performance.now()
-  logExecutionTime(startTime, endTime, 'scanAll');
 
   return results
 }

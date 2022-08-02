@@ -26,7 +26,7 @@ async function searchCertificationProgresses(criteria) {
 
     records = await helper.scanAll('CertificationProgress')
     const endScanTime = performance.now()
-    logExecutionTime(startTime, endScanTime, `scanAll CertificationProgress`);
+    helper.logExecutionTime(startTime, endScanTime, `scanAll CertificationProgress`);
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50

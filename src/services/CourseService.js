@@ -23,7 +23,13 @@ async function searchCourses(criteria) {
     if (criteria.provider) {
         records = _.filter(
             records,
-            e => helper.partialMatch(criteria.provider, e.provider))
+            e => helper.fullyMatch(criteria.provider, e.provider))
+    }
+
+    if (criteria.certification) {
+        records = _.filter(
+            records,
+            e => helper.fullyMatch(criteria.certification, e.certification))
     }
 
     const total = records.length
@@ -94,6 +100,24 @@ async function getCourseModules(id) {
 }
 
 /**
+ * Get Course Modules by Course ID and module key
+ * 
+ * @param {String} id the Course ID
+ * @param {String} moduleKey the key id of the module
+ * @returns {Object} the Module 
+ */
+async function getCourseModule(id, moduleKey) {
+    const course = await helper.getById('Course', id)
+
+    const module = course.modules.find(module => module.key === moduleKey);
+    if (module) {
+        decorateWithLessonCount(module)
+    }
+
+    return module
+}
+
+/**
  * Decorates each element of the collection with lession counts
  * 
  * @param {Array} modules a collection of course modules
@@ -128,6 +152,5 @@ module.exports = {
     searchCourses,
     getCourse,
     getCourseModules,
+    getCourseModule
 }
-
-  // logger.buildService(module.exports)

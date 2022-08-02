@@ -2,12 +2,15 @@
  * The application entry point
  */
 
+// Enable DataDog application tracing 
+const tracer = require('dd-trace').init();
+
 require('./app-bootstrap')
 
 const _ = require('lodash')
 const config = require('config')
-const express = require('express')
 const bodyParser = require('body-parser')
+const express = require('express')
 const cors = require('cors')
 const { StatusCodes } = require('http-status-codes')
 const logger = require('./src/common/logger')
@@ -79,9 +82,9 @@ require('./app-routes')(app)
 app.use((err, req, res, next) => {
   logger.logFullError(err, req.signature || `${req.method} ${req.url}`)
   const errorResponse = {}
-  const status = err.isJoi ?
-    StatusCodes.BAD_REQUEST :
-    (err.httpStatus || _.get(err, 'response.status') || StatusCodes.INTERNAL_SERVER_ERROR)
+  const status = err.isJoi
+    ? StatusCodes.BAD_REQUEST
+    : (err.httpStatus || _.get(err, 'response.status') || StatusCodes.INTERNAL_SERVER_ERROR)
 
   if (_.isArray(err.details)) {
     if (err.isJoi) {
@@ -97,8 +100,9 @@ app.use((err, req, res, next) => {
     }
   }
   if (_.get(err, 'response.status')) {
-    // extra error message from axios http response(v4 and v5 tc api)
-    errorResponse.message = _.get(err, 'response.data.result.content.message') || _.get(err, 'response.data.message')
+    errorResponse.message =
+      _.get(err, 'response.data.result.content.message') ||
+      _.get(err, 'response.data.message')
   }
 
   if (_.isUndefined(errorResponse.message)) {

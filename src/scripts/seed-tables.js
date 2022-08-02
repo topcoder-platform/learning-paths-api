@@ -1,5 +1,5 @@
 /**
- * Insert seed data to tables in database
+ * Insert seed data into tables in database
  */
 
 const { get, includes } = require('lodash')
@@ -10,8 +10,17 @@ logger.info('Requesting to insert seed data to the tables...')
 
 const promises = []
 const skipModels = []
+let seedModels = []
 
-Object.keys(models).forEach(modelName => {
+// Handle seeding all model tables, or a specific one 
+// if the user provides a model name
+if (process.argv.length === 2) {
+  seedModels = Object.keys(models)
+} else if (process.argv.length === 3) {
+  seedModels.push(process.argv[2])
+}
+
+seedModels.forEach(modelName => {
   if (includes(skipModels, modelName)) {
     logger.warn(`Skipping Seed Model ${modelName}`)
     return
@@ -27,7 +36,11 @@ Object.keys(models).forEach(modelName => {
 
 Promise.all(promises)
   .then(() => {
-    logger.info('All tables have been inserted with the data. The processes is run asynchronously')
+    if (seedModels.length > 1) {
+      logger.info('All tables have been inserted with the data. The processes is run asynchronously.')
+    } else {
+      logger.info(`Seeding of the ${seedModels[0]} table has started. The process runs asynchronously.`)
+    }
     process.exit()
   })
   .catch((err) => {

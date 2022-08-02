@@ -2,6 +2,7 @@
  * Controller for health check endpoint
  */
 const config = require('config')
+
 const service = require('../services/LearningResourceProviderService')
 const errors = require('../common/errors')
 

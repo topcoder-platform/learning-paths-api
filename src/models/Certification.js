@@ -16,6 +16,10 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    providerCertificationId: {
+        type: String,
+        required: false
+    },
     providerId: {
         type: String,
         required: true
@@ -32,6 +36,10 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    completionHours: {
+        type: Number,
+        required: true
+    },
     state: {
         type: String,
         required: true,
@@ -40,9 +48,20 @@ const schema = new Schema({
         type: String,
         required: true,
     },
-},
-    {
-        throughput: { read: 4, write: 2 }
-    })
+    trackType: {
+        type: String,
+        enum: ['QA', 'DEV', 'DATASCIENCE', 'DESIGN'],
+        required: true
+    },
+    certType: {
+        type: String,
+        enum: ['certification', 'course-completion'],
+        default: 'certification',
+        required: true
+    }
+}, {
+    timestamps: true,
+    throughput: { read: 4, write: 2 }
+})
 
 module.exports = schema

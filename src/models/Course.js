@@ -3,6 +3,7 @@
  */
 
 const dynamoose = require('dynamoose')
+const Module = require('./Module')
 
 const Schema = dynamoose.Schema
 
@@ -14,7 +15,12 @@ const schema = new Schema({
   },
   provider: {
     type: String,
-    required: true
+    rangeKey: true,
+    required: true,
+  },
+  providerId: {
+    type: String,
+    required: true,
   },
   key: {
     type: String,
@@ -24,11 +30,33 @@ const schema = new Schema({
     type: String,
     required: true
   },
+  certificationId: {
+    type: String,
+    required: true
+  },
   certification: {
     type: String,
     required: true
   },
+  estimatedCompletionTime: {
+    type: Object,
+    schema: {
+      value: {
+        type: Number,
+        required: true
+      },
+      units: {
+        type: String,
+        required: true
+      }
+    }
+  },
   introCopy: {
+    type: Array,
+    schema: [String],
+    required: false
+  },
+  keyPoints: {
     type: Array,
     schema: [String],
     required: false
@@ -39,11 +67,12 @@ const schema = new Schema({
   },
   modules: {
     type: Array,
-    required: true,
+    schema: [Module],
+    required: true
   }
-},
-  {
-    throughput: { read: 4, write: 2 }
-  })
+}, {
+  timestamps: true,
+  throughput: { read: 4, write: 2 }
+})
 
 module.exports = schema

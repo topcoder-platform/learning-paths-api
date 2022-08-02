@@ -6,7 +6,6 @@ const _ = require('lodash')
 const Joi = require('joi')
 const { v4: uuidv4 } = require('uuid');
 const helper = require('../common/helper')
-const constants = require('../../app-constants')
 
 /**
  * Search Learning Resource Providers

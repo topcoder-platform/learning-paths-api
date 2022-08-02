@@ -67,3 +67,9 @@ typings/
 # CircleCI deployment env var files
 .circleci/*appvar.json
 .circleci/*deployvar.json
+
+# generated course data
+generated_courses.json
+
+# local docker volume
+local/docker

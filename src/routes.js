@@ -3,13 +3,6 @@
  */
 
 const constants = require('../app-constants')
-const { SCOPES: {
-  READ,
-  CREATE,
-  UPDATE,
-  DELETE,
-  ALL
-} } = require('config')
 
 module.exports = {
   '/learning-paths/health': {
@@ -18,52 +11,106 @@ module.exports = {
       method: 'checkHealth'
     }
   },
-  '/learning-resource-providers': {
+  '/learning-paths/providers': {
     get: {
       controller: 'LearningResourceProviderController',
       method: 'searchLearningResourceProviders'
     },
   },
-  '/learning-resource-providers/:providerId': {
+  '/learning-paths/providers/:providerId': {
     get: {
       controller: 'LearningResourceProviderController',
       method: 'getLearningResourceProvider'
     },
   },
-  '/learning-resource-providers/:providerId': {
-    get: {
-      controller: 'LearningResourceProviderController',
-      method: 'getLearningResourceProvider'
-    },
-  },
-  '/certifications': {
+  '/learning-paths/certifications': {
     get: {
       controller: 'CertificationController',
       method: 'searchCertifications'
     },
   },
-  '/certifications/:certificationId': {
+  '/learning-paths/certifications/:certificationId': {
     get: {
       controller: 'CertificationController',
       method: 'getCertification'
     },
   },
-  '/courses': {
+  '/learning-paths/courses': {
     get: {
       controller: 'CourseController',
       method: 'searchCourses'
     },
   },
-  '/courses/:courseId': {
+  '/learning-paths/courses/:courseId': {
     get: {
       controller: 'CourseController',
       method: 'getCourse'
     },
   },
-  '/courses/:courseId/modules': {
+  '/learning-paths/courses/:courseId/modules': {
     get: {
       controller: 'CourseController',
       method: 'getCourseModules'
+    },
+  },
+  '/learning-paths/certification-progresses': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'searchCertificationProgresses',
+      auth: 'jwt'
+    },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId': {
+    get: {
+      controller: 'CertificationProgressController',
+      method: 'getCertificationProgress',
+      auth: 'jwt'
+    },
+    delete: {
+      controller: 'CertificationProgressController',
+      method: 'deleteCertificationProgress',
+      auth: 'jwt'
+    },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/honesty-policy': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'acceptAcademicHonestyPolicy',
+      auth: 'jwt'
+    }
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/current-lesson': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'updateCurrentLesson',
+      auth: 'jwt'
+    }
+  },
+  '/learning-paths/certification-progresses/:userId/:certificationId/:courseId': {
+    post: {
+      controller: 'CertificationProgressController',
+      method: 'startCertification',
+      auth: 'jwt'
+    },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/complete-lesson': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeLesson',
+      auth: 'jwt'
+    },
+  },
+  '/learning-paths/certification-progresses/:certificationProgressId/complete-certification': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeCertification',
+      auth: 'jwt'
+    },
+  },
+  '/learning-paths/completed-certifications/:userId': {
+    get: {
+      controller: 'CompletedCertificationsController',
+      method: 'getCompletedCertifications'
     },
   },
 }

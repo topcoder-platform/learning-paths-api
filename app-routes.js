@@ -10,7 +10,6 @@ const errors = require('./src/common/errors')
 const routes = require('./src/routes')
 const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
 
-console.debug('config.VALID_ISSUERS', config?.VALID_ISSUERS)
 /**
  * Configure all routes for express app
  * @param app the express app

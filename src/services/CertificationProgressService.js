@@ -211,6 +211,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  */
 async function completeCertification(currentUser, certificationProgressId) {
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    checkCertificateCompletion(currentUser, progress)
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -221,10 +222,8 @@ async function completeCertification(currentUser, certificationProgressId) {
         status: STATUS_COMPLETED
     }
 
-    // TODO: What kind of validation should we do here to verify that the user has 
-    // completed all of the required modules and lessons to earn a certification?
     let updatedProgress = await helper.update(progress, completionData)
-    console.log(`User [${userId}] has completed [${provider}] certification [${certification}]`);
+    console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
@@ -243,6 +242,27 @@ function validateWithSchema(modelSchema, data) {
     const { error } = schema.validate({ data })
     if (error) {
         throw error
+    }
+}
+
+/**
+ * Checks and sets the module status as follows:
+ *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
+ *   - if all of the lessons have been completed, it's set to 'completed'
+ * 
+ * @param {Object} module the module to check for completion
+ */
+function checkCertificateCompletion(user, progress) {
+    // if any module has not been completed, throw an error that 
+    // will be returned to the caller as a non-success HTTP code 
+    const notCompleted = progress.modules.some(module => {
+        return module.moduleStatus != STATUS_COMPLETED
+    });
+
+    if (notCompleted) {
+        throw new errors.BadRequestError(`User ${user.userId} has not completed all required modules for the ${progress.certificationTitle}`)
+    } else {
+        return true
     }
 }
 

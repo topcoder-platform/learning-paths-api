@@ -95,8 +95,6 @@ searchCertificationProgresses.schema = {
  * @returns {Object} the new CertificationProgress object, or the existing one for the certification
  */
 async function startCertification(currentUser, userId, certificationId, courseId, query) {
-    console.debug('currentUser', currentUser)
-    console.debug('userId', userId)
     helper.ensureRequestForCurrentUser(currentUser, userId)
 
     let existingProgress;

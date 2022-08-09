@@ -72,6 +72,10 @@ class FreeCodeCampGenerator {
                 cert.id = uuidv4();
                 dirty = true;
             }
+            if (!cert.providerId || !uuidValidate(cert.providerId)) {
+                cert.providerId = this.provider.id;
+                dirty = true;
+            }
         })
 
         // if the certifications were updated, write the data back to the JSON file

@@ -116,7 +116,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
         const certification = existingProgress.certification;
         const startDate = existingProgress.startDate;
 
-        console.log(`User [${userId}] already started the [${provider}] [${certification}] certification on ${startDate}`)
+        console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
         return existingProgress
     } else {
         return await buildNewCertificationProgress(userId, certificationId, courseId, query);
@@ -161,7 +161,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     const provider = await helper.getById('LearningResourceProvider', certification.providerId);
 
     const certificationName = certification.certification;
-    console.log(`User [${userId}] is starting [${provider.name}] certification [${certificationName}] now`)
+    console.log(`User ${userId} starting ${provider.name} certification ${certificationName} now`)
 
     const modules = courseModules.map(module => {
         return {
@@ -407,7 +407,7 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     const module = query.module;
     const lesson = query.lesson;
 
-    console.log(`Updating current lesson to ${module}/${lesson}`)
+    console.log(`User ${currentUser.userId} setting current lesson to ${module}/${lesson}...`)
 
     // testing performance 
     var startTime = performance.now()
@@ -415,6 +415,12 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
+
+    if (moduleIndex != -1) {
+        const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
+        console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+    }
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
@@ -435,11 +441,11 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     let updatedProgress = await helper.update(progress, currentLessonData)
     decorateProgressCompletion(updatedProgress);
 
-    console.log(`Set current lesson for user ${progress.userId} to ${currentLesson}`)
-
     // testing performance
     var endTime = performance.now()
     helper.logExecutionTime(startTime, endTime, 'updateCurrentLesson', true)
+
+    console.log(`User ${progress.userId} set current lesson to ${currentLesson}`)
 
     return updatedProgress
 }
@@ -461,15 +467,13 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
-    console.log(`Validating lesson ${moduleName}/${lessonName}`)
+    // console.log(`Validating lesson ${moduleName}/${lessonName}`)
 
     const provider = progress.provider;
 
     let course = helper.getFromInternalCache(progress.courseId)
-    if (course) {
-        console.log("cache HIT for course", progress.courseId)
-    } else {
-        console.log("cache MISS looking up course", progress.courseId);
+    if (!course) {
+        // console.log("cache MISS looking up course", progress.courseId);
         course = await helper.getById('Course', progress.courseId);
         helper.setToInternalCache(progress.courseId, course);
     }
@@ -500,7 +504,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     const moduleName = query.module;
     const lessonName = query.lesson;
 
-    console.log(`Completing module ${moduleName} lesson ${lessonName}`)
+    console.log(`User ${currentUser.userId} completing lesson ${moduleName}/${lessonName}...`)
 
     const startTime = performance.now()
 
@@ -515,7 +519,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     const userId = progress.userId;
     const certification = progress.certification;
 
-
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
     if (moduleIndex == -1) {
         throw `Module '${moduleName}' not found in certification '${certification}'`
@@ -526,7 +529,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName}`);
         decorateProgressCompletion(progress)
         return progress
     } else {
@@ -543,13 +546,16 @@ async function completeLesson(currentUser, certificationProgressId, query) {
             modules: progress.modules
         }
 
+        // make the update in the database
         let updatedProgress = await helper.update(progress, updatedModules)
-        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
 
         decorateProgressCompletion(updatedProgress);
 
         const endTime = performance.now()
         helper.logExecutionTime(startTime, endTime, 'completeLesson', true)
+
+        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
+
         return updatedProgress
     }
 }
@@ -574,10 +580,10 @@ function checkAndSetModuleStatus(userId, module) {
     const moduleCompleted = (module.completedLessons.length == module.lessonCount)
 
     if (moduleInProgress) {
-        console.log(`User ${userId} started module ${module.module}`)
+        // console.log(`User ${userId} started module ${module.module}`)
         module.moduleStatus = STATUS_IN_PROGRESS
     } else if (moduleCompleted) {
-        console.log(`User ${userId} completed module ${module.module}`)
+        // console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
     }
 }

@@ -419,7 +419,9 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     if (moduleIndex != -1) {
         const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
-        console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+        if (lastCompletedLesson) {
+            console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+        }
     }
 
     // Validate that the given module and lesson are correct for the 

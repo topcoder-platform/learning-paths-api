@@ -576,13 +576,13 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         // TODO: Leaving this mutex code here for now to have it ready in case 
         //       we need to use that approach to deconflict DB writes.
         // make the update in the database, use a mutex to deconflict DB operations
-        setMutex(certificationProgressId, LESSON_COMPLETING_MUTEX)
+        // setMutex(certificationProgressId, LESSON_COMPLETING_MUTEX)
         const idObj = {
             id: certificationProgressId,
             certification: progress.certification
         }
         let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
-        clearMutex(certificationProgressId)
+        // clearMutex(certificationProgressId)
 
         decorateProgressCompletion(updatedProgress);
 

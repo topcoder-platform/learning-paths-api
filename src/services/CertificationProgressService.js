@@ -418,7 +418,9 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
     // TODO: placeholder in case we need to implement some sort of 
-    //       mutex to prevent overwriting progress updates
+    //       mutex to prevent overwriting progress updates. This code, 
+    //       as currently written, does not work, but I'm keeping it
+    //       to remind myself where I left off in this effort.
     //
     // check the mutex that indicates that a lesson completion update is in progress
     // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);

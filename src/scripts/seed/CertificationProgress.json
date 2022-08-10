@@ -5,6 +5,8 @@
         "provider": "freeCodeCamp",
         "certification": "responsive-web-design",
         "certificationId": "9bd93a8a-1fcb-405a-b2e3-4a283915bbca",
+        "certificationTitle": "Responsive Web Design Certification",
+        "certificationTrackType": "DEV",
         "courseKey": "2022/responsive-web-design",
         "courseId": "927abff4-7af9-4145-8ba1-577c16e64e2e",
         "certType": "certification",
@@ -12,6 +14,7 @@
         "startDate": 1655956900000,
         "academicHonestyPolicyAcceptedAt": 1655956900000,
         "currentLesson": "learn-html-by-building-a-cat-photo-app/step-4",
+        "providerUrl": "https://freecodecamp.com",
         "modules": [
             {
                 "module": "learn-html-by-building-a-cat-photo-app",

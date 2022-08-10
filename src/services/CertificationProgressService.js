@@ -15,6 +15,9 @@ const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
 const STATUS_NOT_STARTED = "not-started";
 
+const LESSON_COMPLETING_MUTEX = "lesson_completing"
+const MUTEX_TTL = 2 // seconds
+
 /**
  * Search Certification Progress
  * 
@@ -116,7 +119,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
         const certification = existingProgress.certification;
         const startDate = existingProgress.startDate;
 
-        console.log(`User [${userId}] already started the [${provider}] [${certification}] certification on ${startDate}`)
+        console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
         return existingProgress
     } else {
         return await buildNewCertificationProgress(userId, certificationId, courseId, query);
@@ -161,7 +164,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     const provider = await helper.getById('LearningResourceProvider', certification.providerId);
 
     const certificationName = certification.certification;
-    console.log(`User [${userId}] is starting [${provider.name}] certification [${certificationName}] now`)
+    console.log(`User ${userId} starting ${provider.name} certification ${certificationName} now`)
 
     const modules = courseModules.map(module => {
         return {
@@ -407,14 +410,39 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     const module = query.module;
     const lesson = query.lesson;
 
-    console.log(`Updating current lesson to ${module}/${lesson}`)
+    console.log(`User ${currentUser.userId} setting current lesson to ${module}/${lesson}...`)
 
     // testing performance 
     var startTime = performance.now()
 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
+    // TODO: placeholder in case we need to implement some sort of 
+    //       mutex to prevent overwriting progress updates. This code, 
+    //       as currently written, does not work, but I'm keeping it
+    //       to remind myself where I left off in this effort.
+    //
+    // check the mutex that indicates that a lesson completion update is in progress
+    // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);
+    // let check = 0
+    // if (mutexSet) {
+    //     var intervalId = setInterval(() => {
+    //         console.log("** mutex checks", check)
+    //         if (++check > 10) {
+    //             clearInterval(intervalId);
+    //         }
+    //     }, 100)
+    // }
+
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
+
+    if (moduleIndex != -1) {
+        const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
+        if (lastCompletedLesson) {
+            console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+        }
+    }
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
@@ -432,14 +460,19 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
         currentLesson: currentLesson
     }
 
-    let updatedProgress = await helper.update(progress, currentLessonData)
+    // create a composite id key for the update
+    const idObj = {
+        id: certificationProgressId,
+        certification: progress.certification
+    }
+    let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, currentLessonData)
     decorateProgressCompletion(updatedProgress);
-
-    console.log(`Set current lesson for user ${progress.userId} to ${currentLesson}`)
 
     // testing performance
     var endTime = performance.now()
     helper.logExecutionTime(startTime, endTime, 'updateCurrentLesson', true)
+
+    console.log(`User ${progress.userId} set current lesson to ${currentLesson}`)
 
     return updatedProgress
 }
@@ -461,15 +494,12 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
-    console.log(`Validating lesson ${moduleName}/${lessonName}`)
+    // console.log(`Validating lesson ${moduleName}/${lessonName}`)
 
     const provider = progress.provider;
 
     let course = helper.getFromInternalCache(progress.courseId)
-    if (course) {
-        console.log("cache HIT for course", progress.courseId)
-    } else {
-        console.log("cache MISS looking up course", progress.courseId);
+    if (!course) {
         course = await helper.getById('Course', progress.courseId);
         helper.setToInternalCache(progress.courseId, course);
     }
@@ -497,10 +527,11 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @returns {Object} the updated course progress
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
+
     const moduleName = query.module;
     const lessonName = query.lesson;
 
-    console.log(`Completing module ${moduleName} lesson ${lessonName}`)
+    console.log(`User ${currentUser.userId} completing lesson ${moduleName}/${lessonName}...`)
 
     const startTime = performance.now()
 
@@ -515,7 +546,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     const userId = progress.userId;
     const certification = progress.certification;
 
-
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
     if (moduleIndex == -1) {
         throw `Module '${moduleName}' not found in certification '${certification}'`
@@ -526,7 +556,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName}`);
         decorateProgressCompletion(progress)
         return progress
     } else {
@@ -543,13 +573,24 @@ async function completeLesson(currentUser, certificationProgressId, query) {
             modules: progress.modules
         }
 
-        let updatedProgress = await helper.update(progress, updatedModules)
-        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
+        // TODO: Leaving this mutex code here for now to have it ready in case 
+        //       we need to use that approach to deconflict DB writes.
+        // make the update in the database, use a mutex to deconflict DB operations
+        setMutex(certificationProgressId, LESSON_COMPLETING_MUTEX)
+        const idObj = {
+            id: certificationProgressId,
+            certification: progress.certification
+        }
+        let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
+        clearMutex(certificationProgressId)
 
         decorateProgressCompletion(updatedProgress);
 
         const endTime = performance.now()
-        helper.logExecutionTime(startTime, endTime, 'completeLesson', true)
+        helper.logExecutionTime(startTime, endTime, 'completeLesson')
+
+        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
+
         return updatedProgress
     }
 }
@@ -560,6 +601,33 @@ completeLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+// A set of helper functions used to see if we can institute a 
+// poor dev's version of a mutex to deconflict DB actions that seem 
+// to be causing issues
+function setMutex(progressId, mutex) {
+    console.log(`setting mutex for ${progressId} to ${mutex}`)
+    helper.setToInternalCache(cacheKey(progressId), mutex, MUTEX_TTL)
+}
+
+function isMutexSet(progressId, mutex) {
+    console.log(`checking mutex for ${progressId}`)
+    return mutex === helper.getFromInternalCache(cacheKey(progressId))
+}
+
+function clearMutex(progressId) {
+    setMutex(progressId, null)
+}
+
+/**
+ * Creates a key used to write/read cache values for the progress record
+ * 
+ * @param {String} progressId 
+ * @returns String cache key
+ */
+function cacheKey(progressId) {
+    return `certification-progress-${progressId}`
 }
 
 /**
@@ -574,10 +642,10 @@ function checkAndSetModuleStatus(userId, module) {
     const moduleCompleted = (module.completedLessons.length == module.lessonCount)
 
     if (moduleInProgress) {
-        console.log(`User ${userId} started module ${module.module}`)
+        // console.log(`User ${userId} started module ${module.module}`)
         module.moduleStatus = STATUS_IN_PROGRESS
     } else if (moduleCompleted) {
-        console.log(`User ${userId} completed module ${module.module}`)
+        // console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
     }
 }

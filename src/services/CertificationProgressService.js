@@ -15,6 +15,9 @@ const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
 const STATUS_NOT_STARTED = "not-started";
 
+const LESSON_COMPLETING_MUTEX = "lesson_completing"
+const MUTEX_TTL = 2 // seconds
+
 /**
  * Search Certification Progress
  * 
@@ -414,12 +417,31 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
+    // TODO: placeholder in case we need to implement some sort of 
+    //       mutex to prevent overwriting progress updates. This code, 
+    //       as currently written, does not work, but I'm keeping it
+    //       to remind myself where I left off in this effort.
+    //
+    // check the mutex that indicates that a lesson completion update is in progress
+    // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);
+    // let check = 0
+    // if (mutexSet) {
+    //     var intervalId = setInterval(() => {
+    //         console.log("** mutex checks", check)
+    //         if (++check > 10) {
+    //             clearInterval(intervalId);
+    //         }
+    //     }, 100)
+    // }
+
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
     if (moduleIndex != -1) {
         const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
-        console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+        if (lastCompletedLesson) {
+            console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+        }
     }
 
     // Validate that the given module and lesson are correct for the 
@@ -438,7 +460,12 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
         currentLesson: currentLesson
     }
 
-    let updatedProgress = await helper.update(progress, currentLessonData)
+    // create a composite id key for the update
+    const idObj = {
+        id: certificationProgressId,
+        certification: progress.certification
+    }
+    let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, currentLessonData)
     decorateProgressCompletion(updatedProgress);
 
     // testing performance
@@ -473,7 +500,6 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
 
     let course = helper.getFromInternalCache(progress.courseId)
     if (!course) {
-        // console.log("cache MISS looking up course", progress.courseId);
         course = await helper.getById('Course', progress.courseId);
         helper.setToInternalCache(progress.courseId, course);
     }
@@ -501,6 +527,7 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @returns {Object} the updated course progress
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
+
     const moduleName = query.module;
     const lessonName = query.lesson;
 
@@ -546,13 +573,21 @@ async function completeLesson(currentUser, certificationProgressId, query) {
             modules: progress.modules
         }
 
-        // make the update in the database
-        let updatedProgress = await helper.update(progress, updatedModules)
+        // TODO: Leaving this mutex code here for now to have it ready in case 
+        //       we need to use that approach to deconflict DB writes.
+        // make the update in the database, use a mutex to deconflict DB operations
+        setMutex(certificationProgressId, LESSON_COMPLETING_MUTEX)
+        const idObj = {
+            id: certificationProgressId,
+            certification: progress.certification
+        }
+        let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
+        clearMutex(certificationProgressId)
 
         decorateProgressCompletion(updatedProgress);
 
         const endTime = performance.now()
-        helper.logExecutionTime(startTime, endTime, 'completeLesson', true)
+        helper.logExecutionTime(startTime, endTime, 'completeLesson')
 
         console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
 
@@ -566,6 +601,33 @@ completeLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
+}
+
+// A set of helper functions used to see if we can institute a 
+// poor dev's version of a mutex to deconflict DB actions that seem 
+// to be causing issues
+function setMutex(progressId, mutex) {
+    console.log(`setting mutex for ${progressId} to ${mutex}`)
+    helper.setToInternalCache(cacheKey(progressId), mutex, MUTEX_TTL)
+}
+
+function isMutexSet(progressId, mutex) {
+    console.log(`checking mutex for ${progressId}`)
+    return mutex === helper.getFromInternalCache(cacheKey(progressId))
+}
+
+function clearMutex(progressId) {
+    setMutex(progressId, null)
+}
+
+/**
+ * Creates a key used to write/read cache values for the progress record
+ * 
+ * @param {String} progressId 
+ * @returns String cache key
+ */
+function cacheKey(progressId) {
+    return `certification-progress-${progressId}`
 }
 
 /**

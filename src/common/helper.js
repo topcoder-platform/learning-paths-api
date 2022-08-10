@@ -377,6 +377,30 @@ async function update(dbItem, data) {
 }
 
 /**
+ * Update an item in the database atomically
+ * 
+ * @param {Object} modelName The Dynamomoose model name
+ * @param {Object} idObj An object containing the id attributes of the item to update
+ * @param {Object} updateObj The updated data object
+ * @returns {Promise<void>}
+ */
+async function updateAtomic(modelName, idObj, updateObj) {
+  const startTime = performance.now()
+
+  return new Promise((resolve, reject) => {
+    models[modelName].update(idObj, updateObj, (err, dbItem) => {
+      if (err) {
+        return reject(err)
+      } else {
+        const endTime = performance.now()
+        logExecutionTime(startTime, endTime, 'helper.updateAtomic')
+        return resolve(dbItem)
+      }
+    })
+  })
+}
+
+/**
  * Get data collection by scan parameters
  * @param {Object} modelName The dynamoose model name
  * @param {Object} scanParams The scan parameters object
@@ -546,5 +570,6 @@ module.exports = {
   validateDuplicate,
   validateRequestPayload,
   update,
+  updateAtomic,
   wrapExpress,
 }

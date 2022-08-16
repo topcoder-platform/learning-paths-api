@@ -530,6 +530,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     const moduleName = query.module;
     const lessonName = query.lesson;
+    const uuid = query.uuid;
 
     console.log(`User ${currentUser.userId} completing lesson ${moduleName}/${lessonName}...`)
 
@@ -561,6 +562,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         return progress
     } else {
         const completedLesson = {
+            id: uuid,
             dashedName: lessonName,
             completedDate: new Date()
         }
@@ -573,16 +575,11 @@ async function completeLesson(currentUser, certificationProgressId, query) {
             modules: progress.modules
         }
 
-        // TODO: Leaving this mutex code here for now to have it ready in case 
-        //       we need to use that approach to deconflict DB writes.
-        // make the update in the database, use a mutex to deconflict DB operations
-        // setMutex(certificationProgressId, LESSON_COMPLETING_MUTEX)
         const idObj = {
             id: certificationProgressId,
             certification: progress.certification
         }
         let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
-        // clearMutex(certificationProgressId)
 
         decorateProgressCompletion(updatedProgress);
 
@@ -599,7 +596,8 @@ completeLesson.schema = {
     certificationProgressId: Joi.string(),
     query: Joi.object().keys({
         module: Joi.string().required(),
-        lesson: Joi.string().required()
+        lesson: Joi.string().required(),
+        uuid: Joi.string()
     }).required()
 }
 

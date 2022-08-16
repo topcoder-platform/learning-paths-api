@@ -30,6 +30,10 @@ const schema = new Schema({
                     type: String,
                     default: null
                 },
+                id: {
+                    type: String,
+                    required: false,
+                },
                 completedDate: {
                     type: Date,
                     default: null

@@ -246,6 +246,52 @@ function updateLessonIds(course, dbCourse) {
     })
 }
 
+async function updateCertProgressLessonIds() {
+    console.log("\nUpdating CertificationProgress lesson IDs in DynamoDB")
+
+    const courses = await helper.scanAll('Course');
+    const progresses = await helper.scanAll('CertificationProgress');
+
+    console.log(`Found ${progresses.length} CertificationProgress records to update`);
+
+    progresses.forEach(async progress => {
+        console.log(`\nupdating progress for user ${progress.userId} certification ${progress.certification}`)
+        const course = courses.find(crs => crs.id === progress.courseId)
+        if (course) {
+            updateProgressWithCourseLessonIds(progress, course);
+            await progress.save();
+            console.log(`...updated progress ${progress.id}`)
+        } else {
+            console.error(`could not find course matching ID ${progress.courseId} -- quitting`);
+            process.exit(1);
+        }
+    })
+}
+
+function updateProgressWithCourseLessonIds(progress, course) {
+    progress.modules.forEach(progressModule => {
+        const progressModuleName = progressModule.module;
+        const courseModule = course.modules.find(module => module.key === progressModuleName)
+        if (!courseModule) {
+            console.error(`could not find course module ${progressModuleName} -- quitting`);
+            process.exit(1);
+        }
+
+        progressModule.completedLessons.forEach(completedLesson => {
+            const completedLessonName = completedLesson.dashedName;
+            const courseLesson = courseModule.lessons.find(lesson => lesson.dashedName === completedLessonName)
+            if (!courseLesson) {
+                console.error(`could not find course lesson ${completedLessonName} -- quitting`);
+                process.exit(1);
+            }
+
+            // Set the completed lesson ID in the certification progress 
+            // to match the course lesson ID
+            completedLesson.id = courseLesson.id;
+        })
+    })
+}
+
 // ----------------- start of CLI -----------------
 
 // Start with the learning resource providers whose certifications 
@@ -256,10 +302,11 @@ let provider;
 
 // Parse CLI flags
 const writeToDB = (args.indexOf('-d') > -1 ? true : false);
-const updateIds = (args.indexOf('-u') > -1 ? true : false);
+const updateDBLessonIds = (args.indexOf('-u') > -1 ? true : false);
+const updateDBProgressIds = (args.indexOf('-p') > -1 ? true : false);
 
 // Parse the CLI args for the provider name, if given
-if (args.length == 2 || (args.length == 3 && (writeToDB || updateIds))) {
+if (args.length == 2 || (args.length == 3 && (writeToDB || updateDBLessonIds || updateDBProgressIds))) {
     provider = loadDefaultProvider(providers);
 } else if ((args.length == 3 && !writeToDB) || args.length == 4) {
     const givenProvider = args[2]
@@ -283,8 +330,9 @@ if (provider) {
         console.log("\nWriting generated course data to the database")
         writeCoursesToDB(generatedCourseFilePath);
         writeCertificationsToDB(generator.certificationsFilePath)
-    } else if (updateIds) {
-        console.log("\nUpdating freeCodeCamp Course Ids")
+    } else if (updateDBLessonIds) {
         updateCourseLessonIds(generatedCourseFilePath);
+    } else if (updateDBProgressIds) {
+        updateCertProgressLessonIds()
     }
 }

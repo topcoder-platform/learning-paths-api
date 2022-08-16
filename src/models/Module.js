@@ -50,6 +50,10 @@ const schema = new Schema({
         schema: [{
             type: Object,
             schema: {
+                id: {
+                    type: String,
+                    required: false,
+                },
                 title: {
                     type: String,
                     required: true

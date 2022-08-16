@@ -32,6 +32,12 @@ async function searchCourses(criteria) {
             e => helper.fullyMatch(criteria.certification, e.certification))
     }
 
+    if (criteria.key) {
+        records = _.filter(
+            records,
+            e => helper.fullyMatch(criteria.key, e.key))
+    }
+
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 

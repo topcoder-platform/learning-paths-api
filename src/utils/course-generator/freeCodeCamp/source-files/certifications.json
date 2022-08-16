@@ -45,7 +45,7 @@
     "courses": [
       "javascript-algorithms-and-data-structures"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Web Development",
     "trackType": "DEV",
     "certType": "certification"
@@ -62,7 +62,7 @@
     "courses": [
       "front-end-development-libraries"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Web Development",
     "trackType": "DEV",
     "certType": "certification"
@@ -79,7 +79,7 @@
     "courses": [
       "data-visualization"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"
@@ -96,7 +96,7 @@
     "courses": [
       "scientific-computing-with-python"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"
@@ -113,7 +113,7 @@
     "courses": [
       "data-analysis-with-python"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"

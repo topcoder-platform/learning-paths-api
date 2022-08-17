@@ -10,6 +10,7 @@ const Joi = require('joi')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
+const fccService = require('./FreeCodeCampDataService');
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
@@ -214,7 +215,10 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  */
 async function completeCertification(currentUser, certificationProgressId) {
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
-    checkCertificateCompletion(currentUser, progress)
+
+    // TODO - commenting out for testing
+    // checkCertificateCompletion(currentUser, progress)
+    verifyFCCCourseCompletion(currentUser, progress)
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -263,10 +267,34 @@ function checkCertificateCompletion(user, progress) {
     });
 
     if (notCompleted) {
-        throw new errors.BadRequestError(`User ${user.userId} has not completed all required modules for the ${progress.certificationTitle}`)
+        throw new errors.BadRequestError(
+            `User ${user.userId} has not completed all required modules for the ${progress.certificationTitle}`)
     } else {
         return true
     }
+}
+
+/**
+ * Verifies that the user has completed all of the lessons required to 
+ * earn a FreeCodeCamp certification by comparing our CertificationProgress 
+ * completed lesson data with the lesson completion data in the user's 
+ * FreeCodeCamp application record.
+ * 
+ * @param {Object} user 
+ * @param {Object} progress CertificationProgress object
+ */
+async function verifyFCCCourseCompletion(user, progress) {
+    const query = { email: user.email };
+    const fccUserRecord = await fccService.findUser(query);
+
+    console.log("fccUserRecord", fccUserRecord);
+
+    if (!fccUserRecord) {
+        throw new errors.BadRequestError(
+            `User ${user.userId} (${user.email}) was not found in the freeCodeCamp data`)
+    }
+
+    throw "TEST"
 }
 
 function validateQueryWithSchema(modelSchema, query) {

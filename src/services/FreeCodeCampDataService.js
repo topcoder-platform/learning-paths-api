@@ -24,8 +24,10 @@ async function findUser(query) {
                 completedChallenges: 1,
             },
         }
+
         const foundUser = await user.findOne(query, options);
-        console.log(foundUser);
+        console.log("foundUser:", foundUser);
+
         return foundUser;
     } catch (error) {
         console.error
@@ -35,5 +37,6 @@ async function findUser(query) {
     }
 }
 
-findUser({ email: 'chris.mccann@topcoder.com' })
-// findUser({ externalId: 'auth0|90183094' })
+module.exports = {
+    findUser
+}

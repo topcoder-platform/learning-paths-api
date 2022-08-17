@@ -1,0 +1,11 @@
+{
+    "Resources": {
+        "TCAGenerateCertificate": {
+            "Type": "AWS::SQS::Queue",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "QueueName": "topcoder-academy-generate-certificate"
+            }
+        }
+    }
+}

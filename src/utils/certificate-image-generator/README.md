@@ -4,6 +4,7 @@ This utility creates an image of each certficate as it's earned so that the imag
 
 - [Sequence Diagram](#sequence-diagram)
 - [Creating the Stack](#creating-the-stack)
+- [Configuring Queue](#configuring-queue)
 - [Deployment](#deployment)
 
 ## Sequence Diagram
@@ -54,6 +55,14 @@ Stack name: TCA-Certificate-Generator
 Queue name: tca-certficate-generator
 ```
 
+## Configuring Queue
+
+In order to send messages to the queue, you'll need to add the following 2 environment variables:
+
+```
+% export PLATFORM_URL=https://platform-ui.topcoder-dev.com
+% export QUEUE_URL=https://sqs.us-east-1.amazonaws.com/811668436784/
+```
 
 ## Deployment
 

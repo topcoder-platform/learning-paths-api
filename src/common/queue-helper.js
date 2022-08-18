@@ -13,11 +13,11 @@ async function sendMessageAsync(queueName, body, title, author) {
     const params = {
         DelaySeconds: 10,
         MessageAttributes: {
-            'Title': {
+            Title: {
                 DataType: 'String',
                 StringValue: title
             },
-            'Author': {
+            Author: {
                 DataType: 'String',
                 StringValue: author
             },

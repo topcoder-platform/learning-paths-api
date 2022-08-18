@@ -10,6 +10,7 @@ const Joi = require('joi')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
+const imageGenerator = require('../utils/certificate-image-generator/GenerateCertificateImageService')
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
@@ -228,6 +229,15 @@ async function completeCertification(currentUser, certificationProgressId) {
     let updatedProgress = await helper.update(progress, completionData)
     console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
+
+    // this is an async function for which we are purposely not awaiting the response
+    // so that it will complete in the background
+    imageGenerator.generateCertificateImageAsync(
+        progress.certification,
+        progress.certificationTitle,
+        currentUser.nickname,
+        (err) => { console.error('***********', err) },
+    )
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
     // timestamp to a JS Date object on +update+.

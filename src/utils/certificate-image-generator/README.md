@@ -12,13 +12,15 @@ The primary use case for hosting images of TCA certificates is for sharing them 
 
 The sequence diagram below explains both the process of creating images and the process for sharing the certificates themselves on social media.
 
-![TCA Certificate Social Sharing ](TCASocialSharing.png?raw=true "TCA Certificate Social Sharing")
+![TCA Certificate Social Sharing ](docs/TCASocialSharing.png?raw=true "TCA Certificate Social Sharing")
+
+>**NOTE:** This diagram was generated using [https://sequencediagram.org](https://sequencediagram.org) with the source located at `./docs/TCASocialSharing.txt`.
 
 ## Creating the stack
 
 The yaml located at `./certificate-image-generator.yml` is the CloudFormation resources configuration and includes all the requirements for creating the stack for the Image Generator on AWS.
 
-There is a helper bash script at `./create-stack.sh` that will generate the aws cloudformation command for the environment specified.
+There is a helper bash script at `./create-stack.sh` that will generate the `aws cloudformation` command for the environment specified.
 
 The script supports an environment argument that will be added as a suffix to the Stack and dependent service names.
 

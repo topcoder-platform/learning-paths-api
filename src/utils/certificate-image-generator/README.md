@@ -47,7 +47,7 @@ Queue name: tca-certficate-generator-myEnv
 > topcoder-learning-paths-api@1.0.0 cert-gen:create-stack
 > sh src/utils/certificate-image-generator/create-stack.sh
 
-Environment: no Env
+Environment: No Env
 Stack name: TCA-Certificate-Generator
 Queue name: tca-certficate-generator
 ```

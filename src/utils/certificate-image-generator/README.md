@@ -30,12 +30,26 @@ There is also a helper package script called `cert-gen:create-stack` to make it 
 
 ```
 % npm run cert-gen:create-stack -- myEnv
+
+> topcoder-learning-paths-api@1.0.0 cert-gen:create-stack
+> sh src/utils/certificate-image-generator/create-stack.sh "myEnv"
+
+Environment: myEnv
+Stack name: TCA-Certificate-Generator-myEnv
+Queue name: tca-certficate-generator-myEnv
 ```
 
 <b>without environment</b>
 
 ```
 % npm run cert-gen:create-stack
+
+> topcoder-learning-paths-api@1.0.0 cert-gen:create-stack
+> sh src/utils/certificate-image-generator/create-stack.sh
+
+Environment: no Env
+Stack name: TCA-Certificate-Generator
+Queue name: tca-certficate-generator
 ```
 
 

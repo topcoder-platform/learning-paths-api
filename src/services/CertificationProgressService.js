@@ -7,6 +7,7 @@ const { CertificationProgress } = require('../models')
 const errors = require('../common/errors')
 const helper = require('../common/helper')
 const Joi = require('joi')
+const logger = require('../common/logger')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
@@ -236,7 +237,7 @@ async function completeCertification(currentUser, certificationProgressId) {
         progress.certification,
         progress.certificationTitle,
         currentUser.nickname,
-        (err) => { console.error('***********', err) },
+        (err) => { logger.logFullError(err) },
     )
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix

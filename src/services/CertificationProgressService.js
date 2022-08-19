@@ -210,8 +210,8 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
 /**
  * Marks a certification as completed in the Certification Progress record.
  * 
- * If the cert URL and element are present, this function will send a message to the queue to 
- * initiate the generation of an image for the cert
+ * If the cert URL is present, this function will send a message to the queue to initiate the 
+ * generation of an image for the cert.
  * 
  * @param {String} certificationProgressId the ID of the user's certification progress to complete
  * @param {Object} data the course data containing the current module and lesson
@@ -243,7 +243,7 @@ async function completeCertification(
     console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
 
-    // if we have both the cert URL, generate the cert image
+    // if we have the cert URL, generate the cert image
     if (!!certificateUrl) {
 
         // NOTE: this is an async function for which we are purposely not awaiting the response

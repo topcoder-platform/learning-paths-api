@@ -208,13 +208,25 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
 }
 
 /**
- * Marks a certification as completed in the Certification Progress record
+ * Marks a certification as completed in the Certification Progress record.
+ * 
+ * If the cert URL and element are present, this function will send a message to the queue to 
+ * initiate the generation of an image for the cert
  * 
  * @param {String} certificationProgressId the ID of the user's certification progress to complete
  * @param {Object} data the course data containing the current module and lesson
  * @returns {Object} the updated course progress
+ * @param {String} certificateUrl (optional) the URL at which the cert should be visible
+ * @param {String} certificateElement (optional) the element w/in the cert that should be used for
+ * image generation
  */
-async function completeCertification(currentUser, certificationProgressId) {
+async function completeCertification(
+    currentUser,
+    certificationProgressId,
+    certificateUrl,
+    certificateElement
+) {
+
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
     checkCertificateCompletion(currentUser, progress)
 
@@ -231,14 +243,20 @@ async function completeCertification(currentUser, certificationProgressId) {
     console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
 
-    // this is an async function for which we are purposely not awaiting the response
-    // so that it will complete in the background
-    imageGenerator.generateCertificateImageAsync(
-        progress.certification,
-        progress.certificationTitle,
-        currentUser.nickname,
-        (err) => { logger.logFullError(err) },
-    )
+    // if we have both the cert URL, generate the cert image
+    if (!!certificateUrl) {
+
+        // NOTE: this is an async function for which we are purposely not awaiting the response
+        // so that it will complete in the background
+        console.log(`Generating certificate image for ${userId} for ${progress.certificationTitle}`)
+        imageGenerator.generateCertificateImageAsync(
+            progress.certificationTitle,
+            currentUser.nickname,
+            (err) => { logger.logFullError(err) },
+            certificateUrl,
+            certificateElement,
+        )
+    }
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
     // timestamp to a JS Date object on +update+.

@@ -1,13 +1,16 @@
 const AWS = require('aws-sdk');
 
-// Set the region 
-AWS.config.update({
-    region: 'us-east-1'
-});
+// create an SQS service object
+const sqs = new AWS.SQS()
 
-// Create an SQS service object
-const sqs = new AWS.SQS();
-
+/**
+ * Sends a message to a queue async
+ * @param {String} queueName The queue to which to send the message
+ * @param {Object} body The body of the message that will be sent to the queue
+ * @param {String} title The title of the message
+ * @param {String} author The author of the message
+ * @returns {Promise<void>}
+ */
 async function sendMessageAsync(queueName, body, title, author) {
 
     const params = {

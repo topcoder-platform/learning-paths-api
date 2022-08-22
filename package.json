@@ -20,7 +20,7 @@
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
     "local:init": "npm run local:reset && npm run seed-tables",
     "local:reset": "npm run init-db force",
-    "cert-gen:create-stack": "sh src/utils/certificate-image-generator/create-stack.sh"
+    "cert-gen:create-stack": "cd src/utils/certificate-image-generator/iac && sh create-stack.sh"
   },
   "author": "Topcoder.com",
   "license": "none",

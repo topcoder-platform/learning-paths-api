@@ -216,9 +216,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
 async function completeCertification(currentUser, certificationProgressId) {
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
 
-    // TODO - commenting out for testing
-    // checkCertificateCompletion(currentUser, progress)
-    verifyFCCCourseCompletion(currentUser, progress)
+    checkCertificateCompletion(currentUser, progress)
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -254,24 +252,49 @@ function validateWithSchema(modelSchema, data) {
 
 /**
  * Checks and sets the module status as follows:
- *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
- *   - if all of the lessons have been completed, it's set to 'completed'
+ *   - if one or more assessment lessons are completed, but not all, it's set to 'in-progress'
+ *   - if all of the assessment lessons have been completed, it's set to 'completed'
  * 
  * @param {Object} module the module to check for completion
  */
 function checkCertificateCompletion(user, progress) {
-    // if any module has not been completed, throw an error that 
+    // if any assessment module has not been completed, throw an error that 
     // will be returned to the caller as a non-success HTTP code 
     const notCompleted = progress.modules.some(module => {
-        return module.moduleStatus != STATUS_COMPLETED
+        return assessmentModuleNotCompleted(module);
     });
 
     if (notCompleted) {
         throw new errors.BadRequestError(
-            `User ${user.userId} has not completed all required modules for the ${progress.certificationTitle}`)
+            `User ${user.userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
     } else {
         return true
     }
+}
+
+/**
+ * Checks if a module is an assessment and has not been completed
+ * 
+ * @param {Object} module a Module object
+ * @returns true if a module is an assessment and has not been completed    
+ */
+function assessmentModuleNotCompleted(module) {
+    if (isAssessmentModule(module)) {
+        return module.moduleStatus != STATUS_COMPLETED
+    } else {
+        return false
+    }
+}
+
+/**
+ * Checks if a module is an assessment, which is required to be completed
+ * to earn a certification.
+ * 
+ * @param {Object} module a Module object
+ * @returns true if the module is an assessment module
+ */
+function isAssessmentModule(module) {
+    return module.lessonCount == 1
 }
 
 /**

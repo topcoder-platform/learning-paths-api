@@ -10,6 +10,7 @@ const Joi = require('joi')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
+const fccService = require('./FreeCodeCampDataService');
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
@@ -198,7 +199,6 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         modules: modules
     }
 
-
     const newProgress = await helper.create('CertificationProgress', progress)
     decorateProgressCompletion(newProgress);
 
@@ -214,6 +214,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  */
 async function completeCertification(currentUser, certificationProgressId) {
     const progress = await getCertificationProgress(currentUser, certificationProgressId);
+
     checkCertificateCompletion(currentUser, progress)
 
     const userId = progress.userId;
@@ -250,23 +251,83 @@ function validateWithSchema(modelSchema, data) {
 
 /**
  * Checks and sets the module status as follows:
- *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
- *   - if all of the lessons have been completed, it's set to 'completed'
+ *   - if one or more assessment lessons are completed, but not all, it's set to 'in-progress'
+ *   - if all of the assessment lessons have been completed, it's set to 'completed'
  * 
  * @param {Object} module the module to check for completion
  */
 function checkCertificateCompletion(user, progress) {
-    // if any module has not been completed, throw an error that 
+    // if any assessment module has not been completed, throw an error that 
     // will be returned to the caller as a non-success HTTP code 
     const notCompleted = progress.modules.some(module => {
-        return module.moduleStatus != STATUS_COMPLETED
+        return assessmentModuleNotCompleted(module);
     });
 
     if (notCompleted) {
-        throw new errors.BadRequestError(`User ${user.userId} has not completed all required modules for the ${progress.certificationTitle}`)
+        throw new errors.BadRequestError(
+            `User ${user.userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
     } else {
         return true
     }
+}
+
+/**
+ * Checks if a module is an assessment and has not been completed
+ * 
+ * @param {Object} module a Module object
+ * @returns true if a module is an assessment and has not been completed    
+ */
+function assessmentModuleNotCompleted(module) {
+    if (isAssessmentModule(module)) {
+        return module.moduleStatus != STATUS_COMPLETED
+    } else {
+        return false
+    }
+}
+
+/**
+ * TODO: this check should use a module attribute that is set when the course
+ * data is imported and is non-provider specific.
+ * 
+ * Checks if a module is an assessment, which is required to be completed
+ * to earn a certification.
+ * 
+ * @param {Object} module a Module object
+ * @returns true if the module is an assessment module
+ */
+function isAssessmentModule(module) {
+    return module.lessonCount == 1
+}
+
+/**
+ * TODO: if this type of check is required it should be pulled out into 
+ * a provider-specific module and then exposed as a generic "checkCourseCompletion"
+ * method or something along those lines.
+ * 
+ * This method is currently unused and could be removed, keeping it here as a 
+ * reminder of the logic we considered to verify course completion by comparing the 
+ * provider's data with our own course progress metadata.
+ * 
+ * Verifies that the user has completed all of the lessons required to 
+ * earn a FreeCodeCamp certification by comparing our CertificationProgress 
+ * completed lesson data with the lesson completion data in the user's 
+ * FreeCodeCamp application record.
+ * 
+ * @param {Object} user 
+ * @param {Object} progress CertificationProgress object
+ */
+async function verifyFCCCourseCompletion(user, progress) {
+    const query = { email: user.email };
+    const fccUserRecord = await fccService.findUser(query);
+
+    console.log("fccUserRecord", fccUserRecord);
+
+    if (!fccUserRecord) {
+        throw new errors.BadRequestError(
+            `User ${user.userId} (${user.email}) was not found in the freeCodeCamp data`)
+    }
+
+    throw "TEST"
 }
 
 function validateQueryWithSchema(modelSchema, query) {

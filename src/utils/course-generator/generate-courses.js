@@ -223,6 +223,14 @@ async function updateCourseLessonIds(courseFile) {
     })
 }
 
+/**
+ * Updates lesson IDs in a course in DynamoDB with the corresponding 
+ * IDs in the JSON course data, which are taken from the freeCodeCamp
+ * curriculum source data.
+ * 
+ * @param {Object} course JSON course data
+ * @param {Object} dbCourse DynamoDB course data
+ */
 function updateLessonIds(course, dbCourse) {
     console.log(`\nupdating dbCourse: ${dbCourse.key} (id: ${dbCourse.id})`);
     course.modules.forEach(module => {
@@ -246,6 +254,10 @@ function updateLessonIds(course, dbCourse) {
     })
 }
 
+/**
+ * Updates DynamoDB CertificationProgress completed lesson IDs with the corresponding
+ * IDs stored in the Course table.
+ */
 async function updateCertProgressLessonIds() {
     console.log("\nUpdating CertificationProgress lesson IDs in DynamoDB")
 
@@ -268,6 +280,13 @@ async function updateCertProgressLessonIds() {
     })
 }
 
+/**
+ * Updates course progress completed lesson IDs to their corresponding ID
+ * in the course data.
+ * 
+ * @param {Object} progress A Dynamoose CertificationProgress object
+ * @param {Object} course A Dynamoose Course object
+ */
 function updateProgressWithCourseLessonIds(progress, course) {
     progress.modules.forEach(progressModule => {
         const progressModuleName = progressModule.module;
@@ -321,6 +340,12 @@ if (args.length == 2 || (args.length == 3 && (writeToDB || updateDBLessonIds || 
 
 // Generate the course data for the given provider
 // and write it to the database if that flag was provided
+//
+// Additional tools added:
+// - updateCourseLessonIds: update course lessons stored in DynamoDB 
+//   with the corresponding freeCodeCamp ID
+// - updateCertProgressLessonIds: update certification progress completed 
+//   lessons with IDs in the course lessons
 if (provider) {
     const generator = getCourseGenerator(provider);
     const generatedCourseFilePath = generator.generateCourseData();

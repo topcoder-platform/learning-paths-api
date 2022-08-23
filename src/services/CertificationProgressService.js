@@ -199,7 +199,6 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         modules: modules
     }
 
-
     const newProgress = await helper.create('CertificationProgress', progress)
     decorateProgressCompletion(newProgress);
 
@@ -287,6 +286,9 @@ function assessmentModuleNotCompleted(module) {
 }
 
 /**
+ * TODO: this check should use a module attribute that is set when the course
+ * data is imported and is non-provider specific.
+ * 
  * Checks if a module is an assessment, which is required to be completed
  * to earn a certification.
  * 
@@ -298,6 +300,14 @@ function isAssessmentModule(module) {
 }
 
 /**
+ * TODO: if this type of check is required it should be pulled out into 
+ * a provider-specific module and then exposed as a generic "checkCourseCompletion"
+ * method or something along those lines.
+ * 
+ * This method is currently unused and could be removed, keeping it here as a 
+ * reminder of the logic we considered to verify course completion by comparing the 
+ * provider's data with our own course progress metadata.
+ * 
  * Verifies that the user has completed all of the lessons required to 
  * earn a FreeCodeCamp certification by comparing our CertificationProgress 
  * completed lesson data with the lesson completion data in the user's 

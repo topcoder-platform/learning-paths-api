@@ -13,6 +13,7 @@ envMessage="Environment:"
 # get the stack and queue names
 stackName="TCA-Certificate-Generator"
 queueName="tca-certficate-generator"
+bucketName="tca-certficate-generator"
 if [ -z $env ]
     then
         echo "$envMessage No Env"
@@ -20,13 +21,15 @@ if [ -z $env ]
         echo "$envMessage $env"
         stackName="$stackName-$env"
         queueName="$queueName-$env"
+        bucketName="$bucketName-$env"
 fi
 echo "Stack name: $stackName"
 echo "Queue name: $queueName"
+echo "Bucket name: $bucketName"
 
 # read in the template body
 # NOTE: this is the path based on running the script from the root dir
 templateBody=$(<./certificate-image-generator.yml)
 
 # create the stack w/the params
-aws cloudformation create-stack --stack-name $stackName --template-body "$templateBody" --parameters ParameterKey=TCAGenerateCertificateQueueName,ParameterValue=$queueName
+aws cloudformation create-stack --stack-name $stackName --template-body "$templateBody" --parameters ParameterKey=TCAGenerateCertificateQueueName,ParameterValue=$queueName ParameterKey=TCACertificateImageStoreName,ParameterValue=$bucketName

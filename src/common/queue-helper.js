@@ -6,7 +6,14 @@ const sqs = new AWS.SQS()
 // TCA-57 temporarily print user to troubleshoot
 // access issue
 const iam = new AWS.IAM()
-console.log("********** user", iam.getUser())
+console.log('######## getting user')
+const user = iam.getUser((err, data) => {
+    if (!!err) {
+        console.error('%%%%%%%%% error', err)
+    } else {
+        console.log("********** user", data)
+    }
+})
 
 /**
  * Sends a message to a queue async

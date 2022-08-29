@@ -257,6 +257,8 @@ async function completeCertification(
             certificateUrl,
             certificateElement,
         )
+    } else {
+        console.log(`Certificate Image for ${userId} for ${progress.certificationTitle} NOT being generated bc no cert URL was provided.`)
     }
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix

@@ -29,6 +29,11 @@ async function generateCertificateImageAsync(
         return
     }
 
+    // if we don't have a queue name, we have a problem
+    if (!process.env.CERT_IMAGE_QUEUE) {
+        throw new Error('The CERT_IMAGE_QUEUE is not definedin for the environment.')
+    }
+
     const messageBody = {
         screenshotSelector: certificateElement,
         template: ssrTemplate,
@@ -37,7 +42,7 @@ async function generateCertificateImageAsync(
     }
 
     await queueHelper.sendMessageAsync(
-        process.env.QUEUE_NAME || 'tca-certficate-generator',
+        process.env.CERT_IMAGE_QUEUE,
         JSON.stringify(messageBody),
         messageBody.title,
         handle

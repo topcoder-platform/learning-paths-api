@@ -9,8 +9,26 @@ Parameters:
 
     TCACertificateImageStoreName:
         Type: String
-        Description: TCA Generate Certificate Queue Name
+        Description: TCA Generate Certificate Image Store Name
         Default: tca-generate-certificate
+
+    TCACertificateImageStoreDomain:
+        Type: String
+        Description: TCA Generate Certificate Image Store Domain
+        Default: tca-generate-certificate.s3.amazonaws.com
+
+    TCACertificateImageStoreAlias:
+        Type: String
+        Description: TCA Generate Certificate Image Store Alias
+        Default: tca.topcoder-dev.com
+
+    TCACertificateImageStoreCdnCertArn:
+        Type: String
+        Description: TCA Generate Certificate Distribution Arn
+
+    TCACertificateImageStoreAliasHostedZoneId:
+        Type: String
+        Description: TCA Generate Certificate Image Store Alias Hosted Zone Id
 
 Resources:
 
@@ -20,7 +38,6 @@ Resources:
         Properties:
             QueueName:
                 Ref: TCAGenerateCertificateQueueName
-            ## TODO: AccessControl
 
     TCACertificateImageStore:
         Type: AWS::S3::Bucket
@@ -29,11 +46,13 @@ Resources:
             AccessControl: PublicRead
             BucketName:
                 Ref: TCACertificateImageStoreName
+
     TCACertificateImageStoreBucketPolicy:
         Type: 'AWS::S3::BucketPolicy'
         Properties:
+            Bucket: !Ref TCACertificateImageStore
             PolicyDocument:
-                Id: MyPolicy
+                Id: TCACertificateImageStoreBucketPolicy
                 Version: 2012-10-17
                 Statement:
                     -   Sid: PublicReadForGetBucketObjects
@@ -45,4 +64,45 @@ Resources:
                         -   - 'arn:aws:s3:::'
                             - !Ref TCACertificateImageStore
                             - /*
-                Bucket: !Ref TCACertificateImageStore
+
+    TCAGenerateCertificateCdn:
+        Type: AWS::CloudFront::Distribution
+        Properties: 
+            DistributionConfig: 
+                Enabled: true
+                Aliases: 
+                    -   Ref: TCACertificateImageStoreAlias
+                Origins:
+                    -   Id: 
+                            Ref: TCACertificateImageStoreDomain
+                        DomainName: 
+                            Ref: TCACertificateImageStoreDomain
+                        S3OriginConfig:
+                            OriginAccessIdentity: ""
+                DefaultCacheBehavior:
+                    TargetOriginId: 
+                        Ref: TCACertificateImageStoreDomain
+                    ViewerProtocolPolicy: redirect-to-https
+                    ForwardedValues:
+                        QueryString: false
+                        Cookies:
+                            Forward: none
+                ViewerCertificate: 
+                    AcmCertificateArn: 
+                        Ref: TCACertificateImageStoreCdnCertArn
+                    MinimumProtocolVersion: TLSv1.2_2018
+                    SslSupportMethod: sni-only
+
+    TCAGenerateCertificateRoute:
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneId: 
+                Ref: TCACertificateImageStoreAliasHostedZoneId
+            Name:
+                Ref: TCACertificateImageStoreAlias
+            Type: A
+            AliasTarget: 
+                # hard-coded zone id for all cloudfront routes
+                # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
+                HostedZoneId: Z2FDTNDATAQYW2 
+                DNSName: !GetAtt TCAGenerateCertificateCdn.DomainName

@@ -1,18 +1,55 @@
 #!/bin/bash
 
+# load in the environment variables
+set -a
+. ../../../../.env
+set +a
+
+# validate the environment variables
+if [ -z $CERT_IMAGE_ALIAS ] 
+    then
+        echo CERT_IMAGE_ALIAS is required
+        exit 1
+
+fi
+if [ -z $CERT_IMAGE_HOSTED_ZONE_ID ] 
+    then
+        echo CERT_IMAGE_HOSTED_ZONE_ID is required
+        exit 1
+fi
+if [ -z $CERT_IMAGE_CERT_ARN ] 
+    then
+        echo CERT_IMAGE_CERT_ARN is required
+        exit 1
+fi
+
 # get the env
 env=$1
-if [ -z $env ]
+silent=$2
+if [ -z $silent ]
     then
-        echo "Enter env name:"
-        read ENV
-        env=$ENV
+        if [ -z $env ]
+            then
+                echo "Enter env name:"
+                read ENV
+                env=$ENV
+        fi
+    else
+        if [ $silent != 'Y' ]
+            then 
+                echo "Aborting deployment bc the silent argument can only be Y: " $silent
+                exit 2
+            else
+                echo "Deploying silently... "
+        fi
 fi
 envMessage=Environment:
 
 # get the stack and queue names
 stackName=TCA-Certificate-Generator
 queueName=tca-certificate-generator-sqs
+bucketName=tca-certificate-generator-s3
+
 if [ -z $env ]
     then
         echo "$envMessage No Env"
@@ -20,13 +57,40 @@ if [ -z $env ]
         echo "$envMessage $env"
         stackName=$stackName-$env
         queueName=$queueName-$env
+        bucketName=$bucketName-$env
 fi
+cdnDomain=$bucketName.s3.amazonaws.com
+
 echo "Stack name: $stackName"
 echo "Queue name: $queueName"
+echo "Bucket name: $bucketName"
+echo "CDN domain: $cdnDomain"
+echo "Alias: $CERT_IMAGE_ALIAS"
+echo "HostedZoneId: $CERT_IMAGE_HOSTED_ZONE_ID"
+echo "acmCertificateArn: $CERT_IMAGE_CERT_ARN"
 
-# create the stack w/the params
+# approve the deployment
+if [ -z $silent ]
+    then
+        echo "Are you sure you want to deploy? Y/n"
+        read SILENT
+        silent=$SILENT
+fi
+
+if [ $silent != 'Y' ]
+    then
+        echo "Deployment cancelled"
+        exit 3
+fi
+
+# deploy (i.e. create or update) the stack w/the params
 aws cloudformation deploy \
     --stack-name $stackName \
     --template-file certificate-image-generator.yml \
     --parameter-overrides \
-        TCAGenerateCertificateQueueName=$queueName
+        TCAGenerateCertificateQueueName=$queueName \
+        TCACertificateImageStoreName=$bucketName \
+        TCACertificateImageStoreDomain=$cdnDomain \
+        TCACertificateImageStoreAlias=$CERT_IMAGE_ALIAS \
+        TCACertificateImageStoreCdnCertArn=$CERT_IMAGE_CERT_ARN \
+        TCACertificateImageStoreAliasHostedZoneId=$CERT_IMAGE_HOSTED_ZONE_ID \

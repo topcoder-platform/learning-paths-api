@@ -124,6 +124,61 @@ async function getCourseModule(id, moduleKey) {
 }
 
 /**
+ * Returns a copy of a learning resource provider's lesson map. Attempts
+ * to get the cached value and generates it in the case of a cache miss.
+ * 
+ * @param {String} provider name of the learning resource provider
+ * @returns {Object} an object whose keys are the unique lesson IDs and 
+ *      values are the lesson's module, course, and certification identifiers.
+ */
+async function getCourseLessonMap(provider) {
+
+    const cacheKey = `lesson-map:${provider}`
+    let lessonMap = helper.getFromInternalCache(cacheKey)
+
+    if (!lessonMap) {
+        lessonMap = await generateCourseLessonMap(provider);
+        helper.setToInternalCache(cacheKey, lessonMap);
+    }
+
+    return lessonMap;
+}
+
+/**
+ * Generates a map of all course lessons and their associated module, course,
+ * and certification identifiers. Used to lookup what certification, course, 
+ * and module a particular lesson belongs to.
+ * 
+ * @param {String} provider name of the learning resource provider
+ * @returns {Object} an object whose keys are the unique lesson IDs and 
+ *      values are the lesson's module, course, and certification identifiers.
+ */
+async function generateCourseLessonMap(provider) {
+    courses = await helper.scanAll('Course')
+
+    courses = _.filter(
+        courses,
+        e => helper.fullyMatch(provider, e.provider))
+
+    let lessonMap = {};
+    courses.forEach(course => {
+        course.modules.forEach(module => {
+            module.lessons.forEach(lesson => {
+                lessonMap[lesson.id] = {
+                    dashedName: lesson.dashedName,
+                    moduleKey: module.key,
+                    courseId: course.id,
+                    certificationId: course.certificationId,
+                    certification: course.certification
+                }
+            })
+        })
+    })
+
+    return lessonMap;
+}
+
+/**
  * Decorates each element of the collection with lession counts
  * 
  * @param {Array} modules a collection of course modules
@@ -157,6 +212,7 @@ getCourseModules.schema = {
 module.exports = {
     searchCourses,
     getCourse,
+    getCourseLessonMap,
     getCourseModules,
     getCourseModule
 }

@@ -12,14 +12,13 @@ const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
 const imageGenerator = require('../utils/certificate-image-generator/GenerateCertificateImageService')
-const fccService = require('./FreeCodeCampDataService');
+const courseService = require('./CourseService');
 
 const STATUS_COMPLETED = "completed";
 const STATUS_IN_PROGRESS = "in-progress";
 const STATUS_NOT_STARTED = "not-started";
 
-const LESSON_COMPLETING_MUTEX = "lesson_completing"
-const MUTEX_TTL = 2 // seconds
+const PROVIDER_FREECODECAMP = "freeCodeCamp";
 
 /**
  * Search Certification Progress
@@ -227,7 +226,7 @@ async function completeCertification(
     certificateElement
 ) {
 
-    const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
 
     checkCertificateCompletion(currentUser, progress)
 
@@ -328,37 +327,6 @@ function isAssessmentModule(module) {
     return module.lessonCount == 1
 }
 
-/**
- * TODO: if this type of check is required it should be pulled out into 
- * a provider-specific module and then exposed as a generic "checkCourseCompletion"
- * method or something along those lines.
- * 
- * This method is currently unused and could be removed, keeping it here as a 
- * reminder of the logic we considered to verify course completion by comparing the 
- * provider's data with our own course progress metadata.
- * 
- * Verifies that the user has completed all of the lessons required to 
- * earn a FreeCodeCamp certification by comparing our CertificationProgress 
- * completed lesson data with the lesson completion data in the user's 
- * FreeCodeCamp application record.
- * 
- * @param {Object} user 
- * @param {Object} progress CertificationProgress object
- */
-async function verifyFCCCourseCompletion(user, progress) {
-    const query = { email: user.email };
-    const fccUserRecord = await fccService.findUser(query);
-
-    console.log("fccUserRecord", fccUserRecord);
-
-    if (!fccUserRecord) {
-        throw new errors.BadRequestError(
-            `User ${user.userId} (${user.email}) was not found in the freeCodeCamp data`)
-    }
-
-    throw "TEST"
-}
-
 function validateQueryWithSchema(modelSchema, query) {
     const schema = Joi.object().keys(modelSchema)
     const { error } = schema.validate({ query })
@@ -373,11 +341,11 @@ function validateQueryWithSchema(modelSchema, query) {
  * @param {String} progressId the ID of the CertificationProgress 
  * @returns {Object} the certification progress for the given user and certification
  */
-async function getCertificationProgress(currentUser, progressId) {
+async function getCertificationProgress(userId, progressId) {
     // testing performance 
     var startTime = performance.now()
 
-    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
+    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, userId)
     decorateProgressCompletion(progress);
 
     // testing performance
@@ -524,7 +492,7 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     //     }, 100)
     // }
 
-    const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
     if (moduleIndex != -1) {
@@ -617,12 +585,12 @@ async function validateCourseLesson(progress, moduleName, lessonName) {
  * @returns {Object} the updated course progress
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
-
+    const userId = currentUser.userId;
     const moduleName = query.module;
     const lessonName = query.lesson;
-    const uuid = query.uuid;
+    const lessonId = query.uuid;
 
-    console.log(`User ${currentUser.userId} completing lesson ${moduleName}/${lessonName}...`)
+    console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}...`)
 
     const startTime = performance.now()
 
@@ -633,8 +601,35 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         throw error
     }
 
-    let progress = await getCertificationProgress(currentUser, certificationProgressId);
-    const userId = progress.userId;
+    const updatedProgress = await setLessonComplete(userId, certificationProgressId, moduleName, lessonName, lessonId);
+
+    const endTime = performance.now()
+    helper.logExecutionTime(startTime, endTime, 'completeLesson')
+
+    return updatedProgress
+}
+
+completeLesson.schema = {
+    certificationProgressId: Joi.string(),
+    query: Joi.object().keys({
+        module: Joi.string().required(),
+        lesson: Joi.string().required(),
+        uuid: Joi.string()
+    }).required()
+}
+
+/**
+ * Sets a lesson as complete within a CertificationProgress record 
+ * 
+ * @param {String} userId unique user ID
+ * @param {String} certificationProgressId unique certification progress ID
+ * @param {String} moduleName name of module containing the completed lesson
+ * @param {String} lessonName name of lesson that was completed
+ * @param {String} lessonId unique ID of lesson that was completed
+ * @returns updated CertificationProgress object
+ */
+async function setLessonComplete(userId, certificationProgressId, moduleName, lessonName, lessonId) {
+    let progress = await getCertificationProgress(userId, certificationProgressId);
     const certification = progress.certification;
 
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
@@ -652,7 +647,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         return progress
     } else {
         const completedLesson = {
-            id: uuid,
+            id: lessonId,
             dashedName: lessonName,
             completedDate: new Date()
         }
@@ -669,12 +664,9 @@ async function completeLesson(currentUser, certificationProgressId, query) {
             id: certificationProgressId,
             certification: progress.certification
         }
+
         let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
-
         decorateProgressCompletion(updatedProgress);
-
-        const endTime = performance.now()
-        helper.logExecutionTime(startTime, endTime, 'completeLesson')
 
         console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
 
@@ -682,30 +674,44 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     }
 }
 
-completeLesson.schema = {
-    certificationProgressId: Joi.string(),
-    query: Joi.object().keys({
-        module: Joi.string().required(),
-        lesson: Joi.string().required(),
-        uuid: Joi.string()
-    }).required()
-}
+/**
+ * Marks a lesson as complete in the Certification Progress using data 
+ * provided by a freeCodeCamp MongoDB update trigger.
+ * 
+ * @param {Object} query the input query describing the user and lesson
+ */
+async function completeLessonViaMongoTrigger(query) {
+    // get the lesson map to lookup the lesson ID
+    const courseLessonMap = await courseService.getCourseLessonMap(PROVIDER_FREECODECAMP);
 
-// A set of helper functions used to see if we can institute a 
-// poor dev's version of a mutex to deconflict DB actions that seem 
-// to be causing issues
-function setMutex(progressId, mutex) {
-    console.log(`setting mutex for ${progressId} to ${mutex}`)
-    helper.setToInternalCache(cacheKey(progressId), mutex, MUTEX_TTL)
-}
+    const { userId, lessonId } = query;
 
-function isMutexSet(progressId, mutex) {
-    console.log(`checking mutex for ${progressId}`)
-    return mutex === helper.getFromInternalCache(cacheKey(progressId))
-}
+    if (!!courseLessonMap) {
+        const lesson = courseLessonMap[lessonId]
 
-function clearMutex(progressId) {
-    setMutex(progressId, null)
+        if (lesson) {
+            const certification = lesson.certification;
+            const criteria = {
+                provider: PROVIDER_FREECODECAMP,
+                userId: userId,
+                certification: certification
+            }
+            const { dashedName, moduleKey } = lesson;
+            const { result } = await searchCertificationProgresses(criteria);
+
+            if (!!result && !!result[0]) {
+                const certProgress = result[0];
+                const certProgressId = certProgress.id;
+                await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
+            } else {
+                console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
+            }
+        } else {
+            console.error(`completeLessonViaMongoTrigger: could not find freeCodeCamp lesson id ${lessonId}`)
+        }
+    } else {
+        console.error(`completeLessonViaMongoTrigger: error getting freeCodeCamp course lesson map`)
+    }
 }
 
 /**
@@ -745,7 +751,7 @@ function checkAndSetModuleStatus(userId, module) {
  * @returns {Object} the updated course progress
  */
 async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId) {
-    const progress = await getCertificationProgress(currentUser, certificationProgressId);
+    const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
 
     // No need to update if they've already accepted the policy, so just return 
     // the progress data
@@ -770,6 +776,7 @@ module.exports = {
     acceptAcademicHonestyPolicy,
     completeCertification,
     completeLesson,
+    completeLessonViaMongoTrigger,
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,

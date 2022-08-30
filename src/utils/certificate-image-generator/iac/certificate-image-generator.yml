@@ -5,22 +5,18 @@ Parameters:
     TCAGenerateCertificateQueueName:
         Type: String
         Description: TCA Generate Certificate Queue Name
-        Default: tca-generate-certificate
 
     TCACertificateImageStoreName:
         Type: String
         Description: TCA Generate Certificate Image Store Name
-        Default: tca-generate-certificate
 
     TCACertificateImageStoreDomain:
         Type: String
         Description: TCA Generate Certificate Image Store Domain
-        Default: tca-generate-certificate.s3.amazonaws.com
 
     TCACertificateImageStoreAlias:
         Type: String
         Description: TCA Generate Certificate Image Store Alias
-        Default: tca.topcoder-dev.com
 
     TCACertificateImageStoreCdnCertArn:
         Type: String

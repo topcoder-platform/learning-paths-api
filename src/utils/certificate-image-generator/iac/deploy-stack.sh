@@ -6,36 +6,35 @@ set -a
 set +a
 
 # validate the environment variables
-if [ -z $CERT_IMAGE_ALIAS ] 
+if [[ -z $CERT_IMAGE_ALIAS ]]
     then
         echo CERT_IMAGE_ALIAS is required
         exit 1
-
 fi
-if [ -z $CERT_IMAGE_HOSTED_ZONE_ID ] 
+if [[ -z $CERT_IMAGE_HOSTED_ZONE_ID ]] 
     then
         echo CERT_IMAGE_HOSTED_ZONE_ID is required
         exit 1
 fi
-if [ -z $CERT_IMAGE_CERT_ARN ] 
+if [[ -z $CERT_IMAGE_CERT_ARN ]] 
     then
         echo CERT_IMAGE_CERT_ARN is required
         exit 1
 fi
 
-# get the env
-env=$1
+# get the stage
+stage=$1
 silent=$2
-if [ -z $silent ]
+if [[ -z $silent ]]
     then
-        if [ -z $env ]
+        if [[ -z $stage ]]
             then
-                echo "Enter env name:"
-                read ENV
-                env=$ENV
+                echo "Enter name of stage:"
+                read STAGE
+                stage=$STAGE
         fi
     else
-        if [ $silent != 'Y' ]
+        if [[ $silent != "Y" ]]
             then 
                 echo "Aborting deployment bc the silent argument can only be Y: " $silent
                 exit 2
@@ -43,24 +42,22 @@ if [ -z $silent ]
                 echo "Deploying silently... "
         fi
 fi
-envMessage=Environment:
 
 # get the stack and queue names
 stackName=TCA-Certificate-Generator
 queueName=tca-certificate-generator-sqs
 bucketName=tca-certificate-generator-s3
 
-if [ -z $env ]
+# if there is a non-empty stage argument, add it as a suffix
+if [[ -n $stage ]] && [[ $stage != "" ]]
     then
-        echo "$envMessage No Env"
-    else
-        echo "$envMessage $env"
-        stackName=$stackName-$env
-        queueName=$queueName-$env
-        bucketName=$bucketName-$env
+        stackName=$stackName-$stage
+        queueName=$queueName-$stage
+        bucketName=$bucketName-$stage
 fi
 cdnDomain=$bucketName.s3.amazonaws.com
 
+echo "Stage: $stage"
 echo "Stack name: $stackName"
 echo "Queue name: $queueName"
 echo "Bucket name: $bucketName"
@@ -70,14 +67,14 @@ echo "HostedZoneId: $CERT_IMAGE_HOSTED_ZONE_ID"
 echo "acmCertificateArn: $CERT_IMAGE_CERT_ARN"
 
 # approve the deployment
-if [ -z $silent ]
+if [[ -z $silent ]]
     then
         echo "Are you sure you want to deploy? Y/n"
         read SILENT
         silent=$SILENT
 fi
 
-if [ $silent != 'Y' ]
+if [[ $silent != "Y" ]]
     then
         echo "Deployment cancelled"
         exit 3

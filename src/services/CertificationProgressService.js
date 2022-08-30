@@ -683,34 +683,38 @@ async function setLessonComplete(userId, certificationProgressId, moduleName, le
 async function completeLessonViaMongoTrigger(query) {
     // get the lesson map to lookup the lesson ID
     const courseLessonMap = await courseService.getCourseLessonMap(PROVIDER_FREECODECAMP);
-
     const { userId, lessonId } = query;
 
-    if (!!courseLessonMap) {
-        const lesson = courseLessonMap[lessonId]
+    // if we can't get the course lesson map for this provider, bail out
+    if (!courseLessonMap) {
+        console.error(`completeLessonViaMongoTrigger: error getting freeCodeCamp course lesson map`);
+        return;
+    }
 
-        if (lesson) {
-            const certification = lesson.certification;
-            const criteria = {
-                provider: PROVIDER_FREECODECAMP,
-                userId: userId,
-                certification: certification
-            }
-            const { dashedName, moduleKey } = lesson;
-            const { result } = await searchCertificationProgresses(criteria);
+    const lesson = courseLessonMap[lessonId]
+    // if we can't find the map for the given lesson ID, bail out
+    if (!lesson) {
+        console.error(`completeLessonViaMongoTrigger: could not find freeCodeCamp lesson id ${lessonId}`);
+        return;
+    }
 
-            if (!!result && !!result[0]) {
-                const certProgress = result[0];
-                const certProgressId = certProgress.id;
-                await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
-            } else {
-                console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
-            }
-        } else {
-            console.error(`completeLessonViaMongoTrigger: could not find freeCodeCamp lesson id ${lessonId}`)
-        }
+    // search the certification progress table for a matching progress record
+    const certification = lesson.certification;
+    const criteria = {
+        provider: PROVIDER_FREECODECAMP,
+        userId: userId,
+        certification: certification
+    }
+    const { dashedName, moduleKey } = lesson;
+    const { result } = await searchCertificationProgresses(criteria);
+
+    // if we found a progress record, set the lesson as complete, otherwise bail out
+    if (!!result && !!result[0]) {
+        const certProgress = result[0];
+        const certProgressId = certProgress.id;
+        await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
     } else {
-        console.error(`completeLessonViaMongoTrigger: error getting freeCodeCamp course lesson map`)
+        console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }
 }
 

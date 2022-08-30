@@ -100,6 +100,13 @@ module.exports = {
       auth: 'jwt'
     },
   },
+  '/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeLessonViaMongoTrigger',
+      auth: 'jwt'
+    },
+  },
   '/learning-paths/certification-progresses/:certificationProgressId/complete-certification': {
     put: {
       controller: 'CertificationProgressController',

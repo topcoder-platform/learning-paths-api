@@ -31,7 +31,7 @@ async function generateCertificateImageAsync(
 
     // if we don't have a queue name, we have a problem
     if (!process.env.CERT_IMAGE_QUEUE) {
-        throw new Error('The CERT_IMAGE_QUEUE is not definedin for the environment.')
+        throw new Error('The CERT_IMAGE_QUEUE is not defined for the environment.')
     }
 
     const messageBody = {

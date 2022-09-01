@@ -13,5 +13,7 @@ module.exports = {
   AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
 
+  LEARNING_PATHS_API_ENDPOINT: process.env.LEARNING_PATHS_API_ENDPOINT,
+
   M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
 }

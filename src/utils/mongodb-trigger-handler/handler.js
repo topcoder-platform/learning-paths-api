@@ -28,17 +28,17 @@ module.exports.handle = async (event) => {
     Authorization: `Bearer ${token}`
   }
 
-  const config = {
+  const options = {
     params: params,
     headers: headers
   }
 
   // call the Learning Paths API endpoint to complete the lesson
-  axios.put(apiEndpoint, null, config)
-    .then(function (response) {
-      console.log("mongodb trigger handler: completed lesson", challengeId, "at", completedDate);
-    })
-    .catch(function (error) {
-      console.error(error);
-    });
+  try {
+    const response = await axios.put(apiEndpoint, null, options);
+    console.log("API response", response.statusCode);
+    console.log("mongodb trigger handler: completed lesson", challengeId, "at", completedDate);
+  } catch (error) {
+    console.error(error);
+  }
 };

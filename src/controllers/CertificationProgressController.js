@@ -27,7 +27,7 @@ async function searchCertificationProgresses(req, res) {
  */
 async function getCertificationProgress(req, res) {
     const result = await service.getCertificationProgress(
-        req.authUser,
+        req.authUser.userId,
         req.params.certificationProgressId)
 
     res.send(result)
@@ -73,8 +73,9 @@ async function startCertification(req, res) {
 async function completeCertification(req, res) {
     const result = await service.completeCertification(
         req.authUser,
-        req.params.certificationProgressId)
-
+        req.params.certificationProgressId,
+        req.query.certificateUrl,
+        req.query.certificateElement)
     res.send(result)
 }
 
@@ -109,6 +110,18 @@ async function completeLesson(req, res) {
 }
 
 /**
+ * Complete a lesson via data from a MongoDB update trigger
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function completeLessonViaMongoTrigger(req, res) {
+    const result = await service.completeLessonViaMongoTrigger(req.query)
+
+    res.send(result)
+}
+
+/**
  * Accept the academic honesty policy for a certification/course
  * 
  * @param {Object} req the request
@@ -126,6 +139,7 @@ module.exports = {
     acceptAcademicHonestyPolicy,
     completeCertification,
     completeLesson,
+    completeLessonViaMongoTrigger,
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,

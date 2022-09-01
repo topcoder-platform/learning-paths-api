@@ -1,0 +1,58 @@
+title TCA Certificate Social Sharing
+
+
+bottomparticipants 
+
+actor "Browser\n" as web
+
+materialdesignicons F163 "CDN\n" as cdn
+
+materialdesignicons F627 "SSR Server(less)\n" as serve
+
+materialdesignicons F48B "API\n" as api
+
+materialdesignicons F571 "Queue\n" as msq
+
+materialdesignicons F627 "Image Generator\n" as gen
+
+materialdesignicons F193 "Storage\n" as s3
+
+
+
+
+group #lightblue Image Generation
+
+web->api:<color:#darkblue>Complete Course</color>
+api->msq:<color:#darkblue>Generate\nImage</color>
+api->web:<color:#darkblue>Success</color>
+msq->api:<color:#darkblue>Success</color>
+
+gen->msq:<color:#darkblue>Queue\nTrigger</color>
+msq->gen:<color:#darkblue>Message</color>
+gen->cdn:<color:#darkblue>Cert URL</color>
+cdn->gen:<color:#darkblue>Cert</color>
+gen->s3:<color:#darkblue>Save\nImage</color>
+s3->gen:<color:#darkblue>Success</color>
+
+end 
+
+
+
+
+group #lightblue Social Sharing
+
+
+web->serve:<color:#darkblue>SSR URL</color>
+serve->s3:<color:#darkblue>Verify Image URL</color>
+s3->serve:<color:#darkblue>Success</color>
+serve->web:<color:#darkblue>SSR HTML</color>
+web->cdn:<color:#darkblue>og:image URL</color>
+
+group #blue First Request #white
+cdn-->s3:<color:#darkblue>Get Cert Image</color>
+s3-->cdn:<color:#darkblue>Cert Image</color>
+end
+
+cdn->web:<color:#darkblue>Cert Image</color>
+
+end

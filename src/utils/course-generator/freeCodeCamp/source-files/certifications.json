@@ -14,8 +14,7 @@
     "state": "active",
     "category": "Web Development",
     "trackType": "DEV",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "9bd93a8a-1fcb-405a-b2e3-4a283915bbcd",
@@ -32,8 +31,7 @@
     "state": "active",
     "category": "Web Development",
     "trackType": "DEV",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
@@ -47,11 +45,10 @@
     "courses": [
       "javascript-algorithms-and-data-structures"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Web Development",
     "trackType": "DEV",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "6909044d-508b-4c6e-9b90-999bea2b82b0",
@@ -65,11 +62,10 @@
     "courses": [
       "front-end-development-libraries"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Web Development",
     "trackType": "DEV",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "55597a63-e23e-4bc0-9a81-b4f5655a96eb",
@@ -83,11 +79,10 @@
     "courses": [
       "data-visualization"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "9796fe32-d2f9-4b1b-92ee-c6003e4400ac",
@@ -101,11 +96,10 @@
     "courses": [
       "scientific-computing-with-python"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   },
   {
     "id": "269f7d9d-fb10-402b-a942-600f025b0c0f",
@@ -119,10 +113,9 @@
     "courses": [
       "data-analysis-with-python"
     ],
-    "state": "active",
+    "state": "coming-soon",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
-    "certType": "certification",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f"
+    "certType": "certification"
   }
 ]

@@ -475,23 +475,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
-    // TODO: placeholder in case we need to implement some sort of 
-    //       mutex to prevent overwriting progress updates. This code, 
-    //       as currently written, does not work, but I'm keeping it
-    //       to remind myself where I left off in this effort.
-    //
-    // check the mutex that indicates that a lesson completion update is in progress
-    // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);
-    // let check = 0
-    // if (mutexSet) {
-    //     var intervalId = setInterval(() => {
-    //         console.log("** mutex checks", check)
-    //         if (++check > 10) {
-    //             clearInterval(intervalId);
-    //         }
-    //     }, 100)
-    // }
-
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
@@ -552,8 +535,6 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
-    // console.log(`Validating lesson ${moduleName}/${lessonName}`)
-
     const provider = progress.provider;
 
     let course = helper.getFromInternalCache(progress.courseId)
@@ -713,6 +694,7 @@ async function completeLessonViaMongoTrigger(query) {
         const certProgress = result[0];
         const certProgressId = certProgress.id;
         await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
+        console.log(`called complete lesson ${moduleKey}/${dashedName} (id: ${lessonId}) for user ${userId} via MongoDB trigger`)
     } else {
         console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }

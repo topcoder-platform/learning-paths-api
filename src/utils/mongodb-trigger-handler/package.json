@@ -1,0 +1,21 @@
+{
+  "name": "mongodb-trigger-handler",
+  "version": "1.0.0",
+  "description": "Lambda function to handle MongoDB data triggers",
+  "main": "handler.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "chris.mccann@topcoder.com",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "config": "^3.3.7",
+    "dotenv": "^16.0.2",
+    "lodash": "^4.17.21",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.7"
+  }
+}

@@ -98,6 +98,7 @@ Resources:
                 Ref: TCACertificateImageStoreAlias
             Type: A
             AliasTarget: 
-                HostedZoneId:
-                    Ref: TCACertificateImageStoreAliasHostedZoneId 
+                # hard-coded zone id for all cloudfront routes
+                # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
+                HostedZoneId: Z2FDTNDATAQYW2 
                 DNSName: !GetAtt TCAGenerateCertificateCdn.DomainName

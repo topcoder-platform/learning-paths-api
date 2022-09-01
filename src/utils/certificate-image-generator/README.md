@@ -83,13 +83,9 @@ CERT_IMAGE_ALIAS=tca.topcoder-dev.com
 # record for the selected wildcard domain (e.g. *.topcoder-dev.com).
 CERT_IMAGE_CERT_ARN=arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
 
-# The hosted zone ID for the alias. Because the alias is for a Cloudfront distribution, 
-# it uses the generic ID for all Cloudfront distributions as described in the link below.
+# The hosted zone ID for the CERT_IMAGE_ALIAS domain. This is environment-dependent.
 CERT_IMAGE_HOSTED_ZONE_ID=Z2CIRG3R0ZSGFQ
 ```
-
-[Cloudfront Hosted Zone Id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid)
-
 
 ## Configuring Queue
 

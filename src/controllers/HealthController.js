@@ -26,8 +26,10 @@ async function checkHealth(req, res) {
   } catch (e) {
     throw new errors.ServiceUnavailableError(`An error occurred checking the database, ${e.message}`)
   }
-  if (new Date().getTime() - timestampMS > Number(config.HEALTH_CHECK_TIMEOUT)) {
-    throw new errors.ServiceUnavailableError('Database operation is slow.')
+
+  const duration = new Date().getTime() - timestampMS;
+  if (duration > Number(config.HEALTH_CHECK_TIMEOUT)) {
+    throw new errors.ServiceUnavailableError(`Database operation is slow, health check took ${duration} ms.`)
   }
   // there is no error, and it is quick, then return checks run count
   res.send({ checksRun })

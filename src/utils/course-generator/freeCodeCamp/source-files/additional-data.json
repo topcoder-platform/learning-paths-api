@@ -9,6 +9,36 @@
             "keyPoints": [
                 "This Responsive Web Design course will help you learn the key aspects of building a responsive website. This will include valuable skills such as HTML and CSS, the foundations for being a skilled web developer. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ]
+        },
+        "javascript-algorithms-and-data-structures": {
+            "keyPoints": [
+                "JavaScript algorithms and data structures starts with javascript fundamentals.  Don’t know javascript?  Start here!  This is a follow on course to the Frontend libraries course.  We encourage you to continue with this course on your web development journey as it will reinforce your learning from the prior course. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
+        },
+        "front-end-development-libraries": {
+            "keyPoints": [
+                "Frontend development libraries is the direct follow on course to Responsive web development.  We encourage you to continue with this course on your web development journey as it will reinforce your learning from the prior course. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
+        },
+        "data-visualization": {
+            "keyPoints": [
+                "Data visualization is one of the fundamental skills within a data science or any data oriented learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
+        },
+        "machine-learning-with-python": {
+            "keyPoints": [
+                "Machine learning with python is one of the fundamental skills within a machine learning learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
+        },
+        "scientific-computing-with-python": {
+            "keyPoints": [
+                "Scientific computing with python is the first course you should take as a data science hopeful, if you do not have prior knowledge in python. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
+        },
+        "data-analysis-with-python": {
+            "keyPoints": [
+                "Data analysis with python is one of the fundamental skills within a data science or any data oriented learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ]
         }
     }
 }

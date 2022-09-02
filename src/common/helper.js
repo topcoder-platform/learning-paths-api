@@ -245,7 +245,7 @@ async function getByIdAndUser(modelName, id, userId) {
  */
 async function getByTableKeys(modelName, tableKeys) {
   return new Promise((resolve, reject) => {
-    models[modelName].get((tableKeys), { "consistent": true }, (err, result) => {
+    models[modelName].get((tableKeys), (err, result) => {
       if (err) {
         return reject(err)
       }
@@ -425,7 +425,7 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
-  let results = await models[modelName].scan(scanParams).consistent().exec()
+  let results = await models[modelName].scan(scanParams).exec()
   let lastKey = results.lastKey
   while (!_.isUndefined(results.lastKey)) {
     const newResult = await models[modelName].scan(scanParams).consistent().startAt(lastKey).exec()
@@ -544,6 +544,13 @@ function logExecutionTime(start, end, functionName, linebreak = false) {
   if (linebreak) console.log('')
 }
 
+function logExecutionTime2(start, functionName, linebreak = false) {
+  const end = performance.now();
+  const duration = (end - start).toFixed(4)
+  console.log(`** call to ${functionName} took ${duration} ms`)
+  if (linebreak) console.log('')
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -559,6 +566,7 @@ module.exports = {
   getFromInternalCache,
   hasAdminRole,
   logExecutionTime,
+  logExecutionTime2,
   partialMatch,
   pluralize,
   queryCompletedCertifications,

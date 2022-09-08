@@ -42,14 +42,14 @@ builddeploy_steps: &builddeploy_steps
             ./awsconfiguration.sh $DEPLOY_ENV
             source awsenvconf
             ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
+            source buildenvvar
+            ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME}
             # including lambda trigger deployment
             ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
             source buildenvvar
             cd src/utils/mongodb-trigger-handler/
             npm i
             sls deploy
-            source buildenvvar
-            ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME}
 
 
 

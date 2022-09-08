@@ -14,8 +14,6 @@ exports.handler = async (event) => {
     try {
 
         const params = JSON.parse(event.Records[0].body);
-        console.debug('after parse', params, event.Records[0].body)
-        console.debug('fun fun fun', params.bucket, event.Records[0].body)
 
         validatParams(params);
 
@@ -73,33 +71,24 @@ exports.handler = async (event) => {
 
 async function putObjectToS3Async(bucket, key, image) {
 
-    var s3 = new AWS.S3();
-    var params = {
+    const params = {
         Bucket: bucket,
         Key: key,
         Body: image
     }
-    return s3.putObject(params, function (err, data) {
-        if (err) {
-            console.error(err, err.stack);
-        } else {
-            console.info(`Successfully created ${key}`);
-        }
-    });
+
+    await new AWS.S3().putObject(params);
 }
 
 function validatParams(params) {
-
-    console.debug('test 3', params.bucket, params["bucket"])
 
     const requiredParam = [
         'bucket',
         'filePath',
         'url',
     ]
-        .find(param => {
-            console.debug(param, params?.[param])
-            return !params?.[param]});
+        .find(param => !params?.[param]);
+
     if (requiredParam) {
         const errorMessage = `The ${requiredParam} param is required.`
         console.error(errorMessage, params)

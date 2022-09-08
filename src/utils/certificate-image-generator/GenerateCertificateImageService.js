@@ -14,20 +14,18 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
  * @param {String} courseName The name of the course for which we are generating an image
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certificateUrl The URL for the certificate
- * @param {Function} errorCallback The callback used when errors occur
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
- * @returns {Promise<void>}
+ * @returns {Promise<String>} filePath The path at which the new image is stored
  */
 async function generateCertificateImageAsync(
     courseName,
     handle,
     certificateUrl,
-    errorCallback,
     certificateElement,
 ) {
 
-    // if we don't have all our info, we can't generate an image, so just return
+    // if we don't have all our info, we can't generate an image, so throw an error
     if (!certificateUrl || !handle || !courseName) {
         throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  courseName: ${courseName}`)
     }
@@ -54,13 +52,6 @@ async function generateCertificateImageAsync(
         `Creating Certificate Image: ${messageBody.filePath}`,
         handle,
     )
-        .catch(err => {
-            if (!!errorCallback) {
-                errorCallback(err)
-            } else {
-                throw err
-            }
-        })
 
     return messageBody.filePath
 }

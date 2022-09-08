@@ -240,33 +240,37 @@ async function completeCertification(
         status: STATUS_COMPLETED
     }
 
-    let updatedProgress = await helper.update(progress, completionData)
+    const updatedProgress = await helper.update(progress, completionData)
     console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
 
-    // if we have the cert URL, generate the cert image
-    if (!!certificateUrl) {
+    // if we don't have the cert URL, there's nothing left to do
+    if (!certificateUrl) {
+        console.log(`Certificate Image for ${userId} for ${certification} NOT being generated bc no cert URL was provided.`)
 
-        // NOTE: this is an async function for which we are purposely not awaiting the response
-        // so that it will complete in the background
-        console.log(`Generating certificate image for ${userId} for ${progress.certificationTitle}`)
-        imageGenerator.generateCertificateImageAsync(
-            progress.certificationTitle,
-            currentUser.nickname,
-            certificateUrl,
-            (err) => { logger.logFullError(err) },
-            certificateElement,
-        )
-            .then(imagePath => {
-                // TODO: save ImagePath back to the certificate
-                console.debug('Successfully created:', imagePath)
-            })
-    } else {
-        console.log(`Certificate Image for ${userId} for ${progress.certificationTitle} NOT being generated bc no cert URL was provided.`)
+        // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
+        // timestamp to a JS Date object on +update+.
+        return updatedProgress
     }
 
-    // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
-    // timestamp to a JS Date object on +update+.
+    // NOTE: this is an async function for which we are purposely NOT awaiting the response
+    // so that it will complete in the background
+    console.log(`Generating certificate image for ${userId} for ${certification}`)
+    imageGenerator.generateCertificateImageAsync(
+        certification,
+        currentUser.nickname,
+        certificateUrl,
+        certificateElement,
+    )
+        .then(imagePath => {
+            // TODO: save ImagePath back to the certificate
+            console.debug('Successfully created:', imagePath)
+        })
+        .catch(error => {
+            // TODO: error handling
+            console.error(error)
+        })
+
     return updatedProgress
 }
 

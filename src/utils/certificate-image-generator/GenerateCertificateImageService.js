@@ -1,9 +1,12 @@
-const fs = require('fs')
+// TODO: TCA-319 move this to the lambda function that serves the html
+// const fs = require('fs')
 const queueHelper = require('../../common/queue-helper')
 
+/* TODO: TCA-319 move this to the lambda function that serves the html
 // read in the template and remove line breaks
 const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`, "utf-8")
-    .replace(new RegExp('\r?\n', 'g'), '');
+     .replace(new RegExp('\r?\n', 'g'), '');
+*/
 
 /**
  * Generates a certificate image asynchronously
@@ -45,16 +48,12 @@ async function generateCertificateImageAsync(
         url: certificateUrl,
     }
 
-    console.debug(messageBody)
     await queueHelper.sendMessageAsync(
         process.env.CERT_IMAGE_QUEUE,
-        JSON.stringify(messageBody),
+        messageBody,
         `Creating Certificate Image: ${messageBody.filePath}`,
         handle,
     )
-        .then(() => {
-            return messageBody.filePath
-        })
         .catch(err => {
             if (!!errorCallback) {
                 errorCallback(err)
@@ -62,6 +61,8 @@ async function generateCertificateImageAsync(
                 throw err
             }
         })
+
+    return messageBody.filePath
 }
 
 module.exports = {

@@ -253,10 +253,14 @@ async function completeCertification(
         imageGenerator.generateCertificateImageAsync(
             progress.certificationTitle,
             currentUser.nickname,
-            (err) => { logger.logFullError(err) },
             certificateUrl,
+            (err) => { logger.logFullError(err) },
             certificateElement,
         )
+            .then(imagePath => {
+                // TODO: save ImagePath back to the certificate
+                console.debug('Successfully created:', imagePath)
+            })
     } else {
         console.log(`Certificate Image for ${userId} for ${progress.certificationTitle} NOT being generated bc no cert URL was provided.`)
     }

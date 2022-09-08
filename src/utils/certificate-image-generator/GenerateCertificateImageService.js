@@ -9,9 +9,9 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
  * Generates a certificate image asynchronously
  * 
  * @param {String} courseName The name of the course for which we are generating an image
- * @param {String} handle The handle of the user who completed the course
- * @param {Function} errorCallback The callback used when errors occur
+ * @param {string} handle The handle of the user who completed the course
  * @param {String} certificateUrl The URL for the certificate
+ * @param {Function} errorCallback The callback used when errors occur
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
  * @returns {Promise<void>}
@@ -19,14 +19,14 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
 async function generateCertificateImageAsync(
     courseName,
     handle,
-    errorCallback,
     certificateUrl,
+    errorCallback,
     certificateElement,
 ) {
 
-    // if we don't have a cert URL, we can't generate an image, so just return
-    if (!certificateUrl) {
-        return
+    // if we don't have all our info, we can't generate an image, so just return
+    if (!certificateUrl || !handle || !courseName) {
+        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  courseName: ${courseName}`)
     }
 
     // if we don't have a queue name, we have a problem
@@ -34,19 +34,27 @@ async function generateCertificateImageAsync(
         throw new Error('The CERT_IMAGE_QUEUE is not defined for the environment.')
     }
 
+    if (!process.env.CERT_BUCKET) {
+        throw new Error('The CERT_BUCKET is not defined for the environment.')
+    }
+
     const messageBody = {
+        bucket: process.env.CERT_BUCKET,
+        filePath: `certificate/${handle}/${courseName}.jpg`,
         screenshotSelector: certificateElement,
-        template: ssrTemplate,
-        title: `Topcoder Academy ${courseName} for ${handle}`,
         url: certificateUrl,
     }
 
+    console.debug(messageBody)
     await queueHelper.sendMessageAsync(
         process.env.CERT_IMAGE_QUEUE,
         JSON.stringify(messageBody),
-        messageBody.title,
-        handle
+        `Creating Certificate Image: ${messageBody.filePath}`,
+        handle,
     )
+        .then(() => {
+            return messageBody.filePath
+        })
         .catch(err => {
             if (!!errorCallback) {
                 errorCallback(err)

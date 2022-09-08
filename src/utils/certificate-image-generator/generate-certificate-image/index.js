@@ -3,11 +3,21 @@ const AWS = require('aws-sdk');
 
 exports.handler = async (event) => {
 
-    validatParams(event);
+    if (!event?.Records?.[0].body) {
+        const errorMessage = `The event must have a body.`
+        console.error(errorMessage, event)
+        throw new Error(errorMessage);
+    }
 
     let browser = undefined;
 
     try {
+
+        const params = JSON.parse(event.Records[0].body);
+        console.debug('after parse', params, event.Records[0].body)
+        console.debug('fun fun fun', params.bucket, event.Records[0].body)
+
+        validatParams(params);
 
         // set up the chromium headless browser
         browser = await chromium.puppeteer.launch({
@@ -20,20 +30,20 @@ exports.handler = async (event) => {
 
         // go to the page
         const page = await browser.newPage();
-        await page.goto(event.url);
+        await page.goto(params.url);
 
         // get the screenshot of the page
         let screenshot = undefined;
         const imageConfig = { type: 'jpeg' };
 
         // if there's an element, wait for it and save it
-        if (!!event.screenshotSelector) {
+        if (!!params.screenshotSelector) {
 
             // wait for the specific element to appear
-            await page.waitForSelector(event.screenshotSelector);
+            await page.waitForSelector(params.screenshotSelector);
 
             // select the element
-            const element = await page.$(event.screenshotSelector);
+            const element = await page.$(params.screenshotSelector);
 
             // take a screenshot of the element
             screenshot = await element.screenshot(imageConfig);
@@ -43,14 +53,14 @@ exports.handler = async (event) => {
         }
 
         await putObjectToS3Async(
-            event.bucket,
-            event.filePath,
+            params.bucket,
+            params.filePath,
             screenshot
         );
 
     } catch (error) {
         // TODO: error handling
-        console.error(error);
+        console.error(error, event);
 
     } finally {
         // if a browser was created,
@@ -78,16 +88,21 @@ async function putObjectToS3Async(bucket, key, image) {
     });
 }
 
-function validatParams(event) {
+function validatParams(params) {
+
+    console.debug('test 3', params.bucket, params["bucket"])
 
     const requiredParam = [
         'bucket',
         'filePath',
         'url',
     ]
-        .find(param => !event?.[param])
-
+        .find(param => {
+            console.debug(param, params?.[param])
+            return !params?.[param]});
     if (requiredParam) {
-        throw new Error(`The ${requiredParam} param is required.`)
+        const errorMessage = `The ${requiredParam} param is required.`
+        console.error(errorMessage, params)
+        throw new Error(errorMessage);
     }
 }

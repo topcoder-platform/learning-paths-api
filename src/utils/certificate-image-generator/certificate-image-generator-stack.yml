@@ -33,12 +33,21 @@ Parameters:
 
 Resources:
 
+    TCAGenerateCertificateQueueDeadLetter:
+        Type: AWS::SQS::Queue
+        DeletionPolicy: Delete
+        Properties:
+            QueueName: !Join ["", [Ref: TCAGenerateCertificateQueueName, "-dead-letter"]]
+
     TCAGenerateCertificateQueue:
         Type: AWS::SQS::Queue
         DeletionPolicy: Delete
         Properties:
             QueueName:
                 Ref: TCAGenerateCertificateQueueName
+            RedrivePolicy:
+                deadLetterTargetArn: !GetAtt TCAGenerateCertificateQueueDeadLetter.Arn
+                maxReceiveCount: 3
 
     TCACertificateImageStore:
         Type: AWS::S3::Bucket
@@ -126,3 +135,11 @@ Resources:
             Role: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
             Runtime: nodejs16.x
             Timeout: 30
+
+    TCACertificateImageGeneratorFunctionEventSource:    
+        Type: AWS::Lambda::EventSourceMapping
+        Properties: 
+            Enabled: true
+            EventSourceArn: !GetAtt TCAGenerateCertificateQueue.Arn
+            FunctionName:
+                Ref: TCACertificateImageGeneratorFunctionName

@@ -1,7 +1,7 @@
 {
   "name": "topcoder-learning-paths-api",
   "version": "1.0.0",
-  "description": "TopCoder Learning Paths V5 API",
+  "description": "Topcoder Learning Paths V5 API",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

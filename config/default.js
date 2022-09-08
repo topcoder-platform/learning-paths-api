@@ -33,6 +33,14 @@ module.exports = {
     DYNAMODB_URL: process.env.DYNAMODB_URL || 'http://localhost:8000',
   },
 
+  SCOPES: {
+    READ: process.env.SCOPE_CERT_PROGRESS_READ || 'read:certification_progress',
+    CREATE: process.env.SCOPE_CERT_PROGRESS_CREATE || 'create:certification_progress',
+    UPDATE: process.env.SCOPE_CERT_PROGRESS_UPDATE || 'update:certification_progress',
+    DELETE: process.env.SCOPE_CERT_PROGRESS_DELETE || 'delete:certification_progress',
+    ALL: process.env.SCOPE_CERT_PROGRESS_ALL || 'all:certification_progress'
+  },
+
   // health check timeout in milliseconds
   HEALTH_CHECK_TIMEOUT: process.env.HEALTH_CHECK_TIMEOUT || 3000,
 

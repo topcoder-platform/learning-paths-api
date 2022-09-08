@@ -36,7 +36,7 @@ module.exports.handle = async (event) => {
   // call the Learning Paths API endpoint to complete the lesson
   try {
     const response = await axios.put(apiEndpoint, null, options);
-    console.log("API response", response.statusCode);
+    console.log("API response", response.status);
     console.log("mongodb trigger handler: completed lesson", challengeId, "at", completedDate);
   } catch (error) {
     console.error(error);

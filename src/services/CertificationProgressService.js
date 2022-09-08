@@ -659,8 +659,9 @@ async function completeLessonViaMongoTrigger(query) {
         userId: userId,
         certification: certification
     }
+
     const { dashedName, moduleKey } = lesson;
-    const { result } = await searchCertificationProgresses(criteria);
+    const result = await searchCertificationProgresses(criteria);
 
     // if we found a progress record, set the lesson as complete, otherwise bail out
     if (!!result && !!result[0]) {

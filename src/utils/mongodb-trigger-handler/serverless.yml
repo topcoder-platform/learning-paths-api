@@ -7,7 +7,7 @@ provider:
   region: us-east-1
   stage: dev
   runtime: nodejs14.x
-  profile: 811668436784_AWSPowerUserPlusIAM
+  #profile: 811668436784_AWSPowerUserPlusIAM
 
 functions:
   trigger-handler:

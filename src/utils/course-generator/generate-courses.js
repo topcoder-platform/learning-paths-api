@@ -129,22 +129,15 @@ function getCourseGenerator(provider) {
 }
 
 async function writeCoursesToDB(courseFile) {
-    // TODO -- do we want to do a wholesale remove and replace operation?
-    console.log("Clearing Course table...");
-    const courses = await helper.scan('Course')
-    console.log(`Deleting ${courses.length} courses...`)
-    for (const course of courses) {
-        await course.delete()
-    }
-
     console.log("\n** Writing course data to DynamoDB...");
     const promises = []
 
     try {
-        const data = require(courseFile)
-        const numCourses = get(data, 'length');
+        const generatedCourses = require(courseFile)
+        await synchronizeCourseIds(courseFile, generatedCourses);
+        const numCourses = get(generatedCourses, 'length');
         logger.info(`Inserting ${helper.pluralize(numCourses, 'course')}`)
-        promises.push(models.Course.batchPut(data))
+        promises.push(models.Course.batchPut(generatedCourses))
     } catch (e) {
         logger.warn(`An error occurred. No courses will be inserted.`)
         logger.logFullError(e)
@@ -159,13 +152,38 @@ async function writeCoursesToDB(courseFile) {
         })
 }
 
-async function writeCertificationsToDB(certificationsFile) {
-    console.log("Clearing Certifications table...");
-    const certifications = await helper.scan('Certification')
-    for (const certification of certifications) {
-        await certification.delete()
+/**
+ * Synchronizes the local IDs of courses with existing course data 
+ * stored in DynamoDB. This allows updating existing courses and preserves 
+ * the course IDs, which are referenced in Certification Progress records.
+ * 
+ * @param {String} courseFile file path to generated course file
+ * @param {Object} generatedCourses generated course data
+ */
+async function synchronizeCourseIds(courseFile, generatedCourses) {
+    console.log("\n** Synchronizing course IDs with DynamoDB data");
+
+    let saveCourseFile = false;
+    const courses = await helper.scanAll('Course')
+
+    for (var course of generatedCourses) {
+        const existingCourse = courses.find(existingCourse => existingCourse.key === course.key);
+        if (existingCourse) {
+            saveCourseFile = true;
+            course.id = existingCourse.id;
+            console.log(`** synchronized course ${course.key} ID to ${existingCourse.id}`)
+        } else {
+            console.log(`** new course ${course.key}`)
+        }
     }
 
+    // If the course data was updated with IDs, safe the data file.
+    if (saveCourseFile) {
+        fs.writeFileSync(courseFile, JSON.stringify(generatedCourses, null, 2));
+    }
+}
+
+async function writeCertificationsToDB(certificationsFile) {
     console.log("\n** Writing certification data to DynamoDB...");
     const promises = []
 

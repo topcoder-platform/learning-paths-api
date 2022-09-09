@@ -14,7 +14,6 @@ exports.handler = async (event) => {
     try {
 
         const params = JSON.parse(event.Records[0].body);
-
         validatParams(params);
 
         // set up the chromium headless browser
@@ -47,6 +46,8 @@ exports.handler = async (event) => {
             screenshot = await element.screenshot(imageConfig);
 
         } else {
+
+            // take a screenshot of the entire page
             screenshot = await page.screenshot(imageConfig);
         }
 
@@ -55,6 +56,8 @@ exports.handler = async (event) => {
             params.filePath,
             screenshot
         );
+
+        console.info(`Created ${params.filePath} in ${params.bucket}`)
 
     } catch (error) {
         // TODO: error handling
@@ -77,7 +80,7 @@ async function putObjectToS3Async(bucket, key, image) {
         Body: image
     }
 
-    await new AWS.S3().putObject(params);
+    await new AWS.S3().putObject(params).promise()
 }
 
 function validatParams(params) {

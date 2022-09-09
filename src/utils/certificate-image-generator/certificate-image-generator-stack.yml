@@ -2,34 +2,30 @@ Description: TCA - Generate and serve certificate images and SSR
 
 Parameters:
 
-    TCAGenerateCertificateQueueName:
+    Stage:
         Type: String
-        Description: TCA Generate Certificate Queue Name
+        Description: The Environment/Stage for which to create the stack
 
-    TCACertificateImageStoreName:
-        Type: String
-        Description: TCA Generate Certificate Image Store Name
-
-    TCACertificateImageStoreDomain:
+    ImageStoreDomain:
         Type: String
         Description: TCA Generate Certificate Image Store Domain
+        AllowedValues:
+            - topcoder.com
+            - topcoder-dev.com
 
-    TCACertificateImageStoreAlias:
-        Type: String
-        Description: TCA Generate Certificate Image Store Alias
+Mappings:
 
-    TCACertificateImageStoreCdnCertArn:
-        Type: String
-        Description: TCA Generate Certificate Distribution Arn
+    DomainMap: 
 
-    TCACertificateImageStoreAliasHostedZoneId:
-        Type: String
-        Description: TCA Generate Certificate Image Store Alias Hosted Zone Id
+        topcoder.com: 
+            CertArn: arn:aws:acm:us-east-1:409275337247:certificate/8cabe19d-6559-41c6-8dfb-66f8080d27d4
+            HostedZoneId: Z1B7U7QS3AAI1X
+            RoleArn: arn:aws:iam::409275337247:role/learning-paths-v5-container-role
 
-    # TODO: stage variable
-    TCACertificateImageGeneratorFunctionName:
-        Type: String
-        Description: TCA Generate Certificate Image Function Name
+        topcoder-dev.com: 
+            CertArn: arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
+            HostedZoneId: Z2CIRG3R0ZSGFQ
+            RoleArn: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
 
 Resources:
 
@@ -37,14 +33,19 @@ Resources:
         Type: AWS::SQS::Queue
         DeletionPolicy: Delete
         Properties:
-            QueueName: !Join ["", [Ref: TCAGenerateCertificateQueueName, "-dead-letter"]]
+            QueueName: !Join 
+                - ''
+                -   - tca-certificate-generator-sqs-dead-letter-
+                    - !Ref Stage
 
     TCAGenerateCertificateQueue:
         Type: AWS::SQS::Queue
         DeletionPolicy: Delete
         Properties:
-            QueueName:
-                Ref: TCAGenerateCertificateQueueName
+            QueueName: !Join 
+                - ''
+                -   - tca-certificate-generator-sqs-
+                    - !Ref Stage
             RedrivePolicy:
                 deadLetterTargetArn: !GetAtt TCAGenerateCertificateQueueDeadLetter.Arn
                 maxReceiveCount: 3
@@ -54,13 +55,16 @@ Resources:
         DeletionPolicy: Delete
         Properties:
             AccessControl: PublicRead
-            BucketName:
-                Ref: TCACertificateImageStoreName
+            BucketName: !Join
+                - ''
+                -   - tca-certificate-generator-s3-
+                    - !Ref Stage
 
     TCACertificateImageStoreBucketPolicy:
         Type: 'AWS::S3::BucketPolicy'
         Properties:
-            Bucket: !Ref TCACertificateImageStore
+            Bucket: 
+                !Ref TCACertificateImageStore
             PolicyDocument:
                 Id: TCACertificateImageStoreBucketPolicy
                 Version: 2012-10-17
@@ -70,46 +74,65 @@ Resources:
                         Principal: '*'
                         Action: 's3:GetObject'
                         Resource: !Join 
-                        - ''
-                        -   - 'arn:aws:s3:::'
-                            - !Ref TCACertificateImageStore
-                            - /*
-
+                            - ''
+                            -   - 'arn:aws:s3:::'
+                                - !Ref TCACertificateImageStore
+                                - /*
+      
     TCAGenerateCertificateCdn:
         Type: AWS::CloudFront::Distribution
         Properties: 
             DistributionConfig: 
                 Enabled: true
                 Aliases: 
-                    -   Ref: TCACertificateImageStoreAlias
+                    -   !Join 
+                        - ''
+                        -   - tca-
+                            - !Ref Stage
+                            - '.'
+                            - !Ref ImageStoreDomain
                 Origins:
-                    -   Id: 
-                            Ref: TCACertificateImageStoreDomain
-                        DomainName: 
-                            Ref: TCACertificateImageStoreDomain
+                    -   Id: !Join 
+                            - ''
+                            -   - !Ref TCACertificateImageStore
+                                - .s3.amazonaws.com
+                        DomainName: !Join 
+                            - ''
+                            -   - !Ref TCACertificateImageStore
+                                - .s3.amazonaws.com
                         S3OriginConfig:
                             OriginAccessIdentity: ""
                 DefaultCacheBehavior:
-                    TargetOriginId: 
-                        Ref: TCACertificateImageStoreDomain
+                    TargetOriginId: !Join 
+                        - ''
+                        -   - !Ref TCACertificateImageStore
+                            - .s3.amazonaws.com
                     ViewerProtocolPolicy: redirect-to-https
                     ForwardedValues:
                         QueryString: false
                         Cookies:
                             Forward: none
                 ViewerCertificate: 
-                    AcmCertificateArn: 
-                        Ref: TCACertificateImageStoreCdnCertArn
+                    AcmCertificateArn: !FindInMap
+                        - DomainMap
+                        - !Ref ImageStoreDomain
+                        - CertArn
                     MinimumProtocolVersion: TLSv1.2_2018
                     SslSupportMethod: sni-only
 
     TCAGenerateCertificateRoute:
         Type: AWS::Route53::RecordSet
         Properties:
-            HostedZoneId: 
-                Ref: TCACertificateImageStoreAliasHostedZoneId
-            Name:
-                Ref: TCACertificateImageStoreAlias
+            HostedZoneId: !FindInMap
+                - DomainMap
+                - !Ref ImageStoreDomain
+                - HostedZoneId
+            Name: !Join 
+                - ''
+                -   - tca-
+                    - !Ref Stage
+                    - '.'
+                    - !Ref ImageStoreDomain
             Type: A
             AliasTarget: 
                 # hard-coded zone id for all cloudfront routes
@@ -125,14 +148,18 @@ Resources:
                     def handler(event, context):
                         pass
             Description: Creates an image with a screenshot of a user's certificate
-            FunctionName: 
-                Ref: TCACertificateImageGeneratorFunctionName
+            FunctionName: !Join
+                - ''
+                -   - tca-certificate-generator-lambda-generate-image-
+                    - !Ref Stage
             Handler: index.handler
             Layers: 
                 - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:31
             MemorySize: 1600
-            # TODO: don't hard-code this
-            Role: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
+            Role: !FindInMap
+                - DomainMap
+                - !Ref ImageStoreDomain
+                - RoleArn
             Runtime: nodejs16.x
             Timeout: 30
 
@@ -142,4 +169,4 @@ Resources:
             Enabled: true
             EventSourceArn: !GetAtt TCAGenerateCertificateQueue.Arn
             FunctionName:
-                Ref: TCACertificateImageGeneratorFunctionName
+                Ref: TCACertificateImageGeneratorFunction

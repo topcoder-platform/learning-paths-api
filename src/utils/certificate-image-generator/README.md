@@ -77,13 +77,13 @@ There are some environment variables that must be set in order to create the sta
 ```
 # The domain at which the cert images will be hosted. The deploy-stack script will
 # create a Route 53 record for this cert
-CERT_IMAGE_ALIAS=tca.topcoder-dev.com 
+CERT_IMAGE_DOMAIN=topcoder-dev.com 
 
 # The cert for the domain defined in the alias. This can be found in the Route 53
 # record for the selected wildcard domain (e.g. *.topcoder-dev.com).
 CERT_IMAGE_CERT_ARN=arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
 
-# The hosted zone ID for the CERT_IMAGE_ALIAS domain. This is environment-dependent.
+# The hosted zone ID for the CERT_IMAGE_DOMAIN domain. This is environment-dependent.
 CERT_IMAGE_HOSTED_ZONE_ID=Z2CIRG3R0ZSGFQ
 ```
 

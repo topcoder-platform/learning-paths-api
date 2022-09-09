@@ -16,7 +16,7 @@ async function searchCertificationProgresses(req, res) {
     const result = await service.searchCertificationProgresses(req.query)
     helper.setResHeaders(req, res, result)
 
-    res.send(result.result)
+    res.send(result)
 }
 
 /**

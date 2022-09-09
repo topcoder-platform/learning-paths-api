@@ -20,77 +20,50 @@ const STATUS_NOT_STARTED = "not-started";
 
 const PROVIDER_FREECODECAMP = "freeCodeCamp";
 
-/**
- * Search Certification Progress
- * 
- * @param {Object} criteria the search criteria
- * @returns {Object} the search result
- */
-async function searchCertificationProgresses(criteria) {
-    const startTime = performance.now()
+async function searchCertificationProgresses(query) {
+    const userId = query.userId;
+    console.log(`getting certification progresses for user ${userId}`);
+    const startTime = performance.now();
 
-    records = await helper.scanAll('CertificationProgress')
-    const endScanTime = performance.now()
-    helper.logExecutionTime(startTime, endScanTime, `scanAll CertificationProgress`);
+    let queryStatement = CertificationProgress.
+        query("userId").eq(userId).
+        using("userCertificationProgressIndex")
 
-    const page = criteria.page || 1
-    const perPage = criteria.perPage || 50
-
-    // filter data by given criteria
-    // filter by user ID
-    if (criteria.userId) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.userId, e.userId))
+    if (query.certification) {
+        queryStatement = queryStatement.where("certification").eq(query.certification)
+    }
+    if (query.certificationId) {
+        queryStatement = queryStatement.where("certificationId").eq(query.certificationId)
+    }
+    if (query.provider) {
+        queryStatement = queryStatement.where("provider").eq(query.provider)
+    }
+    if (query.courseId) {
+        queryStatement = queryStatement.where("courseId").eq(query.courseId)
     }
 
-    // filter by certification
-    if (criteria.certification) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.certification, e.certification))
+    try {
+        let progresses = await queryStatement.exec();
+        decorateProgresses(progresses);
+        helper.logExecutionTime2(startTime, "searchCertificationProgresses");
+
+        return progresses;
+    } catch (error) {
+        console.error(error);
+        return [];
     }
-
-    // filter by certification ID
-    if (criteria.certificationId) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.certificationId, e.certificationId))
-    }
-
-    // filter by course ID
-    if (criteria.courseId) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.courseId, e.courseId))
-    }
-
-    // filter by provider 
-    if (criteria.provider) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.provider, e.provider))
-    }
-
-    const total = records.length
-    let result = records.slice((page - 1) * perPage, page * perPage)
-    decorateProgresses(result)
-
-    const endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'searchCertificationProgresses', true)
-
-    return { total, page, perPage, result }
 }
 
-searchCertificationProgresses.schema = {
-    criteria: Joi.object().keys({
-        page: Joi.page(),
-        perPage: Joi.number().integer().min(1).max(100).default(100),
-        userId: Joi.string(),
-        certification: Joi.string(),
-        provider: Joi.string(),
-    })
-}
+// TODO - modify and use this schema to verify the input request
+// searchCertificationProgresses.schema = {
+//     criteria: Joi.object().keys({
+//         page: Joi.page(),
+//         perPage: Joi.number().integer().min(1).max(100).default(100),
+//         userId: Joi.string(),
+//         certification: Joi.string(),
+//         provider: Joi.string(),
+//     })
+// }
 
 /**
  * Create a new certification progress record 
@@ -475,23 +448,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
-    // TODO: placeholder in case we need to implement some sort of 
-    //       mutex to prevent overwriting progress updates. This code, 
-    //       as currently written, does not work, but I'm keeping it
-    //       to remind myself where I left off in this effort.
-    //
-    // check the mutex that indicates that a lesson completion update is in progress
-    // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);
-    // let check = 0
-    // if (mutexSet) {
-    //     var intervalId = setInterval(() => {
-    //         console.log("** mutex checks", check)
-    //         if (++check > 10) {
-    //             clearInterval(intervalId);
-    //         }
-    //     }, 100)
-    // }
-
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
@@ -552,8 +508,6 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
-    // console.log(`Validating lesson ${moduleName}/${lessonName}`)
-
     const provider = progress.provider;
 
     let course = helper.getFromInternalCache(progress.courseId)
@@ -713,6 +667,7 @@ async function completeLessonViaMongoTrigger(query) {
         const certProgress = result[0];
         const certProgressId = certProgress.id;
         await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
+        console.log(`called complete lesson ${moduleKey}/${dashedName} (id: ${lessonId}) for user ${userId} via MongoDB trigger`)
     } else {
         console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }

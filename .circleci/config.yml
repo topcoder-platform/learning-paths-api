@@ -1,13 +1,18 @@
 version: 2
 defaults: &defaults
     docker:
-      - image: circleci/python:2.7-stretch-browsers
+      - image: circleci/node:16.13.1-stretch
 install_dependency: &install_dependency
   name: Installation of build and deployment dependencies.
   command: |
-    sudo apt install jq
+    sudo apt-get update -y && sudo apt-get install -qq -y python-pip libpython-dev
+    curl -O https://bootstrap.pypa.io/pip/2.7/get-pip.py && sudo python get-pip.py
+    #installing awscli
     sudo pip install awscli --upgrade
-    sudo pip install docker-compose
+    #install serverless
+    sudo npm install -g try-thread-sleep
+    sudo npm install -g serverless --ignore-scripts spawn-sync
+
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
   command: |
@@ -39,6 +44,13 @@ builddeploy_steps: &builddeploy_steps
             ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
             source buildenvvar
             ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME}
+            # including lambda trigger deployment
+            ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
+            source buildenvvar
+            cd src/utils/mongodb-trigger-handler/
+            npm i
+            sls deploy
+
 
 
 jobs:

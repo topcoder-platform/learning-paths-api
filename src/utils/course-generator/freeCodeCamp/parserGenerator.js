@@ -25,6 +25,26 @@ class FreeCodeCampGenerator {
     generatedCourseFilePath = null;
     certificationsFilePath = null;
 
+    // taken straight from FCC's source code
+    challengeTypes = {
+        html: 0,
+        js: 1,
+        backend: 2,
+        zipline: 3,
+        frontEndProject: 3,
+        backEndProject: 4,
+        pythonProject: 10,
+        jsProject: 5,
+        modern: 6,
+        step: 7,
+        quiz: 8,
+        invalid: 9,
+        video: 11,
+        codeAllyPractice: 12,
+        codeAllyCert: 13,
+        multifileCertProject: 14
+    };
+
     constructor(provider) {
         this.provider = provider
         this.providerName = provider.name
@@ -213,13 +233,14 @@ class FreeCodeCampGenerator {
      * @param {intro data object} blockIntro 
      * @returns course metadata object
      */
-    parseModuleMeta(key, meta, blockIntro) {
+    parseModuleMeta(key, meta, isAssessmentModule, blockIntro) {
         return {
             name: meta.name,
             dashedName: meta.dashedName || key,
             order: meta.order,
-            estimatedCompletionTime: this.parseLessonCompletionTime(meta.time),
+            estimatedCompletionTime: this.parseLessonCompletionTime(meta),
             introCopy: blockIntro,
+            isAssessment: isAssessmentModule,
             lessonCount: meta.challengeOrder.length
         }
     }
@@ -231,11 +252,16 @@ class FreeCodeCampGenerator {
      * @param {String} completionTime 
      * @returns object with time value and units
      */
-    parseLessonCompletionTime(completionTime) {
-        const timeParts = completionTime.split(' ');
-        return {
-            value: parseInt(timeParts[0], 10),
-            units: timeParts[1]
+    parseLessonCompletionTime(meta) {
+        const completionTime = meta.time;
+        try {
+            const timeParts = completionTime.split(' ');
+            return {
+                value: parseInt(timeParts[0], 10),
+                units: timeParts[1]
+            }
+        } catch (error) {
+            throw Error(`error parsing completion time for ${meta.name}: '${completionTime}'`)
         }
     }
 
@@ -266,8 +292,38 @@ class FreeCodeCampGenerator {
             id: challenge.id,
             title: challenge.title,
             dashedName: challenge.dashedName,
+            isAssessment: this.challengeIsAssessment(challenge),
             order: challenge.challengeOrder
         }
+    }
+
+    /**
+     * Determines if a challenge is an assessment and therefore
+     * required to be accomplished to earn certification. 
+     * 
+     * The business logic here comes from FCC's source code and 
+     * their definition of challengeTypes.
+     * 
+     * @param {Object} challenge an FCC challenge object
+     * @returns {boolean} true if the challenge is an assessment, false if not
+     */
+    challengeIsAssessment(challenge) {
+        const challengeTypes = this.challengeTypes;
+        const challengeType = challenge.challengeType;
+
+        if (typeof challengeType !== 'number')
+            throw Error(
+                'freeCodeCamp challengeType must be a number, challenge: ' +
+                JSON.stringify(challenge, null, 2)
+            );
+        return (
+            challengeType === challengeTypes.frontEndProject ||
+            challengeType === challengeTypes.backEndProject ||
+            challengeType === challengeTypes.jsProject ||
+            challengeType === challengeTypes.pythonProject ||
+            challengeType === challengeTypes.codeAllyCert ||
+            challengeType === challengeTypes.multifileCertProject
+        );
     }
 
     /**
@@ -287,12 +343,16 @@ class FreeCodeCampGenerator {
 
             for (const [key, block] of Object.entries(course.blocks)) {
                 const meta = block.meta;
+                const lessons = this.parseChallenges(block.challenges);
+                const isAssessmentModule = this.moduleContainsAssessmentLesson(lessons);
+                const intros = blockIntros[key].intro;
 
                 const module = {
                     key: meta.dashedName || key,
-                    meta: this.parseModuleMeta(key, meta, blockIntros[key].intro),
-                    lessons: this.parseChallenges(block.challenges)
+                    meta: this.parseModuleMeta(key, isAssessmentModule, meta, intros),
+                    lessons: lessons
                 }
+
                 course.modules.push(module);
                 moduleCompletionTimes.push(module.meta.estimatedCompletionTime);
             }
@@ -308,6 +368,17 @@ class FreeCodeCampGenerator {
         })
 
         return rawCourses;
+    }
+
+    /**
+     * Checks if any lesson in an array of lessons is 
+     * an assessment.
+     * 
+     * @param {Array of Objects} lessons array of lessons
+     * @returns true if any lesson is an assessment
+     */
+    moduleContainsAssessmentLesson(lessons) {
+        return lessons.some(lesson => lesson.isAssessment)
     }
 
     /**

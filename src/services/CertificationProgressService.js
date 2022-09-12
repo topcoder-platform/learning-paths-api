@@ -678,16 +678,6 @@ async function completeLessonViaMongoTrigger(query) {
 }
 
 /**
- * Creates a key used to write/read cache values for the progress record
- * 
- * @param {String} progressId 
- * @returns String cache key
- */
-function cacheKey(progressId) {
-    return `certification-progress-${progressId}`
-}
-
-/**
  * Checks and sets the module status as follows:
  *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
  *   - if all of the lessons have been completed, it's set to 'completed'

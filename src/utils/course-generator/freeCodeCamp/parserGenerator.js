@@ -238,7 +238,7 @@ class FreeCodeCampGenerator {
             name: meta.name,
             dashedName: meta.dashedName || key,
             order: meta.order,
-            estimatedCompletionTime: this.parseLessonCompletionTime(meta),
+            estimatedCompletionTime: this.parseLessonCompletionTime(key, meta),
             introCopy: blockIntro,
             isAssessment: isAssessmentModule,
             lessonCount: meta.challengeOrder.length
@@ -252,7 +252,7 @@ class FreeCodeCampGenerator {
      * @param {String} completionTime 
      * @returns object with time value and units
      */
-    parseLessonCompletionTime(meta) {
+    parseLessonCompletionTime(key, meta) {
         const completionTime = meta.time;
         try {
             const timeParts = completionTime.split(' ');
@@ -261,7 +261,7 @@ class FreeCodeCampGenerator {
                 units: timeParts[1]
             }
         } catch (error) {
-            throw Error(`error parsing completion time for ${meta.name}: '${completionTime}'`)
+            throw Error(`error parsing completion time for ${key}: '${completionTime}'`)
         }
     }
 
@@ -349,7 +349,7 @@ class FreeCodeCampGenerator {
 
                 const module = {
                     key: meta.dashedName || key,
-                    meta: this.parseModuleMeta(key, isAssessmentModule, meta, intros),
+                    meta: this.parseModuleMeta(key, meta, isAssessmentModule, intros),
                     lessons: lessons
                 }
 

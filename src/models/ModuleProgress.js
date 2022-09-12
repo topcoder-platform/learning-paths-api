@@ -21,6 +21,11 @@ const schema = new Schema({
         default: 0,
         required: true
     },
+    isAssessment: {
+        type: Boolean,
+        default: false,
+        required: false
+    },
     completedLessons: {
         type: Array,
         schema: [{

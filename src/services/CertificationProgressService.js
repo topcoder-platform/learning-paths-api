@@ -83,9 +83,12 @@ async function startCertification(currentUser, userId, certificationId, courseId
             courseId: courseId
         }
         results = await searchCertificationProgresses(searchCriteria)
-        existingProgress = results.result[0];
+        if (results.length > 1) {
+            throw new errors.BadRequestError(`User ${userId} has multiple certification progresses for certification ID ${certificationId}`)
+        }
+        existingProgress = results[0];
     } catch (NotFoundError) {
-        // no-op 
+        // no-op, just means they haven't started this certification yet
     }
 
     // if the certification has already been started, just return it

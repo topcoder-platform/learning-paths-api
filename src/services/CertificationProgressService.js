@@ -148,6 +148,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         return {
             module: module.key,
             moduleStatus: module.key == query.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
+            isAssessment: module.isAssessment,
             lessonCount: module.lessons.length,
             completedLessonCount: 0,
             completedLessons: [],
@@ -290,17 +291,23 @@ function assessmentModuleNotCompleted(module) {
 }
 
 /**
- * TODO: this check should use a module attribute that is set when the course
- * data is imported and is non-provider specific.
- * 
  * Checks if a module is an assessment, which is required to be completed
  * to earn a certification.
+ * 
+ * TODO: morphing this method to use an explicit +isAssessment+ property 
+ * of modules if available, otherwise fallback to checking the number of
+ * lessons in the module. Clean this up once we have updated all of the 
+ * existing data to contain the new property.
  * 
  * @param {Object} module a Module object
  * @returns true if the module is an assessment module
  */
 function isAssessmentModule(module) {
-    return module.lessonCount == 1
+    if (module.hasOwnProperty('isAssessment')) {
+        return module.isAssessment;
+    } else {
+        return module.lessonCount == 1
+    }
 }
 
 function validateQueryWithSchema(modelSchema, query) {
@@ -675,16 +682,6 @@ async function completeLessonViaMongoTrigger(query) {
     } else {
         console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }
-}
-
-/**
- * Creates a key used to write/read cache values for the progress record
- * 
- * @param {String} progressId 
- * @returns String cache key
- */
-function cacheKey(progressId) {
-    return `certification-progress-${progressId}`
 }
 
 /**

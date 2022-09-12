@@ -14,7 +14,7 @@ exports.handler = async (event) => {
     try {
 
         const params = JSON.parse(event.Records[0].body);
-        validatParams(params);
+        validateParams(params);
 
         // set up the chromium headless browser
         browser = await chromium.puppeteer.launch({
@@ -83,7 +83,7 @@ async function putObjectToS3Async(bucket, key, image) {
     await new AWS.S3().putObject(params).promise()
 }
 
-function validatParams(params) {
+function validateParams(params) {
 
     const requiredParam = [
         'bucket',

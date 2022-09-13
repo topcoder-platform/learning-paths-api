@@ -20,10 +20,10 @@ custom:
       client_id: ${env:AUTH0_CLIENT_ID}
       client_secret: ${env:AUTH0_CLIENT_SECRET}
     prod:
-      url: ${env:AUTH0_URL_PROD}
-      audience: ${env:AUTH0_AUDIENCE_PROD}
-      client_id: ${env:AUTH0_CLIENT_ID_PROD}
-      client_secret: ${env:AUTH0_CLIENT_SECRET_PROD}
+      url: ${env:AUTH0_URL}
+      audience: ${env:AUTH0_AUDIENCE}
+      client_id: ${env:AUTH0_CLIENT_ID}
+      client_secret: ${env:AUTH0_CLIENT_SECRET}
   learning_paths_api:
     dev: https://api.topcoder-dev.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger
     prod: https://api.topcoder.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger

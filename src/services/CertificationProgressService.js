@@ -148,6 +148,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         return {
             module: module.key,
             moduleStatus: module.key == query.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
+            isAssessment: module.isAssessment,
             lessonCount: module.lessons.length,
             completedLessonCount: 0,
             completedLessons: [],
@@ -290,17 +291,23 @@ function assessmentModuleNotCompleted(module) {
 }
 
 /**
- * TODO: this check should use a module attribute that is set when the course
- * data is imported and is non-provider specific.
- * 
  * Checks if a module is an assessment, which is required to be completed
  * to earn a certification.
+ * 
+ * TODO: morphing this method to use an explicit +isAssessment+ property 
+ * of modules if available, otherwise fallback to checking the number of
+ * lessons in the module. Clean this up once we have updated all of the 
+ * existing data to contain the new property.
  * 
  * @param {Object} module a Module object
  * @returns true if the module is an assessment module
  */
 function isAssessmentModule(module) {
-    return module.lessonCount == 1
+    if (module.hasOwnProperty('isAssessment')) {
+        return module.isAssessment;
+    } else {
+        return module.lessonCount == 1
+    }
 }
 
 function validateQueryWithSchema(modelSchema, query) {
@@ -451,23 +458,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
-    // TODO: placeholder in case we need to implement some sort of 
-    //       mutex to prevent overwriting progress updates. This code, 
-    //       as currently written, does not work, but I'm keeping it
-    //       to remind myself where I left off in this effort.
-    //
-    // check the mutex that indicates that a lesson completion update is in progress
-    // let mutexSet = true; //isMutexSet(certificationProgressId, LESSON_COMPLETING_MUTEX);
-    // let check = 0
-    // if (mutexSet) {
-    //     var intervalId = setInterval(() => {
-    //         console.log("** mutex checks", check)
-    //         if (++check > 10) {
-    //             clearInterval(intervalId);
-    //         }
-    //     }, 100)
-    // }
-
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
@@ -528,8 +518,6 @@ updateCurrentLesson.schema = {
  * @returns {Promise<void>} 
  */
 async function validateCourseLesson(progress, moduleName, lessonName) {
-    // console.log(`Validating lesson ${moduleName}/${lessonName}`)
-
     const provider = progress.provider;
 
     let course = helper.getFromInternalCache(progress.courseId)
@@ -681,27 +669,19 @@ async function completeLessonViaMongoTrigger(query) {
         userId: userId,
         certification: certification
     }
+
     const { dashedName, moduleKey } = lesson;
-    const { result } = await searchCertificationProgresses(criteria);
+    const result = await searchCertificationProgresses(criteria);
 
     // if we found a progress record, set the lesson as complete, otherwise bail out
     if (!!result && !!result[0]) {
         const certProgress = result[0];
         const certProgressId = certProgress.id;
         await setLessonComplete(userId, certProgressId, moduleKey, dashedName, lessonId);
+        console.log(`called complete lesson ${moduleKey}/${dashedName} (id: ${lessonId}) for user ${userId} via MongoDB trigger`)
     } else {
         console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }
-}
-
-/**
- * Creates a key used to write/read cache values for the progress record
- * 
- * @param {String} progressId 
- * @returns String cache key
- */
-function cacheKey(progressId) {
-    return `certification-progress-${progressId}`
 }
 
 /**

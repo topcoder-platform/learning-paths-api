@@ -17,23 +17,6 @@
     "certType": "certification"
   },
   {
-    "id": "9bd93a8a-1fcb-405a-b2e3-4a283915bbcd",
-    "key": "responsive-web-design-certification-qa",
-    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
-    "providerName": "freeCodeCamp",
-    "providerCertificationId": "561add10cb82ac38a17513bd",
-    "title": "Responsive Web Design Certification QA",
-    "certification": "responsive-web-design-qa",
-    "completionHours": 300,
-    "courses": [
-      "2022/responsive-web-design-qa"
-    ],
-    "state": "active",
-    "category": "Web Development",
-    "trackType": "DEV",
-    "certType": "certification"
-  },
-  {
     "id": "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
     "key": "javascript-algorithms-and-data-structures-certification",
     "providerCertificationId": "561abd10cb81ac38a17513bc",
@@ -45,7 +28,7 @@
     "courses": [
       "javascript-algorithms-and-data-structures"
     ],
-    "state": "coming-soon",
+    "state": "active",
     "category": "Web Development",
     "trackType": "DEV",
     "certType": "certification"
@@ -62,7 +45,7 @@
     "courses": [
       "front-end-development-libraries"
     ],
-    "state": "coming-soon",
+    "state": "active",
     "category": "Web Development",
     "trackType": "DEV",
     "certType": "certification"
@@ -79,7 +62,24 @@
     "courses": [
       "data-visualization"
     ],
-    "state": "coming-soon",
+    "state": "active",
+    "category": "Data Science",
+    "trackType": "DATASCIENCE",
+    "certType": "certification"
+  },
+  {
+    "id": "776329bb-3d6d-41e3-84e9-10c7cb19b86c",
+    "key": "machine-learning-with-python-certification",
+    "providerCertificationId": "5e46fc95ac417301a38fb935",
+    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+    "providerName": "freeCodeCamp",
+    "title": "Machine Learning with Python",
+    "certification": "machine-learning-with-python",
+    "completionHours": 300,
+    "courses": [
+      "machine-learning-with-python"
+    ],
+    "state": "active",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"
@@ -96,7 +96,7 @@
     "courses": [
       "scientific-computing-with-python"
     ],
-    "state": "coming-soon",
+    "state": "active",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"
@@ -113,7 +113,7 @@
     "courses": [
       "data-analysis-with-python"
     ],
-    "state": "coming-soon",
+    "state": "active",
     "category": "Data Science",
     "trackType": "DATASCIENCE",
     "certType": "certification"

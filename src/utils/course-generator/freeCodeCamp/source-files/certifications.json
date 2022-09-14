@@ -136,6 +136,24 @@
     "certType": "certification"
   },
   {
+    "id": "eb275e75-0eff-473d-bf32-4cf645fe7e1b",
+    "key": "quality-assurance-certification",
+    "providerCertificationId": "5e611829481575a52dc59c0e",
+    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+    "providerName": "freeCodeCamp",
+    "title": "Quality Assurance",
+    "certification": "quality-assurance",
+    "completionHours": 150,
+    "courses": [
+      "quality-assurance"
+    ],
+    "state": "active",
+    "category": "Quality Assurance",
+    "trackType": "DEV",
+    "certType": "certification"
+  },
+  {
+    "id": "87ed9432-bbaa-4d2d-b801-c54f6eb45ddc",
     "key": "information-security-certification",
     "providerCertificationId": "5e6021435ac9d0ecd8b94b00",
     "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
@@ -149,7 +167,6 @@
     "state": "active",
     "category": "Information Security",
     "trackType": "DEV",
-    "certType": "certification",
-    "id": "87ed9432-bbaa-4d2d-b801-c54f6eb45ddc"
+    "certType": "certification"
   }
 ]

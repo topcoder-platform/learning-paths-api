@@ -61,6 +61,11 @@ const schema = new Schema({
     schema: [String],
     required: false
   },
+  completionSuggestions: {
+    type: Array,
+    schema: [String],
+    required: false
+  },
   note: {
     type: String,
     required: false,

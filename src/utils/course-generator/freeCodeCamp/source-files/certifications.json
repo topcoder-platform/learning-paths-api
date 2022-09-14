@@ -134,5 +134,22 @@
     "category": "Backend Development",
     "trackType": "DEV",
     "certType": "certification"
+  },
+  {
+    "id": "eb275e75-0eff-473d-bf32-4cf645fe7e1b",
+    "key": "quality-assurance-certification",
+    "providerCertificationId": "5e611829481575a52dc59c0e",
+    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+    "providerName": "freeCodeCamp",
+    "title": "Quality Assurance",
+    "certification": "quality-assurance",
+    "completionHours": 150,
+    "courses": [
+      "quality-assurance"
+    ],
+    "state": "active",
+    "category": "Quality Assurance",
+    "trackType": "DEV",
+    "certType": "certification"
   }
 ]

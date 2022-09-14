@@ -55,6 +55,14 @@
             "completionSuggestions": [
                 "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
             ]
+        },
+        "information-security": {
+            "keyPoints": [
+                "INFORMATION SECURITY KEYPOINTS GO HERE."
+            ],
+            "completionSuggestions": [
+                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
+            ]
         }
     }
 }

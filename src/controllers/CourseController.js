@@ -14,7 +14,7 @@ const helper = require('../common/helper')
 async function searchCourses(req, res) {
     const result = await service.searchCourses(req.query)
     helper.setResHeaders(req, res, result)
-    res.send(result.result)
+    res.send(result)
 }
 
 /**

@@ -17,6 +17,10 @@ const schema = new Schema({
     type: String,
     rangeKey: true,
     required: true,
+    index: {
+      name: "provider-key-index",
+      global: true,
+    }
   },
   providerId: {
     type: String,

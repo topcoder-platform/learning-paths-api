@@ -238,6 +238,7 @@ async function getByIdAndUser(modelName, id, userId) {
 
 /**
  * Get Data by hashkey and rangekey
+ * 
  * @param {String} modelName The dynamoose model name
  * @param {Object} tableKeys JSON object describing the table's hashKey and 
  *    rangeKey attributes and their search values

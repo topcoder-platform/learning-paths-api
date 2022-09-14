@@ -39,6 +39,11 @@
             "keyPoints": [
                 "Data analysis with python is one of the fundamental skills within a data science or any data oriented learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ]
+        },
+        "back-end-development-and-apis": {
+            "keyPoints": [
+                "KEYPOINTS GO HERE."
+            ]
         }
     }
 }

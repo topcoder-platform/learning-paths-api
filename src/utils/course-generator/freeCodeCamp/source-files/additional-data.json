@@ -63,6 +63,12 @@
             "completionSuggestions": [
                 "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
             ]
+        },
+        "coding-interview-prep": {
+            "keyPoints": [
+                "CODING INTERVIEW PREP KEYPOINTS GO HERE."
+            ],
+            "completionSuggestions": []
         }
     }
 }

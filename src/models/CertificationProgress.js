@@ -87,7 +87,13 @@ const schema = new Schema({
         type: Array,
         schema: [ModuleProgress],
         required: true
-    }
+    },
+    certificationImageUrl: {
+        type: String,
+        // This will never be required bc it only exists if
+        // progress is complete
+        required: false 
+    },
 }, {
     timestamps: true,
     throughput: { read: 4, write: 2 }

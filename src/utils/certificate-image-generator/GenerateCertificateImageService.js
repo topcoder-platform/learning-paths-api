@@ -1,5 +1,6 @@
 // TODO: TCA-319 move this to the lambda function that serves the html
 // const fs = require('fs')
+const helper = require('../../common/helper')
 const queueHelper = require('../../common/queue-helper')
 
 /* TODO: TCA-319 move this to the lambda function that serves the html
@@ -7,6 +8,18 @@ const queueHelper = require('../../common/queue-helper')
 const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`, "utf-8")
      .replace(new RegExp('\r?\n', 'g'), '');
 */
+
+// Check the environment params on startup
+const missingParam = [
+    'CERT_BUCKET',
+    'CERT_IMAGE_DOMAIN',
+    'CERT_IMAGE_QUEUE',
+    'CERT_IMAGE_SUBDOMAIN',
+]
+    .find(param => !process?.env?.[param])
+if (!!missingParam) {
+    throw new Error(`The ${missingParam} is not defined for the environment.`)
+}
 
 /**
  * Generates a certificate image asynchronously
@@ -30,18 +43,18 @@ async function generateCertificateImageAsync(
         throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  courseName: ${courseName}`)
     }
 
-    // if we don't have a queue name, we have a problem
-    if (!process.env.CERT_IMAGE_QUEUE) {
-        throw new Error('The CERT_IMAGE_QUEUE is not defined for the environment.')
-    }
+    // construct the FQDN and file path of the location where the image will be created
+    const imagePath = `certificate/${handle}/${courseName}.jpg`
+    const imageUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}/${imagePath}`
 
-    if (!process.env.CERT_BUCKET) {
-        throw new Error('The CERT_BUCKET is not defined for the environment.')
+    // if we don't have a valid URL, we have a problem
+    if (!helper.isValidUrl(imageUrl)){
+        throw new Error(`Image URL (${imageUrl}) is not a valid URL.`)
     }
 
     const messageBody = {
         bucket: process.env.CERT_BUCKET,
-        filePath: `certificate/${handle}/${courseName}.jpg`,
+        filePath: imagePath,
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }
@@ -53,7 +66,7 @@ async function generateCertificateImageAsync(
         handle,
     )
 
-    return messageBody.filePath
+    return imageUrl
 }
 
 module.exports = {

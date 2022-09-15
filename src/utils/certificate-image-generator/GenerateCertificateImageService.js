@@ -24,7 +24,7 @@ if (!!missingParam) {
 /**
  * Generates a certificate image asynchronously
  * 
- * @param {String} courseName The name of the course for which we are generating an image
+ * @param {String} certificationName The name of the certification for which we are generating an image
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
@@ -32,19 +32,19 @@ if (!!missingParam) {
  * @returns {Promise<String>} filePath The path at which the new image is stored
  */
 async function generateCertificateImageAsync(
-    courseName,
+    certificationName,
     handle,
     certificateUrl,
     certificateElement,
 ) {
 
     // if we don't have all our info, we can't generate an image, so throw an error
-    if (!certificateUrl || !handle || !courseName) {
-        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  courseName: ${courseName}`)
+    if (!certificateUrl || !handle || !certificationName) {
+        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  certificationName: ${certificationName}`)
     }
 
     // construct the FQDN and file path of the location where the image will be created
-    const imagePath = `certificate/${handle}/${courseName}.jpg`
+    const imagePath = `certificate/${handle}/${certificationName}.jpg`
     const imageUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}/${imagePath}`
 
     // if we don't have a valid URL, we have a problem

@@ -292,8 +292,9 @@ function generateCertificateImageSilently(
     )
         .then(async (imageUrl) => {
             console.info('Successfully created:', imageUrl)
-            progress.certificationImageUrl = imageUrl
-            await helper.update(progress, {})
+            await helper.update(progress, {
+                certificationImageUrl: imageUrl
+            })
             console.info('Successfully updated progress for:', imageUrl)
         })
 }

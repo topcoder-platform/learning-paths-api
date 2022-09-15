@@ -248,7 +248,7 @@ async function completeCertification(
     if (certificateUrl) {
 
         console.log(`Generating certificate image for ${userId} for ${certification}`)
-        generateCertificateImage(certification,  currentUser.nickname,   certificateUrl,   certificateElement,   progress,  completionData)
+        generateCertificateImage(certification, currentUser.nickname, certificateUrl, certificateElement, progress)
 
     } else {
         console.log(`Certificate Image for ${userId} for ${certification} NOT being generated bc no cert URL was provided.`)
@@ -265,7 +265,6 @@ function generateCertificateImage(
     certificateUrl,
     certificateElement,
     progress,
-    completionData
 ) {
 
     // NOTE: This is an async function for which we are purposely NOT awaiting the response
@@ -281,7 +280,7 @@ function generateCertificateImage(
         .then(async (imageUrl) => {
             console.info('Successfully created:', imageUrl)
             progress.certificationImageUrl = imageUrl
-            await helper.update(progress, completionData)
+            await helper.update(progress, {})
             console.info('Successfully updated progress for:', imageUrl)
         })
 }

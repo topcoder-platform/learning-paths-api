@@ -148,7 +148,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
         return {
             module: module.key,
             moduleStatus: module.key == query.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
-            isAssessment: module.isAssessment,
+            isAssessment: module.meta.isAssessment,
             lessonCount: module.lessons.length,
             completedLessonCount: 0,
             completedLessons: [],

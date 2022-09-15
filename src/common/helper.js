@@ -544,6 +544,15 @@ function logExecutionTime(start, end, functionName, linebreak = false) {
   if (linebreak) console.log('')
 }
 
+function isValidUrl(urlString) {
+  try {
+    new URL(urlString)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -558,6 +567,7 @@ module.exports = {
   getByTableKeys,
   getFromInternalCache,
   hasAdminRole,
+  isValidUrl,
   logExecutionTime,
   partialMatch,
   pluralize,

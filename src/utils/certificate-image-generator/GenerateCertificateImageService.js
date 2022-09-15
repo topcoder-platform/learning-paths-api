@@ -1,5 +1,6 @@
 // TODO: TCA-319 move this to the lambda function that serves the html
 // const fs = require('fs')
+const helper = require('../../common/helper')
 const queueHelper = require('../../common/queue-helper')
 
 /* TODO: TCA-319 move this to the lambda function that serves the html
@@ -8,10 +9,22 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
      .replace(new RegExp('\r?\n', 'g'), '');
 */
 
+// Check the environment params on startup
+const missingParam = [
+    'CERT_BUCKET',
+    'CERT_IMAGE_DOMAIN',
+    'CERT_IMAGE_QUEUE',
+    'CERT_IMAGE_SUBDOMAIN',
+]
+    .find(param => !process?.env?.[param])
+if (!!missingParam) {
+    throw new Error(`The ${missingParam} is not defined for the environment.`)
+}
+
 /**
  * Generates a certificate image asynchronously
  * 
- * @param {String} courseName The name of the course for which we are generating an image
+ * @param {String} certificationName The name of the certification for which we are generating an image
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
@@ -19,29 +32,29 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
  * @returns {Promise<String>} filePath The path at which the new image is stored
  */
 async function generateCertificateImageAsync(
-    courseName,
+    certificationName,
     handle,
     certificateUrl,
     certificateElement,
 ) {
 
     // if we don't have all our info, we can't generate an image, so throw an error
-    if (!certificateUrl || !handle || !courseName) {
-        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  courseName: ${courseName}`)
+    if (!certificateUrl || !handle || !certificationName) {
+        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  certificationName: ${certificationName}`)
     }
 
-    // if we don't have a queue name, we have a problem
-    if (!process.env.CERT_IMAGE_QUEUE) {
-        throw new Error('The CERT_IMAGE_QUEUE is not defined for the environment.')
-    }
+    // construct the FQDN and file path of the location where the image will be created
+    const imagePath = `certificate/${handle}/${certificationName}.jpg`
+    const imageUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}/${imagePath}`
 
-    if (!process.env.CERT_BUCKET) {
-        throw new Error('The CERT_BUCKET is not defined for the environment.')
+    // if we don't have a valid URL, we have a problem
+    if (!helper.isValidUrl(imageUrl)){
+        throw new Error(`Image URL (${imageUrl}) is not a valid URL.`)
     }
 
     const messageBody = {
         bucket: process.env.CERT_BUCKET,
-        filePath: `certificate/${handle}/${courseName}.jpg`,
+        filePath: imagePath,
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }
@@ -53,7 +66,7 @@ async function generateCertificateImageAsync(
         handle,
     )
 
-    return messageBody.filePath
+    return imageUrl
 }
 
 module.exports = {

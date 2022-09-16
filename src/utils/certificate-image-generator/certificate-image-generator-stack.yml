@@ -13,6 +13,9 @@ Parameters:
             - topcoder.com
             - topcoder-dev.com
 
+Conditions: 
+    IsProd: !Equals [ !Ref ImageStoreDomain, topcoder.com ]
+
 Mappings:
 
     DomainMap:
@@ -21,17 +24,11 @@ Mappings:
             CertArn: arn:aws:acm:us-east-1:409275337247:certificate/8cabe19d-6559-41c6-8dfb-66f8080d27d4
             HostedZoneId: Z1B7U7QS3AAI1X
             RoleArn: arn:aws:iam::409275337247:role/learning-paths-v5-container-role
-            Subdomain: tca
 
         topcoder-dev.com: 
             CertArn: arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
             HostedZoneId: Z2CIRG3R0ZSGFQ
             RoleArn: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
-            Subdomain: 
-                -   !Join 
-                    - ''
-                    -   - tca-
-                        - !Ref Stage
 
 Resources:
 
@@ -39,19 +36,13 @@ Resources:
         Type: AWS::SQS::Queue
         DeletionPolicy: Delete
         Properties:
-            QueueName: !Join 
-                - ''
-                -   - tca-certificate-generator-sqs-dead-letter-
-                    - !Ref Stage
+            QueueName: !Sub 'tca-certificate-generator-sqs-dead-letter-${Stage}'
 
     TCAGenerateCertificateQueue:
         Type: AWS::SQS::Queue
         DeletionPolicy: Delete
         Properties:
-            QueueName: !Join 
-                - ''
-                -   - tca-certificate-generator-sqs-
-                    - !Ref Stage
+            QueueName: !Sub 'tca-certificate-generator-sqs-${Stage}' 
             RedrivePolicy:
                 deadLetterTargetArn: !GetAtt TCAGenerateCertificateQueueDeadLetter.Arn
                 maxReceiveCount: 3
@@ -61,10 +52,7 @@ Resources:
         DeletionPolicy: Delete
         Properties:
             AccessControl: PublicRead
-            BucketName: !Join
-                - ''
-                -   - tca-certificate-generator-s3-
-                    - !Ref Stage
+            BucketName: !Sub 'tca-certificate-generator-s3-${Stage}'
 
     TCACertificateImageStoreBucketPolicy:
         Type: 'AWS::S3::BucketPolicy'
@@ -91,12 +79,7 @@ Resources:
             DistributionConfig: 
                 Enabled: true
                 Aliases: 
-                    -   !Join 
-                        - ''
-                        -   - tca-
-                            - !Ref Stage
-                            - '.'
-                            - !Ref ImageStoreDomain
+                    - !If [IsProd, !Sub 'tca.${ImageStoreDomain}', !Sub 'tca-${Stage}.${ImageStoreDomain}']
                 Origins:
                     -   Id: !Join 
                             - ''
@@ -133,12 +116,8 @@ Resources:
                 - DomainMap
                 - !Ref ImageStoreDomain
                 - HostedZoneId
-            Name: !Join 
-                - ''
-                -   - tca-
-                    - !Ref Stage
-                    - '.'
-                    - !Ref ImageStoreDomain
+            Name: 
+                !If [IsProd, !Sub 'tca.${ImageStoreDomain}', !Sub 'tca-${Stage}.${ImageStoreDomain}']
             Type: A
             AliasTarget: 
                 # hard-coded zone id for all cloudfront routes
@@ -154,10 +133,7 @@ Resources:
                     def handler(event, context):
                         pass
             Description: Creates an image with a screenshot of a user's certificate
-            FunctionName: !Join
-                - ''
-                -   - tca-certificate-generator-lambda-generate-image-
-                    - !Ref Stage
+            FunctionName: !Sub 'tca-certificate-generator-lambda-generate-image-${Stage}'
             Handler: index.handler
             Layers: 
                 - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:31

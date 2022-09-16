@@ -1,15 +1,7 @@
-// TODO: TCA-319 move this to the lambda function that serves the html
-// const fs = require('fs')
 const helper = require('../../common/helper')
 const queueHelper = require('../../common/queue-helper')
 
-/* TODO: TCA-319 move this to the lambda function that serves the html
-// read in the template and remove line breaks
-const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`, "utf-8")
-     .replace(new RegExp('\r?\n', 'g'), '');
-*/
-
-// Check the environment params on startup
+// Initialize the environment params on startup
 function initializeEnvironmentParams() {
 
     const missingParam = [

@@ -69,11 +69,11 @@ In order to send data to the queue, you'll need to add the following environment
 # The bucket in which cert images should be stored
 CERT_BUCKET=tca-certificate-generator-s3-dev
 
-# The subdomain of the alias for the CDN in which the images are stored.
-# This will combine w/the CERT_IMAGE_DOMAIN to create the FQDN for the image.
-# This should follow the pattern of `tca-myStage` for all stages.
-CERT_IMAGE_SUBDOMAIN=tca-dev
-
 # The URL for the queue that was created from the deploy-stack script.
 CERT_IMAGE_QUEUE=https://sqs.us-east-1.amazonaws.com/811668436784/tca-certificate-generator-sqs
+
+# The subdomain of the alias for the CDN in which the images are stored.
+# This will combine w/the CERT_IMAGE_DOMAIN to create the FQDN for the image.
+# This should follow the pattern of `tca-myStage` for all non-production stages.
+CERT_IMAGE_SUBDOMAIN=tca-dev
 ```

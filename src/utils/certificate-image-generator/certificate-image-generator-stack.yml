@@ -15,17 +15,23 @@ Parameters:
 
 Mappings:
 
-    DomainMap: 
+    DomainMap:
 
         topcoder.com: 
             CertArn: arn:aws:acm:us-east-1:409275337247:certificate/8cabe19d-6559-41c6-8dfb-66f8080d27d4
             HostedZoneId: Z1B7U7QS3AAI1X
             RoleArn: arn:aws:iam::409275337247:role/learning-paths-v5-container-role
+            Subdomain: tca
 
         topcoder-dev.com: 
             CertArn: arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
             HostedZoneId: Z2CIRG3R0ZSGFQ
             RoleArn: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
+            Subdomain: 
+                -   !Join 
+                    - ''
+                    -   - tca-
+                        - !Ref Stage
 
 Resources:
 

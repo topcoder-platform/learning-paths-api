@@ -58,7 +58,15 @@
         },
         "information-security": {
             "keyPoints": [
-                "INFORMATION SECURITY KEYPOINTS GO HERE."
+                "Information Security is a critical concept and tool for every developer to be able to understand and implement within their code. Advancing these skills will ensure any work you produce, on or off the Topcoder platform, is to a baseline level of security. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ],
+            "completionSuggestions": [
+                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
+            ]
+        },
+        "quality-assurance": {
+            "keyPoints": [
+                "Quality Assurance is an essential part of the software development process and every developer should have these skills. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ],
             "completionSuggestions": [
                 "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."

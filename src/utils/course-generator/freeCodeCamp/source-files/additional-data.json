@@ -71,6 +71,12 @@
             "completionSuggestions": [
                 "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
             ]
+        },
+        "coding-interview-prep": {
+            "keyPoints": [
+                "Coding Interview Prep has a great catalog of varying exercises for you to practice for your next interview. These can also help hone your overall algorithm, data structure, and mathematics skills, necessary in any sort of development-related work. Stay tuned for more interview prep materials in the future."
+            ],
+            "completionSuggestions": []
         }
     }
 }

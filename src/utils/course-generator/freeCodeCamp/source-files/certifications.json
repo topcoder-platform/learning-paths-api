@@ -168,5 +168,22 @@
     "category": "Information Security",
     "trackType": "DEV",
     "certType": "certification"
+  },
+  {
+    "key": "coding-interview-prep-course",
+    "providerCertificationId": "",
+    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+    "providerName": "freeCodeCamp",
+    "title": "Coding Interview Prep",
+    "certification": "coding-interview-prep",
+    "completionHours": 0,
+    "courses": [
+      "coding-interview-prep"
+    ],
+    "state": "active",
+    "category": "Coding Interviews",
+    "trackType": "DEV",
+    "certType": "course-completion",
+    "id": "ad31ff30-02a3-4f58-8ec2-602860ed171c"
   }
 ]

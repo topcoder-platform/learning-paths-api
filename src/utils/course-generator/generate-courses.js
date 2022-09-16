@@ -129,22 +129,15 @@ function getCourseGenerator(provider) {
 }
 
 async function writeCoursesToDB(courseFile) {
-    // TODO -- do we want to do a wholesale remove and replace operation?
-    console.log("Clearing Course table...");
-    const courses = await helper.scan('Course')
-    console.log(`Deleting ${courses.length} courses...`)
-    for (const course of courses) {
-        await course.delete()
-    }
-
     console.log("\n** Writing course data to DynamoDB...");
     const promises = []
 
     try {
-        const data = require(courseFile)
-        const numCourses = get(data, 'length');
+        const generatedCourses = require(courseFile)
+        await synchronizeCourseIds(courseFile, generatedCourses);
+        const numCourses = get(generatedCourses, 'length');
         logger.info(`Inserting ${helper.pluralize(numCourses, 'course')}`)
-        promises.push(models.Course.batchPut(data))
+        promises.push(models.Course.batchPut(generatedCourses))
     } catch (e) {
         logger.warn(`An error occurred. No courses will be inserted.`)
         logger.logFullError(e)
@@ -159,13 +152,38 @@ async function writeCoursesToDB(courseFile) {
         })
 }
 
-async function writeCertificationsToDB(certificationsFile) {
-    console.log("Clearing Certifications table...");
-    const certifications = await helper.scan('Certification')
-    for (const certification of certifications) {
-        await certification.delete()
+/**
+ * Synchronizes the local IDs of courses with existing course data 
+ * stored in DynamoDB. This allows updating existing courses and preserves 
+ * the course IDs, which are referenced in Certification Progress records.
+ * 
+ * @param {String} courseFile file path to generated course file
+ * @param {Object} generatedCourses generated course data
+ */
+async function synchronizeCourseIds(courseFile, generatedCourses) {
+    console.log("\n** Synchronizing course IDs with DynamoDB data");
+
+    let saveCourseFile = false;
+    const courses = await helper.scanAll('Course')
+
+    for (var course of generatedCourses) {
+        const existingCourse = courses.find(existingCourse => existingCourse.key === course.key);
+        if (existingCourse) {
+            saveCourseFile = true;
+            course.id = existingCourse.id;
+            console.log(`** synchronized course ${course.key} ID to ${existingCourse.id}`)
+        } else {
+            console.log(`** new course ${course.key}`)
+        }
     }
 
+    // If the course data was updated with IDs, safe the data file.
+    if (saveCourseFile) {
+        fs.writeFileSync(courseFile, JSON.stringify(generatedCourses, null, 2));
+    }
+}
+
+async function writeCertificationsToDB(certificationsFile) {
     console.log("\n** Writing certification data to DynamoDB...");
     const promises = []
 
@@ -311,6 +329,53 @@ function updateProgressWithCourseLessonIds(progress, course) {
     })
 }
 
+/**
+ * Updates DynamoDB CertificationProgress modules with explicit +isAssessment+ 
+ * attribute from updated course data.
+ */
+async function updateCertProgressAssessmentModules() {
+    console.log("\nUpdating CertificationProgress assessment modules in DynamoDB")
+
+    const courses = await helper.scanAll('Course');
+    const progresses = await helper.scanAll('CertificationProgress');
+
+    console.log(`Found ${progresses.length} CertificationProgress records to update`);
+
+    progresses.forEach(async progress => {
+        console.log(`\nupdating progress for user ${progress.userId} certification ${progress.certification}`)
+        const course = courses.find(crs => crs.id === progress.courseId)
+        if (course) {
+            updateProgressModulesWithAssessmentAttr(progress, course);
+            await progress.save();
+            console.log(`...updated progress ${progress.id}`)
+        } else {
+            console.error(`could not find course matching ID ${progress.courseId} -- quitting`);
+            process.exit(1);
+        }
+    })
+}
+
+/**
+ * Updates course progress modules with an explicit +isAssessment+
+ * attribute to simplify certification completion verification.
+ * 
+ * @param {Object} progress A Dynamoose CertificationProgress object
+ * @param {Object} course A Dynamoose Course object
+ */
+function updateProgressModulesWithAssessmentAttr(progress, course) {
+    progress.modules.forEach(progressModule => {
+        const progressModuleName = progressModule.module;
+        const courseModule = course.modules.find(module => module.key === progressModuleName)
+        if (!courseModule) {
+            console.error(`could not find course module ${progressModuleName} -- quitting`);
+            process.exit(1);
+        }
+
+        // Set the isAssessment attribute to match what's in the course data
+        progressModule.isAssessment = courseModule.meta.isAssessment;
+    })
+}
+
 // ----------------- start of CLI -----------------
 
 // Start with the learning resource providers whose certifications 
@@ -323,9 +388,11 @@ let provider;
 const writeToDB = (args.indexOf('-d') > -1 ? true : false);
 const updateDBLessonIds = (args.indexOf('-u') > -1 ? true : false);
 const updateDBProgressIds = (args.indexOf('-p') > -1 ? true : false);
+const updateDBModuleAssessments = (args.indexOf('-m') > -1 ? true : false);
 
 // Parse the CLI args for the provider name, if given
-if (args.length == 2 || (args.length == 3 && (writeToDB || updateDBLessonIds || updateDBProgressIds))) {
+if (args.length == 2 || (args.length == 3 &&
+    (writeToDB || updateDBLessonIds || updateDBProgressIds || updateDBModuleAssessments))) {
     provider = loadDefaultProvider(providers);
 } else if ((args.length == 3 && !writeToDB) || args.length == 4) {
     const givenProvider = args[2]
@@ -359,5 +426,7 @@ if (provider) {
         updateCourseLessonIds(generatedCourseFilePath);
     } else if (updateDBProgressIds) {
         updateCertProgressLessonIds()
+    } else if (updateDBModuleAssessments) {
+        updateCertProgressAssessmentModules()
     }
 }

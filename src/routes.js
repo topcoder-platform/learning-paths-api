@@ -3,6 +3,9 @@
  */
 
 const constants = require('../app-constants')
+const { SCOPES: {
+  UPDATE,
+} } = require('config')
 
 module.exports = {
   '/learning-paths/health': {
@@ -98,6 +101,14 @@ module.exports = {
       controller: 'CertificationProgressController',
       method: 'completeLesson',
       auth: 'jwt'
+    },
+  },
+  '/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger': {
+    put: {
+      controller: 'CertificationProgressController',
+      method: 'completeLessonViaMongoTrigger',
+      auth: 'jwt',
+      scopes: [UPDATE]
     },
   },
   '/learning-paths/certification-progresses/:certificationProgressId/complete-certification': {

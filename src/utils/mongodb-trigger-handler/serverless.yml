@@ -1,0 +1,46 @@
+service: mongodb-trigger-handler
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: ${opt:stage,'dev'}
+  runtime: nodejs14.x
+
+custom:
+  aws:
+    event_bus:
+      dev: arn:aws:events:us-east-1:811668436784:event-bus/aws.partner/mongodb.com/stitch.trigger/62fd7e5d44baed229f34af0b
+      prod: arn:aws:events:us-east-1:409275337247:event-bus/aws.partner/mongodb.com/stitch.trigger/631fc2f7fc22d1c4d9c41750
+  auth0:
+    dev:
+      url: ${env:AUTH0_URL}
+      audience: ${env:AUTH0_AUDIENCE}
+      client_id: ${env:AUTH0_CLIENT_ID}
+      client_secret: ${env:AUTH0_CLIENT_SECRET}
+    prod:
+      url: ${env:AUTH0_URL}
+      audience: ${env:AUTH0_AUDIENCE}
+      client_id: ${env:AUTH0_CLIENT_ID}
+      client_secret: ${env:AUTH0_CLIENT_SECRET}
+  learning_paths_api:
+    dev: https://api.topcoder-dev.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger
+    prod: https://api.topcoder.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger
+
+functions:
+  trigger-handler:
+    handler: handler.handle
+    memorySize: 128
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.aws.event_bus.${self:provider.stage}}
+          pattern:
+            source:
+              - prefix: 'aws.partner/mongodb.com'
+    environment:
+      AUTH0_URL: ${self:custom.auth0.${self:provider.stage}.url}
+      AUTH0_AUDIENCE: ${self:custom.auth0.${self:provider.stage}.audience}
+      AUTH0_CLIENT_ID: ${self:custom.auth0.${self:provider.stage}.client_id}
+      AUTH0_CLIENT_SECRET: ${self:custom.auth0.${self:provider.stage}.client_secret}
+      LEARNING_PATHS_API_ENDPOINT: ${self:custom.learning_paths_api.${self:provider.stage}} 

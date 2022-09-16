@@ -95,6 +95,9 @@ The `additional-data.json` file allows us to "decorate courses and certification
         "2022/responsive-web-design": {
             "keyPoints": [
                 "This Responsive Web Design course will help you learn ..."
+            ],
+            "completionSuggestions": [
+                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
             ]
         }
     }

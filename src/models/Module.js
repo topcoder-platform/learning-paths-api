@@ -41,6 +41,11 @@ const schema = new Schema({
                 schema: [String],
                 required: false,
                 default: []
+            },
+            isAssessment: {
+                type: Boolean,
+                required: false,
+                default: false
             }
         },
         required: true
@@ -61,6 +66,11 @@ const schema = new Schema({
                 dashedName: {
                     type: String,
                     required: true
+                },
+                isAssessment: {
+                    type: Boolean,
+                    required: false,
+                    default: false
                 }
             }
         }]

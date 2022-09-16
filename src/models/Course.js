@@ -17,6 +17,10 @@ const schema = new Schema({
     type: String,
     rangeKey: true,
     required: true,
+    index: {
+      name: "provider-key-index",
+      global: true,
+    }
   },
   providerId: {
     type: String,
@@ -57,6 +61,11 @@ const schema = new Schema({
     required: false
   },
   keyPoints: {
+    type: Array,
+    schema: [String],
+    required: false
+  },
+  completionSuggestions: {
     type: Array,
     schema: [String],
     required: false

@@ -3,29 +3,71 @@
  */
 
 const _ = require('lodash')
+const { Course } = require('../models')
 const Joi = require('joi')
 const helper = require('../common/helper')
 
 /**
- * Search Courses
+ * Search Courses - uses a query using a global secondary index on 
+ * provider if that criteria is provided, otherwise does a full table 
+ * scan and filters data based on the criteria
  * 
  * @param {Object} criteria the search criteria
  * @returns {Object} the search result
  */
 async function searchCourses(criteria) {
+    if (criteria.provider) {
+        return await searchCoursesForProvider(criteria)
+    } else {
+        const { result } = await scanAllCourses(criteria)
+        return result;
+    }
+}
 
+/**
+ * Queries the Course table using a global secondary index
+ * and additional +where+ criteria from the given query 
+ * 
+ * @param {Object} query the query on which to search
+ * @returns an array of Course objects
+ */
+async function searchCoursesForProvider(query) {
+    const provider = query.provider;
+    let queryStatement = Course.
+        query("provider").eq(provider).
+        using("provider-key-index")
+
+    if (query.key) {
+        queryStatement = queryStatement.where("key").eq(query.key)
+    }
+    if (query.certification) {
+        queryStatement = queryStatement.where("certification").eq(query.certification)
+    }
+
+    try {
+        let courses = await queryStatement.exec();
+        return courses;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+/**
+ * Performs a full table scan and filters results to match the 
+ * given criteria. A full scan is slow and expensive, so prefer 
+ * to use query approach above if possible.
+ * 
+ * @param {Object} criteria the criteria on which to search
+ * @returns an array of Course objects matching the search criteria
+ */
+async function scanAllCourses(criteria) {
     records = await helper.scanAll('Course')
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
 
     // filter data by given criteria
-    if (criteria.provider) {
-        records = _.filter(
-            records,
-            e => helper.fullyMatch(criteria.provider, e.provider))
-    }
-
     if (criteria.certification) {
         records = _.filter(
             records,
@@ -44,7 +86,7 @@ async function searchCourses(criteria) {
     return { total, page, perPage, result }
 }
 
-searchCourses.schema = {
+scanAllCourses.schema = {
     criteria: Joi.object().keys({
         page: Joi.page(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
@@ -124,6 +166,61 @@ async function getCourseModule(id, moduleKey) {
 }
 
 /**
+ * Returns a copy of a learning resource provider's lesson map. Attempts
+ * to get the cached value and generates it in the case of a cache miss.
+ * 
+ * @param {String} provider name of the learning resource provider
+ * @returns {Object} an object whose keys are the unique lesson IDs and 
+ *      values are the lesson's module, course, and certification identifiers.
+ */
+async function getCourseLessonMap(provider) {
+
+    const cacheKey = `lesson-map:${provider}`
+    let lessonMap = helper.getFromInternalCache(cacheKey)
+
+    if (!lessonMap) {
+        lessonMap = await generateCourseLessonMap(provider);
+        helper.setToInternalCache(cacheKey, lessonMap);
+    }
+
+    return lessonMap;
+}
+
+/**
+ * Generates a map of all course lessons and their associated module, course,
+ * and certification identifiers. Used to lookup what certification, course, 
+ * and module a particular lesson belongs to.
+ * 
+ * @param {String} provider name of the learning resource provider
+ * @returns {Object} an object whose keys are the unique lesson IDs and 
+ *      values are the lesson's module, course, and certification identifiers.
+ */
+async function generateCourseLessonMap(provider) {
+    courses = await helper.scanAll('Course')
+
+    courses = _.filter(
+        courses,
+        e => helper.fullyMatch(provider, e.provider))
+
+    let lessonMap = {};
+    courses.forEach(course => {
+        course.modules.forEach(module => {
+            module.lessons.forEach(lesson => {
+                lessonMap[lesson.id] = {
+                    dashedName: lesson.dashedName,
+                    moduleKey: module.key,
+                    courseId: course.id,
+                    certificationId: course.certificationId,
+                    certification: course.certification
+                }
+            })
+        })
+    })
+
+    return lessonMap;
+}
+
+/**
  * Decorates each element of the collection with lession counts
  * 
  * @param {Array} modules a collection of course modules
@@ -157,6 +254,7 @@ getCourseModules.schema = {
 module.exports = {
     searchCourses,
     getCourse,
+    getCourseLessonMap,
     getCourseModules,
     getCourseModule
 }

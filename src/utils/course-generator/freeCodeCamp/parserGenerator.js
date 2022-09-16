@@ -253,7 +253,13 @@ class FreeCodeCampGenerator {
      * @returns object with time value and units
      */
     parseLessonCompletionTime(key, meta) {
-        const completionTime = meta.time;
+        let completionTime = meta.time;
+
+        // if a lesson has no completion time listed, set it to zero
+        if (completionTime === undefined || completionTime == "") {
+            completionTime = "0 hours"
+        }
+
         try {
             const timeParts = completionTime.split(' ');
             return {
@@ -400,16 +406,16 @@ class FreeCodeCampGenerator {
     computeCourseCompletionTime(course, moduleCompletionTimes) {
         let completionTimes = [];
 
-        moduleCompletionTimes.reduce(function (res, time) {
+        moduleCompletionTimes.reduce(function (times, time) {
             // Handle single units by converting them to plural
             if (time.units.slice(-1) !== "s") { time.units = time.units.concat("s") }
 
-            if (!res[time.units]) {
-                res[time.units] = { units: time.units, value: 0 };
-                completionTimes.push(res[time.units])
+            if (!times[time.units]) {
+                times[time.units] = { units: time.units, value: 0 };
+                completionTimes.push(times[time.units])
             }
-            res[time.units].value += time.value;
-            return res;
+            times[time.units].value += time.value;
+            return times;
         }, {})
 
         if (completionTimes.length > 1) {

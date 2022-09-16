@@ -10,15 +10,73 @@ const ssrTemplate = fs.readFileSync(`${__dirname}/ssr-certificate-template.html`
 */
 
 // Check the environment params on startup
-const missingParam = [
-    'CERT_BUCKET',
-    'CERT_IMAGE_DOMAIN',
-    'CERT_IMAGE_QUEUE',
-    'CERT_IMAGE_SUBDOMAIN',
-]
-    .find(param => !process?.env?.[param])
-if (!!missingParam) {
-    throw new Error(`The ${missingParam} is not defined for the environment.`)
+function initializeEnvironmentParams() {
+
+    const missingParam = [
+        'CERT_BUCKET',
+        'CERT_IMAGE_DOMAIN',
+        'CERT_IMAGE_QUEUE',
+        'CERT_IMAGE_SUBDOMAIN',
+    ]
+        .find(param => !process?.env?.[param])
+
+    if (!!missingParam) {
+        throw new Error(`The ${missingParam} is not defined for the environment.`)
+    }
+
+    const imageBaseUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}`
+    validateImageUrl(imageBaseUrl)
+
+    return {
+        bucket: process.env.CERT_BUCKET,
+        imageBaseUrl,
+        queue: process.env.CERT_IMAGE_QUEUE,
+    }
+}
+const {
+    bucket,
+    imageBaseUrl,
+    queue,
+} = initializeEnvironmentParams()
+
+/**
+ * Generates a certificate image in a background thread
+ *
+ * Wraps an Async function, generateCertificateImageAsync, with a non-async function
+ * so that the inner function happens in the background
+ * 
+ * @param {String} certification The name of the certification for which we are generating an image
+ * @param {string} handle The handle of the user who completed the course
+ * @param {String} certificateUrl The URL for the certificate
+ * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
+ * should be converted to an image
+ * @returns {void}
+ */
+function generateCertificateImage(
+    certification,
+    handle,
+    certificateUrl,
+    certificateElement,
+    progress,
+) {
+
+    // NOTE: This is an async function for which we are purposely NOT awaiting the response
+    // so that it will complete in the background.
+    // If any errors occur, those will be treated as unhandled errors that are okay bc they
+    // occur in the background but will still be logged normally.
+    generateCertificateImageAsync(
+        certification,
+        handle,
+        certificateUrl,
+        certificateElement,
+    )
+        .then(async (imageUrl) => {
+            console.info('Successfully created:', imageUrl)
+            await helper.update(progress, {
+                certificationImageUrl: imageUrl
+            })
+            console.info('Successfully updated progress for:', imageUrl)
+        })
 }
 
 /**
@@ -29,7 +87,7 @@ if (!!missingParam) {
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
- * @returns {Promise<String>} filePath The path at which the new image is stored
+ * @returns {Promise<String>} The URL at which the new image can be found
  */
 async function generateCertificateImageAsync(
     certificationName,
@@ -45,22 +103,18 @@ async function generateCertificateImageAsync(
 
     // construct the FQDN and file path of the location where the image will be created
     const imagePath = `certificate/${handle}/${certificationName}.jpg`
-    const imageUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}/${imagePath}`
-
-    // if we don't have a valid URL, we have a problem
-    if (!helper.isValidUrl(imageUrl)){
-        throw new Error(`Image URL (${imageUrl}) is not a valid URL.`)
-    }
+    const imageUrl = `${imageBaseUrl}/${imagePath}`
+    validateImageUrl(imageUrl)
 
     const messageBody = {
-        bucket: process.env.CERT_BUCKET,
+        bucket,
         filePath: imagePath,
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }
 
     await queueHelper.sendMessageAsync(
-        process.env.CERT_IMAGE_QUEUE,
+        queue,
         messageBody,
         `Creating Certificate Image: ${messageBody.filePath}`,
         handle,
@@ -69,6 +123,12 @@ async function generateCertificateImageAsync(
     return imageUrl
 }
 
+function validateImageUrl(url) {
+    if (!helper.isValidUrl(url)) {
+        throw new Error(`Image URL (${url}) is not a valid URL.`)
+    }
+}
+
 module.exports = {
-    generateCertificateImageAsync,
+    generateCertificateImage,
 }

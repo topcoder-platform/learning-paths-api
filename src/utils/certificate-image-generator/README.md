@@ -21,7 +21,7 @@ The sequence diagram below explains both the process of creating images and the 
 
 The yaml located at `./certificate-image-generator.yml` is the CloudFormation resources configuration and includes all the requirements for creating the stack for the Image Generator on AWS.
 
-There is a helper bash script at `./deploy-stack.sh` that will generate the `aws cloudformation` command for the stage specified.
+There is a helper bash script at `./deploy-stack.sh` that will generate the `aws cloudformation` command for the stage specified. It will also [re-deploy any serverless functions](#deploy-changes-to-generator).
 
 The script requires a stage argument that will be added as a suffix to the Stack and dependent service names.
 
@@ -71,7 +71,7 @@ CERT_BUCKET=tca-certificate-generator-s3-dev
 
 # The subdomain of the alias for the CDN in which the images are stored.
 # This will combine w/the CERT_IMAGE_DOMAIN to create the FQDN for the image.
-# This should follow the pattern of `tca-myStage` for all non-production stages.
+# This should follow the pattern of `tca-myStage` for all stages.
 CERT_IMAGE_SUBDOMAIN=tca-dev
 
 # The URL for the queue that was created from the deploy-stack script.

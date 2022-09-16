@@ -245,10 +245,10 @@ async function completeCertification(
     decorateProgressCompletion(updatedProgress);
 
     // if we have the cert URL, generate the image
-    if (certificateUrl) {
+    if (!!certificateUrl) {
 
         console.log(`Generating certificate image for ${userId} for ${certification}`)
-        generateCertificateImageSilently(certification, currentUser.nickname, certificateUrl, certificateElement, progress)
+        imageGenerator.generateCertificateImage(certification, currentUser.nickname, certificateUrl, certificateElement, progress)
 
     } else {
         console.log(`Certificate Image for ${userId} for ${certification} NOT being generated bc no cert URL was provided.`)
@@ -257,46 +257,6 @@ async function completeCertification(
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix
     // timestamp to a JS Date object on +update+.
     return updatedProgress
-}
-
-/**
- * Generates a certificate image in a background thread
- *
- * Wraps an Async function, generateCertificateImageAsync, with a non-async function
- * so that the inner function happens in the background
- * 
- * @param {String} certification The name of the certification for which we are generating an image
- * @param {string} handle The handle of the user who completed the course
- * @param {String} certificateUrl The URL for the certificate
- * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
- * should be converted to an image
- * @returns {void}
- */
-function generateCertificateImageSilently(
-    certification,
-    handle,
-    certificateUrl,
-    certificateElement,
-    progress,
-) {
-
-    // NOTE: This is an async function for which we are purposely NOT awaiting the response
-    // so that it will complete in the background.
-    // If any errors occur, those will be treated as unhandled errors that are okay bc they
-    // occur in the background but will still be logged normally.
-    imageGenerator.generateCertificateImageAsync(
-        certification,
-        handle,
-        certificateUrl,
-        certificateElement,
-    )
-        .then(async (imageUrl) => {
-            console.info('Successfully created:', imageUrl)
-            await helper.update(progress, {
-                certificationImageUrl: imageUrl
-            })
-            console.info('Successfully updated progress for:', imageUrl)
-        })
 }
 
 /**

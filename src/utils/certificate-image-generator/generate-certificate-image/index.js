@@ -96,7 +96,7 @@ function validateParams(params) {
     ]
         .find(param => !params?.[param])
 
-    if (requiredParam) {
+    if (!!requiredParam) {
         const errorMessage = `The ${requiredParam} param is required.`
         console.error(errorMessage, params)
         throw new Error(errorMessage)

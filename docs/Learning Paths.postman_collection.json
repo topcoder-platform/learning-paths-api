@@ -511,6 +511,16 @@
 						"certification-progresses",
 						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-certification"
+					],
+					"query": [
+						{
+							"key": "certificateUrl",
+							"value": "{{CERTIFICATE_URL}}"
+						},
+						{
+							"key": "certificateElement",
+							"value": "{{CERTIFICATE_ELEMENT}}"
+						}
 					]
 				}
 			},

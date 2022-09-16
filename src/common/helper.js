@@ -545,6 +545,15 @@ function logExecutionTime(start, end, functionName, linebreak = false) {
   if (linebreak) console.log('')
 }
 
+function isValidUrl(urlString) {
+  try {
+    new URL(urlString)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 function logExecutionTime2(start, functionName, linebreak = false) {
   const end = performance.now();
   const duration = (end - start).toFixed(4)
@@ -566,6 +575,7 @@ module.exports = {
   getByTableKeys,
   getFromInternalCache,
   hasAdminRole,
+  isValidUrl,
   logExecutionTime,
   logExecutionTime2,
   partialMatch,

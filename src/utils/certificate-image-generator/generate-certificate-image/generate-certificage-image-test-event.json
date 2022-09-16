@@ -1,0 +1,12 @@
+{
+    "Records": [
+        {
+            "body": {
+                "bucket": "ca-certificate-generator-s3-dev",
+                "filePath": "certificate/jcori/responsive-web-design.jpg",
+                "screenshotSelector": "[class^=Certificate_wrap]",
+                "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
+            }
+        }
+    ]
+}

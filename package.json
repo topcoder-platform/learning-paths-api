@@ -1,7 +1,7 @@
 {
   "name": "topcoder-learning-paths-api",
   "version": "1.0.0",
-  "description": "TopCoder Learning Paths V5 API",
+  "description": "Topcoder Learning Paths V5 API",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -20,7 +20,8 @@
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
     "local:init": "npm run local:reset && npm run seed-tables",
     "local:reset": "npm run init-db force",
-    "cert-gen:create-stack": "cd src/utils/certificate-image-generator/iac && sh create-stack.sh"
+    "cert-gen:deploy-stack": "cd src/utils/certificate-image-generator && sh deploy-stack.sh",
+    "cert-gen:validate": "cd src/utils/certificate-image-generator && aws cloudformation validate-template --template-body file://certificate-image-generator-stack.yml"
   },
   "author": "Topcoder.com",
   "license": "none",

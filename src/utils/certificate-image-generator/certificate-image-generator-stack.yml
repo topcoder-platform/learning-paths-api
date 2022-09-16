@@ -1,0 +1,172 @@
+Description: TCA - Generate and serve certificate images and SSR
+
+Parameters:
+
+    Stage:
+        Type: String
+        Description: The Environment/Stage for which to create the stack
+
+    ImageStoreDomain:
+        Type: String
+        Description: TCA Generate Certificate Image Store Domain
+        AllowedValues:
+            - topcoder.com
+            - topcoder-dev.com
+
+Mappings:
+
+    DomainMap: 
+
+        topcoder.com: 
+            CertArn: arn:aws:acm:us-east-1:409275337247:certificate/8cabe19d-6559-41c6-8dfb-66f8080d27d4
+            HostedZoneId: Z1B7U7QS3AAI1X
+            RoleArn: arn:aws:iam::409275337247:role/learning-paths-v5-container-role
+
+        topcoder-dev.com: 
+            CertArn: arn:aws:acm:us-east-1:811668436784:certificate/8e56f24a-1eaf-4289-8c21-db2c0761ecf4
+            HostedZoneId: Z2CIRG3R0ZSGFQ
+            RoleArn: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
+
+Resources:
+
+    TCAGenerateCertificateQueueDeadLetter:
+        Type: AWS::SQS::Queue
+        DeletionPolicy: Delete
+        Properties:
+            QueueName: !Join 
+                - ''
+                -   - tca-certificate-generator-sqs-dead-letter-
+                    - !Ref Stage
+
+    TCAGenerateCertificateQueue:
+        Type: AWS::SQS::Queue
+        DeletionPolicy: Delete
+        Properties:
+            QueueName: !Join 
+                - ''
+                -   - tca-certificate-generator-sqs-
+                    - !Ref Stage
+            RedrivePolicy:
+                deadLetterTargetArn: !GetAtt TCAGenerateCertificateQueueDeadLetter.Arn
+                maxReceiveCount: 3
+
+    TCACertificateImageStore:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Delete
+        Properties:
+            AccessControl: PublicRead
+            BucketName: !Join
+                - ''
+                -   - tca-certificate-generator-s3-
+                    - !Ref Stage
+
+    TCACertificateImageStoreBucketPolicy:
+        Type: 'AWS::S3::BucketPolicy'
+        Properties:
+            Bucket: 
+                !Ref TCACertificateImageStore
+            PolicyDocument:
+                Id: TCACertificateImageStoreBucketPolicy
+                Version: 2012-10-17
+                Statement:
+                    -   Sid: PublicReadForGetBucketObjects
+                        Effect: Allow
+                        Principal: '*'
+                        Action: 's3:GetObject'
+                        Resource: !Join 
+                            - ''
+                            -   - 'arn:aws:s3:::'
+                                - !Ref TCACertificateImageStore
+                                - /*
+      
+    TCAGenerateCertificateCdn:
+        Type: AWS::CloudFront::Distribution
+        Properties: 
+            DistributionConfig: 
+                Enabled: true
+                Aliases: 
+                    -   !Join 
+                        - ''
+                        -   - tca-
+                            - !Ref Stage
+                            - '.'
+                            - !Ref ImageStoreDomain
+                Origins:
+                    -   Id: !Join 
+                            - ''
+                            -   - !Ref TCACertificateImageStore
+                                - .s3.amazonaws.com
+                        DomainName: !Join 
+                            - ''
+                            -   - !Ref TCACertificateImageStore
+                                - .s3.amazonaws.com
+                        S3OriginConfig:
+                            OriginAccessIdentity: ""
+                DefaultCacheBehavior:
+                    TargetOriginId: !Join 
+                        - ''
+                        -   - !Ref TCACertificateImageStore
+                            - .s3.amazonaws.com
+                    ViewerProtocolPolicy: redirect-to-https
+                    ForwardedValues:
+                        QueryString: false
+                        Cookies:
+                            Forward: none
+                ViewerCertificate: 
+                    AcmCertificateArn: !FindInMap
+                        - DomainMap
+                        - !Ref ImageStoreDomain
+                        - CertArn
+                    MinimumProtocolVersion: TLSv1.2_2018
+                    SslSupportMethod: sni-only
+
+    TCAGenerateCertificateRoute:
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneId: !FindInMap
+                - DomainMap
+                - !Ref ImageStoreDomain
+                - HostedZoneId
+            Name: !Join 
+                - ''
+                -   - tca-
+                    - !Ref Stage
+                    - '.'
+                    - !Ref ImageStoreDomain
+            Type: A
+            AliasTarget: 
+                # hard-coded zone id for all cloudfront routes
+                # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
+                HostedZoneId: Z2FDTNDATAQYW2 
+                DNSName: !GetAtt TCAGenerateCertificateCdn.DomainName
+
+    TCACertificateImageGeneratorFunction:
+        Type: AWS::Lambda::Function
+        Properties: 
+            Code:
+                ZipFile: >
+                    def handler(event, context):
+                        pass
+            Description: Creates an image with a screenshot of a user's certificate
+            FunctionName: !Join
+                - ''
+                -   - tca-certificate-generator-lambda-generate-image-
+                    - !Ref Stage
+            Handler: index.handler
+            Layers: 
+                - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:31
+            MemorySize: 1600
+            Role: !FindInMap
+                - DomainMap
+                - !Ref ImageStoreDomain
+                - RoleArn
+            Runtime: nodejs16.x
+            Timeout: 30
+
+    TCACertificateImageGeneratorFunctionEventSource:    
+        Type: AWS::Lambda::EventSourceMapping
+        Properties: 
+            Enabled: true
+            EventSourceArn: !GetAtt TCAGenerateCertificateQueue.Arn
+            FunctionName:
+                Ref: TCACertificateImageGeneratorFunction

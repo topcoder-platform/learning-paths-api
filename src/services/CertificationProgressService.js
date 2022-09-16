@@ -216,23 +216,18 @@ async function completeCertification(
         status: STATUS_COMPLETED
     }
 
-    let updatedProgress = await helper.update(progress, completionData)
+    const updatedProgress = await helper.update(progress, completionData)
     console.log(`User ${userId} has completed ${provider} certification '${certification}'`);
     decorateProgressCompletion(updatedProgress);
 
-    // if we have the cert URL, generate the cert image
+    // if we have the cert URL, generate the image
     if (!!certificateUrl) {
 
-        // NOTE: this is an async function for which we are purposely not awaiting the response
-        // so that it will complete in the background
-        console.log(`Generating certificate image for ${userId} for ${progress.certificationTitle}`)
-        imageGenerator.generateCertificateImageAsync(
-            progress.certificationTitle,
-            currentUser.nickname,
-            (err) => { logger.logFullError(err) },
-            certificateUrl,
-            certificateElement,
-        )
+        console.log(`Generating certificate image for ${userId} for ${certification}`)
+        imageGenerator.generateCertificateImage(certification, currentUser.nickname, certificateUrl, certificateElement, progress)
+
+    } else {
+        console.log(`Certificate Image for ${userId} for ${certification} NOT being generated bc no cert URL was provided.`)
     }
 
     // TODO: it seems that Dynamoose doesn't convert a Date object from a Unix

@@ -63,11 +63,11 @@ function generateCertificateImage(
         certificateElement,
     )
         .then(async (imageUrl) => {
-            console.info('Successfully created:', imageUrl)
+            console.info('Successfully queued generation of', imageUrl)
             await helper.update(progress, {
                 certificationImageUrl: imageUrl
             })
-            console.info('Successfully updated progress for:', imageUrl)
+            console.info('Successfully set progress.certificationImageUrl to', imageUrl)
         })
 }
 

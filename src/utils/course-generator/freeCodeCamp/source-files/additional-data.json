@@ -50,10 +50,10 @@
         },
         "back-end-development-and-apis": {
             "keyPoints": [
-                "KEYPOINTS GO HERE."
+                "The Backend Development and APIs course will help you develop a range of skills to confidently build critical backend systems quickly and efficiently. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ],
             "completionSuggestions": [
-                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
             ]
         },
         "information-security": {
@@ -61,7 +61,7 @@
                 "Information Security is a critical concept and tool for every developer to be able to understand and implement within their code. Advancing these skills will ensure any work you produce, on or off the Topcoder platform, is to a baseline level of security. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ],
             "completionSuggestions": [
-                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
             ]
         },
         "quality-assurance": {
@@ -69,7 +69,7 @@
                 "Quality Assurance is an essential part of the software development process and every developer should have these skills. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
             ],
             "completionSuggestions": [
-                "We recommend you use the <b>Replit Starter Pack</b> method for completing this course."
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
             ]
         },
         "coding-interview-prep": {

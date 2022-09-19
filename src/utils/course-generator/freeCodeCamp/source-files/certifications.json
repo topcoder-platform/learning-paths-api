@@ -185,5 +185,22 @@
     "trackType": "DEV",
     "certType": "course-completion",
     "id": "ad31ff30-02a3-4f58-8ec2-602860ed171c"
+  },
+  {
+    "key": "relational-database-certification",
+    "providerCertificationId": "606243f50267e718b1e755f4",
+    "providerId": "e8e74580-6586-4eb6-9023-bc758c742f1f",
+    "providerName": "freeCodeCamp",
+    "title": "Relational Database Certification",
+    "certification": "relational-database",
+    "completionHours": 300,
+    "courses": [
+      "relational-database"
+    ],
+    "state": "active",
+    "category": "Database",
+    "trackType": "DEV",
+    "certType": "certification",
+    "id": "23cee450-b2e5-47db-a4fa-89c4b3f87147"
   }
 ]

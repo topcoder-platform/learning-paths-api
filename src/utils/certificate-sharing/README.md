@@ -21,7 +21,7 @@ The sequence diagram below explains both the process of creating images and the 
 
 The yaml located at `./certificate-image-generator.yml` is the CloudFormation resources configuration and includes all the requirements for creating the stack for the Image Generator on AWS.
 
-There is a helper bash script at `./deploy-stack.sh` that will generate the `aws cloudformation` command for the stage specified. It will also [re-deploy any serverless functions](#deploy-changes-to-generator).
+There is a helper bash script at `./generate-certificate-image-deploy.sh` that will generate the `aws cloudformation` command for the stage specified. It will also [re-deploy any serverless functions](#deploy-changes-to-generator).
 
 The script requires a stage argument that will be added as a suffix to the Stack and dependent service names.
 
@@ -31,9 +31,9 @@ There is also a helper package script called `cert-gen:deploy-stack` to make it 
 % npm run cert-gen:deploy-stack myStage
 
 > topcoder-learning-paths-api@1.0.0 cert-gen:deploy-stack
-> sh src/utils/certificate-image-generator/deploy-stack.sh "myStage"
+> sh src/utils/certificate-sharing/generate-certificate-image-deploy.sh "myStage"
 
-Template: certificate-image-generator-stack.yml
+Template: certificate-image-generator.yml
 Stage: myStage
 Stack name: TCA-Certificate-Generator-myStage
 Image Store Domain: topcoder-dev.com

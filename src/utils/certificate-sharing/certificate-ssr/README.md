@@ -14,8 +14,10 @@ $ npm i
 
 ### Deployment
 
+Copy/paste the AWS Environment variables into your terminal for the AWS environment to which you wish to deploy.
+
 ```
-$ sls deploy
+$ npm run deploy
 ```
 
 After deploying, you should see output similar to:
@@ -53,7 +55,7 @@ You can also visit the URL directly: https://rn73qvj4lf.execute-api.us-east-1.am
 It is possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. 
 
 ```bash
-sls offline
+npm run offline
 ```
 
 To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).

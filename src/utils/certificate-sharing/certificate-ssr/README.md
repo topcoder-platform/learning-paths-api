@@ -1,4 +1,4 @@
-# TCA Certificate SSR (Serverless Framework Node HTTP API on AWS)
+# TCA Certificate SSR
 
 This README demonstrates how to develop and deploy the TCA Certificate SSR function, which is an HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.
 
@@ -57,5 +57,7 @@ It is possible to emulate API Gateway and Lambda locally by using `serverless-of
 ```bash
 npm run offline
 ```
+
+You can now access the serverless function at http://localhost:3000.
 
 To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).

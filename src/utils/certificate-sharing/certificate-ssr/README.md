@@ -18,10 +18,16 @@ This template does not include any kind of persistence (database). For more adva
 
 ## Usage
 
+Install packages w/in this directory:
+
+```bash
+$ npm i
+```
+
 ### Deployment
 
 ```
-$ serverless deploy
+$ sls deploy
 ```
 
 After deploying, you should see output similar to:
@@ -31,62 +37,33 @@ Deploying tca-certificate-ssr to stage dev (us-east-1)
 
 ✔ Service deployed to stack tca-certificate-ssr-dev (152s)
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
+endpoint: GET - https://rn73qvj4lf.execute-api.us-east-1.amazonaws.com/
 functions:
   ssr: tca-certificate-ssr-dev-ssr (1.9 kB)
 ```
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+_Note_: The API is public and can be invoked by anyone.
 
 ### Invocation
 
 After successful deployment, you can call the created application via HTTP:
 
 ```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
+curl https://rn73qvj4lf.execute-api.us-east-1.amazonaws.com/\?certImageUrl=https%3A%2F%2Ftca-dev.topcoder-dev.com%2Fcertificate%2Fjcori%2Fdata-analysis-with-python.jpg&certImage=Topcoder%20Academy%20Certificate%20for%20Data%20Analysis%20with%20Python%20for%20jcori
 ```
 
 Which should result in response similar to the following (removed `input` content for brevity):
 
-```json
-{
-  "message": "Go Serverless v2.0! Your function executed successfully!",
-  "input": {
-    ...
-  }
-}
+```html
+<html><head>    <title>Topcoder Academy Certificate</title>    <meta property='og:image' content='https://tca-dev.topcoder-dev.com/certificate/jcori/data-analysis-with-python.jpg' />    <style>        body {            display: flex;            justify-content: center;            height: 95%;            background: linear-gradient(84.45deg, #05456d 2.12%, #0a7ac0 97.43%);        }        div {            display: flex;            flex-direction: column;            justify-content: center;        }    </style></head><body>    <div>        <img src='https://tca-dev.topcoder-dev.com/certificate/jcori/data-analysis-with-python.jpg' />    </div></body></html>
 ```
 
 ### Local development
 
-You can invoke your function locally by using the following command:
+It is possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. 
 
 ```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
-{
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
-}
-```
-
-
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
-
-```bash
-serverless plugin install -n serverless-offline
-```
-
-It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
-
-After installation, you can start local emulation with:
-
-```
-serverless offline
+sls offline
 ```
 
 To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).

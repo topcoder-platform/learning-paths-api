@@ -10,12 +10,12 @@ export async function index(event) {
     try {
 
         // get the URL and title for the image
-        let { certImageUrl, certTitle } = event?.queryStringParameters
-        certImageUrl = await getCertImageUrl(certImageUrl)
+        const { certImageUrl, certTitle } = event?.queryStringParameters
+        const safCertImageUrl = await getCertImageUrl(certImageUrl)
 
         // insert the image and title into the template
         const html = ssrTemplate
-            .replace(/\${certImageUrl}/g, certImageUrl)
+            .replace(/\${certImageUrl}/g, safCertImageUrl)
             .replace(/\${certTitle}/g, certTitle || 'Topcoder Academy Certificate')
 
         const response = {
@@ -32,6 +32,7 @@ export async function index(event) {
 
         // log the error and return it
         console.error(error)
+        // TODO: TCA-454 return formatted 404 page
         return {
             body: `${error}`,
             statusCode: 404,

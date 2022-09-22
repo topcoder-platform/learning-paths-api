@@ -10,11 +10,12 @@ export async function index(event) {
     try {
 
         // get the URL and title for the image
-        const { certImageUrl, certTitle } = event?.queryStringParameters
+        let { certImageUrl, certTitle } = event?.queryStringParameters
+        certImageUrl = await getCertImageUrl(certImageUrl)
 
         // insert the image and title into the template
         const html = ssrTemplate
-            .replace(/\${certImageUrl}/g, getCertImageUrl(certImageUrl))
+            .replace(/\${certImageUrl}/g, certImageUrl)
             .replace(/\${certTitle}/g, certTitle || 'Topcoder Academy Certificate')
 
         const response = {

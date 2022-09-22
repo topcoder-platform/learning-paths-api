@@ -28,7 +28,7 @@ Stack name: TCA-Certificate-Generator-myStage
 Image Store Domain: topcoder-dev.com
 ```
 
-<b>There are also a couple checks in the script that you can silence by adding a 2nd argument of `Y`.<b>
+<b>There are also a couple checks in the script that you can silence by adding a 2nd argument of `Y`.</b>
 
 ```
 % npm run cert-gen:deploy-stack myStage Y

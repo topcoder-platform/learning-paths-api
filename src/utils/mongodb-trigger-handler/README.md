@@ -10,6 +10,8 @@ This utility handles events created by the freeCodeCamp Atlas MongoDB. Specifica
 
 The trigger is configured in the Atlas MongoDB web console, as described in their [documentation](https://www.mongodb.com/docs/atlas/triggers/). The trigger sends events to a custom AWS EventBridge event bus as described [here](https://www.mongodb.com/docs/atlas/triggers/eventbridge/) using MongoDB as a "partner event source."
 
+The `update` trigger sends data about the fields that were updated in the event. We need to include information that identifies both the user and the lesson that was updated, so we set up the trigger to send the full document and use a `project expression` to filter the data down to just what we need to perform the update in DynamoDB, as shown in the [mongo_trigger_project_expr.json](./mongo_trigger_project_expr.json) file. We have to do this because there is a 256KB limit on the event size sent to AWS via an event bus, and the freeCodeCamp MongoDB document can get quite large as a user completes more and more courses. This `project expression` is set in the MongoDB trigger web console.
+
 ## AWS Configuration 
 
 The custom EventBridge event bus was manually configured. A [Serverless.com](https://www.serverless.com/framework/docs) Infrastructure as Code (IaC) template is used to manage the deployment of the EventBridge rule and Lambda function that it triggers. The Lambda function makes the API call to the Learning Paths API to update the lesson completion information.

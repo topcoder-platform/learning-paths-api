@@ -9,10 +9,10 @@
     },
     "author": "Brooke Souza",
     "license": "ISC",
-    "type": "module",
+    "type": "commonjs",
     "dependencies": {
         "fs": "^0.0.1-security",
-        "url-exist": "^3.0.1"
+        "url-exists": "^1.0.3"
     },
     "devDependencies": {
         "serverless-offline": "^10.1.0"

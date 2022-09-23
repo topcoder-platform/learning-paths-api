@@ -1,7 +1,7 @@
 const chromium = require('@sparticuz/chrome-aws-lambda')
 const AWS = require('aws-sdk')
 
-exports.handler = async (event) => {
+exports.index = async (event) => {
 
     if (!event?.Records?.[0].body) {
         const errorMessage = `The event must have a body.`

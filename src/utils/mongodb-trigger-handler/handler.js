@@ -5,7 +5,7 @@ const config = require('config');
 const helper = require('./helper');
 
 module.exports.handle = async (event) => {
-  // console.log("event", JSON.stringify(event, null, 2));
+  console.log("event", JSON.stringify(event, null, 2));
 
   const userId = event.detail.fullDocument.externalId.split("|")[1];
   const updatedFields = event.detail.updateDescription.updatedFields;

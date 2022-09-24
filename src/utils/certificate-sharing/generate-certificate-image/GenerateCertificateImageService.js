@@ -35,16 +35,18 @@ const {
  * Wraps an Async function, generateCertificateImageAsync, with a non-async function
  * so that the inner function happens in the background
  * 
- * @param {String} certification The name of the certification for which we are generating an image
  * @param {string} handle The handle of the user who completed the course
+ * @param {String} certification The name of the certification for which we are generating an image
+ * @param {string} provider The provider of the certificateion
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
  * @returns {void}
  */
 function generateCertificateImage(
-    certification,
     handle,
+    certification,
+    provider,
     certificateUrl,
     certificateElement,
     progress,
@@ -55,8 +57,9 @@ function generateCertificateImage(
     // If any errors occur, those will be treated as unhandled errors that are okay bc they
     // occur in the background but will still be logged normally.
     generateCertificateImageAsync(
-        certification,
         handle,
+        certification,
+        provider,
         certificateUrl,
         certificateElement,
     )
@@ -72,31 +75,34 @@ function generateCertificateImage(
 /**
  * Generates a certificate image asynchronously
  * 
- * @param {String} certificationName The name of the certification for which we are generating an image
  * @param {string} handle The handle of the user who completed the course
+ * @param {String} certificationName The name of the certification for which we are generating an image
+ * @param {string} provider The provider of the certificateion
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
  * @returns {Promise<String>} The URL at which the new image can be found
  */
 async function generateCertificateImageAsync(
-    certificationName,
     handle,
+    certificationName,
+    provider,
     certificateUrl,
     certificateElement,
 ) {
 
     // if we don't have all our info, we can't generate an image, so throw an error
-    if (!certificateUrl || !handle || !certificationName) {
-        throw new Error(`One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  certificationName: ${certificationName}`)
+    if (!certificateUrl || !handle || !certificationName || !provider) {
+        const err = `One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  provider: (${provider})  certificationName: (${certificationName})`
+        console.error(err)
+        throw new Error(err)
     }
 
     // construct the FQDN and file path of the location where the image will be created
-    const imageUrl = imageHelper.getCertImageUrl(handle, certificationName)
-
+    const imageUrl = imageHelper.getCertImageUrl(handle, provider, certificationName)
     const messageBody = {
         bucket,
-        filePath: imageHelper.getCertImagePath(handle, certificationName),
+        filePath: imageHelper.getCertImagePath(handle, provider, certificationName),
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }

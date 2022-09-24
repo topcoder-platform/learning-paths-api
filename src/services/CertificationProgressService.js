@@ -224,7 +224,14 @@ async function completeCertification(
     if (!!certificateUrl) {
 
         console.log(`Generating certificate image for ${userId} for ${certification}`)
-        imageGenerator.generateCertificateImage(certification, currentUser.nickname, certificateUrl, certificateElement, progress)
+        imageGenerator.generateCertificateImage(
+            currentUser.nickname,
+            certification,
+            provider,
+            certificateUrl,
+            certificateElement,
+            progress
+        )
 
     } else {
         console.log(`Certificate Image for ${userId} for ${certification} NOT being generated bc no cert URL was provided.`)

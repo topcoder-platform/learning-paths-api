@@ -4,12 +4,12 @@ function getCertImageBaseUrl() {
     return imageBaseUrl
 }
 
-function getCertImagePath(handle, certification) {
-    return `certificate/${handle}/${certification}.jpg`
+function getCertImagePath(handle, provider, certification) {
+    return `certificate/${handle}/${provider}/${certification}.jpg`
 }
 
-function getCertImageUrl(handle, certification) {
-    const imageUrl = `${getCertImageBaseUrl()}/${getCertImagePath(handle, certification)}`
+function getCertImageUrl(handle, provider, certification) {
+    const imageUrl = `${getCertImageBaseUrl()}/${getCertImagePath(handle, provider, certification)}`
     validateImageUrl(imageUrl)
     return imageUrl
 }

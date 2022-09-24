@@ -12,8 +12,8 @@ exports.index = (event, context, callback) => {
     try {
 
         // get the URL and title for the image
-        const { handle, certification, title } = event?.pathParameters
-        const certImageUrl = helper.getCertImageUrl(handle, certification)
+        const { handle, certification, provider, title } = event?.pathParameters
+        const certImageUrl = helper.getCertImageUrl(handle, provider, certification)
 
         // handle the request for the cert based on if its image actually exists
         urlExists(certImageUrl, handleCertRequest(certImageUrl, title, callback))

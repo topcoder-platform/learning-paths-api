@@ -11,7 +11,7 @@ const logger = require('../common/logger')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const { performance } = require('perf_hooks');
-const imageGenerator = require('../utils/certificate-image-generator/GenerateCertificateImageService')
+const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
 const courseService = require('./CourseService');
 
 const STATUS_COMPLETED = "completed";

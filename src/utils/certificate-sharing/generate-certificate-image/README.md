@@ -2,26 +2,15 @@
 
 This utility creates an image of each certficate as it's earned so that the image can be used in SSR meta tags.
 
-- [Sequence Diagram](#sequence-diagram)
 - [Deploying the Stack](#deploying-the-stack)
 - [Configuring Queue](#configuring-queue)
 - [Deployment](#deployment)
-
-## Sequence Diagram
-
-The primary use case for hosting images of TCA certificates is for sharing them on social media.
-
-The sequence diagram below explains both the process of creating images and the process for sharing the certificates themselves on social media.
-
-![TCA Certificate Social Sharing ](docs/TCASocialSharing.png?raw=true "TCA Certificate Social Sharing")
-
->**NOTE:** This diagram was generated using [https://sequencediagram.org](https://sequencediagram.org) with the source located at `./docs/TCASocialSharing.txt`.
 
 ## Deploying the stack
 
 The yaml located at `./certificate-image-generator.yml` is the CloudFormation resources configuration and includes all the requirements for creating the stack for the Image Generator on AWS.
 
-There is a helper bash script at `./deploy-stack.sh` that will generate the `aws cloudformation` command for the stage specified. It will also [re-deploy any serverless functions](#deploy-changes-to-generator).
+There is a helper bash script at `./generate-certificate-image-deploy.sh` that will generate the `aws cloudformation` command for the stage specified. It will also [re-deploy any serverless functions](#deploy-changes-to-generator).
 
 The script requires a stage argument that will be added as a suffix to the Stack and dependent service names.
 
@@ -31,15 +20,15 @@ There is also a helper package script called `cert-gen:deploy-stack` to make it 
 % npm run cert-gen:deploy-stack myStage
 
 > topcoder-learning-paths-api@1.0.0 cert-gen:deploy-stack
-> sh src/utils/certificate-image-generator/deploy-stack.sh "myStage"
+> sh src/utils/certificate-sharing/generate-certificate-image-deploy.sh "myStage"
 
-Template: certificate-image-generator-stack.yml
+Template: certificate-image-generator.yml
 Stage: myStage
 Stack name: TCA-Certificate-Generator-myStage
 Image Store Domain: topcoder-dev.com
 ```
 
-<b>There are also a couple checks in the script that you can silence by adding a 2nd argument of `Y`.<b>
+<b>There are also a couple checks in the script that you can silence by adding a 2nd argument of `Y`.</b>
 
 ```
 % npm run cert-gen:deploy-stack myStage Y

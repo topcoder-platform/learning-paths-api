@@ -2,7 +2,7 @@
 
 # load in the environment variables
 set -a
-. ../../../.env
+. ../../../../.env
 set +a
 
 # validate the environment variables
@@ -30,7 +30,7 @@ fi
 
 # get the stack and queue names
 stackName=TCA-Certificate-Generator-$stage
-template=certificate-image-generator-stack.yml
+template=certificate-image-generator.yml
 echo "Template: $template"
 echo "Stage: $stage"
 echo "Stack name: $stackName"
@@ -68,11 +68,7 @@ aws cloudformation package \
     --output-template-file $deployYml
 
 # Package the lambda code
-cd ./generate-certificate-image
-zip -r $deployZip index.js
-cp $deployZip ../
-rm $deployZip
-cd ../
+zip -r $deployZip handler.js
 
 # Deploy the lambda changes
 aws lambda update-function-code \

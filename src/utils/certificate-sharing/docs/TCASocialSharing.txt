@@ -43,8 +43,8 @@ group #lightblue Social Sharing
 
 
 web->serve:<color:#darkblue>SSR URL</color>
-serve->s3:<color:#darkblue>Verify Image URL</color>
-s3->serve:<color:#darkblue>Success</color>
+serve->cdn:<color:#darkblue>Verify Image URL</color>
+cdn->serve:<color:#darkblue>Success</color>
 serve->web:<color:#darkblue>SSR HTML</color>
 web->cdn:<color:#darkblue>og:image URL</color>
 

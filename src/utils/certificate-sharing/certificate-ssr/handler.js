@@ -69,7 +69,7 @@ function handleCertRequest(certImageUrl, certTitle, callback) {
 }
 
 /**
- * Verifies the cert image actually exists then wraps it in SSR html
+ * Handles errors
  * 
  * @param {Function} callback The Callback to use to return the async vals
  * @param {String} message The Error Message

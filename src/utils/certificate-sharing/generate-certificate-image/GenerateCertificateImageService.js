@@ -1,5 +1,6 @@
-const helper = require('../../common/helper')
-const queueHelper = require('../../common/queue-helper')
+const helper = require('../../../common/helper')
+const imageHelper = require('../certificate-ssr/cert-image-url-helper')
+const queueHelper = require('../../../common/queue-helper')
 
 // Initialize the environment params on startup
 function initializeEnvironmentParams() {
@@ -16,12 +17,9 @@ function initializeEnvironmentParams() {
         throw new Error(`The ${missingParam} is not defined for the environment.`)
     }
 
-    const imageBaseUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}`
-    validateImageUrl(imageBaseUrl)
-
     return {
         bucket: process.env.CERT_BUCKET,
-        imageBaseUrl,
+        imageBaseUrl: imageHelper.getCertImageBaseUrl(),
         queue: process.env.CERT_IMAGE_QUEUE,
     }
 }
@@ -94,13 +92,11 @@ async function generateCertificateImageAsync(
     }
 
     // construct the FQDN and file path of the location where the image will be created
-    const imagePath = `certificate/${handle}/${certificationName}.jpg`
-    const imageUrl = `${imageBaseUrl}/${imagePath}`
-    validateImageUrl(imageUrl)
+    const imageUrl = imageHelper.getCertImageUrl(handle, certificationName)
 
     const messageBody = {
         bucket,
-        filePath: imagePath,
+        filePath: imageHelper.getCertImagePath(handle, certificationName),
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }
@@ -113,12 +109,6 @@ async function generateCertificateImageAsync(
     )
 
     return imageUrl
-}
-
-function validateImageUrl(url) {
-    if (!helper.isValidUrl(url)) {
-        throw new Error(`Image URL (${url}) is not a valid URL.`)
-    }
 }
 
 module.exports = {

@@ -48,7 +48,7 @@ Which should result in response similar to the following (removed `input` conten
 <html><head>    <title>Topcoder Academy Certificate</title>    <meta property='og:image' content='https://tca-dev.topcoder-dev.com/certificate/jcori/data-analysis-with-python.jpg' />    <style>        body {            display: flex;            justify-content: center;            height: 95%;            background: linear-gradient(84.45deg, #05456d 2.12%, #0a7ac0 97.43%);        }        div {            display: flex;            flex-direction: column;            justify-content: center;        }    </style></head><body>    <div>        <img src='https://tca-dev.topcoder-dev.com/certificate/jcori/data-analysis-with-python.jpg' />    </div></body></html>
 ```
 
-You can also visit the URL directly: https://rn73qvj4lf.execute-api.us-east-1.amazonaws.com/?certImageUrl=https%3A%2F%2Ftca-dev.topcoder-dev.com%2Fcertificate%2Fjcori%2Fdata-analysis-with-python.jpg&certImage=Topcoder%20Academy%20Certificate%20for%20Data%20Analysis%20with%20Python%20for%20jcori.
+You can also visit the URL directly: https://rn73qvj4lf.execute-api.us-east-1.amazonaws.com/jcori/data-analysis-with-python/Topcoder%20Academy%20Certificate%20for%20Data%20Analysis%20with%20Python%20for%20jcori.
 
 ### Local development
 

@@ -134,7 +134,7 @@ Resources:
                         pass
             Description: Creates an image with a screenshot of a user's certificate
             FunctionName: !Sub 'tca-certificate-generator-lambda-generate-image-${Stage}'
-            Handler: index.handler
+            Handler: handler.index
             Layers: 
                 - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:31
             MemorySize: 1600

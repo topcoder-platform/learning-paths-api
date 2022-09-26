@@ -77,7 +77,7 @@ function generateCertificateImage(
  * 
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certificationName The name of the certification for which we are generating an image
- * @param {string} provider The provider of the certificateion
+ * @param {string} provider The provider of the certification
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image

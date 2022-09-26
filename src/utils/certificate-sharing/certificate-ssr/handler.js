@@ -19,13 +19,7 @@ exports.index = (event, context, callback) => {
         urlExists(certImageUrl, handleCertRequest(certImageUrl, title, callback))
 
     } catch (error) {
-
-        // log the error and return it
-        console.error(error)
-        callback(error, {
-            body: `${error}`,
-            statusCode: 404,
-        })
+        handleError(callback, error)
     }
 }
 
@@ -43,16 +37,18 @@ function handleCertRequest(certImageUrl, certTitle, callback) {
         // if we got an error, we have a prob
         if (!!err) {
             console.error(`Checking existence of ${certImageUrl} caused ${err}`)
-            callback(err)
+            handleError(callback, err)
+            return
         }
 
         // verify the image exists
-        const existsMessage = `${certImageUrl} does${certificateExists ? '' : ' NOT'} exist`
         if (!certificateExists) {
-            callback(existsMessage)
+            handleError(callback, `This certificate cannot be found.`, true)
+            return
         }
 
         // the cert image actually exists, so insert the image and title into the template
+        const existsMessage = `${certImageUrl} does${certificateExists ? '' : ' NOT'} exist`
         console.info(existsMessage)
 
         const html = ssrTemplate
@@ -70,4 +66,24 @@ function handleCertRequest(certImageUrl, certTitle, callback) {
 
         callback(undefined, response)
     }
+}
+
+/**
+ * Handles errors
+ * 
+ * @param {Function} callback The Callback to use to return the async vals
+ * @param {String} message The Error Message
+ * @param {Boolean} suppressError The flag to indicate if the error should
+ * suppressed from bubbling up or not
+ */
+function handleError(callback, message, suppressError) {
+
+    // log the error
+    console.error(message)
+
+    // return the error w/a 404, regardless of the type of error
+    callback(suppressError ? undefined : message, {
+        body: `${message}`,
+        statusCode: 404,
+    })
 }

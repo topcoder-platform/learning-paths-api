@@ -685,16 +685,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{CERTIFICATE_SSR_URL}}/?certImageUrl={{CERTIFICATE_IMAGE_URL}}&certTitle={{CERTIFICATE_TITLE}}",
-					"protocol": "https",
-					"host": [
-						"rn73qvj4lf",
-						"execute-api",
-						"us-east-1",
-						"amazonaws",
-						"com"
-					],
-					"path": []
+					"raw": "{{CERTIFICATE_SSR_URL}}/{{HANDLE}}/{{PROVIDER}}/{{CERTIFICATION}}/{{CERTIFICATE_TITLE}}"
 				}
 			},
 			"response": []

@@ -10,7 +10,7 @@ functions:
     handler: handler.index
     events:
       - httpApi:
-          path: /{handle}/{certification}/{title}
+          path: /{handle}/{provider}/{certification}/{title}
           method: get
     # TODO: TCA-482 use the .env in the main app
     # rather than an env.json specifically for this 

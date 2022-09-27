@@ -14,7 +14,8 @@
         "state": "active",
         "category": "Web Development",
         "trackType": "DEV",
-        "certType": "certification"
+        "certType": "certification",
+        "publishedAt": 1664300327651
     },
     {
         "id": "9bd93a8a-1fcb-405a-b2e3-4a283915bbcd",

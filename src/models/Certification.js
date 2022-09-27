@@ -58,6 +58,11 @@ const schema = new Schema({
         enum: ['certification', 'course-completion'],
         default: 'certification',
         required: true
+    },
+    publishedAt: {
+        type: Date,
+        default: Date.now(),
+        required: false
     }
 }, {
     timestamps: true,

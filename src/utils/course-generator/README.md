@@ -122,7 +122,8 @@ The provider `certifications.json` file follows a specific format for all provid
     ],
     "state": "active",
     "category": "Web Development",
-    "certType": "certification"
+    "certType": "certification",
+    "publishedAt": "2022-09-26T14:00:00Z"
   },
   ...
 ]
@@ -139,6 +140,7 @@ A description of this file format:
 - `state` : the state of this certification in Topcoder's learning paths, currently either `active` or `coming-soon`. Only certifications in the `active` state will be generated to the metadata file by this tool.
 - `category` : the Topcoder learning path category for this certification (valid values still TBD)
 - `certType` : the Topcoder classification of whether the certificate earned is a certification, or a certificate of course completion (since some courses don't result in an "actual" certification)
+- `publishedAt` : the Topcoder date of 'publishing' the course, to allow us to sort by the "newest" courses (most recently published) in the web client. NOTE: this value is added to the `certifications.json` file in a human-friendly format (that still must be a valid JS date string) and converted to a Unix timestamp before being saved to DynamoDB. Dynamoose automatically converts timestamps to JS dates when returning data.
 
 Data from the provider's source files has to be collected and added manually to the `certifications.json` file. Some data, for example in the case of freeCodeCamp, is located in JavaScript source files, such as `config/certification-settings.ts`.
 

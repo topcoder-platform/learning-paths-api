@@ -222,7 +222,6 @@ function convertCertAttrDatesToTimestamps(certData) {
     const model = models['Certification'];
     const schemaObject = model.schemas['0'].schemaObject;
 
-    const regex = new RegExp('/At$/');
     const dateKeys = Object.keys(schemaObject);
     dateFields = dateKeys.filter(key => key.endsWith('At'))
 

@@ -23,7 +23,7 @@ The following source files from the FCC repo need to be copied to `/src/utils/co
 - `/config/curriculum.json`
 - `/client/i18n/locales/english/intro.json`
 
-## 3. Peform Data Customizations
+## 3. Perform Data Customizations
 
 The following lists Topcoder-specific customizations to the course data that will need to occur each time the curriculum is updated.
 

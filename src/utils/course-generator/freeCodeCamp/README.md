@@ -1,6 +1,8 @@
 # Update FCC Curriculum
 
-This README explains how to update the FCC courses from the source FCC repo.
+This README explains how to update the _existing_ FCC courses from the source FCC repo.
+
+To add a new course, see the [`How to add a new certification or course to an existing provider`](/src/utils/course-generator/README.md#how-to-add-a-new-certification-or-course-to-an-existing-provider) section of the main README.
 
 ## 1. Generate Source Curriculum in FCC App
 

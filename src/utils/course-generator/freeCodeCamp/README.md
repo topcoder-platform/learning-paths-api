@@ -27,7 +27,7 @@ The following source files from the FCC repo need to be copied to `/src/utils/co
 
 The following lists Topcoder-specific customizations to the course data that will need to occur each time the curriculum is updated.
 
-1. Remove the "(New)" prefix in the name of the `2022/responsive-web-design-qa` course in the `intro.json` file
+1. Remove the "(New)" prefix in the name of the `2022/responsive-web-design` course in the `intro.json` file
 
 2. TBD
 

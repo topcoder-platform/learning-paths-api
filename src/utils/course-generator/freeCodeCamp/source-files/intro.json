@@ -1,10 +1,77 @@
 {
-  "2022/responsive-web-design": {
-    "title": "Responsive Web Design",
+  "responsive-web-design": {
+    "title": "Legacy Responsive Web Design",
     "intro": [
       "In this Responsive Web Design Certification, you'll learn the languages that developers use to build webpages: HTML (Hypertext Markup Language) for content, and CSS (Cascading Style Sheets) for design.",
       "First, you'll build a cat photo app to learn the basics of HTML and CSS. Later, you'll learn modern techniques like CSS variables by building a penguin, and best practices for accessibility by building a web form.",
       "Finally, you'll learn how to make webpages that respond to different screen sizes by building a Twitter card with Flexbox, and a complex blog layout with CSS Grid."
+    ],
+    "note": "Note: Some browser extensions, such as ad-blockers and dark mode extensions can interfere with the tests. If you face issues, we recommend disabling extensions that modify the content or layout of pages, while taking the course.",
+    "blocks": {
+      "basic-html-and-html5": {
+        "title": "Basic HTML and HTML5",
+        "intro": [
+          "HTML is a markup language that uses a special syntax or notation to describe the structure of a webpage to the browser. HTML elements usually have opening and closing tags that surround and give meaning to content. For example, different elements can describe text as a heading, paragraph, or list item.",
+          "In this course, you'll build a cat photo app to learn some of the most common HTML elements — the building blocks of any webpage."
+        ]
+      },
+      "basic-css": {
+        "title": "Basic CSS",
+        "intro": [
+          "CSS, or Cascading Style Sheets, tell the browser how to display the text and other content that you write in HTML. With CSS, you can control the color, font, size, spacing, and many other aspects of HTML elements.",
+          "Now that you've described the structure of your cat photo app, give it some style with CSS."
+        ]
+      },
+      "applied-visual-design": {
+        "title": "Applied Visual Design",
+        "intro": [
+          "Visual design is a combination of typography, color theory, graphics, animation, page layout, and more to help deliver your unique message.",
+          "In this course, you'll learn how to apply these different elements of visual design to your webpages."
+        ]
+      },
+      "applied-accessibility": {
+        "title": "Applied Accessibility",
+        "intro": [
+          "In web development, accessibility refers to web content and a UI (user interface) that can be understood, navigated, and interacted with by a broad audience. This includes people with visual, auditory, mobility, or cognitive disabilities.",
+          "In this course, you'll learn best practices for building webpages that are accessible to everyone."
+        ]
+      },
+      "responsive-web-design-principles": {
+        "title": "Responsive Web Design Principles",
+        "intro": [
+          "There are many devices that can access the web, and they come in all shapes and sizes. Responsive web design is the practice of designing flexible websites that can respond to different screen sizes, orientations, and resolutions.",
+          "In this course, you'll learn how to use CSS to make your webpages look good, no matter what device they're viewed on."
+        ]
+      },
+      "css-flexbox": {
+        "title": "CSS Flexbox",
+        "intro": [
+          "Flexbox is a powerful, well-supported layout method that was introduced with the latest version of CSS, CSS3. With flexbox, it's easy to center elements on the page and create dynamic user interfaces that shrink and expand automatically.",
+          "In this course, you'll learn the fundamentals of flexbox and dynamic layouts by building a Twitter card."
+        ]
+      },
+      "css-grid": {
+        "title": "CSS Grid",
+        "intro": [
+          "The CSS grid is a newer standard that makes it easy to build complex responsive layouts. It works by turning an HTML element into a grid, and lets you place child elements anywhere within.",
+          "In this course, you'll learn the fundamentals of CSS grid by building different complex layouts, including a blog."
+        ]
+      },
+      "responsive-web-design-projects": {
+        "title": "Responsive Web Design Projects",
+        "intro": [
+          "Time to put your newly learnt skills to work. By working on these projects, you will get a chance to apply all of the skills, principles, and concepts you have learned so far: HTML, CSS, Visual Design, Accessibility, and more.",
+          "Complete the five web programming projects below to earn your Responsive Web Design certification."
+        ]
+      }
+    }
+  },
+  "2022/responsive-web-design": {
+    "title": "Responsive Web Design",
+    "intro": [
+      "In this Responsive Web Design Certification, you'll learn the languages that developers use to build webpages: HTML (Hypertext Markup Language) for content, and CSS (Cascading Style Sheets) for design.",
+      "First, you'll build a cat photo app to learn the basics of HTML and CSS. Later, you'll learn modern techniques like CSS variables by building a penguin, and best practices for accessibility by building a quiz site.",
+      "Finally, you'll learn how to make webpages that respond to different screen sizes by building a photo gallery with Flexbox, and a magazine article layout with CSS Grid."
     ],
     "note": "Note: Some browser extensions, such as ad-blockers and dark mode extensions can interfere with the tests. If you face issues, we recommend disabling extensions that modify the content or layout of pages, while taking the course.",
     "blocks": {
@@ -264,6 +331,72 @@
       }
     }
   },
+  "2022/javascript-algorithms-and-data-structures": {
+    "title": "JavaScript Algorithms and Data Structures (Beta)",
+    "intro": [
+      "placeholder",
+      "placeholder"
+    ],
+    "note": "",
+    "blocks": {
+      "build-a-caesars-cipher-project": {
+        "title": "Build a Caesars Cipher Project",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "build-a-cash-register-project": {
+        "title": "Build a Cash Register Project",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "build-a-palindrome-checker-project": {
+        "title": "Build a Palindrome Checker Project",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "build-a-roman-numeral-converter-project": {
+        "title": "Build a Roman Numeral Converter Project",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "build-a-telephone-number-validator-project": {
+        "title": "Build a Telephone Number Validator Project",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "learn-basic-javascript-by-building-a-role-playing-game": {
+        "title": "Learn Basic JavaScript by Building a Role Playing Game",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "learn-form-validation-by-building-a-calorie-counter": {
+        "title": "Learn Form Validation by Building a Calorie Counter",
+        "intro": [
+          "",
+          ""
+        ]
+      },
+      "learn-functional-programming-by-building-a-spreadsheet": {
+        "title": "Learn Functional Programming by Building a Spreadsheet",
+        "intro": [
+          "",
+          ""
+        ]
+      }
+    }
+  },
   "front-end-development-libraries": {
     "title": "Front End Development Libraries",
     "intro": [
@@ -505,8 +638,8 @@
       "mongodb-and-mongoose": {
         "title": "MongoDB and Mongoose",
         "intro": [
-          "MongoDB is a database application that stores JSON documents (or records) that you can use in your application. Unlike SQL, another type of database, Mongo is a non-relational or \"NoSQL\" database. This means Mongo stores all associated data within one record, instead of storing it across many preset tables as in a SQL database.",
-          "Mongoose is a popular npm package that is often installed alongside Mongo. With Mongoose, you can use plain JavaScript objects instead of JSON, which makes it easier to work with Mongo. Also, it allows you to create blueprints for your documents called schemas, so you don't accidentally save the wrong type of data and cause bugs later.",
+          "MongoDB is a database application that stores JSON documents (or records) that you can use in your application. Unlike SQL, another type of database, MongoDB is a non-relational or \"NoSQL\" database. This means MongoDB stores all associated data within one record, instead of storing it across many preset tables as in a SQL database.",
+          "Mongoose is a popular npm package for interacting with MongoDB. With Mongoose, you can use plain JavaScript objects instead of JSON, which makes it easier to work with MongoDB. Also, it allows you to create blueprints for your documents called schemas, so you don't accidentally save the wrong type of data and cause bugs later.",
           "In the MongoDB and Mongoose courses, you'll learn the fundamentals of working with persistent data including how to set up a model, and save, delete, and find documents in the database."
         ]
       },
@@ -703,7 +836,8 @@
         "title": "Rosetta Code",
         "intro": [
           "Level up your creative problem solving skills with these free programming tasks from the classic Rosetta Code library.",
-          "These challenges can prove to be difficult, but they will push your algorithm logic to new heights."
+          "These challenges can prove to be difficult, but they will push your algorithm logic to new heights.",
+          "<a href='https://rosettacode.org/wiki/Rosetta_Code' target='_blank' rel='noopener noreferrer nofollow'>Attribute: Rosetta Code</a>"
         ]
       },
       "project-euler": {

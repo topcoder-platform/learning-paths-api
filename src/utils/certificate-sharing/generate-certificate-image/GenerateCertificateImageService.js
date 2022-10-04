@@ -1,3 +1,5 @@
+const urlExists = require('url-exists')
+
 const helper = require('../../../common/helper')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
 const queueHelper = require('../../../common/queue-helper')
@@ -14,6 +16,7 @@ function initializeEnvironmentParams() {
         .find(param => !process?.env?.[param])
 
     if (!!missingParam) {
+        console.error(process.env)
         throw new Error(`The ${missingParam} is not defined for the environment.`)
     }
 
@@ -25,9 +28,40 @@ function initializeEnvironmentParams() {
 }
 const {
     bucket,
-    imageBaseUrl,
     queue,
 } = initializeEnvironmentParams()
+
+/**
+ * Generates All the Certifications that don't exist
+ */
+async function generateAllMissingAsync() {
+
+    const certificationProgresses = await helper.scanAll('CertificationProgress')
+    console.log(`Found ${certificationProgresses.length} progress records.`)
+
+    // filter data to only completed courses
+    const completedCertifications = certificationProgresses
+        .filter(certProgress => certProgress.status === 'completed')
+    console.log(`Found ${completedCertifications.length} completed progress records.`)
+
+    // get the list of completed courses that never had an image generated
+    const newImages = completedCertifications
+        .filter(certProgress => !certProgress.certificationImageUrl)
+    console.log(`Found ${newImages.length} completed courses that never had an image generated.`)
+
+    // get the list of completed courses that did have an image created
+    // but that image doesn't exist
+    const missingImages = []
+    completedCertifications
+        .filter(certProgress => !!certProgress.certificationImageUrl)
+        .forEach(async (certProgress) => {
+            urlExists(certProgress.certificationImageUrl)
+            handleImageUrlExistsRequestAsync(certProgress, certImageExistsCallback)
+        })
+
+    console.log('new', newImages)
+    console.log('missing', missingImages)
+}
 
 /**
  * Generates a certificate image in a background thread
@@ -117,6 +151,28 @@ async function generateCertificateImageAsync(
     return imageUrl
 }
 
+async function handleImageUrlExistsRequestAsync(certProgress, missingCertImageProgress) {
+
+    return (err, certificateExists) => {
+
+        // if we got an error, we have a prob
+        if (!!err) {
+            console.error(`Checking existence of ${certProgress.certificationImageUrl} caused ${err}`)
+            return
+        }
+
+        // if the image exists, don't do anything
+        if (certificateExists) {
+            console.log(`${certProgress.certificationImageUrl} exists. Moving on.`)
+            return
+        }
+
+        console.log(`${certProgress.certificationImageUrl} does NOT exist. Adding to the missing images list.`)
+        missingImages.push(missingCertImageProgress)
+    }
+}
+
 module.exports = {
+    generateAllMissingAsync,
     generateCertificateImage,
 }

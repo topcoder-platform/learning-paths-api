@@ -6,6 +6,8 @@ const _ = require('lodash')
 const Joi = require('joi')
 const helper = require('../common/helper')
 
+const ACTIVE_STATES = ['active', 'coming-soon'];
+
 /**
  * Search Certifications
  * 
@@ -23,7 +25,18 @@ async function searchCertifications(criteria) {
     if (criteria.providerName) {
         records = _.filter(
             records,
-            e => helper.fullyMatch(criteria.providerName, e.providerName))
+            e => helper.fullyMatch(criteria.providerName, e.providerName)
+        )
+    }
+
+    if (criteria.state) {
+        // implement filtering by state
+    } else {
+        // Only return certifications that are in one of active states
+        records = _.filter(
+            records,
+            e => ACTIVE_STATES.includes(e.state)
+        )
     }
 
     const total = records.length

@@ -76,7 +76,9 @@
             "keyPoints": [
                 "Coding Interview Prep has a great catalog of varying exercises for you to practice for your next interview. These can also help hone your overall algorithm, data structure, and mathematics skills, necessary in any sort of development-related work. Stay tuned for more interview prep materials in the future."
             ],
-            "completionSuggestions": []
+            "completionSuggestions": [
+                "Note: Some of the projects in this course require you to deploy a web application to a publicly-accessible URL. We recommend you use Codepen.io or Replit.com to complete these projects. The “Solution Link” you need to submit for your “live app” at the end of the lesson will be the Codepen or Replit URL for your project. Good luck!"
+            ]
         },
         "relational-database": {
             "keyPoints": [

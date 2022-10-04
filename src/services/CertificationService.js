@@ -30,7 +30,7 @@ async function searchCertifications(criteria) {
     }
 
     if (criteria.state) {
-        // implement filtering by state
+        // TODO: implement filtering by state
     } else {
         // Only return certifications that are in one of active states
         records = _.filter(

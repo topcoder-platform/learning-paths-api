@@ -1,8 +1,5 @@
-const urlExists = require('url-exists')
-
 const helper = require('../../../common/helper')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
-const queueHelper = require('../../../common/queue-helper')
 
 // Initialize the environment params on startup
 function initializeEnvironmentParams() {
@@ -16,7 +13,6 @@ function initializeEnvironmentParams() {
         .find(param => !process?.env?.[param])
 
     if (!!missingParam) {
-        console.error(process.env)
         throw new Error(`The ${missingParam} is not defined for the environment.`)
     }
 
@@ -72,6 +68,51 @@ function generateCertificateImage(
             })
             console.info('Successfully set progress.certificationImageUrl to', imageUrl)
         })
+}
+
+/**
+ * Generates a certificate image asynchronously
+ * 
+ * @param {string} handle The handle of the user who completed the course
+ * @param {String} certificationName The name of the certification for which we are generating an image
+ * @param {string} provider The provider of the certification
+ * @param {String} certificateUrl The URL for the certificate
+ * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
+ * should be converted to an image
+ * @returns {Promise<String>} The URL at which the new image can be found
+ */
+ async function generateCertificateImageAsync(
+    handle,
+    certificationName,
+    provider,
+    certificateUrl,
+    certificateElement,
+) {
+
+    // if we don't have all our info, we can't generate an image, so throw an error
+    if (!certificateUrl || !handle || !certificationName || !provider) {
+        const err = `One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  provider: (${provider})  certificationName: (${certificationName})`
+        console.error(err)
+        throw new Error(err)
+    }
+
+    // construct the FQDN and file path of the location where the image will be created
+    const imageUrl = imageHelper.getCertImageUrl(handle, provider, certificationName)
+    const messageBody = {
+        bucket,
+        filePath: imageHelper.getCertImagePath(handle, provider, certificationName),
+        screenshotSelector: certificateElement,
+        url: certificateUrl,
+    }
+
+    await queueHelper.sendMessageAsync(
+        queue,
+        messageBody,
+        `Creating Certificate Image: ${messageBody.filePath}`,
+        handle,
+    )
+
+    return imageUrl
 }
 
 module.exports = {

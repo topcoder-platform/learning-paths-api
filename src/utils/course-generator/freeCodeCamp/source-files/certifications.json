@@ -138,7 +138,7 @@
       "back-end-development-and-apis"
     ],
     "state": "active",
-    "category": "Backend Development",
+    "category": "Web Development",
     "trackType": "DEV",
     "certType": "certification",
     "publishedAt": "2022-09-12T12:00:00Z"
@@ -208,7 +208,7 @@
     "courses": [
       "relational-database"
     ],
-    "state": "active",
+    "state": "inactive",
     "category": "Database",
     "trackType": "DEV",
     "certType": "certification",

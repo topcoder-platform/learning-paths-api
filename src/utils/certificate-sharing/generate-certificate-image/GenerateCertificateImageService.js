@@ -81,7 +81,7 @@ function generateCertificateImage(
  * should be converted to an image
  * @returns {Promise<String>} The URL at which the new image can be found
  */
- async function generateCertificateImageAsync(
+async function generateCertificateImageAsync(
     handle,
     certificationName,
     provider,

@@ -1,8 +1,9 @@
 const urlExists = require('url-exists')
 
-const certProgressStore = require('./CertificateProgressStore')
 const imageGenerator = require('../generate-certificate-image/GenerateCertificateImageService')
 const paramHelper = require('../env-param-helper')
+
+const certProgressStore = require('./CertificateProgressStore')
 const userStore = require('./UserStore')
 
 // init the env vars on load

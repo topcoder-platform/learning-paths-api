@@ -23,8 +23,7 @@ The following environment variables are required for this tool:
 # being run
 CERT_REGENERATOR_TOKEN=$#@%@#$%@#$%#$^$#%^#$^%
 
-# The domain at which the cert images will be hosted. The deploy-stack script will
-# create a Route 53 record for this cert
+# The domain at which the cert images will be hosted.
 # WARNING: This variable is shared w/the main API
 CERT_IMAGE_DOMAIN=topcoder-dev.com
 ```

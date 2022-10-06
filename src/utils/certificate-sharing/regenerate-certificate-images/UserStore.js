@@ -50,7 +50,7 @@ async function getHandleFromId(userId, domain) {
         // if we found an error, just log it
         console.error(error)
         console.log('response content', responseJson?.result?.content)
-        console.debug('raw response', response)
+        // console.debug('raw response', response)
         return undefined
     }
 }

@@ -7,7 +7,7 @@ async function getAllCompleted() {
 
     const certificationProgresses = await dbHelper.scanAll('CertificationProgress')
 
-    console.log(`Found ${certificationProgresses.length} certificataoin progress records.`)
+    console.log(`Found ${certificationProgresses.length} certification progress records.`)
 
     const completedCertifications = certificationProgresses
         .filter(certProgress => certProgress.status === 'completed')

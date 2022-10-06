@@ -1,8 +1,8 @@
 {
-  "name": "tca-generate-certificate-image",
+  "name": "tca-regenerate-certificate-images",
   "version": "1.0.0",
-  "description": "Handles the generation of certificate images",
-  "main": "GenerateCertificateImageService.js",
+  "description": "Handles the regeneration of missing completed certificate images",
+  "main": "RegenerateCertificateImagesService.js",
   "scripts": { },
   "author": "Brooke Souza",
   "license": "ISC",

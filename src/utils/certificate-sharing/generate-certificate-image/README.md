@@ -2,11 +2,12 @@
 
 This utility creates an image of each certficate as it's earned so that the image can be used in SSR meta tags.
 
-- [Deploying the Stack](#deploying-the-stack)
-- [Configuring Queue](#configuring-queue)
-- [Deployment](#deployment)
+Instructions below pertain to creating and deploying the serverless function that performs this action.
 
-## Deploying the stack
+- [Deploying the Serverless Function](#deploying-the-serveless-function)
+- [Configuring the API](#configuring-the-api)
+
+## Deploying the Serveless Function
 
 The yaml located at `./certificate-image-generator.yml` is the CloudFormation resources configuration and includes all the requirements for creating the stack for the Image Generator on AWS.
 
@@ -49,7 +50,7 @@ CERT_IMAGE_DOMAIN=topcoder-dev.com
 Changes to the serverless functions required to create and serve images are automatically
 deployed every time the deploy-stack script is run, even if there are no other changes.
 
-## Configuring API
+## Configuring the API
 
 In order to send data to the queue, you'll need to add the following environment variables:
 

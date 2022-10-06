@@ -12,9 +12,9 @@ It is comprised of 3 different tools:
 
 1. [Certificate Image Generator](./generate-certificate-image/README.md)
 
-2. [Servie SSR Version of Image](./certificate-ssr/README.md)
+2. [SSR Certificate Image Server](./certificate-ssr/README.md)
 
-3. [Regenerate Missing Images](./regenerate-certificate-images/README.md)
+3. [Regenerate Missing Certificate Images](./regenerate-certificate-images/README.md)
 
 The sequence diagram below explains both the process of creating images and the process for sharing the certificates themselves on social media.
 

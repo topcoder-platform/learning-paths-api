@@ -16,7 +16,9 @@ const {
     ],
     [
         'bucket',
-        'queue'
+        'imageDomain',
+        'queue',
+        'imageSubdomain',
     ]
 )
 

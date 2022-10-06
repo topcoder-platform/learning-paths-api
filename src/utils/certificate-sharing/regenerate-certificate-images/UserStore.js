@@ -21,7 +21,7 @@ const {
  */
 async function getHandleFromId(userId, domain) {
 
-    const url = `https://api.${domain}.com/v3/users?fields=handle&filter=id=${userId}`
+    const url = `https://api.${domain}/v3/users?fields=handle&filter=id=${userId}`
     const response = await fetchUrl(url, {
         method: 'GET',
         withCredentials: true,

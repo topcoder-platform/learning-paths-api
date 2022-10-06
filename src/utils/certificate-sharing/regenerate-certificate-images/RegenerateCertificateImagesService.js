@@ -66,6 +66,7 @@ function handleImageUrlExistsRequest(certProgress) {
 
         // if the image exists, don't do anything
         if (certificateExists) {
+            console.log('Exists:', certProgress.certificationImageUrl)
             return
         }
 

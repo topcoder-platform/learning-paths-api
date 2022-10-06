@@ -47,8 +47,9 @@ The Learning Paths API does not store the user's handle bc it changes and we can
 
 But the handle is used in the URL of the certificate images because the cert is public and the user's ID should not be.
 
-If you're wondering how we can use the handle, which can change, for the cert URL... We save the URL for the image as a property of the CertificationProgress record when the image is created,so
-a subsequent handle change won't cause us to lose track of the image as it was saved.
+If you're wondering how we can use the handle, which can change, for the cert URL... We save the URL for the image as a 
+property of the CertificationProgress record when the image is created, so a subsequent handle change won't cause us to 
+lose track of the image as it was saved.
 
 To run the tool:
 

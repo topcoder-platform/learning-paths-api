@@ -1,0 +1,16 @@
+{
+  "name": "tca-generate-certificate-image",
+  "version": "1.0.0",
+  "description": "Handles the generation of certificate images",
+  "main": "GenerateCertificateImageService.js",
+  "scripts": {
+    "cert-gen:regenerate": "node RegenerateCertificateImagesService.js"
+  },
+  "author": "Brooke Souza",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch-commonjs": "^3.2.4",
+    "url-exists": "^1.0.3"
+  },
+  "type": "commonjs"
+}

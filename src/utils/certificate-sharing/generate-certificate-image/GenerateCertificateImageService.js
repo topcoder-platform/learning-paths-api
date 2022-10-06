@@ -1,31 +1,24 @@
 const helper = require('../../../common/helper')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
+const paramHelper = require('../env-param-helper')
+const queueHelper = require('../../../common/queue-helper')
 
 // Initialize the environment params on startup
-function initializeEnvironmentParams() {
-
-    const missingParam = [
+const {
+    bucket,
+    queue,
+} = paramHelper.initializeEnvironmentParams(
+    [
         'CERT_BUCKET',
         'CERT_IMAGE_DOMAIN',
         'CERT_IMAGE_QUEUE',
         'CERT_IMAGE_SUBDOMAIN',
+    ],
+    [
+        'bucket',
+        'queue'
     ]
-        .find(param => !process?.env?.[param])
-
-    if (!!missingParam) {
-        throw new Error(`The ${missingParam} is not defined for the environment.`)
-    }
-
-    return {
-        bucket: process.env.CERT_BUCKET,
-        imageBaseUrl: imageHelper.getCertImageBaseUrl(),
-        queue: process.env.CERT_IMAGE_QUEUE,
-    }
-}
-const {
-    bucket,
-    queue,
-} = initializeEnvironmentParams()
+)
 
 /**
  * Generates a certificate image in a background thread

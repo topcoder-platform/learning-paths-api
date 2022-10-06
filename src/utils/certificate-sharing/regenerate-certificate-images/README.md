@@ -28,6 +28,15 @@ CERT_REGENERATOR_TOKEN=$#@%@#$%@#$%#$^$#%^#$^%
 CERT_IMAGE_DOMAIN=topcoder-dev.com
 ```
 
+## Install Dependencies
+
+Install packages w/in this directory:
+
+```bash
+$ cd src/utils/certificate-sharing/regenerate-certificate-images
+$ npm i
+```
+
 ## Running the tool
 
 > IMPORTANT: The user who runs this utility must have permission in the Support Admin Tool to query a user's handle from the user's userId.

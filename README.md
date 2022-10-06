@@ -188,7 +188,7 @@ Refer to the verification document `Verification.md`
 
 ## Utilities
 
-Several utilties exist to support this API. Read more about them their READMEs.
+Several utilities exist to support this API. Read more about them on their READMEs.
 
 [Completed Certificate Sharing](/src/utils/certificate-sharing/README.md)
 

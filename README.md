@@ -186,5 +186,15 @@ npm run e2e:cov
 ## Verification
 Refer to the verification document `Verification.md`
 
+## Utilities
+
+Several utilties exist to support this API. Read more about them their READMEs.
+
+[Completed Certificate Sharing](/src/utils/certificate-sharing/README.md)
+
+[Course Generator](/src/utils/course-generator/README.md)
+
+[MongoDB Trigger Handler](/src/utils/mongodb-trigger-handler/README.md)
+
 ## Notes
 

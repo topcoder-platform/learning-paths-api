@@ -41,7 +41,7 @@ async function getHandleFromId(userId, domain) {
         responseJson = await response.json()
         const handle = responseJson?.result?.content?.[0]?.handle
         if (!handle) {
-            throw new Error(`Handle content does not exist. Investigate`)
+            throw new Error(responseJson?.result?.content)
         }
         return handle
 
@@ -49,7 +49,6 @@ async function getHandleFromId(userId, domain) {
 
         // if we found an error, just log it
         console.error(error)
-        console.log('response content', responseJson?.result?.content)
         // console.debug('raw response', response)
         return undefined
     }

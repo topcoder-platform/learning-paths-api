@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Handles the generation of certificate images",
   "main": "GenerateCertificateImageService.js",
-  "scripts": {
-    "cert-gen:regenerate": "node RegenerateCertificateImagesService.js"
-  },
+  "scripts": { },
   "author": "Brooke Souza",
   "license": "ISC",
   "dependencies": {

@@ -1,4 +1,5 @@
 const fetchUrl = require('node-fetch-commonjs')
+
 const paramHelper = require('../env-param-helper')
 
 // init the env vars on load
@@ -15,7 +16,7 @@ const {
 /**
  * Gets a user's handle from her/his user ID
  * 
- * @param {string} userId The ID of the user for whome we want a handle
+ * @param {string} userId The ID of the user for whom we want a handle
  * @param {string} domain The domain of the environment we care about
  */
 async function getHandleFromId(userId, domain) {

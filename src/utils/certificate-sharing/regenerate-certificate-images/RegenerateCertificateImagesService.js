@@ -66,12 +66,11 @@ function handleImageUrlExistsRequest(certProgress) {
 
         // if the image exists, don't do anything
         if (certificateExists) {
-            console.log('EXISTS:', certProgress.certificationImageUrl)
             return
         }
 
         console.log(`${certProgress.certificationImageUrl} does NOT exist. Generating...`)
-        generateCertificateImageAsync(token, certProgress)
+        generateCertificateImageAsync(certProgress)
     }
 }
 

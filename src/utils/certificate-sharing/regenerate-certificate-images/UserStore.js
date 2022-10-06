@@ -3,6 +3,7 @@ const fetchUrl = require('node-fetch-commonjs')
 const paramHelper = require('../env-param-helper')
 
 // init the env vars on load
+// TODO: figure out how to use a m2m token instead of an individual's
 const {
     token,
 } = paramHelper.initializeEnvironmentParams(

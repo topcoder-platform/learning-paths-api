@@ -127,4 +127,4 @@ async function regenerateImagesAsync() {
 
 // run the regeneration on load
 regenerateImagesAsync()
-    .then(() => console.debug('finished'))
+    .then(() => console.debug('Finished the sync portion of the script with the async bg logs to follow...'))

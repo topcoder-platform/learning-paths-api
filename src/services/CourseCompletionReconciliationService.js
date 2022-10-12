@@ -84,20 +84,46 @@ async function getCompletedFccChallengesMap() {
  */
 function reconcileCertifications(inProgressCerts, fccChallengeMap) {
 
+    let reconciliationLog = {};
+
     for (let cert of inProgressCerts) {
         const { userId, certification, modules } = cert;
         // TODO - for testing only
         if (userId != '88778750') continue;
 
         for (let module of modules) {
+            const moduleKey = module.module;
+
             if (module.moduleStatus != 'in-progress') continue;
             // TODO - for testing
-            if (module.module != 'learn-css-colors-by-building-a-set-of-colored-markers') continue;
+            if (moduleKey != 'learn-css-colors-by-building-a-set-of-colored-markers') continue;
 
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);
-            console.log(diff);
+
+            // Record any diffs in the reconciliation log
+            // TODO: is there a cleaner way to construct these 
+            // nested objects?
+            if (diff.lessons != 0) {
+                if (reconciliationLog[userId]) {
+                    if (reconciliationLog[userId][certification]) {
+                        reconciliationLog[userId][certification][moduleKey] = diff
+                    } else {
+                        reconciliationLog[userId][certification] = {
+                            [moduleKey]: diff
+                        }
+                    }
+                } else {
+                    reconciliationLog[userId] = {
+                        [certification]: {
+                            [moduleKey]: diff
+                        }
+                    }
+                }
+            }
         }
     }
+
+    console.log(JSON.stringify(reconciliationLog, null, 2));
 }
 
 /**
@@ -130,12 +156,17 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
             fcc: extraFccLessons,
             tca: extraModuleLessons
         }
-        console.log("** Discrepancy in", moduleKey, diff);
-
     }
     return diff;
 }
 
+/**
+ * Computes the difference between two sets 
+ * 
+ * @param {Set} setA a set
+ * @param {Set} setB another set
+ * @returns Set with the elements in setA that are not in setB
+ */
 function difference(setA, setB) {
     const _difference = new Set(setA);
     for (const elem of setB) {

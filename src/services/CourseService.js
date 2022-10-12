@@ -88,7 +88,7 @@ async function scanAllCourses(criteria) {
 
 scanAllCourses.schema = {
     criteria: Joi.object().keys({
-        page: Joi.page(),
+        page: Joi.number(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
         provider: Joi.string(),
     })
@@ -109,7 +109,7 @@ async function getCourse(id) {
 }
 
 getCourse.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 /**
@@ -248,7 +248,7 @@ function decorateWithLessonCount(module) {
 }
 
 getCourseModules.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 module.exports = {

@@ -4,7 +4,7 @@
             "body": {
                 "bucket": "tca-certificate-generator-s3-dev",
                 "filePath": "certificate/jcori/responsive-web-design.jpg",
-                "screenshotSelector": "[class^=Certificate_wrap]",
+                "screenshotSelector": "[data-id=certificate-container]",
                 "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
             }
         }

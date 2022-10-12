@@ -1,19 +1,5 @@
 const fetchUrl = require('node-fetch-commonjs')
 
-const paramHelper = require('../env-param-helper')
-
-// init the env vars on load
-// TODO: figure out how to use a m2m token instead of an individual's
-const {
-    token,
-} = paramHelper.initializeEnvironmentParams(
-    [
-        'CERT_REGENERATOR_TOKEN',
-    ],
-    [
-        'token',
-    ])
-
 /**
  * Gets a user's handle from her/his user ID
  * 
@@ -22,14 +8,9 @@ const {
  */
 async function getHandleFromId(userId, domain) {
 
-    const url = `https://api.${domain}/v3/users?fields=handle&filter=id=${userId}`
+    const url = `https://api.${domain}/v5/members?userId=${userId}`
     const response = await fetchUrl(url, {
         method: 'GET',
-        withCredentials: true,
-        credentials: 'include',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        }
     })
 
     if (response.status === 404) {
@@ -40,16 +21,16 @@ async function getHandleFromId(userId, domain) {
     let responseJson
     try {
         responseJson = await response.json()
-        const handle = responseJson?.result?.content?.[0]?.handle
+        const handle = responseJson?.[0]?.handle
         if (!handle) {
-            throw new Error(responseJson?.result?.content)
+            throw new Error(responseJson?.[0])
         }
         return handle
 
     } catch (error) {
 
         // if we found an error, just log it
-        console.error(error)
+        console.error('Error getting handle:', error)
         // console.debug('raw response', response)
         return undefined
     }

@@ -19,10 +19,6 @@ The tool can also be used to regenerate images after a system failure of some ki
 The following environment variables are required for this tool:
 
 ```
-# The active token of the user running the utility in the environment in which it's
-# being run
-CERT_REGENERATOR_TOKEN=$#@%@#$%@#$%#$^$#%^#$^%
-
 # The domain at which the cert images will be hosted.
 # WARNING: This variable is shared w/the main API
 CERT_IMAGE_DOMAIN=topcoder-dev.com
@@ -39,23 +35,10 @@ $ npm i
 
 ## Running the tool
 
-> IMPORTANT: The user who runs this utility must have permission in the Support Admin Tool to query a user's handle from the user's userId. 
-
-Why?
-
-The Learning Paths API does not store the user's handle bc it changes and we can't realistically keep them in sync. 
-
-But the handle is used in the URL of the certificate images because the cert is public and the user's ID should not be.
-
-If you're wondering how we can use the handle, which can change, for the cert URL... We save the URL for the image as a 
-property of the CertificationProgress record when the image is created, so a subsequent handle change won't cause us to 
-lose track of the image as it was saved.
-
 To run the tool:
 
-1. Set the CERT_REGENERATOR_TOKEN in the .env file
-2. Open a terminal in the root directory
-3. Paste the AWS env vars in the terminal
+1. Open a terminal in the root directory
+2. Paste the AWS env vars in the terminal
 3. Run the npm command
 
 ```zsh

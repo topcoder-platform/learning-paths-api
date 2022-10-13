@@ -1,0 +1,11 @@
+service: tca-certificate-sharing-errors
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+
+functions:
+  errors:
+    handler: handler.lambda_handler

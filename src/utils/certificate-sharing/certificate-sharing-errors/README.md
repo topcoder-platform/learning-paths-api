@@ -1,20 +1,9 @@
-<!--
-title: 'AWS Python Example'
-description: 'This template demonstrates how to deploy a Python function running on AWS Lambda using the traditional Serverless Framework.'
-layout: Doc
-framework: v3
-platform: AWS
-language: python
-priority: 2
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# Certificate Sharing Errors Serverless (Lambda)
 
+This function subscribes to the logs for the functions below and sends all error logs to the subscription email [TBD].
 
-# Serverless Framework AWS Python Example
-
-This template demonstrates how to deploy a Python function running on AWS Lambda using the traditional Serverless Framework. The deployed function does not include any event definitions as well as any kind of persistence (database). For more advanced configurations check out the [examples repo](https://github.com/serverless/examples/) which includes integrations with SQS, DynamoDB or examples of functions that are triggered in `cron`-like manner. For details about configuration of specific `events`, please refer to our [documentation](https://www.serverless.com/framework/docs/providers/aws/events/).
+tca-certificate-ssr-[stage]
+tca-certificate-generator-lambda-generate-image-[stage]
 
 ## Usage
 
@@ -23,18 +12,18 @@ This template demonstrates how to deploy a Python function running on AWS Lambda
 In order to deploy the example, you need to run the following command:
 
 ```
-$ serverless deploy
+$ sls deploy
 ```
 
 After running deploy, you should see output similar to:
 
 ```bash
-Deploying aws-python-project to stage dev (us-east-1)
+Deploying tca-certificate-sharing-errors to stage dev (us-east-1)
 
-✔ Service deployed to stack aws-python-project-dev (112s)
+✔ Service deployed to stack tca-certificate-sharing-errors-dev (40s)
 
 functions:
-  hello: aws-python-project-dev-hello (1.5 kB)
+  errors: tca-certificate-sharing-errors-prod-errors (2.6 kB)
 ```
 
 ### Invocation
@@ -42,15 +31,19 @@ functions:
 After successful deployment, you can invoke the deployed function by using the following command:
 
 ```bash
-serverless invoke --function hello
+sls invoke --function errors
 ```
 
-Which should result in response similar to the following:
+Which will result in an error bc there is no payload.
 
 ```json
 {
-    "statusCode": 200,
-    "body": "{\"message\": \"Go Serverless v3.0! Your function executed successfully!\", \"input\": {}}"
+    "errorMessage": "'awslogs'",
+    "errorType": "KeyError",
+    "stackTrace": [
+        "  File \"/var/task/handler.py\", line 79, in lambda_handler\n    pload = logpayload(event)\n",
+        "  File \"/var/task/handler.py\", line 31, in logpayload\n    logger.debug(event['awslogs']['data'])\n"
+    ]
 }
 ```
 
@@ -59,16 +52,7 @@ Which should result in response similar to the following:
 You can invoke your function locally by using the following command:
 
 ```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
-{
-    "statusCode": 200,
-    "body": "{\"message\": \"Go Serverless v3.0! Your function executed successfully!\", \"input\": {}}"
-}
+sls invoke local --function errors
 ```
 
 ### Bundling dependencies

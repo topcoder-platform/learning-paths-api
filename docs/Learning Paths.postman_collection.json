@@ -511,6 +511,16 @@
 						"certification-progresses",
 						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-certification"
+					],
+					"query": [
+						{
+							"key": "certificateUrl",
+							"value": "{{CERTIFICATE_URL}}"
+						},
+						{
+							"key": "certificateElement",
+							"value": "{{CERTIFICATE_ELEMENT}}"
+						}
 					]
 				}
 			},
@@ -665,6 +675,17 @@
 						"members",
 						"steveburns"
 					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get SSR CERT",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{CERTIFICATE_SSR_URL}}/{{HANDLE}}/{{PROVIDER}}/{{CERTIFICATION}}/{{CERTIFICATE_TITLE}}"
 				}
 			},
 			"response": []

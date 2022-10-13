@@ -1,0 +1,7 @@
+{
+    "operationType": 1,
+    "fullDocument.email": 1,
+    "fullDocument.externalId": 1,
+    "fullDocument.username": 1,
+    "updateDescription.updatedFields": 1
+}

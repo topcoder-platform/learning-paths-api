@@ -50,7 +50,7 @@ const schema = new Schema({
     },
     trackType: {
         type: String,
-        enum: ['QA', 'DEV', 'DATASCIENCE', 'DESIGN'],
+        enum: ['DATASCIENCE', 'DESIGN', 'DEV', 'INTERVIEW', 'QA', 'SECURITY'],
         required: true
     },
     certType: {
@@ -58,6 +58,11 @@ const schema = new Schema({
         enum: ['certification', 'course-completion'],
         default: 'certification',
         required: true
+    },
+    publishedAt: {
+        type: Date,
+        default: Date.now(),
+        required: false
     }
 }, {
     timestamps: true,

@@ -3,42 +3,88 @@
         "2022/responsive-web-design": {
             "keyPoints": [
                 "This Responsive Web Design course will help you learn the key aspects of building a responsive website. This will include valuable skills such as HTML and CSS, the foundations for being a skilled web developer. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "2022/responsive-web-design-qa": {
             "keyPoints": [
                 "This Responsive Web Design course will help you learn the key aspects of building a responsive website. This will include valuable skills such as HTML and CSS, the foundations for being a skilled web developer. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "javascript-algorithms-and-data-structures": {
             "keyPoints": [
                 "JavaScript algorithms and data structures starts with javascript fundamentals.  Don’t know javascript?  Start here!  This is a follow on course to the Frontend libraries course.  We encourage you to continue with this course on your web development journey as it will reinforce your learning from the prior course. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "front-end-development-libraries": {
             "keyPoints": [
                 "Frontend development libraries is the direct follow on course to Responsive web development.  We encourage you to continue with this course on your web development journey as it will reinforce your learning from the prior course. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "data-visualization": {
             "keyPoints": [
                 "Data visualization is one of the fundamental skills within a data science or any data oriented learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "machine-learning-with-python": {
             "keyPoints": [
                 "Machine learning with python is one of the fundamental skills within a machine learning learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "scientific-computing-with-python": {
             "keyPoints": [
                 "Scientific computing with python is the first course you should take as a data science hopeful, if you do not have prior knowledge in python. Learning these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
-            ]
+            ],
+            "completionSuggestions": []
         },
         "data-analysis-with-python": {
             "keyPoints": [
                 "Data analysis with python is one of the fundamental skills within a data science or any data oriented learning path. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ],
+            "completionSuggestions": []
+        },
+        "back-end-development-and-apis": {
+            "keyPoints": [
+                "The Backend Development and APIs course will help you develop a range of skills to confidently build critical backend systems quickly and efficiently. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ],
+            "completionSuggestions": [
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
             ]
+        },
+        "information-security": {
+            "keyPoints": [
+                "Information Security is a critical concept and tool for every developer to be able to understand and implement within their code. Advancing these skills will ensure any work you produce, on or off the Topcoder platform, is to a baseline level of security. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ],
+            "completionSuggestions": [
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
+            ]
+        },
+        "quality-assurance": {
+            "keyPoints": [
+                "Quality Assurance is an essential part of the software development process and every developer should have these skills. Advancing these skills will help you be more competitive on the Topcoder platform, and more desirable to potential employers. Once you complete this course, we will issue you a Topcoder Academy certificate of course completion which you can use to showcase your new learnings and skills."
+            ],
+            "completionSuggestions": [
+                "Note: We recommend using the Replit starter packs provided at the beginning of each module. You will successively build off of this starter pack for the follow-on lessons within the module. The “Solution Link” at the end of the lesson will be the Replit URL for the work you are completing each lesson. Good luck!"
+            ]
+        },
+        "coding-interview-prep": {
+            "keyPoints": [
+                "Coding Interview Prep has a great catalog of varying exercises for you to practice for your next interview. These can also help hone your overall algorithm, data structure, and mathematics skills, necessary in any sort of development-related work. Stay tuned for more interview prep materials in the future."
+            ],
+            "completionSuggestions": [
+                "Note: Some of the projects in this course require you to deploy a web application to a publicly-accessible URL. We recommend you use Codepen.io or Replit.com to complete these projects. The “Solution Link” you need to submit for your “live app” at the end of the lesson will be the Codepen or Replit URL for your project. Good luck!"
+            ]
+        },
+        "relational-database": {
+            "keyPoints": [
+                "RELATIONAL DB COURSE KEYPOINTS GO HERE"
+            ],
+            "completionSuggestions": []
         }
     }
 }

@@ -1,0 +1,14 @@
+{
+  "name": "tca-regenerate-certificate-images",
+  "version": "1.0.0",
+  "description": "Handles the regeneration of missing completed certificate images",
+  "main": "RegenerateCertificateImagesService.js",
+  "scripts": { },
+  "author": "Brooke Souza",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch-commonjs": "^3.2.4",
+    "url-exists": "^1.0.3"
+  },
+  "type": "commonjs"
+}

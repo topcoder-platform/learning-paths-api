@@ -188,7 +188,8 @@ async function writeCertificationsToDB(certificationsFile) {
     const promises = []
 
     try {
-        const data = require(certificationsFile)
+        let data = require(certificationsFile)
+        convertCertAttrDatesToTimestamps(data)
         const numCerts = get(data, 'length');
         logger.info(`Inserting ${helper.pluralize(numCerts, 'certification')}`)
         promises.push(models.Certification.batchPut(data))
@@ -204,6 +205,39 @@ async function writeCertificationsToDB(certificationsFile) {
         .catch((err) => {
             logger.logFullError(err)
         })
+}
+
+/**
+ * Converts Certification date attributes given in human-readable format to Unix 
+ * timestamp with milliseconds for compatibility with DynamoDB date type.
+ * 
+ * @param {Object} certData certification data
+ */
+function convertCertAttrDatesToTimestamps(certData) {
+    // get the fields in the model that should be dates
+    // based on the field name ending in "At"
+    // NOTE: this is a bit of hack since Dynamoose does not 
+    // appear to expose the +type+ data specified in the model.
+    let dateFields = [];
+    const model = models['Certification'];
+    const schemaObject = model.schemas['0'].schemaObject;
+
+    const dateKeys = Object.keys(schemaObject);
+    dateFields = dateKeys.filter(key => key.endsWith('At'))
+
+    // iterate through the certification records and  
+    // convert any date fields
+    for (let cert of certData) {
+        for (let dateFieldKey of dateFields) {
+            let dateField = cert[dateFieldKey];
+            if (!!dateField) {
+                const dateValue = Date.parse(dateField)
+                if (dateValue != NaN) {
+                    cert[dateFieldKey] = dateValue
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -386,15 +420,16 @@ let provider;
 
 // Parse CLI flags
 const writeToDB = (args.indexOf('-d') > -1 ? true : false);
+const writeOnlyCertsToDB = (args.indexOf('-r') > -1 ? true : false);
 const updateDBLessonIds = (args.indexOf('-u') > -1 ? true : false);
 const updateDBProgressIds = (args.indexOf('-p') > -1 ? true : false);
 const updateDBModuleAssessments = (args.indexOf('-m') > -1 ? true : false);
 
 // Parse the CLI args for the provider name, if given
 if (args.length == 2 || (args.length == 3 &&
-    (writeToDB || updateDBLessonIds || updateDBProgressIds || updateDBModuleAssessments))) {
+    (writeToDB || writeOnlyCertsToDB || updateDBLessonIds || updateDBProgressIds || updateDBModuleAssessments))) {
     provider = loadDefaultProvider(providers);
-} else if ((args.length == 3 && !writeToDB) || args.length == 4) {
+} else if ((args.length == 3 && !(writeToDB || writeOnlyCertsToDB)) || args.length == 4) {
     const givenProvider = args[2]
     provider = loadSelectedProvider(providers, givenProvider)
 } else {
@@ -405,14 +440,23 @@ if (args.length == 2 || (args.length == 3 &&
 // TODO - need to write the updated providers and/or certifications 
 // data to the DB, too.
 
-// Generate the course data for the given provider
-// and write it to the database if that flag was provided
+// Generate the course data for the given provider and
+// write it to the database if the -d flag is provided.
+//
+// Also allows just updating the Certification data if the 
+// -r flag is provided.
 //
 // Additional tools added:
+// =======================
 // - updateCourseLessonIds: update course lessons stored in DynamoDB 
-//   with the corresponding freeCodeCamp ID
+//   with the corresponding freeCodeCamp ID (designed to be used once, leaving in for posterity)
+//
 // - updateCertProgressLessonIds: update certification progress completed 
-//   lessons with IDs in the course lessons
+//   lessons with IDs in the course lessons (designed to be used once, leaving in for posterity)
+//
+// - updateDBModuleAssessment: updates course modules to explicitly indicate 
+//   which modules are assessments (designed to be used once, leaving in for posterity)
+//
 if (provider) {
     const generator = getCourseGenerator(provider);
     const generatedCourseFilePath = generator.generateCourseData();
@@ -421,6 +465,9 @@ if (provider) {
     if (writeToDB) {
         console.log("\nWriting generated course data to the database")
         writeCoursesToDB(generatedCourseFilePath);
+        writeCertificationsToDB(generator.certificationsFilePath)
+    } else if (writeOnlyCertsToDB) {
+        console.log("\nWriting only certification data to the database")
         writeCertificationsToDB(generator.certificationsFilePath)
     } else if (updateDBLessonIds) {
         updateCourseLessonIds(generatedCourseFilePath);

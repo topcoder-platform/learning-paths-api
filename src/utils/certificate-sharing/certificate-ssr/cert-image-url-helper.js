@@ -1,0 +1,29 @@
+function getCertImageBaseUrl() {
+    const imageBaseUrl = `https://${process.env.CERT_IMAGE_SUBDOMAIN}.${process.env.CERT_IMAGE_DOMAIN}`
+    validateImageUrl(imageBaseUrl)
+    return imageBaseUrl
+}
+
+function getCertImagePath(handle, provider, certification) {
+    return `certificate/${handle}/${provider}/${certification}.jpg`
+}
+
+function getCertImageUrl(handle, provider, certification) {
+    const imageUrl = `${getCertImageBaseUrl()}/${getCertImagePath(handle, provider, certification)}`
+    validateImageUrl(imageUrl)
+    return imageUrl
+}
+
+function validateImageUrl(url) {
+    try {
+        new URL(url)
+    } catch (error) {
+        throw new Error(`Image URL (${url}) is not a valid URL.`)
+    }
+}
+
+module.exports = {
+    getCertImageBaseUrl,
+    getCertImagePath,
+    getCertImageUrl,
+}

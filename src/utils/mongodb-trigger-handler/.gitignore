@@ -6,4 +6,4 @@ jspm_packages
 .serverless
 
 # local environment file for testing/deploymen
-.env
+*.env

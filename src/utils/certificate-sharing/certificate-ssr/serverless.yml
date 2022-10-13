@@ -1,0 +1,21 @@
+service: tca-certificate
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  ssr:
+    handler: handler.index
+    events:
+      - httpApi:
+          path: /{handle}/{provider}/{certification}/{title}
+          method: get
+    # TODO: TCA-482 use the .env in the main app
+    # rather than an env.json specifically for this 
+    # function
+    environment: ${file(env.${opt:stage, 'dev'}.json)}
+
+plugins:
+  - serverless-offline

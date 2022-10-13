@@ -1,0 +1,20 @@
+{
+    "name": "tca-certificate-ssr",
+    "version": "1.0.0",
+    "description": "Serverless function to wrap a TCA certificate image in SSR html so dynamic images can be shared.",
+    "main": "handler.js",
+    "scripts": {
+        "deploy": "sls deploy",
+        "offline": "sls offline"
+    },
+    "author": "Brooke Souza",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "fs": "^0.0.1-security",
+        "url-exists": "^1.0.3"
+    },
+    "devDependencies": {
+        "serverless-offline": "^10.1.0"
+    }
+}

@@ -1,7 +1,8 @@
 'use strict';
 
-const dbHelper = require('../common/helper')
+const _ = require('lodash');
 
+const dbHelper = require('../common/helper')
 const { getCompletedChallengesForAllUsers } = require('./FreeCodeCampDataService');
 const { getCourseLessonMap } = require('./CourseService');
 
@@ -49,7 +50,7 @@ async function getCompletedFccChallengesMap() {
         if (user.completedChallenges.length == 0) continue;
 
         // TODO: just using one user for testing -- remove next line
-        if (user.userId != '88778750') continue;
+        // if (user.userId != '88778750') continue;
 
         let certificationMap = {};
         for (let challenge of user.completedChallenges) {
@@ -89,21 +90,19 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
     for (let cert of inProgressCerts) {
         const { userId, certification, modules } = cert;
         // TODO - for testing only
-        if (userId != '88778750') continue;
+        // if (userId != '88778750') continue;
 
         for (let module of modules) {
             const moduleKey = module.module;
 
             if (module.moduleStatus != 'in-progress') continue;
             // TODO - for testing
-            if (moduleKey != 'learn-css-colors-by-building-a-set-of-colored-markers') continue;
+            // if (moduleKey != 'learn-css-colors-by-building-a-set-of-colored-markers') continue;
 
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);
 
             // Record any diffs in the reconciliation log
-            // TODO: is there a cleaner way to construct these 
-            // nested objects?
-            if (diff.lessons != 0) {
+            if (!_.isEmpty(diff) && diff.lessons != 0) {
                 if (reconciliationLog[userId]) {
                     if (reconciliationLog[userId][certification]) {
                         reconciliationLog[userId][certification][moduleKey] = diff
@@ -137,26 +136,39 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
  */
 function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
     const moduleKey = module.module;
-
-    const fccLessonsCompleted = fccChallengeMap[userId][certification][moduleKey];
-    const fccLessonSet = new Set(fccLessonsCompleted);
-
-    const moduleLessonsCompleted = module.completedLessons.map(lesson => lesson.id);
-    const moduleLessonSet = new Set(moduleLessonsCompleted);
-
-    const extraFccLessons = Array.from(difference(fccLessonSet, moduleLessonSet));
-    const extraModuleLessons = Array.from(difference(moduleLessonSet, fccLessonSet));
-
-    const lessonDiff = fccLessonsCompleted.length - moduleLessonsCompleted.length;
-
     let diff = {};
-    if (lessonDiff != 0) {
-        diff = {
-            lessons: lessonDiff,
-            fcc: extraFccLessons,
-            tca: extraModuleLessons
+
+    try {
+        const fccLessonsCompleted = fccChallengeMap?.[userId]?.[certification]?.[moduleKey];
+
+        if (fccLessonsCompleted) {
+            const fccLessonSet = new Set(fccLessonsCompleted);
+
+            let tcaLessonsCompleted = module.completedLessons.map(lesson => lesson.id);
+            tcaLessonsCompleted = tcaLessonsCompleted.filter(lesson => lesson != null);
+
+            const tcaLessonSet = new Set(tcaLessonsCompleted);
+
+            const extraFccLessons = Array.from(difference(fccLessonSet, tcaLessonSet));
+            const extraTcaLessons = Array.from(difference(tcaLessonSet, fccLessonSet));
+
+            const lessonDiff = fccLessonsCompleted.length - tcaLessonsCompleted.length;
+
+            if (lessonDiff != 0) {
+                diff = {
+                    lessons: lessonDiff,
+                    fcc: extraFccLessons,
+                    tca: extraTcaLessons
+                }
+            }
         }
+
+    } catch (error) {
+        console.log(`\nError processing ${userId} certification '${certification}' module '${moduleKey}'\n`)
+        console.log(`FCC challenges`, fccChallengeMap[userId]);
+        console.error(error);
     }
+
     return diff;
 }
 

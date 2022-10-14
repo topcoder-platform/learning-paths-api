@@ -375,6 +375,7 @@ function decorateProgressCompletion(progress) {
     })
 
     computeCourseProgress(progress)
+    computeCertificationProgress(progress)
 }
 
 /**
@@ -431,6 +432,40 @@ function computeCourseProgress(progress) {
     }
 
     progress.courseProgressPercentage = courseProgressPercentage;
+}
+
+/**
+ * Computes overall certification (assessment) completion progress percentage
+ * and decorates the progress object with that computed value.
+ * 
+ * @param {Object} progress certification progress object over which to compute progress
+ */
+function computeCertificationProgress(progress) {
+    let certificationProgressPercentage = 0;
+    let assessmentCount = 0;
+    let completedAssessmentCount = 0;
+
+    // sum up the total number of assessments and completed assessments to compute
+    // an overall completion percentage. NOTE: this assumes all lessons in an 
+    // assessment module are assessment lessons, which has been true for every 
+    // FCC course we've imported.
+    progress.modules.filter(mod => mod.isAssessment).forEach(module => {
+        assessmentCount += module.lessonCount;
+        completedAssessmentCount += module.completedLessonCount;
+    })
+
+    if (assessmentCount > 0) {
+        const rawCompletion = (completedAssessmentCount / assessmentCount);
+        certificationProgressPercentage = Math.floor(rawCompletion * 100);
+
+        // Round any non-zero value less than 1% completion up to 1% so we show the 
+        // user some progress even if they've only completed a few lessons
+        if (rawCompletion > 0 && certificationProgressPercentage == 0) {
+            certificationProgressPercentage = 1
+        }
+    }
+
+    progress.certificationProgressPercentage = certificationProgressPercentage;
 }
 
 /**

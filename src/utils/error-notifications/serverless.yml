@@ -1,4 +1,4 @@
-service: tca-certificate-sharing-errors
+service: tca-errors
 
 frameworkVersion: '3'
 

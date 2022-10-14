@@ -1,9 +1,15 @@
-# Certificate Sharing Errors Serverless (Lambda)
+# TCA Errors Serverless (Lambda)
 
-This function subscribes to the logs for the functions below and sends all error logs to the subscription email [TBD].
+This function subscribes to the logs for the resources below and sends all error logs to the subscription email.
 
 tca-certificate-ssr-[stage]
 tca-certificate-generator-lambda-generate-image-[stage]
+tc-learning-paths API
+
+## Subscription Email
+
+DEV: tca-errors-dev
+PROD: tca-errors-prod
 
 ## Usage
 
@@ -18,12 +24,12 @@ $ sls deploy
 After running deploy, you should see output similar to:
 
 ```bash
-Deploying tca-certificate-sharing-errors to stage dev (us-east-1)
+Deploying tca-errors to stage dev (us-east-1)
 
-✔ Service deployed to stack tca-certificate-sharing-errors-dev (40s)
+✔ Service deployed to stack tca-errors-dev (40s)
 
 functions:
-  errors: tca-certificate-sharing-errors-prod-errors (2.6 kB)
+  errors: tca-errors-dev-errors (2.6 kB)
 ```
 
 ### Invocation

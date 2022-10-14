@@ -87,9 +87,9 @@ async function getCompletedFccChallengesMap() {
 
             if (certificationMap[certification]) {
                 if (certificationMap[certification][module]) {
-                    certificationMap[certification][module].push(lessonId)
+                    certificationMap[certification][module].push(completedChallenge)
                 } else {
-                    certificationMap[certification][module] = [lessonId]
+                    certificationMap[certification][module] = [completedChallenge]
                 }
             } else {
                 certificationMap[certification] = {}
@@ -109,7 +109,6 @@ async function getCompletedFccChallengesMap() {
  * @param {Object} fccChallengeMap a map of user FCC cert/module/lessons
  */
 function reconcileCertifications(inProgressCerts, fccChallengeMap) {
-
     let reconciliationLog = {};
 
     for (let cert of inProgressCerts) {
@@ -123,11 +122,11 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);
 
             // Record any diffs in the reconciliation log
-            // The check for diff.lessons > 0 will exclude any case where 
+            // The check for diff.lessonDiff > 0 will exclude any case where 
             // the TCA DB shows more lessons being completed than FCC. This 
             // can happen due to using the test script to advance through a 
             // course automatically, which does not update FCC.
-            if (!_.isEmpty(diff) && diff.lessons > 0) {
+            if (!_.isEmpty(diff) && diff.lessonDiff > 0) {
                 if (reconciliationLog[userId]) {
                     if (reconciliationLog[userId][certification]) {
                         reconciliationLog[userId][certification][moduleKey] = diff
@@ -163,17 +162,25 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
  * @param {Object} fccChallengeMap map of FCC user completed cert/module/lessons
  */
 function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
-    const moduleKey = module.module;
     let diff = {};
+    const moduleKey = module.module;
 
     try {
         // get the IDs of lessons for this cert/module that FCC shows the user completing
         const fccLessonsCompleted = fccChallengeMap?.[userId]?.[certification]?.[moduleKey];
 
         // if they've completed any, compare these to the lessons completed for the
-        // same module in Topcoder Academy
+        // same module in Topcoder Academy. 
         if (fccLessonsCompleted) {
-            const fccLessonSet = new Set(fccLessonsCompleted);
+            // Create a map of id : completedDate
+            let fccLessonMap = {};
+            for (let lesson of fccLessonsCompleted) {
+                fccLessonMap[lesson.lessonId] = lesson.completedDate
+            }
+
+            // Extract just the lesson IDs from the objects { id: completedDate, ... } 
+            const fccLessonIds = Object.keys(fccLessonMap);
+            const fccLessonSet = new Set(fccLessonIds);
 
             let tcaLessonsCompleted = module.completedLessons.map(lesson => lesson.id);
             tcaLessonsCompleted = tcaLessonsCompleted.filter(lesson => lesson != null);
@@ -188,12 +195,11 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
             if (lessonDiff > 0) {
                 // resolve the lesson IDs to the named lesson, so we can more 
                 // easily do manual QA against the TCA database
-                const lessonIdNameMap = resolveLessonNames(missingFccLessons);
+                const lessonDetails = buildLessonDetails(missingFccLessons, fccLessonMap);
 
                 diff = {
-                    lessons: lessonDiff,
-                    lessonIds: missingFccLessons,
-                    lessonNames: lessonIdNameMap,
+                    lessonDiff: lessonDiff,
+                    lessons: lessonDetails,
                 }
             }
         }
@@ -208,21 +214,30 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
 }
 
 /**
- * Resolves lesson IDs to their dashed name
+ * Builds a map of lesson details keyed by id, as in:
+ * 
+ * {
+ *   <lesson id>: {
+ *      name: <lesson name>,
+ *      completedDate: <lesson completed date>
+ *   }, ...
+ * }
  * 
  * @param {Array} fccLessonIds array of lesson IDs
  * @returns map of lesson Ids to their dashed name
  */
-function resolveLessonNames(fccLessonIds) {
-    let lessonIdNameMap = {}
+function buildLessonDetails(fccLessonIds, fccLessonMap) {
+    let lessonDetails = {}
     for (let id of fccLessonIds) {
         const lesson = courseLessonMap[id]
         if (lesson) {
-            lessonIdNameMap[id] = lesson.dashedName
+            lessonDetails[id] = {
+                name: lesson.dashedName,
+                completedDate: fccLessonMap[id]
+            }
         }
     }
-
-    return lessonIdNameMap;
+    return lessonDetails;
 }
 
 /**

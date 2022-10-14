@@ -338,7 +338,7 @@ async function updateCertProgressLessonIds(dryRun = false) {
                 console.log("...no updates needed")
             }
         } else {
-            console.error(`could not find course matching ID ${progress.courseId} -- quitting`);
+            console.error(`...could not find course matching ID ${progress.courseId} -- quitting`);
             process.exit(1);
         }
     })
@@ -362,10 +362,11 @@ function updateProgressWithCourseLessonIds(progress, course) {
             process.exit(1);
         }
 
-        if (progressModule.status == STATUS_IN_PROGRESS) {
+        if (progressModule.moduleStatus == STATUS_IN_PROGRESS) {
             progressModule.completedLessons.forEach(completedLesson => {
                 const completedLessonName = completedLesson.dashedName;
                 const courseLesson = courseModule.lessons.find(lesson => lesson.dashedName === completedLessonName)
+
                 if (!courseLesson) {
                     console.error(`could not find course lesson ${completedLessonName} -- quitting`);
                     process.exit(1);

@@ -174,7 +174,6 @@ async function getCourseModule(id, moduleKey) {
  *      values are the lesson's module, course, and certification identifiers.
  */
 async function getCourseLessonMap(provider) {
-
     const cacheKey = `lesson-map:${provider}`
     let lessonMap = helper.getFromInternalCache(cacheKey)
 

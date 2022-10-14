@@ -6,13 +6,28 @@ const dbHelper = require('../common/helper')
 const { getCompletedChallengesForAllUsers } = require('./FreeCodeCampDataService');
 const { getCourseLessonMap } = require('./CourseService');
 
+let courseLessonMap;
+let inProgressCerts;
+let completedFccChallengeMap;
+let reconciliationLog;
+
 async function reconcileCourseCompletion() {
-    const inProgressCerts = await getInProgressCerts();
-    const completedFccChallengeMap = await getCompletedFccChallengesMap();
-    reconcileCertifications(inProgressCerts, completedFccChallengeMap);
+    console.log("Starting lesson completion reconciliation...");
+
+    await generateReconciliationLog()
+}
+
+async function generateReconciliationLog() {
+    courseLessonMap = await getCourseLessonMap('freeCodeCamp');
+    inProgressCerts = await getInProgressCerts();
+    completedFccChallengeMap = await getCompletedFccChallengesMap();
+
+    reconciliationLog = reconcileCertifications(inProgressCerts, completedFccChallengeMap);
 }
 
 async function getInProgressCerts() {
+    console.log("\nGetting in-progress certifications...");
+
     const certificationProgresses = await dbHelper.scanAll('CertificationProgress')
     console.log(`** cert progress records: ${certificationProgresses.length}`)
 
@@ -42,23 +57,33 @@ async function getInProgressCerts() {
     ...
  */
 async function getCompletedFccChallengesMap() {
-    const courseLessonMap = await getCourseLessonMap('freeCodeCamp');
+    console.log("\nGetting FCC completed challenges...");
+
     const completedFccChallengesByUser = await getCompletedChallengesForAllUsers();
 
     let fccChallengeMap = {};
     for (let user of completedFccChallengesByUser) {
         if (user.completedChallenges.length == 0) continue;
 
-        // TODO: just using one user for testing -- remove next line
-        // if (user.userId != '88778750') continue;
-
         let certificationMap = {};
         for (let challenge of user.completedChallenges) {
             const lessonId = challenge.id;
+            const completedDate = challenge.completedDate;
+
             const lesson = courseLessonMap[lessonId];
+
+            if (!lesson) {
+                console.error(`** user ${user.userId} lesson ${lessonId} not found in courseLessonMap`);
+                continue;
+            }
 
             const module = lesson.moduleKey;
             const certification = lesson.certification;
+
+            const completedChallenge = {
+                lessonId: lessonId,
+                completedDate: completedDate
+            }
 
             if (certificationMap[certification]) {
                 if (certificationMap[certification][module]) {
@@ -89,20 +114,20 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
 
     for (let cert of inProgressCerts) {
         const { userId, certification, modules } = cert;
-        // TODO - for testing only
-        // if (userId != '88778750') continue;
 
         for (let module of modules) {
             const moduleKey = module.module;
 
             if (module.moduleStatus != 'in-progress') continue;
-            // TODO - for testing
-            // if (moduleKey != 'learn-css-colors-by-building-a-set-of-colored-markers') continue;
 
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);
 
             // Record any diffs in the reconciliation log
-            if (!_.isEmpty(diff) && diff.lessons != 0) {
+            // The check for diff.lessons > 0 will exclude any case where 
+            // the TCA DB shows more lessons being completed than FCC. This 
+            // can happen due to using the test script to advance through a 
+            // course automatically, which does not update FCC.
+            if (!_.isEmpty(diff) && diff.lessons > 0) {
                 if (reconciliationLog[userId]) {
                     if (reconciliationLog[userId][certification]) {
                         reconciliationLog[userId][certification][moduleKey] = diff
@@ -122,12 +147,15 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
         }
     }
 
+    console.log("reconciliation log entries:", Object.keys(reconciliationLog).length);
     console.log(JSON.stringify(reconciliationLog, null, 2));
+
+    return reconciliationLog;
 }
 
 /**
- * Performs a comparison of the completed lessons between TCA and FCC
- * for a particular certification and module
+ * Performs a comparison of the completed lessons between Topcoder Academy
+ * and freeCodeCamp databases for a particular certification and module
  * 
  * @param {String} userId user ID
  * @param {String} certification certification name
@@ -139,8 +167,11 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
     let diff = {};
 
     try {
+        // get the IDs of lessons for this cert/module that FCC shows the user completing
         const fccLessonsCompleted = fccChallengeMap?.[userId]?.[certification]?.[moduleKey];
 
+        // if they've completed any, compare these to the lessons completed for the
+        // same module in Topcoder Academy
         if (fccLessonsCompleted) {
             const fccLessonSet = new Set(fccLessonsCompleted);
 
@@ -149,16 +180,20 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
 
             const tcaLessonSet = new Set(tcaLessonsCompleted);
 
-            const extraFccLessons = Array.from(difference(fccLessonSet, tcaLessonSet));
-            const extraTcaLessons = Array.from(difference(tcaLessonSet, fccLessonSet));
+            // Find the difference between the set of lessons completed in FCC and TCA
+            const missingFccLessons = Array.from(difference(fccLessonSet, tcaLessonSet));
 
-            const lessonDiff = fccLessonsCompleted.length - tcaLessonsCompleted.length;
+            const lessonDiff = missingFccLessons.length;
 
-            if (lessonDiff != 0) {
+            if (lessonDiff > 0) {
+                // resolve the lesson IDs to the named lesson, so we can more 
+                // easily do manual QA against the TCA database
+                const lessonIdNameMap = resolveLessonNames(missingFccLessons);
+
                 diff = {
                     lessons: lessonDiff,
-                    fcc: extraFccLessons,
-                    tca: extraTcaLessons
+                    lessonIds: missingFccLessons,
+                    lessonNames: lessonIdNameMap,
                 }
             }
         }
@@ -170,6 +205,24 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
     }
 
     return diff;
+}
+
+/**
+ * Resolves lesson IDs to their dashed name
+ * 
+ * @param {Array} fccLessonIds array of lesson IDs
+ * @returns map of lesson Ids to their dashed name
+ */
+function resolveLessonNames(fccLessonIds) {
+    let lessonIdNameMap = {}
+    for (let id of fccLessonIds) {
+        const lesson = courseLessonMap[id]
+        if (lesson) {
+            lessonIdNameMap[id] = lesson.dashedName
+        }
+    }
+
+    return lessonIdNameMap;
 }
 
 /**

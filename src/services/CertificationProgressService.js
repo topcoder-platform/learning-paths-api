@@ -327,15 +327,8 @@ function validateQueryWithSchema(modelSchema, query) {
  * @returns {Object} the certification progress for the given user and certification
  */
 async function getCertificationProgress(userId, progressId) {
-    // testing performance 
-    var startTime = performance.now()
-
     let progress = await helper.getByIdAndUser('CertificationProgress', progressId, userId)
     decorateProgressCompletion(progress);
-
-    // testing performance
-    var endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'getCertificationProgress')
 
     return progress
 }
@@ -771,6 +764,7 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    checkAndSetModuleStatus,
     completeCertification,
     completeLesson,
     completeLessonViaMongoTrigger,

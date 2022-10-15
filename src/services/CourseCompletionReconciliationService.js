@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const { checkAndSetModuleStatus } = require('./CertificationProgressService');
 
 const dbHelper = require('../common/helper')
 const { getCompletedChallengesForAllUsers } = require('./FreeCodeCampDataService');
@@ -10,11 +11,13 @@ let courseLessonMap;
 let inProgressCerts;
 let completedFccChallengeMap;
 let reconciliationLog;
+let reconciliationActionsLog;
 
 async function reconcileCourseCompletion() {
     console.log("Starting lesson completion reconciliation...");
 
-    await generateReconciliationLog()
+    await generateReconciliationLog();
+    await reconcileCertificationProgress();
 }
 
 async function generateReconciliationLog() {
@@ -23,6 +26,94 @@ async function generateReconciliationLog() {
     completedFccChallengeMap = await getCompletedFccChallengesMap();
 
     reconciliationLog = reconcileCertifications(inProgressCerts, completedFccChallengeMap);
+}
+
+/**
+ * Updates user CertificationProgress records based on data in the 
+ * reconciliation log. Adds missing lessons and updates module and 
+ * course completion statuses, returning a log of what was done.
+ */
+async function reconcileCertificationProgress() {
+    console.log("\nUpdating certification progress data...");
+
+    if (_.isEmpty(reconciliationLog)) {
+        console.log("...reconciliation log is empty -- nothing to do")
+        return
+    }
+
+    const userCount = Object.keys(reconciliationLog).length;
+    console.log(`...updating records for ${userCount} users`)
+
+    for (const [userId, certifications] of Object.entries(reconciliationLog)) {
+        // TODO: for testing only
+        if (userId != 40029484) continue;
+        console.log(JSON.stringify(certifications, null, 2));
+        for (const [certificationKey, reconciliationDetails] of Object.entries(certifications)) {
+            await updateCertificationProgress(userId, certificationKey, reconciliationDetails)
+        }
+    }
+}
+
+async function updateCertificationProgress(userId, certificationKey, reconciliationDetails) {
+    console.log(`\nupdating user ${userId} certification '${certificationKey}'`)
+
+    const certProgressId = reconciliationDetails.id;
+    let progress = await dbHelper.getById('CertificationProgress', certProgressId)
+    // console.log(progress);
+
+    for (const [moduleKey, moduleDetails] of Object.entries(reconciliationDetails.modules)) {
+        const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleKey)
+        if (moduleIndex == -1) {
+            throw `Error: could not find module ${moduleKey} in cert progress ${certificationKey} (${certProgressId})`
+        }
+
+        let reconciledLessons = [];
+        for (const [lessonId, lessonDetails] of Object.entries(moduleDetails.lessons)) {
+            const completedLesson = {
+                dashedName: lessonDetails.name,
+                completedDate: new Date(lessonDetails.completedDate),
+                id: lessonId
+            }
+            reconciledLessons.push(completedLesson);
+        }
+        const addedLessonCount = reconciledLessons.length;
+        const plural = addedLessonCount == 1 ? '' : 's';
+        console.log(`...adding ${addedLessonCount} completed lesson${plural} to '${moduleKey}'`)
+
+        // check for duplicates of lessons that were completed but didn't have an
+        // +id+ attribute
+        const reconciledLessonNames = reconciledLessons.map(lesson => lesson.dashedName);
+        for (let [completedIndex, lesson] of progress.modules[moduleIndex].completedLessons.entries()) {
+            const reconciledLessonIndex = _.indexOf(reconciledLessonNames, lesson.dashedName)
+
+            // if the reconciled lesson name is already in the completed lessons list,
+            // replace the completed lesson with the reconciled one (which will include the ID)
+            if (reconciledLessonIndex != -1) {
+                const reconciledLesson = reconciledLessons.splice(reconciledLessonIndex, 1);
+                progress.modules[moduleIndex].completedLessons[completedIndex] = reconciledLesson;
+                console.log('replaced lesson', reconciledLesson);
+            }
+        }
+
+        // Add the remaining reconciled completed lessons to the certification progress
+        progress.modules[moduleIndex].completedLessons.push(...reconciledLessons);
+        console.log('updated lessons', progress.modules[moduleIndex].completedLessons);
+
+        checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
+    }
+
+    // update the certitication progress record
+    const updatedModules = {
+        modules: progress.modules
+    }
+
+    const idObj = {
+        id: certProgressId,
+        certification: progress.certification
+    }
+
+    // let updatedProgress = await dbHelper.updateAtomic("CertificationProgress", idObj, updatedModules);
+    // console.log('updatedProgress', updatedProgress);
 }
 
 async function getInProgressCerts() {
@@ -111,8 +202,8 @@ async function getCompletedFccChallengesMap() {
 function reconcileCertifications(inProgressCerts, fccChallengeMap) {
     let reconciliationLog = {};
 
-    for (let cert of inProgressCerts) {
-        const { userId, certification, modules } = cert;
+    for (let certificationProgress of inProgressCerts) {
+        const { id, userId, certification, modules } = certificationProgress;
 
         for (let module of modules) {
             const moduleKey = module.module;
@@ -129,16 +220,22 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
             if (!_.isEmpty(diff) && diff.lessonDiff > 0) {
                 if (reconciliationLog[userId]) {
                     if (reconciliationLog[userId][certification]) {
-                        reconciliationLog[userId][certification][moduleKey] = diff
+                        reconciliationLog[userId][certification].modules[moduleKey] = diff
                     } else {
                         reconciliationLog[userId][certification] = {
-                            [moduleKey]: diff
+                            id: id,
+                            modules: {
+                                [moduleKey]: diff
+                            }
                         }
                     }
                 } else {
                     reconciliationLog[userId] = {
                         [certification]: {
-                            [moduleKey]: diff
+                            id: id,
+                            modules: {
+                                [moduleKey]: diff
+                            }
                         }
                     }
                 }

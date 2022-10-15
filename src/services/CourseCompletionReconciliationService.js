@@ -11,7 +11,6 @@ let courseLessonMap;
 let inProgressCerts;
 let completedFccChallengeMap;
 let reconciliationLog;
-let reconciliationActionsLog;
 
 async function reconcileCourseCompletion() {
     console.log("Starting lesson completion reconciliation...");
@@ -45,9 +44,6 @@ async function reconcileCertificationProgress() {
     console.log(`...updating records for ${userCount} users`)
 
     for (const [userId, certifications] of Object.entries(reconciliationLog)) {
-        // TODO: for testing only
-        if (userId != 40029484) continue;
-        console.log(JSON.stringify(certifications, null, 2));
         for (const [certificationKey, reconciliationDetails] of Object.entries(certifications)) {
             await updateCertificationProgress(userId, certificationKey, reconciliationDetails)
         }
@@ -59,7 +55,6 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
 
     const certProgressId = reconciliationDetails.id;
     let progress = await dbHelper.getById('CertificationProgress', certProgressId)
-    // console.log(progress);
 
     for (const [moduleKey, moduleDetails] of Object.entries(reconciliationDetails.modules)) {
         const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleKey)
@@ -82,22 +77,18 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
 
         // check for duplicates of lessons that were completed but didn't have an
         // +id+ attribute
-        const reconciledLessonNames = reconciledLessons.map(lesson => lesson.dashedName);
-        for (let [completedIndex, lesson] of progress.modules[moduleIndex].completedLessons.entries()) {
-            const reconciledLessonIndex = _.indexOf(reconciledLessonNames, lesson.dashedName)
+        const completedLessonNames = progress.modules[moduleIndex].completedLessons.map(lesson => lesson.dashedName);
+        for (const reconciledLesson of reconciledLessons) {
+            const completedLessonIndex = _.indexOf(completedLessonNames, reconciledLesson.dashedName)
 
-            // if the reconciled lesson name is already in the completed lessons list,
-            // replace the completed lesson with the reconciled one (which will include the ID)
-            if (reconciledLessonIndex != -1) {
-                const reconciledLesson = reconciledLessons.splice(reconciledLessonIndex, 1);
-                progress.modules[moduleIndex].completedLessons[completedIndex] = reconciledLesson;
-                console.log('replaced lesson', reconciledLesson);
+            // if the reconciled lesson is already in the completed lessons list, replace
+            // the completed lesson with the reconciled one (which will include the ID)
+            if (completedLessonIndex != -1) {
+                progress.modules[moduleIndex].completedLessons[completedLessonIndex] = reconciledLesson;
+            } else {
+                progress.modules[moduleIndex].completedLessons.push(reconciledLesson)
             }
         }
-
-        // Add the remaining reconciled completed lessons to the certification progress
-        progress.modules[moduleIndex].completedLessons.push(...reconciledLessons);
-        console.log('updated lessons', progress.modules[moduleIndex].completedLessons);
 
         checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
     }
@@ -242,9 +233,6 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
             }
         }
     }
-
-    console.log("reconciliation log entries:", Object.keys(reconciliationLog).length);
-    console.log(JSON.stringify(reconciliationLog, null, 2));
 
     return reconciliationLog;
 }

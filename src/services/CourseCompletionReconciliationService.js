@@ -93,18 +93,18 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
         checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
     }
 
-    // update the certitication progress record
-    const updatedModules = {
-        modules: progress.modules
-    }
-
+    // update the certitication progress record with the reconciled 
+    // module lesson completion
     const idObj = {
         id: certProgressId,
         certification: progress.certification
     }
 
-    // let updatedProgress = await dbHelper.updateAtomic("CertificationProgress", idObj, updatedModules);
-    // console.log('updatedProgress', updatedProgress);
+    const updatedModules = {
+        modules: progress.modules
+    }
+
+    await dbHelper.updateAtomic("CertificationProgress", idObj, updatedModules);
 }
 
 async function getInProgressCerts() {

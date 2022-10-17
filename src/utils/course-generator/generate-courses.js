@@ -22,6 +22,7 @@ const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 const FreeCodeCampGenerator = require('./freeCodeCamp/parserGenerator');
+const reconciliationService = require('../../services/CourseCompletionReconciliationService');
 
 const PROVIDERS_FILE = 'providers.json';
 const STATUS_IN_PROGRESS = "in-progress";
@@ -432,6 +433,11 @@ function updateProgressModulesWithAssessmentAttr(progress, course) {
     })
 }
 
+async function runCourseCompletionReconciliationService() {
+    const { reconcileCourseCompletion } = reconciliationService;
+    await reconcileCourseCompletion();
+}
+
 // ----------------- start of CLI -----------------
 
 // Start with the learning resource providers whose certifications 
@@ -446,12 +452,14 @@ const writeOnlyCertsToDB = (args.indexOf('-r') > -1 ? true : false);
 const updateDBLessonIds = (args.indexOf('-u') > -1 ? true : false);
 const updateDBProgressIds = (args.indexOf('-p') > -1 ? true : false);
 const updateDBModuleAssessments = (args.indexOf('-m') > -1 ? true : false);
+const reconcileCourseCompletion = (args.indexOf('-c') > -1 ? true : false);
 const dryRun = (args.indexOf('-y') > -1 ? true : false);
 
 // Parse the CLI args for the provider name, if given
 if (args.length == 2 ||
     (args.length == 3 &&
-        (writeToDB || writeOnlyCertsToDB || updateDBLessonIds || updateDBProgressIds || updateDBModuleAssessments)) ||
+        (writeToDB || writeOnlyCertsToDB || updateDBLessonIds || updateDBProgressIds ||
+            updateDBModuleAssessments || reconcileCourseCompletion)) ||
     (args.length == 4 && dryRun)) {
     provider = loadDefaultProvider(providers);
 } else if ((args.length == 3 && !(writeToDB || writeOnlyCertsToDB)) || args.length == 4) {
@@ -500,5 +508,7 @@ if (provider) {
         updateCertProgressLessonIds(dryRun)
     } else if (updateDBModuleAssessments) {
         updateCertProgressAssessmentModules()
+    } else if (reconcileCourseCompletion) {
+        runCourseCompletionReconciliationService()
     }
 }

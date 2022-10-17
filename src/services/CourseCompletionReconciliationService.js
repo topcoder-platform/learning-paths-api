@@ -1,7 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
-const { checkAndSetModuleStatus } = require('./CertificationProgressService');
+const {
+    assessmentModuleNotCompleted,
+    checkAndSetModuleStatus
+} = require('./CertificationProgressService');
 
 const dbHelper = require('../common/helper')
 const { getCompletedChallengesForAllUsers } = require('./FreeCodeCampDataService');
@@ -11,6 +14,9 @@ let courseLessonMap;
 let inProgressCerts;
 let completedFccChallengeMap;
 let reconciliationLog;
+
+const STATUS_IN_PROGRESS = "in-progress";
+const STATUS_COMPLETED = "completed";
 
 async function reconcileCourseCompletion() {
     console.log("Starting lesson completion reconciliation...");
@@ -142,20 +148,26 @@ function updateModuleCompletedLessons(progress, moduleIndex, reconciledLessons) 
 async function checkCompletionProgress(progressId) {
     let progress = await dbHelper.getById('CertificationProgress', progressId)
 
-    checkCertificateCompletion(progress)
-
     const userId = progress.userId;
-    const provider = progress.provider;
     const certification = progress.certification;
 
+    const notCompleted = progress.modules.some(module => {
+        return assessmentModuleNotCompleted(module);
+    });
+
+    if (notCompleted) {
+        console.log(`** User ${userId} has NOT completed certification '${certification}'`);
+        return
+    }
+
+    // mark the certification as completed and log it
     const completionData = {
         completedDate: new Date(),
         status: STATUS_COMPLETED
     }
 
-    const updatedProgress = await helper.update(progress, completionData)
-    console.log(`** User ${userId} has completed ${provider} certification '${certification}'`);
-    decorateProgressCompletion(updatedProgress);
+    await dbHelper.update(progress, completionData)
+    console.log(`** User ${userId} has COMPLETED certification '${certification}'`);
 }
 
 /**
@@ -170,7 +182,7 @@ async function getInProgressCerts() {
     console.log(`** cert progress records: ${certificationProgresses.length}`)
 
     const inProgressCerts = certificationProgresses
-        .filter(certProgress => certProgress.status === 'in-progress')
+        .filter(certProgress => certProgress.status === STATUS_IN_PROGRESS)
     console.log(`** in-progress records:  ${inProgressCerts.length}`)
 
     return inProgressCerts
@@ -241,7 +253,7 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
         for (let module of modules) {
             const moduleKey = module.module;
 
-            if (module.moduleStatus != 'in-progress') continue;
+            if (module.moduleStatus != STATUS_IN_PROGRESS) continue;
 
             // Compute the difference in completed lessons between FCC and TCA
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);

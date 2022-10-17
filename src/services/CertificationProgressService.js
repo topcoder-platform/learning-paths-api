@@ -766,6 +766,7 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    assessmentModuleNotCompleted,
     checkAndSetModuleStatus,
     checkCertificateCompletion,
     completeCertification,

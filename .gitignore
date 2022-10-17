@@ -75,3 +75,7 @@ generated_courses.json
 
 # local docker volume
 local/docker
+
+# development scripts
+set_dev.sh
+set_prod.sh

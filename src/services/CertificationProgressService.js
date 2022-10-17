@@ -205,7 +205,7 @@ async function completeCertification(
 
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
 
-    checkCertificateCompletion(currentUser, progress)
+    checkCertificateCompletion(progress)
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -263,7 +263,9 @@ function validateWithSchema(modelSchema, data) {
  * 
  * @param {Object} module the module to check for completion
  */
-function checkCertificateCompletion(user, progress) {
+function checkCertificateCompletion(progress) {
+    const userId = progress.userId;
+
     // if any assessment module has not been completed, throw an error that 
     // will be returned to the caller as a non-success HTTP code 
     const notCompleted = progress.modules.some(module => {
@@ -272,7 +274,7 @@ function checkCertificateCompletion(user, progress) {
 
     if (notCompleted) {
         throw new errors.BadRequestError(
-            `User ${user.userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
+            `User ${userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
     } else {
         return true
     }
@@ -327,15 +329,8 @@ function validateQueryWithSchema(modelSchema, query) {
  * @returns {Object} the certification progress for the given user and certification
  */
 async function getCertificationProgress(userId, progressId) {
-    // testing performance 
-    var startTime = performance.now()
-
     let progress = await helper.getByIdAndUser('CertificationProgress', progressId, userId)
     decorateProgressCompletion(progress);
-
-    // testing performance
-    var endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'getCertificationProgress')
 
     return progress
 }
@@ -766,6 +761,8 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    checkAndSetModuleStatus,
+    checkCertificateCompletion,
     completeCertification,
     completeLesson,
     completeLessonViaMongoTrigger,

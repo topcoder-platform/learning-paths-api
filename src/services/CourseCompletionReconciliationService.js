@@ -19,6 +19,10 @@ async function reconcileCourseCompletion() {
     await reconcileCertificationProgress();
 }
 
+/**
+ * Compares the completed lesson data in MongoDB and DynamoDB and creates 
+ * a log of differences between the two.
+ */
 async function generateReconciliationLog() {
     courseLessonMap = await getCourseLessonMap('freeCodeCamp');
     inProgressCerts = await getInProgressCerts();
@@ -50,6 +54,14 @@ async function reconcileCertificationProgress() {
     }
 }
 
+/**
+ * Updates certification progress records in DynamoDB with details from 
+ * the reconciliation log.
+ * 
+ * @param {String} userId the ID of the user whose record is being updated
+ * @param {String} certificationKey the name of the certification being updated
+ * @param {Object} reconciliationDetails details from the reconciliation log
+ */
 async function updateCertificationProgress(userId, certificationKey, reconciliationDetails) {
     console.log(`\nupdating user ${userId} certification '${certificationKey}'`)
 
@@ -62,18 +74,7 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
             throw `Error: could not find module ${moduleKey} in cert progress ${certificationKey} (${certProgressId})`
         }
 
-        let reconciledLessons = [];
-        for (const [lessonId, lessonDetails] of Object.entries(moduleDetails.lessons)) {
-            const completedLesson = {
-                dashedName: lessonDetails.name,
-                completedDate: new Date(lessonDetails.completedDate),
-                id: lessonId
-            }
-            reconciledLessons.push(completedLesson);
-        }
-        const addedLessonCount = reconciledLessons.length;
-        const plural = addedLessonCount == 1 ? '' : 's';
-        console.log(`...adding ${addedLessonCount} completed lesson${plural} to '${moduleKey}'`)
+        let reconciledLessons = buildReconciledLessons(moduleKey, moduleDetails);
 
         // check for duplicates of lessons that were completed but didn't have an
         // +id+ attribute
@@ -107,6 +108,53 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
     await dbHelper.updateAtomic("CertificationProgress", idObj, updatedModules);
 }
 
+/**
+ * Builds the list of completed lessons from the reconciliation data 
+ * 
+ * @param {String} moduleKey the name (key) of the module
+ * @param {Object} moduleDetails reconciliation details for this module
+ * @returns array of reconciled completed lessons
+ */
+function buildReconciledLessons(moduleKey, moduleDetails) {
+    let reconciledLessons = [];
+    for (const [lessonId, lessonDetails] of Object.entries(moduleDetails.lessons)) {
+        const completedLesson = {
+            dashedName: lessonDetails.name,
+            completedDate: new Date(lessonDetails.completedDate),
+            id: lessonId
+        }
+        reconciledLessons.push(completedLesson);
+    }
+
+    const addedLessonCount = reconciledLessons.length;
+    const plural = addedLessonCount == 1 ? '' : 's';
+    console.log(`...adding ${addedLessonCount} completed lesson${plural} to '${moduleKey}'`)
+
+    return reconciledLessons;
+}
+
+function updateModuleCompletedLessons(progress, moduleIndex, reconciledLessons) {
+    // check for duplicates of lessons that were completed but didn't have an
+    // +id+ attribute
+    const completedLessonNames = progress.modules[moduleIndex].completedLessons.map(lesson => lesson.dashedName);
+    for (const reconciledLesson of reconciledLessons) {
+        const completedLessonIndex = _.indexOf(completedLessonNames, reconciledLesson.dashedName)
+
+        // if the reconciled lesson is already in the completed lessons list, replace
+        // the completed lesson with the reconciled one (which will include the ID)
+        if (completedLessonIndex != -1) {
+            progress.modules[moduleIndex].completedLessons[completedLessonIndex] = reconciledLesson;
+        } else {
+            progress.modules[moduleIndex].completedLessons.push(reconciledLesson)
+        }
+    }
+}
+
+/**
+ * Gets the certification progress records to evaluate 
+ * 
+ * @returns an array of certification progress records that are "in-progress"
+ */
 async function getInProgressCerts() {
     console.log("\nGetting in-progress certifications...");
 
@@ -122,21 +170,7 @@ async function getInProgressCerts() {
 
 /**
  * Creates a map of each user's completed FCC lesson IDs for each  
- * certification and module so we can easily lookup data. The map
- * is structured as follows:
- * 
- * {
-    <userId>: {
-        <certificationKey>: {
-            <moduleKey>: [
-                <lessonId>,
-                <lessonId>,
-                ...
-            ]
-        }, 
-        ...
-    }, 
-    ...
+ * certification and module so we can easily lookup data.
  */
 async function getCompletedFccChallengesMap() {
     console.log("\nGetting FCC completed challenges...");
@@ -201,6 +235,7 @@ function reconcileCertifications(inProgressCerts, fccChallengeMap) {
 
             if (module.moduleStatus != 'in-progress') continue;
 
+            // Compute the difference in completed lessons between FCC and TCA
             const diff = diffModuleCompletion(userId, certification, module, fccChallengeMap);
 
             // Record any diffs in the reconciliation log
@@ -288,7 +323,6 @@ function diffModuleCompletion(userId, certification, module, fccChallengeMap) {
                 }
             }
         }
-
     } catch (error) {
         console.log(`\nError processing ${userId} certification '${certification}' module '${moduleKey}'\n`)
         console.log(`FCC challenges`, fccChallengeMap[userId]);

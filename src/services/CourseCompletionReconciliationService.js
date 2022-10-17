@@ -65,39 +65,24 @@ async function reconcileCertificationProgress() {
 async function updateCertificationProgress(userId, certificationKey, reconciliationDetails) {
     console.log(`\nupdating user ${userId} certification '${certificationKey}'`)
 
-    const certProgressId = reconciliationDetails.id;
-    let progress = await dbHelper.getById('CertificationProgress', certProgressId)
+    const progressId = reconciliationDetails.id;
+    let progress = await dbHelper.getById('CertificationProgress', progressId)
 
     for (const [moduleKey, moduleDetails] of Object.entries(reconciliationDetails.modules)) {
         const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleKey)
         if (moduleIndex == -1) {
-            throw `Error: could not find module ${moduleKey} in cert progress ${certificationKey} (${certProgressId})`
+            throw `Error: could not find module ${moduleKey} in cert progress ${certificationKey} (${progressId})`
         }
 
         let reconciledLessons = buildReconciledLessons(moduleKey, moduleDetails);
-
-        // check for duplicates of lessons that were completed but didn't have an
-        // +id+ attribute
-        const completedLessonNames = progress.modules[moduleIndex].completedLessons.map(lesson => lesson.dashedName);
-        for (const reconciledLesson of reconciledLessons) {
-            const completedLessonIndex = _.indexOf(completedLessonNames, reconciledLesson.dashedName)
-
-            // if the reconciled lesson is already in the completed lessons list, replace
-            // the completed lesson with the reconciled one (which will include the ID)
-            if (completedLessonIndex != -1) {
-                progress.modules[moduleIndex].completedLessons[completedLessonIndex] = reconciledLesson;
-            } else {
-                progress.modules[moduleIndex].completedLessons.push(reconciledLesson)
-            }
-        }
-
+        updateModuleCompletedLessons(progress, moduleIndex, reconciledLessons);
         checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
     }
 
     // update the certitication progress record with the reconciled 
     // module lesson completion
     const idObj = {
-        id: certProgressId,
+        id: progressId,
         certification: progress.certification
     }
 
@@ -106,6 +91,10 @@ async function updateCertificationProgress(userId, certificationKey, reconciliat
     }
 
     await dbHelper.updateAtomic("CertificationProgress", idObj, updatedModules);
+
+    // check to see if the user has completed the certification now that the 
+    // lesson completion has been updated
+    await checkCompletionProgress(progressId)
 }
 
 /**
@@ -148,6 +137,25 @@ function updateModuleCompletedLessons(progress, moduleIndex, reconciledLessons) 
             progress.modules[moduleIndex].completedLessons.push(reconciledLesson)
         }
     }
+}
+
+async function checkCompletionProgress(progressId) {
+    let progress = await dbHelper.getById('CertificationProgress', progressId)
+
+    checkCertificateCompletion(progress)
+
+    const userId = progress.userId;
+    const provider = progress.provider;
+    const certification = progress.certification;
+
+    const completionData = {
+        completedDate: new Date(),
+        status: STATUS_COMPLETED
+    }
+
+    const updatedProgress = await helper.update(progress, completionData)
+    console.log(`** User ${userId} has completed ${provider} certification '${certification}'`);
+    decorateProgressCompletion(updatedProgress);
 }
 
 /**

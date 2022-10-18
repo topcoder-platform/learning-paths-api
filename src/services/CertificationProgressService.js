@@ -205,7 +205,7 @@ async function completeCertification(
 
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
 
-    checkCertificateCompletion(currentUser, progress)
+    checkCertificateCompletion(progress)
 
     const userId = progress.userId;
     const provider = progress.provider;
@@ -263,7 +263,9 @@ function validateWithSchema(modelSchema, data) {
  * 
  * @param {Object} module the module to check for completion
  */
-function checkCertificateCompletion(user, progress) {
+function checkCertificateCompletion(progress) {
+    const userId = progress.userId;
+
     // if any assessment module has not been completed, throw an error that 
     // will be returned to the caller as a non-success HTTP code 
     const notCompleted = progress.modules.some(module => {
@@ -272,7 +274,7 @@ function checkCertificateCompletion(user, progress) {
 
     if (notCompleted) {
         throw new errors.BadRequestError(
-            `User ${user.userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
+            `User ${userId} has not completed all required assessment modules for the ${progress.certificationTitle}`)
     } else {
         return true
     }
@@ -327,15 +329,8 @@ function validateQueryWithSchema(modelSchema, query) {
  * @returns {Object} the certification progress for the given user and certification
  */
 async function getCertificationProgress(userId, progressId) {
-    // testing performance 
-    var startTime = performance.now()
-
     let progress = await helper.getByIdAndUser('CertificationProgress', progressId, userId)
     decorateProgressCompletion(progress);
-
-    // testing performance
-    var endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'getCertificationProgress')
 
     return progress
 }
@@ -490,31 +485,30 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     console.log(`User ${currentUser.userId} setting current lesson to ${module}/${lesson}...`)
 
-    // testing performance 
-    var startTime = performance.now()
-
     validateQueryWithSchema(updateCurrentLesson.schema, query)
 
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
-    const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
 
-    if (moduleIndex != -1) {
-        const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
-        if (lastCompletedLesson) {
-            console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
-        }
-    }
+    // TODO: Commenting this out -- it was added to help debug issues with lesson completion tracking. 
+    // Please leave this here for now in case we need to turn it back on.
+
+    // const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
+    // if (moduleIndex != -1) {
+    //     const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
+    //     if (lastCompletedLesson) {
+    //         console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
+    //     }
+    // }
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
     // to the client if validation fails
 
-    // testing performance 
-    var startTimeValidate = performance.now()
-    await validateCourseLesson(progress, module, lesson)
-    // testing performance
-    var endTimeValidate = performance.now()
-    helper.logExecutionTime(startTimeValidate, endTimeValidate, 'validateCourseLesson')
+    // TODO: Commenting this out temporarily to account for lesson IDs that have changed 
+    // in the freeCodeCamp source that have not been propagated to the DynamoDB course 
+    // data yet.
+
+    // await validateCourseLesson(progress, module, lesson)
 
     const currentLesson = `${query.module}/${query.lesson}`
     const currentLessonData = {
@@ -528,10 +522,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     }
     let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, currentLessonData)
     decorateProgressCompletion(updatedProgress);
-
-    // testing performance
-    var endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'updateCurrentLesson', true)
 
     console.log(`User ${progress.userId} set current lesson to ${currentLesson}`)
 
@@ -771,6 +761,9 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    assessmentModuleNotCompleted,
+    checkAndSetModuleStatus,
+    checkCertificateCompletion,
     completeCertification,
     completeLesson,
     completeLessonViaMongoTrigger,

@@ -88,7 +88,7 @@ async function scanAllCourses(criteria) {
 
 scanAllCourses.schema = {
     criteria: Joi.object().keys({
-        page: Joi.page(),
+        page: Joi.number(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
         provider: Joi.string(),
     })
@@ -109,7 +109,7 @@ async function getCourse(id) {
 }
 
 getCourse.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 /**
@@ -174,7 +174,6 @@ async function getCourseModule(id, moduleKey) {
  *      values are the lesson's module, course, and certification identifiers.
  */
 async function getCourseLessonMap(provider) {
-
     const cacheKey = `lesson-map:${provider}`
     let lessonMap = helper.getFromInternalCache(cacheKey)
 
@@ -248,7 +247,7 @@ function decorateWithLessonCount(module) {
 }
 
 getCourseModules.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 module.exports = {

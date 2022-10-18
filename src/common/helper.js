@@ -426,10 +426,11 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
-  let results = await models[modelName].scan(scanParams).exec()
+  let results = await models[modelName].scan(scanParams).consistent().exec()
   let lastKey = results.lastKey
-  while (!_.isUndefined(results.lastKey)) {
-    const newResult = await models[modelName].scan(scanParams).consistent().startAt(lastKey).exec()
+
+  while (!_.isUndefined(lastKey)) {
+    const newResult = await models[modelName].scan(scanParams).consistent().startAt(lastKey).exec();
     results = [...results, ...newResult]
     lastKey = newResult.lastKey
   }

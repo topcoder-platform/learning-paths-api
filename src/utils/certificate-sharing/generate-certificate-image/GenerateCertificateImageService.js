@@ -28,21 +28,25 @@ const {
  * Wraps an Async function, generateCertificateImageAsync, with a non-async function
  * so that the inner function happens in the background
  * 
+ * @param {Object} progress The Certificate Progress record for which the cert is being generated
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certification The name of the certification for which we are generating an image
  * @param {string} provider The provider of the certificateion
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
+ * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+ * they will be added to the list of image files that will be created.
  * @returns {void}
  */
 function generateCertificateImage(
+    progress,
     handle,
     certification,
     provider,
     certificateUrl,
     certificateElement,
-    progress,
+    certificateAlternateParams,
 ) {
 
     // NOTE: This is an async function for which we are purposely NOT awaiting the response
@@ -55,6 +59,7 @@ function generateCertificateImage(
         provider,
         certificateUrl,
         certificateElement,
+        certificateAlternateParams,
     )
         .then(async (imageUrl) => {
             console.info('Successfully queued generation of', imageUrl)
@@ -73,7 +78,14 @@ function generateCertificateImage(
  * @param {string} provider The provider of the certification
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
- * should be converted to an image
+ * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+ * they will be added to the list of image files that will be created.
+ * E.g. [
+ *     {
+ *         key: "view-style",
+ *         value: "large-container",
+ *     }
+ * ]
  * @returns {Promise<String>} The URL at which the new image can be found
  */
 async function generateCertificateImageAsync(
@@ -82,6 +94,7 @@ async function generateCertificateImageAsync(
     provider,
     certificateUrl,
     certificateElement,
+    certificateAlternateParams,
 ) {
 
     // if we don't have all our info, we can't generate an image, so throw an error
@@ -93,9 +106,25 @@ async function generateCertificateImageAsync(
 
     // construct the FQDN and file path of the location where the image will be created
     const imageUrl = imageHelper.getCertImageUrl(handle, provider, certificationName)
+    const files = [
+        {
+            name: imageHelper.getCertImagePath(handle, provider, certificationName),
+            url: imageUrl,
+        },
+    ]
+
+    // if there are alt params, add those versions of the list of files to be created
+    certificateAlternateParams
+        ?.map(param => ({
+            name: `${files[0].name}-${param.value}`,
+            url: `${imageUrl}?${new URLSearchParams({ [param.key]: param.value })}`
+        }))
+        .forEach(param => files.push(param))
+
+    // construct the msg body
     const messageBody = {
         bucket,
-        filePath: imageHelper.getCertImagePath(handle, provider, certificationName),
+        files,
         screenshotSelector: certificateElement,
         url: certificateUrl,
     }
@@ -103,7 +132,7 @@ async function generateCertificateImageAsync(
     await queueHelper.sendMessageAsync(
         queue,
         messageBody,
-        `Creating Certificate Image: ${messageBody.filePath}`,
+        `Creating Certificate Image: ${imageUrl}`,
         handle,
     )
 

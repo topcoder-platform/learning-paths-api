@@ -195,12 +195,15 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  * @param {String} certificateUrl (optional) the URL at which the cert should be visible
  * @param {String} certificateElement (optional) the element w/in the cert that should be used for
  * image generation
+  * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+ * they will be added to the list of image files that will be created.
  */
 async function completeCertification(
     currentUser,
     certificationProgressId,
     certificateUrl,
-    certificateElement
+    certificateElement,
+    certificateAlternateParams,
 ) {
 
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
@@ -225,12 +228,13 @@ async function completeCertification(
 
         console.log(`Generating certificate image for ${userId} for ${certification}`)
         imageGenerator.generateCertificateImage(
+            progress,
             currentUser.nickname,
             certification,
             provider,
             certificateUrl,
             certificateElement,
-            progress
+            certificateAlternateParams,
         )
 
     } else {

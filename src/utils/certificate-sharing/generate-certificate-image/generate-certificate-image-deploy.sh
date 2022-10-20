@@ -8,7 +8,7 @@ set +a
 # validate the environment variables
 if [[ -z $CERT_IMAGE_DOMAIN ]]
     then
-        echo CERT_IMAGE_DOMAIN is required
+        echo "CERT_IMAGE_DOMAIN is required"
         exit 1
 fi
 
@@ -16,7 +16,7 @@ fi
 stage=$1
 if [[ -z $stage ]]
     then
-        echo Enter name of stage:
+        echo "Enter name of stage:"
         read STAGE
         stage=$STAGE
 fi
@@ -24,7 +24,7 @@ fi
 # if we didn't get a stage, we can't deploy
 if [[ -z $stage ]]
     then
-        echo Stage is required. Cancelling deployment.
+        echo "Stage is required. Cancelling deployment."
         exit 2
 fi
 
@@ -51,7 +51,8 @@ if [[ $silent != "Y" ]]
         exit 3
 fi
 
-# Deploy (i.e. create or update) the stack w/the params
+echo "Deploy (i.e. create or update) the stack w/the params"
+
 aws cloudformation deploy \
     --stack-name $stackName \
     --template-file $template \
@@ -59,22 +60,30 @@ aws cloudformation deploy \
         Stage=$stage \
         ImageStoreDomain=$CERT_IMAGE_DOMAIN
 
-# Create the lambda deployment package 
-deployZip=deploy.zip
+echo "Creating the lambda development package..."
+
+deployLog=deploy.txt
 deployYml=deploy.yml
+deployZip=deploy.zip
+
 aws cloudformation package \
     --template-file $template \
     --s3-bucket tca-certificate-generator-s3-$stage \
     --output-template-file $deployYml
 
-# Package the lambda code
+echo "Packaging the lambda code..."
+
 zip -r $deployZip handler.js
 
-# Deploy the lambda changes
+echo "Deploying the lambda..."
+
 aws lambda update-function-code \
     --function-name tca-certificate-generator-lambda-generate-image-$stage \
-    --zip-file fileb://$deployZip
+    --zip-file fileb://$deployZip \
+    > $deployLog
 
-# Clean up after the lambda changes
-rm $deployZip
+echo "Cleaning up after the lambda deployment"
+
+rm $deployLog
 rm $deployYml
+rm $deployZip

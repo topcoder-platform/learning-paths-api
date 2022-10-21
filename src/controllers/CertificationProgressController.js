@@ -75,7 +75,8 @@ async function completeCertification(req, res) {
         req.authUser,
         req.params.certificationProgressId,
         req.query.certificateUrl,
-        req.query.certificateElement)
+        req.query.certificateElement,
+        helper.parseQueryParam(req.query.certificateAlternateParams))
     res.send(result)
 }
 

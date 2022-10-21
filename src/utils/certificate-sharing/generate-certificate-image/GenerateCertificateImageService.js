@@ -106,9 +106,10 @@ async function generateCertificateImageAsync(
 
     // construct the FQDN and file path of the location where the image will be created
     const imageUrl = imageHelper.getCertImageUrl(handle, provider, certificationName)
+    const imageName = imageHelper.getCertImagePath(handle, provider, certificationName)
     const files = [
         {
-            name: imageHelper.getCertImagePath(handle, provider, certificationName),
+            name: imageName,
             url: imageUrl,
         },
     ]
@@ -116,7 +117,7 @@ async function generateCertificateImageAsync(
     // if there are alt params, add those versions of the list of files to be created
     certificateAlternateParams
         ?.map(param => ({
-            name: `${files[0].name}-${param.value}`,
+            name: `${imageName}-${param.value}`,
             url: `${imageUrl}?${new URLSearchParams({ [param.key]: param.value })}`
         }))
         .forEach(param => files.push(param))

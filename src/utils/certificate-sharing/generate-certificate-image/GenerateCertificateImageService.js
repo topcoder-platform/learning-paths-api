@@ -106,20 +106,21 @@ async function generateCertificateImageAsync(
 
     // construct the FQDN and file path of the location where the image will be created
     const imageUrl = imageHelper.getCertImageUrl(handle, provider, certificationName)
-    const imageName = imageHelper.getCertImagePath(handle, provider, certificationName)
     const files = [
         {
-            name: imageName,
-            url: imageUrl,
+            path: imageHelper.getCertImagePath(handle, provider, certificationName),
+            url: certificateUrl,
         },
     ]
 
     // if there are alt params, add those versions of the list of files to be created
     certificateAlternateParams
-        ?.map(param => ({
-            name: `${imageName}-${param.value}`,
-            url: `${imageUrl}?${new URLSearchParams({ [param.key]: param.value })}`
-        }))
+        ?.map(param => {
+            return ({
+                path: imageHelper.getCertImagePath(handle, provider, certificationName, param.value),
+                url: `${certificateUrl}?${new URLSearchParams({ [param.key]: param.value })}`
+            })
+        })
         .forEach(param => files.push(param))
 
     // construct the msg body
@@ -127,7 +128,6 @@ async function generateCertificateImageAsync(
         bucket,
         files,
         screenshotSelector: certificateElement,
-        url: certificateUrl,
     }
 
     await queueHelper.sendMessageAsync(

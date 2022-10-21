@@ -13,7 +13,9 @@ exports.index = async (event) => {
 
     try {
 
-        const { bucket, files, screenshotSelector } = validateParams(event.Records[0].body)
+        const body = event.Records[0].body
+        const params = body.constructor.name === 'String' ? JSON.parse(body) : body
+        const { bucket, files, screenshotSelector } = validateParams(params)
 
         // create and save each file
         for (let i = 0; i < files.length; i++) {
@@ -37,7 +39,7 @@ exports.index = async (event) => {
 
 async function generateAndSaveImageAsync(browser, bucket, file, screenshotSelector) {
 
-    console.info('Generating', file.name)
+    console.info('Scraping', file.url)
 
     // go to the page
     const page = await browser.newPage()
@@ -65,17 +67,17 @@ async function generateAndSaveImageAsync(browser, bucket, file, screenshotSelect
         screenshot = await page.screenshot(imageConfig)
     }
 
-    console.info('Generated', file.name)
+    console.info('Scraped', file.url)
 
-    console.info('Saving', file.name)
+    console.info('Saving', file.path)
 
     await putObjectToS3Async(
         bucket,
-        file.name,
+        file.path,
         screenshot
     )
 
-    console.info('Saved', file.name)
+    console.info('Saved', file.path)
 }
 
 async function initializeBrowser() {
@@ -117,7 +119,7 @@ function validateParams(params) {
     params.files
         .forEach(file => {
             validateRequired([
-                'name',
+                'path',
                 'url'
             ], file)
         })

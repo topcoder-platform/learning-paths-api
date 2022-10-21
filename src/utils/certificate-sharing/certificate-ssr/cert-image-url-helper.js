@@ -4,8 +4,8 @@ function getCertImageBaseUrl() {
     return imageBaseUrl
 }
 
-function getCertImagePath(handle, provider, certification) {
-    return `certificate/${handle}/${provider}/${certification}.jpg`
+function getCertImagePath(handle, provider, certification, altName) {
+    return `certificate/${handle}/${provider}/${certification}${!!altName ? `-${altName}`: ''}.jpg`
 }
 
 function getCertImageUrl(handle, provider, certification) {

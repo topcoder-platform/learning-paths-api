@@ -80,6 +80,7 @@ async function generateCertificateImageAsync(certProgress) {
         // apps, so just hard-coding here.
         `https://platform-ui.${imageDomain}/learn/${certProgress.provider}/${certProgress.certification}/${handle}/certificate`,
         '[data-id=certificate-container]',
+        // TODO: TCA-598 Need shared config to avoid hard-coding
         { 'view-port': 'large-container' },
     )
 }
@@ -88,6 +89,7 @@ async function generateCertificateImageAsync(certProgress) {
  * Gets the Alt image for a specific certification
  */
 function getAltImageUrl(url) {
+    // TODO: TCA-598 Need shared config to avoid hard-coding
     const altUrl = url.replace('.jpg', '-large-container.jpg')
     return altUrl
 }

@@ -112,15 +112,17 @@ async function generateCertificateImageAsync(
     ]
 
     // if there are alt params, add those versions of the list of files to be created
-    Object.keys(certificateAlternateParams)
-        ?.map(key => {
-            const value = certificateAlternateParams[key]
-            return ({
-                path: imageHelper.getCertImagePath(handle, provider, certificationName, value),
-                url: `${certificateUrl}?${new URLSearchParams({ [key]: value })}`
+    if (!!certificateAlternateParams) {
+        Object.keys(certificateAlternateParams)
+            ?.map(key => {
+                const value = certificateAlternateParams[key]
+                return ({
+                    path: imageHelper.getCertImagePath(handle, provider, certificationName, value),
+                    url: `${certificateUrl}?${new URLSearchParams({ [key]: value })}`
+                })
             })
-        })
-        .forEach(param => files.push(param))
+            .forEach(param => files.push(param))
+    }
 
     console.log('Generating', files)
 

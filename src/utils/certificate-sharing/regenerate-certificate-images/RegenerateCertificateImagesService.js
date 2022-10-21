@@ -1,26 +1,61 @@
+const AWS = require('aws-sdk')
 const urlExists = require('url-exists')
 
 const imageGenerator = require('../generate-certificate-image/GenerateCertificateImageService')
 const paramHelper = require('../env-param-helper')
+const urlHelper = require('../certificate-ssr/cert-image-url-helper')
 
 const certProgressStore = require('./CertificationProgressStore')
 const userStore = require('./UserStore')
 
 // init the env vars on load
 const {
+    bucket,
     imageDomain,
 } = paramHelper.initializeEnvironmentParams(
     [
+        'CERT_BUCKET',
         'CERT_IMAGE_DOMAIN',
     ],
     [
+        'bucket',
         'imageDomain'
-    ])
+    ]
+)
+
+/**
+ * Deletes all the Alt images for completed courses.
+ * 
+ * This is necessary if we ever change the layout of the alt images.
+ * 
+ * @param {Array<Object>} completedCerts The list of completed 
+ * Certification Progress records
+ */
+async function deleteAltImagesAsync(completedCerts) {
+
+    const s3 = await new AWS.S3()
+    const params = {
+        Bucket: bucket,
+    }
+
+    for (let i = 0; i < completedCerts.length; i++) {
+        const altUrl = getAltImageUrl(completedCerts[i].certificationImageUrl)
+        const altPath = altUrl.replace(`${urlHelper.getCertImageBaseUrl()}/`, '')
+        params.Key = altPath
+        s3.deleteObject(params, function (err, data) {
+            if (err) {
+                console.error(err, altPath, err.stack);
+            } else {
+                console.log('deleted', altPath)
+            }
+        })
+    }
+}
 
 /**
  * Generates a cert image.
  * 
- * @param {string} certProgress The Certification Progress record for the
+ * @param {Object} certProgress The Certification Progress record for the
  * image we need to generate
  * 
  * NOTE: If the we can't find a handle linked to the user's ID, we can't create
@@ -37,6 +72,7 @@ async function generateCertificateImageAsync(certProgress) {
     // generate the images asynchronously in the bg
     console.debug('generating for', handle)
     imageGenerator.generateCertificateImage(
+        certProgress,
         handle,
         certProgress.certification,
         certProgress.provider,
@@ -44,8 +80,16 @@ async function generateCertificateImageAsync(certProgress) {
         // apps, so just hard-coding here.
         `https://platform-ui.${imageDomain}/learn/${certProgress.provider}/${certProgress.certification}/${handle}/certificate`,
         '[data-id=certificate-container]',
-        certProgress,
+        { 'view-port': 'large-container' },
     )
+}
+
+/**
+ * Gets the Alt image for a specific certification
+ */
+function getAltImageUrl(url) {
+    const altUrl = url.replace('.jpg', '-large-container.jpg')
+    return altUrl
 }
 
 /**
@@ -54,23 +98,31 @@ async function generateCertificateImageAsync(certProgress) {
  * @param {string} certProgress The Certification Progress record for the
  * image for which we are checking its cert image URL
  */
-function handleImageUrlExistsRequest(certProgress) {
+function handleImageUrlExistsRequest(url, certProgress, isAltUrl) {
 
     return (err, certificateExists) => {
 
         // if we got an error, we have a prob
         if (!!err) {
-            console.error(`Checking existence of ${certProgress.certificationImageUrl} caused ${err}`)
+            console.error(`Checking existence of ${url} caused ${err}`)
             return
         }
 
         // if the image exists, don't do anything
         if (certificateExists) {
-            console.log('Exists:', certProgress.certificationImageUrl)
+
+            console.log('Exists:', url)
+
+            // if this isn't the alt url, try the alt url
+            if (!isAltUrl) {
+                const altUrl = getAltImageUrl(url)
+                urlExists(altUrl, handleImageUrlExistsRequest(altUrl, certProgress, true))
+            }
+
             return
         }
 
-        console.log(`${certProgress.certificationImageUrl} does NOT exist. Generating...`)
+        console.log(`${url} does NOT exist. Generating...`)
         generateCertificateImageAsync(certProgress)
     }
 }
@@ -91,7 +143,11 @@ async function processCompletedWithMissingImage(completedCertifications) {
 
     // check that the image exists and create those that don't
     completedWithImage
-        .forEach(certProgress => urlExists(certProgress.certificationImageUrl, handleImageUrlExistsRequest(certProgress)))
+        .forEach(certProgress =>
+            urlExists(
+                certProgress.certificationImageUrl,
+                handleImageUrlExistsRequest(certProgress.certificationImageUrl, certProgress)
+            ))
 }
 
 /**
@@ -119,7 +175,11 @@ async function processCompletedWithNoImageUrl(completedCertifications) {
  */
 async function regenerateImagesAsync() {
 
-    const completedCertifications = await certProgressStore.getAllCompleted()
+    // sort the certs so they're easier to read in the logs
+    const completedCertifications = (await certProgressStore.getAllCompleted())
+        .sort((a, b) => a.certificationImageUrl.localeCompare(b.certificationImageUrl))
+
+    // deleteAltImagesAsync(completedCertifications)
 
     processCompletedWithNoImageUrl(completedCertifications)
 

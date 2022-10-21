@@ -80,12 +80,10 @@ function generateCertificateImage(
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
  * they will be added to the list of image files that will be created.
- * E.g. [
- *     {
- *         key: "view-style",
- *         value: "large-container",
- *     }
- * ]
+ * E.g. 
+ * {
+ *     "view-style": "large-container",
+ * }
  * @returns {Promise<String>} The URL at which the new image can be found
  */
 async function generateCertificateImageAsync(

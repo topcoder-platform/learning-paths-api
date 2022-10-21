@@ -35,7 +35,7 @@ const {
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
  * should be converted to an image
- * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+ * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
  * they will be added to the list of image files that will be created.
  * @returns {void}
  */
@@ -78,7 +78,7 @@ function generateCertificateImage(
  * @param {string} provider The provider of the certification
  * @param {String} certificateUrl The URL for the certificate
  * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
- * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+ * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
  * they will be added to the list of image files that will be created.
  * E.g. [
  *     {
@@ -114,14 +114,17 @@ async function generateCertificateImageAsync(
     ]
 
     // if there are alt params, add those versions of the list of files to be created
-    certificateAlternateParams
-        ?.map(param => {
+    Object.keys(certificateAlternateParams)
+        ?.map(key => {
+            const value = certificateAlternateParams[key]
             return ({
-                path: imageHelper.getCertImagePath(handle, provider, certificationName, param.value),
-                url: `${certificateUrl}?${new URLSearchParams({ [param.key]: param.value })}`
+                path: imageHelper.getCertImagePath(handle, provider, certificationName, value),
+                url: `${certificateUrl}?${new URLSearchParams({ [key]: value })}`
             })
         })
         .forEach(param => files.push(param))
+
+    console.log('Generating', files)
 
     // construct the msg body
     const messageBody = {

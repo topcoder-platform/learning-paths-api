@@ -195,7 +195,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
  * @param {String} certificateUrl (optional) the URL at which the cert should be visible
  * @param {String} certificateElement (optional) the element w/in the cert that should be used for
  * image generation
-  * @param {Array<Object>} certificateAlternateParams (optional) If there are any alternate params,
+  * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
  * they will be added to the list of image files that will be created.
  */
 async function completeCertification(

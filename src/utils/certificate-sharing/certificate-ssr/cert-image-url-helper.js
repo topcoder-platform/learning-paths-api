@@ -8,8 +8,8 @@ function getCertImagePath(handle, provider, certification, altName) {
     return `certificate/${handle}/${provider}/${certification}${!!altName ? `-${altName}`: ''}.jpg`
 }
 
-function getCertImageUrl(handle, provider, certification) {
-    const imageUrl = `${getCertImageBaseUrl()}/${getCertImagePath(handle, provider, certification)}`
+function getCertImageUrl(handle, provider, certification, altName) {
+    const imageUrl = `${getCertImageBaseUrl()}/${getCertImagePath(handle, provider, certification, altName)}`
     validateImageUrl(imageUrl)
     return imageUrl
 }

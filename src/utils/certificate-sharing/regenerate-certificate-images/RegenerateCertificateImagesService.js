@@ -111,20 +111,20 @@ function handleImageUrlExistsRequest(url, certProgress, isAltUrl) {
         }
 
         // if the image exists, don't do anything
+        const altUrl = getAltImageUrl(url)
         if (certificateExists) {
 
             console.log('Exists:', url)
 
             // if this isn't the alt url, try the alt url
             if (!isAltUrl) {
-                const altUrl = getAltImageUrl(url)
                 urlExists(altUrl, handleImageUrlExistsRequest(altUrl, certProgress, true))
             }
 
             return
         }
 
-        console.log(`${url} does NOT exist. Generating...`)
+        console.log('Does Not Exist:', isAltUrl ? altUrl : url)
         generateCertificateImageAsync(certProgress)
     }
 }

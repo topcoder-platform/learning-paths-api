@@ -3,9 +3,17 @@
         {
             "body": {
                 "bucket": "tca-certificate-generator-s3-dev",
-                "filePath": "certificate/jcori/responsive-web-design.jpg",
-                "screenshotSelector": "[data-id=certificate-container]",
-                "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
+                "files": [
+                    {
+                        "name": "certificate/jcori/freeCodeCamp/responsive-web-design.jpg",
+                        "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
+                    },
+                    {
+                        "name": "certificate/jcori/freeCodeCamp/responsive-web-design-large-container.jpg",
+                        "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate?view-style=large-container"
+                    }
+                ],
+                "screenshotSelector": "[data-id=certificate-container]"
             }
         }
     ]

@@ -15,51 +15,13 @@ exports.index = async (event) => {
 
         const body = event.Records[0].body
         const params = body.constructor.name === 'String' ? JSON.parse(body) : body
-        validateParams(params)
+        const { bucket, files, screenshotSelector } = validateParams(params)
 
-        // set up the chromium headless browser
-        browser = await chromium.puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
-            headless: chromium.headless,
-            ignoreHTTPSErrors: true,
-        })
-
-        // go to the page
-        const page = await browser.newPage()
-        await page.goto(params.url)
-
-        // get the screenshot of the page
-        let screenshot = undefined
-        const imageConfig = { type: 'jpeg' }
-
-        // if there's an element, wait for it and save it
-        if (!!params.screenshotSelector) {
-
-            // wait for the specific element to appear
-            await page.waitForSelector(params.screenshotSelector, { timeout: 1000 })
-
-            // select the element
-            const element = await page.$(params.screenshotSelector)
-
-            // take a screenshot of the element
-            screenshot = await element.screenshot(imageConfig)
-
-        } else {
-
-            // take a screenshot of the entire page
-            screenshot = await page.screenshot(imageConfig)
+        // create and save each file
+        for (let i = 0; i < files.length; i++) {
+            browser = browser ?? (await initializeBrowser())
+            await generateAndSaveImageAsync(browser, bucket, files[i], screenshotSelector)
         }
-
-        await putObjectToS3Async(
-            params.bucket,
-            params.filePath,
-            screenshot
-        )
-
-        console.info(`Created cert image for ${params.url}`)
-        console.info(`Saved cert image at ${params.filePath} in ${params.bucket}`)
 
     } catch (error) {
         console.error(error)
@@ -73,6 +35,61 @@ exports.index = async (event) => {
             await browser.close()
         }
     }
+}
+
+async function generateAndSaveImageAsync(browser, bucket, file, screenshotSelector) {
+
+    console.info('Scraping', file.url)
+
+    // go to the page
+    const page = await browser.newPage()
+    await page.goto(file.url)
+
+    // get the screenshot of the page
+    let screenshot = undefined
+    const imageConfig = { type: 'jpeg' }
+
+    // if there's an element, wait for it and save it
+    if (!!screenshotSelector) {
+
+        // wait for the specific element to appear
+        await page.waitForSelector(screenshotSelector, { timeout: 1000 })
+
+        // select the element
+        const element = await page.$(screenshotSelector)
+
+        // take a screenshot of the element
+        screenshot = await element.screenshot(imageConfig)
+
+    } else {
+
+        // take a screenshot of the entire page
+        screenshot = await page.screenshot(imageConfig)
+    }
+
+    console.info('Scraped', file.url)
+
+    console.info('Saving', file.path)
+
+    await putObjectToS3Async(
+        bucket,
+        file.path,
+        screenshot
+    )
+
+    console.info('Saved', file.path)
+}
+
+async function initializeBrowser() {
+
+    // set up the chromium headless browser
+    return await chromium.puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+    })
 }
 
 async function putObjectToS3Async(bucket, key, image) {
@@ -89,16 +106,33 @@ async function putObjectToS3Async(bucket, key, image) {
 
 function validateParams(params) {
 
-    const requiredParam = [
+    validateRequired([
         'bucket',
-        'filePath',
-        'url',
-    ]
+        'files',
+    ], params)
+
+    // verify the files param is a non-empty array
+    if (!params.files?.[0]) {
+        throw new Error(`The files param must be a non-empty array: ${params.files?.[0]}`)
+    }
+
+    params.files
+        .forEach(file => {
+            validateRequired([
+                'path',
+                'url'
+            ], file)
+        })
+
+    return params
+}
+
+function validateRequired(required, params) {
+
+    const requiredParam = required
         .find(param => !params?.[param])
 
     if (!!requiredParam) {
-        const errorMessage = `The ${requiredParam} param is required.`
-        console.error(errorMessage, params)
-        throw new Error(errorMessage)
+        throw new Error(`The ${requiredParam} param is required.`)
     }
 }

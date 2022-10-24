@@ -81,7 +81,7 @@ async function generateCertificateImageAsync(certProgress) {
         `https://platform-ui.${imageDomain}/learn/${certProgress.provider}/${certProgress.certification}/${handle}/certificate`,
         '[data-id=certificate-container]',
         // TODO: TCA-598 Need shared config to avoid hard-coding
-        { 'view-port': 'large-container' },
+        { 'view-style': 'large-container' },
     )
 }
 

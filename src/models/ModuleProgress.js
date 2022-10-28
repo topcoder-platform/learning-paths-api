@@ -26,6 +26,14 @@ const schema = new Schema({
         default: false,
         required: false
     },
+    startDate: {
+        type: Date,
+        required: false
+    },
+    completedDate: {
+        type: Date,
+        required: false
+    },
     completedLessons: {
         type: Array,
         schema: [{

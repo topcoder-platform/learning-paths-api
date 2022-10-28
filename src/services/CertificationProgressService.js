@@ -145,7 +145,7 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
     console.log(`User ${userId} starting ${provider.name} certification ${certificationName} now`)
 
     const modules = courseModules.map(module => {
-        return {
+        let progressModule = {
             module: module.key,
             moduleStatus: module.key == query.module ? STATUS_IN_PROGRESS : STATUS_NOT_STARTED,
             isAssessment: module.meta.isAssessment,
@@ -154,6 +154,13 @@ async function buildNewCertificationProgress(userId, certificationId, courseId, 
             completedLessons: [],
             completedPercentage: 0
         }
+
+        // set the module start date
+        if (module.key == query.module) {
+            progressModule.startDate = new Date()
+        }
+
+        return progressModule;
     })
 
     const progress = {
@@ -383,9 +390,6 @@ function decorateProgressCompletion(progress) {
  * @param {Object} module course module to add progress information
  */
 function computeModuleProgress(module) {
-    // testing performance 
-    // var startTime = performance.now()
-
     const lessonCount = module.lessonCount || 0;
     const completedLessonCount = module.completedLessons.length || 0;
     module.completedLessonCount = completedLessonCount;
@@ -396,10 +400,6 @@ function computeModuleProgress(module) {
     }
 
     module.completedPercentage = completedPercentage;
-
-    // testing performance
-    // var endTime = performance.now()
-    // helper.logExecutionTime(startTime, endTime, 'computeModuleProgress')
 }
 
 /**
@@ -496,13 +496,18 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     // TODO: Commenting this out -- it was added to help debug issues with lesson completion tracking. 
     // Please leave this here for now in case we need to turn it back on.
 
-    // const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
-    // if (moduleIndex != -1) {
-    //     const lastCompletedLesson = _.last(progress.modules[moduleIndex].completedLessons)
-    //     if (lastCompletedLesson) {
-    //         console.log(`User ${progress.userId} last completed lesson was ${lastCompletedLesson.dashedName}`)
-    //     }
-    // }
+    // Set the module start date if it hasn't already been started. Set the 
+    // module status to in-progress, too.
+    const moduleIndex = progress.modules.findIndex(mod => mod.module == module)
+    if (moduleIndex != -1) {
+        if (!progress.modules[moduleIndex].startDate) {
+            progress.modules[moduleIndex].startDate = new Date()
+        }
+
+        if (progress.modules[moduleIndex].moduleStatus == STATUS_NOT_STARTED) {
+            progress.modules[moduleIndex].moduleStatus = STATUS_IN_PROGRESS
+        }
+    }
 
     // Validate that the given module and lesson are correct for the 
     // certification/course. Will throw an error that is propagated back 
@@ -514,17 +519,20 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     // await validateCourseLesson(progress, module, lesson)
 
-    const currentLesson = `${query.module}/${query.lesson}`
-    const currentLessonData = {
-        currentLesson: currentLesson
-    }
-
     // create a composite id key for the update
     const idObj = {
         id: certificationProgressId,
         certification: progress.certification
     }
-    let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, currentLessonData)
+
+    // set the data to update
+    const currentLesson = `${query.module}/${query.lesson}`
+    const currentLessonAndModuleData = {
+        currentLesson: currentLesson,
+        modules: progress.modules
+    }
+
+    let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, currentLessonAndModuleData)
     decorateProgressCompletion(updatedProgress);
 
     console.log(`User ${progress.userId} set current lesson to ${currentLesson}`)
@@ -587,8 +595,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}...`)
 
-    const startTime = performance.now()
-
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
     const { error } = schema.validate({ query })
@@ -597,9 +603,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     }
 
     const updatedProgress = await setLessonComplete(userId, certificationProgressId, moduleName, lessonName, lessonId);
-
-    const endTime = performance.now()
-    helper.logExecutionTime(startTime, endTime, 'completeLesson')
 
     return updatedProgress
 }
@@ -732,6 +735,9 @@ function checkAndSetModuleStatus(userId, module) {
     } else if (moduleCompleted) {
         // console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
+        if (!module.completedDate) {
+            module.completedDate = new Date()
+        }
     }
 }
 

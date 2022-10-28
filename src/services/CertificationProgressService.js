@@ -493,9 +493,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
 
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
 
-    // TODO: Commenting this out -- it was added to help debug issues with lesson completion tracking. 
-    // Please leave this here for now in case we need to turn it back on.
-
     // Set the module start date if it hasn't already been started. Set the 
     // module status to in-progress, too.
     const moduleIndex = progress.modules.findIndex(mod => mod.module == module)

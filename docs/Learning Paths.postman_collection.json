@@ -522,7 +522,7 @@
 							"value": "{{CERTIFICATE_ELEMENT}}"
 						},
 						{
-							"key": "certificateAlternateParams[view-port]",
+							"key": "certificateAlternateParams[view-style]",
 							"value": "large-container"
 						}
 					]

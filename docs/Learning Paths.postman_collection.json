@@ -520,6 +520,10 @@
 						{
 							"key": "certificateElement",
 							"value": "{{CERTIFICATE_ELEMENT}}"
+						},
+						{
+							"key": "certificateAlternateParams[view-style]",
+							"value": "large-container"
 						}
 					]
 				}

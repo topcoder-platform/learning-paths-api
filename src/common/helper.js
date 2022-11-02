@@ -553,6 +553,12 @@ function logExecutionTime2(start, functionName, linebreak = false) {
   if (linebreak) console.log('')
 }
 
+function parseQueryParam(param) {
+  return param?.constructor.name === 'String'
+    ? JSON.parse(param)
+    : param
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -569,6 +575,7 @@ module.exports = {
   hasAdminRole,
   logExecutionTime,
   logExecutionTime2,
+  parseQueryParam,
   partialMatch,
   pluralize,
   queryCompletedCertifications,

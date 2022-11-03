@@ -79,3 +79,5 @@ local/docker
 # development scripts
 set_dev.sh
 set_prod.sh
+
+udemy-courses.json

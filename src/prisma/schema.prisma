@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UdemyCourse {
+  id                             Int          @id
+  title                          String
+  description                    String
+  headline                       String
+  url                            String
+  categories                     String[]
+  topics                         String[]
+  promo_video_url                Json
+  instructors                    String[]
+  requirements                   String[]
+  what_you_will_learn            String[]
+  level                          LearnerLevel
+  images                         Json
+  locale                         String       @db.VarChar(6)
+  primary_category               String       @db.VarChar(100)
+  primary_subcategory            String       @db.VarChar(100)
+  estimated_content_length       Int
+  estimated_content_length_video Int
+  num_lectures                   Int
+  num_videos                     Int
+  last_update_date               DateTime
+}
+
+enum LearnerLevel {
+  All_Levels   @map("All Levels")
+  Beginner
+  Intermediate
+  Expert
+}

@@ -1,0 +1,159 @@
+{
+    "_class": "course",
+    "id": 1241098,
+    "title": "AWS Lambda and the Serverless Framework - Hands On Learning!",
+    "description": "<p><strong>AWS&nbsp;Lambda and the Serverless Framework&nbsp;</strong>is the <strong>QUICKEST</strong> way to get started in the <strong>serverless</strong> world, to deploy <strong>AWS Lambda functions</strong> in <strong>Amazon Web&nbsp;Services</strong>&nbsp;that <strong>infinitely scale</strong> without managing any servers!</p><p>This course, <em>unlike others</em>, has an approach that teaches you how to <strong>deploy AWS Lambda functions from the first lectures properly</strong>.</p><ul><li><p>no manual work through the AWS&nbsp;UI</p></li><li><p>all your configuration and deployment is coded using YAML and the Serverless framework</p></li><li><p>no headaches packaging your functions as zip files</p></li></ul><p>AWS&nbsp;Lambda is a fantastic tool to master when learned the right way.</p><ul><li><p>Save in cost - you only pay per usage</p></li><li><p>save in operational burden - no servers to manage!</p></li><li><p>Scale automatically from 0 to millions of API&nbsp;calls. </p></li></ul><p>Additionally, you will learn AWS SAM (Serverless Application Model), another framework used to configure, develop and deploy serverless applications.</p><p>For this course, we'll deploy several real-world functions to AWS&nbsp;Lambda:</p><ul><li><p>An automated thumbnail generation service on S3 (Python)</p></li><li><p>A REST&nbsp;API using AWS&nbsp;API&nbsp;Gateway &amp;&nbsp;Lambda (nodeJS)</p></li><li><p>A REST&nbsp;API using AWS&nbsp;API&nbsp;Gateway &amp;&nbsp;Lambda (Python 3)</p></li><li><p>An Email Service Using Lambda, SES, API Gateway, and NextJS for the front-end (NodeJS)</p></li><li><p>An Email Subscriber Service using SNS, API Gateway, S3, EventBridge (Schedule), DynamoDB, Lambda, SendGrid API (NodeJS)</p></li></ul><p><strong>After finishing the course, you'll be able to write any function you want. </strong></p><p>In this course, you will be learning, by doing, everything you need to know to be proficient at using AWS Lambda and integrating with many different AWS services through the Serverless Framework and AWS SAM framework!</p><p><br>Try this course, and you have 30 days to be refunded if you don't like it. You have nothing to lose!</p><p><br></p><p>---------------------------------</p><p><strong>This course also comes with:</strong></p><ul><li><p>Lifetime access to all future updates</p></li><li><p>A responsive instructor in the Q&amp;A Section</p></li><li><p>Udemy Certificate of Completion Ready for Download</p></li><li><p>A 30 Day \"No Questions Asked\" Money Back Guarantee!</p></li></ul><p><strong>Join me in this course if you want to learn about AWS Lambda and the Serverless Framework and master the AWS platform!</strong></p>",
+    "url": "https://topcodertrial.udemy.com/course/aws-lambda-serverless/",
+    "estimated_content_length": 629,
+    "categories": [
+        "Cloud Development"
+    ],
+    "topics": [
+        {
+            "_class": "course_label",
+            "id": 4452,
+            "title": "Amazon AWS",
+            "url": "/topic/amazon-aws/"
+        },
+        {
+            "_class": "course_label",
+            "id": 21814,
+            "title": "AWS Lambda",
+            "url": "/topic/aws-lambda/"
+        }
+    ],
+    "num_lectures": 91,
+    "num_videos": 195,
+    "promo_video_url": [
+        {
+            "type": "video/mp4",
+            "label": "720",
+            "file": "https://mp4-c.udemycdn.com/2022-02-27_09-03-55-4ab2f9852f5ca08ddfb812ed44064b17/2/WebHD_720p.mp4?Expires=1667006256&Signature=AIoTo1hqvDXF5s8cHmMxkQmjqcG2za7w6OW~8jwhthMz8AGSE-nq9sEzrsmDlwiPo-nY3O-4HWtTceoSHeRu4SdxLKc-0U9jTaxxhKSjQrkeThpvfMpFR4TbgZBa2NPghlpb5GR57NQYcqJSfRbtSysvDCq1W2T2J0NsjcwSg5ZeptstP0XPM0zLy~l9UFwe86kH1sdKbKAVntwEQYy1S3Ha47sseIk1YW69CJce6ufk1KiIdGwRXkGjKzyi6RTjT4Io879B24ZDFMVkmY~~JOPnQq3U1v9uBQSdlWam5sFJvZAWYKijqjiXBJmC4Z1ucdX2Rxlo35E8ct0Ps1BsBA__&Key-Pair-Id=APKAITJV77WS5ZT7262A"
+        },
+        {
+            "type": "video/mp4",
+            "label": "480",
+            "file": "https://mp4-c.udemycdn.com/2022-02-27_09-03-55-4ab2f9852f5ca08ddfb812ed44064b17/2/WebHD_480.mp4?Expires=1667006256&Signature=F1N9QMfIVlma210OYJaNjKxQK7OsBuOVukvlCjyTrLUHVP9JSe1fwYymjQb-oTZyFt6YjxucVaYtqz2aiBJl7cDShUzgV5XEwJ0lwz9JUQuOGiYzuSk0RHx7d6Bb0LrwVAkXJ~wZSn6xAgm0vJOoF~l1y6RRpc6UQJf3vhylhfdx4RL8tD8JnJE6k2i7YJspfDzTfGgpjExQBvATdpm1zOQUO4PArwNdZceHjxa-70j8wIi8V4SiL5ipjPdEafTmN~-QeeJTLtKVkab-fo3eJVKS-8QLyfUIpDuUgjvdDp02mlh7KYfMWUPxhhUFHOO9RP4czpbL~7QctORx7gb7hQ__&Key-Pair-Id=APKAITJV77WS5ZT7262A"
+        },
+        {
+            "type": "video/mp4",
+            "label": "360",
+            "file": "https://mp4-c.udemycdn.com/2022-02-27_09-03-55-4ab2f9852f5ca08ddfb812ed44064b17/2/WebHD.mp4?Expires=1667006256&Signature=O3uPUnYBLIkMJ3huUimgalK7SEi93CofDFya-6TgLgmGxLqM6I2pIQvR33CW~1bm9o-qB9eexodvvgmcrzlq4b98unl4N-ErG-iqdzfeHeuhc54zOyTPon57mWXfB61xw8RyYQWFiELtJjpejSW-dEgNLzybYXlnQUGPSGe1vaEzXun~ntrNkAuDPjCbuAHrexsn-kc3ZPpw6eshzv1WKLlEhC-7jGitafY0cmSAWM17XciCMM6ty0BvF1~76BFVWeil9741I9ED9syda0OrcKSS8jkQj2BQtJ5YEWI7IDSOa~mle~pGdJoer4EOuRZXq6hS7LP4Dw11Z45s9aqTyg__&Key-Pair-Id=APKAITJV77WS5ZT7262A"
+        },
+        {
+            "type": "video/mp4",
+            "label": "144",
+            "file": "https://mp4-c.udemycdn.com/2022-02-27_09-03-55-4ab2f9852f5ca08ddfb812ed44064b17/2/Web_144.mp4?Expires=1667006256&Signature=kKvXH4RDSnC4IN4RWnW4~fdSWfFRHTq~EHh7LpwRyfJsXdItfakr2kPlN1YgyLb7Eifw-LNmNq0IOZcg2F-L2Fvvc4D7ij0iapWSizRFoGP9fnjKCcnJgomVYHwKRywidH0n-IRzm0-78deH5TIZwoJveKVNIpKwdM0PtBNQ1cSqIHKTMZRB2sd7UyWOWCqO1b9rDS083Hyk8bb4nWUIq-1JRdB6I6Gew31RpUW0fdnsbOqBRx3egL0~JqGlPGDcz5sVpSF4012~7CiSq2vSDQ3Rjp0IO0whYIYXX9t-3wS8IlsCSA3rm2o8ETR0xaI8nv3eG-cQIwHrgWgHoQfMcA__&Key-Pair-Id=APKAITJV77WS5ZT7262A"
+        }
+    ],
+    "instructors": [
+        "Paulo Dichone | Software Engineer, AWS Cloud Practitioner & Instructor"
+    ],
+    "requirements": {
+        "list": [
+            "Good to have basic knowledge on Python or NodeJS for scripting",
+            "Basic understanding of the AWS Cloud is preferred to take this course",
+            "Recent Mac / Linux / Windows machine",
+            "Knowledge of the command line is preferred",
+            "Lots of desire to learn new exciting things!"
+        ]
+    },
+    "what_you_will_learn": {
+        "list": [
+            "Develop and deploy AWS Lambda functions properly with the Serverless Framework",
+            "Learn the fundamentals and advanced options of AWS Lambda",
+            "Deploy three real world projects that interact with S3, SES, Step Function, SNS, EventBridge, API Gateway, DynamoDB, EC2 & CloudWatch",
+            "Learn YAML and configure and manage your entire deployment using code",
+            "At the end, you'll be ready to write any AWS Lambda functions you desire",
+            "Learn AWS SAM (Serverless Application Model)"
+        ]
+    },
+    "images": {
+        "size_48x27": "https://img-c.udemycdn.com/course/48x27/1241098_c240_11.jpg",
+        "size_50x50": "https://img-c.udemycdn.com/course/50x50/1241098_c240_11.jpg",
+        "size_75x75": "https://img-c.udemycdn.com/course/75x75/1241098_c240_11.jpg",
+        "size_96x54": "https://img-c.udemycdn.com/course/96x54/1241098_c240_11.jpg",
+        "size_100x100": "https://img-b.udemycdn.com/course/100x100/1241098_c240_11.jpg",
+        "size_125_H": "https://img-c.udemycdn.com/course/125_H/1241098_c240_11.jpg",
+        "size_200_H": "https://img-c.udemycdn.com/course/200_H/1241098_c240_11.jpg",
+        "size_240x135": "https://img-c.udemycdn.com/course/240x135/1241098_c240_11.jpg",
+        "size_304x171": "https://img-b.udemycdn.com/course/304x171/1241098_c240_11.jpg",
+        "size_480x270": "https://img-c.udemycdn.com/course/480x270/1241098_c240_11.jpg",
+        "size_750x422": "https://img-c.udemycdn.com/course/750x422/1241098_c240_11.jpg"
+    },
+    "mobile_native_deeplink": "udemyufb://discover?coursePublishedTitle=aws-lambda-serverless",
+    "locale": {
+        "_class": "locale",
+        "locale": "en_US"
+    },
+    "is_practice_test_course": false,
+    "primary_category": {
+        "_class": "course_category",
+        "id": 302,
+        "title": "Cloud Computing",
+        "url": "/courses/ufb-cloud-computing/"
+    },
+    "primary_subcategory": {
+        "_class": "course_subcategory",
+        "id": 390,
+        "title": "Cloud Development",
+        "url": "/courses/ufb-cloud-computing/ufb-cloud-development/"
+    },
+    "num_quizzes": 0,
+    "num_practice_tests": 0,
+    "has_closed_caption": true,
+    "caption_languages": [
+        "English [Auto]",
+        "French [Auto]",
+        "German [Auto]",
+        "Indonesian [Auto]",
+        "Italian [Auto]",
+        "Simplified Chinese [Auto]"
+    ],
+    "caption_locales": [
+        {
+            "_class": "locale",
+            "locale": "de_DE",
+            "title": "Deutsch",
+            "english_title": "German"
+        },
+        {
+            "_class": "locale",
+            "locale": "en_US",
+            "title": "English (US)",
+            "english_title": "English (US)"
+        },
+        {
+            "_class": "locale",
+            "locale": "fr_FR",
+            "title": "Français (France)",
+            "english_title": "French (France)"
+        },
+        {
+            "_class": "locale",
+            "locale": "id_ID",
+            "title": "Bahasa Indonesia",
+            "english_title": "Indonesian"
+        },
+        {
+            "_class": "locale",
+            "locale": "it_IT",
+            "title": "Italiano",
+            "english_title": "Italian"
+        },
+        {
+            "_class": "locale",
+            "locale": "zh_CN",
+            "title": "中文(简体)",
+            "english_title": "Simplified Chinese (China)"
+        }
+    ],
+    "estimated_content_length_video": 628,
+    "last_update_date": "2022-07-01",
+    "xapi_activity_id": "https://www.udemy.com/course/1241098",
+    "accreditations": [],
+    "is_custom": false,
+    "is_imported": false,
+    "headline": "Develop and Deploy AWS Lambda Functions with Serverless, Learn Lambda Real World Integrations with Amazon Web Services",
+    "level": "Beginner"
+}

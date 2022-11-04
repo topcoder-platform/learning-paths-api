@@ -3,5 +3,5 @@
 const fetcher = require('../fetcher');
 
 (async () => {
-    await fetcher.handleCourses(1);
+    await fetcher.handleCourses();
 })();

@@ -20,30 +20,34 @@ axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredential
 
 module.exports.handleCourses = async (pageLimit = null) => {
     try {
-        const startTime = performance.now();
-
         const results = await fetchAllCourses(pageLimit);
-        console.log('time:', `${(performance.now() - startTime).toFixed(1)}`);
-
-        await processCourseResults(results);
+        return await processCourseResults(results);
     } catch (error) {
         console.error(error);
     }
 }
 
 /**
- * Retrieves all of the results from the Udemy Business Courses API
+ * Retrieves all of the results from the Udemy Business Courses API, 
+ * up to the +pageLimit+ number of pages of results, if given, otherwise
+ * all of the available pages of results are retrieved.
  * 
- * @param {Integer} lastPage the last page of results to get
- * @returns an array of arrays of course results
+ * @param {Integer} pageLimit (optional) the maximum number of pages to retrieve
+ * @returns an array of resolved course retrieval Promises
  */
-async function fetchAllCourses(pageLimit) {
+async function fetchAllCourses(pageLimit = null) {
     const numPages = pageLimit ? pageLimit : await fetchNumPages();
     const pages = mapPages(numPages);
 
     return await fetchCourses(pages);
 }
 
+/**
+ * Fetches Udemy Business courses from the UB API
+ * 
+ * @param {pages} pages an array of page numbers to retrieve
+ * @returns an array of UdemyCourse objects
+ */
 async function fetchCourses(pages) {
     const result = await Promise.allSettled(
         pages.map(async (page, pageIndex) => {
@@ -84,21 +88,36 @@ async function fetchNumPages() {
 async function getUdemyCourses(page = 1, pageIndex = null) {
     const url = `${URL_WITH_PAGE_SIZE}&page=${page}`
 
+    // adding a delay here to deal with UB API throttling of 
+    // requests, which as of Nov 2022 is about 20 req/min
     await delay(API_CALL_DELAY * (pageIndex ? pageIndex : page))
 
     console.log("* getting page", page);
-
     const result = await axios.get(url);
 
     return result.data.results;
 }
 
+/**
+ * A utility function to delay execution since JS doesn't understand +sleep+
+ * like all the other languages
+ * 
+ * @param {integer} secsToDelay number of seconds to pause
+ * @returns simply delays execution until this completes, so returns...wasted time?
+ */
 function delay(secsToDelay) {
     return new Promise(resolve => {
         setTimeout(() => { resolve('') }, secsToDelay * 1000);
     })
 }
 
+/**
+ * Processes API results and returns an array of JSON objects that represent 
+ * Udemy Business courses
+ * 
+ * @param {Array} results a collection of resolved Promises that tried to retrieve 
+ * API results
+ */
 async function processCourseResults(results) {
     let courseCount = 0;
     let courses = [];
@@ -114,7 +133,8 @@ async function processCourseResults(results) {
             }
         } else {
             // if a promise wasn't fulfilled then something went wrong and 
-            // we didn't get all of the courses, so bail out
+            // we didn't get all of the courses, so record which page we 
+            // requested and log it
             console.log("** unfulfilled promise, page", page, result.status)
             console.log("-- reason:", result.reason.message);
             unfulfilledPageRequests.push(page)
@@ -129,9 +149,16 @@ async function processCourseResults(results) {
         courses = await retryUnfulfilledPageRequests(courses, unfulfilledPageRequests);
     }
 
-    writeCoursesFile(courses);
+    return writeCoursesFile(courses);
 }
 
+/**
+ * Retries API requests to retrieve pages of course results 
+ * 
+ * @param {Array} courses the collection of courses that have been retrieved
+ * @param {Array} pages list of pages of results that were not successfully retrieved
+ * @returns an array of courses updated with the additional courses that were retrieved
+ */
 async function retryUnfulfilledPageRequests(courses, pages) {
     console.log(`** retrying unfulfilled requests for ${pages.length} pages`)
 
@@ -158,13 +185,32 @@ async function retryUnfulfilledPageRequests(courses, pages) {
     return courses;
 }
 
+/**
+ * Writes the retrieved course objects to a file
+ * 
+ * @param {Object} courses the course objects that were retrieved from the API
+ */
 function writeCoursesFile(courses) {
     const coursesPath = courseFilePath();
     console.log("** writing course data to:", coursesPath);
 
     fs.writeFileSync(coursesPath, JSON.stringify(courses, null, 2));
+
+    return coursesPath;
 }
 
+/**
+ * Parses the category and subcategory out of a Course object and adds 
+ * their values to the list of categories/subcategories represented across
+ * all of the courses
+ * 
+ * TODO: this method is currently a placeholder in case we need this function
+ * and because it is handy for understanding what categories are represented
+ * in any arbitrary download of courses
+ * 
+ * @param {Array} categories a list of categories
+ * @param {Object} course a Course object
+ */
 function collectCategoryInfo(categories, course) {
     categories = categories.concat(course.categories);
 
@@ -196,6 +242,11 @@ function collectCategoryInfo(categories, course) {
     // console.log('topics', uniqueTopics.sort())
 }
 
+/**
+ * Generates a file path for writing the Udemy course file to disk 
+ * 
+ * @returns the file path 
+ */
 function courseFilePath() {
     const ts = new Date(Date.now()).toISOString();
     const filename = `${COURSES_FILE}-${ts}.json`

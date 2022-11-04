@@ -8,7 +8,8 @@ datasource db {
 }
 
 model UdemyCourse {
-  id                             Int          @id
+  id                             Int
+  data_version                   DateTime
   title                          String
   description                    String
   headline                       String
@@ -22,13 +23,19 @@ model UdemyCourse {
   level                          LearnerLevel
   images                         Json
   locale                         String       @db.VarChar(6)
-  primary_category               String       @db.VarChar(100)
-  primary_subcategory            String       @db.VarChar(100)
+  primary_category               String?      @db.VarChar(100)
+  primary_subcategory            String?      @db.VarChar(100)
   estimated_content_length       Int
   estimated_content_length_video Int
   num_lectures                   Int
   num_videos                     Int
   last_update_date               DateTime
+
+  @@id([id, data_version])
+}
+
+model DataVersion {
+  version DateTime @id
 }
 
 enum LearnerLevel {

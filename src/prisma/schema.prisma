@@ -34,6 +34,21 @@ model UdemyCourse {
   @@id([id, data_version])
 }
 
+model TopcoderUdemyCourse {
+  id        Int          @id
+  title     String
+  status    CourseStatus @default(available)
+  updatedAt DateTime     @updatedAt
+  removedAt DateTime?
+}
+
+enum CourseStatus {
+  available
+  coming_soon
+  not_available
+  removed
+}
+
 model DataVersion {
   version DateTime @id
 }

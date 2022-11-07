@@ -2,6 +2,9 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
+const s3Store = require('./course_s3_store');
+const courseWriter = require('./course_writer');
+
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
 const CLIENT_ID = process.env.UDEMY_CLIENT_ID;
@@ -9,6 +12,7 @@ const CLIENT_SECRET = process.env.UDEMY_CLIENT_SECRET;
 
 const PAGE_SIZE = 100;
 const API_CALL_DELAY = 4; // seconds between calls to Udemy API
+const COURSE_LOCALES = ['en_US']
 
 const BASE_URL = `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/${ACCOUNT_ID}/courses/list/`
 const URL_WITH_PAGE_SIZE = `${BASE_URL}?page_size=${PAGE_SIZE}`
@@ -16,12 +20,17 @@ const URL_WITH_PAGE_SIZE = `${BASE_URL}?page_size=${PAGE_SIZE}`
 const COURSE_FILES_DIR = "course-files"
 const COURSES_FILE = 'udemy-courses';
 
+const courseCategories = require('./course-files/categories.json');
+
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
 module.exports.handleCourses = async (pageLimit = null) => {
     try {
-        const results = await fetchAllCourses(pageLimit);
-        return await processCourseResults(results);
+        const courseData = await fetchAllCourses(pageLimit);
+        const courses = await processCourseResults(courseData);
+        await writeCourseFile(courses);
+
+        return await courseWriter.updateCourses(courses);
     } catch (error) {
         console.error(error);
     }
@@ -85,12 +94,12 @@ async function fetchNumPages() {
  * @param {Integer} pageIndex (optional) the page number for delay computation
  * @returns an array of course listing results 
  */
-async function getUdemyCourses(page = 1, pageIndex = null) {
+async function getUdemyCourses(page, pageIndex) {
     const url = `${URL_WITH_PAGE_SIZE}&page=${page}`
 
     // adding a delay here to deal with UB API throttling of 
     // requests, which as of Nov 2022 is about 20 req/min
-    await delay(API_CALL_DELAY * (pageIndex ? pageIndex : page))
+    await delay(API_CALL_DELAY * pageIndex)
 
     console.log("* getting page", page);
     const result = await axios.get(url);
@@ -127,7 +136,10 @@ async function processCourseResults(results) {
     for (const result of results) {
         page += 1;
         if (result?.status == 'fulfilled') {
-            for (const course of result.value) {
+            // filter out courses we don't care about
+            const courseResults = result.value.filter(filterCourse)
+
+            for (const course of courseResults) {
                 courseCount += 1;
                 courses.push(course);
             }
@@ -149,7 +161,27 @@ async function processCourseResults(results) {
         courses = await retryUnfulfilledPageRequests(courses, unfulfilledPageRequests);
     }
 
-    return writeCoursesFile(courses);
+    return courses;
+}
+
+/**
+ * Filters courses by select locales, categories and subscategories. 
+ * Used to exclude courses we don't want to show in TCA.
+ * 
+ * @param {Object} course a raw Udemy course object
+ * @returns true if this course should be included in the results
+ */
+function filterCourse(course) {
+    if (!COURSE_LOCALES.includes(course.locale?.locale)) return false;
+
+    const category = course.primary_category?.title;
+    const subcategory = course.primary_subcategory?.title;
+
+    if (!(category && subcategory)) return false;
+
+    if (!courseCategories[category]) return false;
+
+    return courseCategories[category].subcategories.includes(subcategory)
 }
 
 /**
@@ -185,18 +217,26 @@ async function retryUnfulfilledPageRequests(courses, pages) {
     return courses;
 }
 
+async function writeCourseFile(courses) {
+    writeLocalCourseFile(courses);
+    writeCourseFileToS3(courses);
+}
 /**
  * Writes the retrieved course objects to a file
  * 
  * @param {Object} courses the course objects that were retrieved from the API
  */
-function writeCoursesFile(courses) {
+function writeLocalCourseFile(courses) {
     const coursesPath = courseFilePath();
-    console.log("** writing course data to:", coursesPath);
+    // console.log("** writing course data to:", coursesPath);
 
     fs.writeFileSync(coursesPath, JSON.stringify(courses, null, 2));
-
     return coursesPath;
+}
+
+async function writeCourseFileToS3(courses) {
+    const uploadedFilename = await s3Store.writeToS3(courses);
+    return uploadedFilename;
 }
 
 /**
@@ -249,7 +289,7 @@ function collectCategoryInfo(categories, course) {
  */
 function courseFilePath() {
     const ts = new Date(Date.now()).toISOString();
-    const filename = `${COURSES_FILE}-${ts}.json`
+    const filename = `${COURSES_FILE} -${ts}.json`
     return path.join(__dirname, COURSE_FILES_DIR, filename);
 }
 
@@ -271,7 +311,7 @@ function mapPages(lastPage) {
  * @returns base64-encoded string 
  */
 function base64ClientCredentials() {
-    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
+    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET} `;
     const buf = Buffer.from(clientCredentials);
     const authString = buf.toString('base64');
 

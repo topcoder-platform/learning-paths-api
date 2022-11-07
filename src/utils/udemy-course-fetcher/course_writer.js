@@ -1,22 +1,21 @@
 const { PrismaClient } = require('@prisma/client');
-const fs = require('fs');
-const path = require('path');
-
 const CourseVersion = require('./course_version');
 
 const prisma = new PrismaClient()
 
-const COURSE_FILES_DIR = "course-files"
+async function updateCourses(courseData) {
 
-async function updateCourses(coursesFile) {
-    replaceCourseData(coursesFile)
-        .then(async () => {
+    const updateResult = replaceCourseData(courseData)
+        .then(async (result) => {
             await prisma.$disconnect()
+            return result;
         })
         .catch(async (e) => {
             console.error(e)
             await prisma.$disconnect()
         })
+
+    return updateResult;
 }
 
 /**
@@ -29,29 +28,30 @@ async function updateCourses(coursesFile) {
  *   3. Make that new version the current version
  *   4. Delete the course data for the previous (older) version
  * 
- * @param {String} filename the name of the course data file to load into the DB
+ * @param {String} rawCourseData the JSON data making up the courses
  */
-async function replaceCourseData(filename) {
+async function replaceCourseData(rawCourseData) {
     const startTime = performance.now();
 
-    const courseFile = path.join(__dirname, COURSE_FILES_DIR, filename);
-
-    const rawCourseData = JSON.parse(
-        fs.readFileSync(courseFile)
-    );
-
-    // update the data to a new version, as described above
+    // update the course data to a new version, as described above
+    // TODO: there's probably a way to wrap this in a DB transaction via Prisma
     const courseVersion = new CourseVersion();
     const newVersion = courseVersion.newVersion();
 
     const courseData = formatRawCourseDataForInput(rawCourseData, newVersion);
 
-    await writeCoursesToTable(courseData);
-    await courseVersion.updateVersion();
-    await removePreviousCourseVersions(newVersion);
+    const writeCourseResult = await writeCoursesToTable(courseData);
+    const versionUpdateResult = await courseVersion.updateVersion();
+    const removeCourseResult = await removePreviousCourseVersions(newVersion);
 
     const endTime = performance.now();
     console.log(`replaceCourseData time: ${(endTime - startTime).toFixed(1)} ms`)
+
+    return {
+        coursesRemoved: removeCourseResult,
+        coursesWritten: writeCourseResult,
+        versionUpdateResult
+    }
 }
 
 function formatRawCourseDataForInput(rawCourseData, dataVersion) {
@@ -67,7 +67,7 @@ function formatRawCourseDataForInput(rawCourseData, dataVersion) {
 
 async function writeCoursesToTable(courseData) {
     const writeCourses = await prisma.udemyCourse.createMany({ data: courseData })
-    console.log("writeCourses", writeCourses);
+    // console.log("writeCourses", writeCourses);
 
     return writeCourses
 }
@@ -81,7 +81,7 @@ async function removePreviousCourseVersions(currentVersion) {
         }
     })
 
-    console.log("removePreviousCourseVersions", deleteCourses);
+    // console.log("removePreviousCourseVersions", deleteCourses);
     return deleteCourses;
 }
 

@@ -25,9 +25,11 @@ The following source files from the FCC repo need to be copied to `/src/utils/co
 
 ## 3. Perform Data Customizations
 
-The following lists Topcoder-specific customizations to the course data that will need to occur each time the curriculum is updated.
+The following lists Topcoder-specific customizations to the original course data in the FCC app.
 
-1. Remove the "(New)" prefix in the name of the `2022/responsive-web-design` course in the `intro.json` file
+These should be handled in the FCC app itself, but it's a good idea to just verify they still exist before deploying.
+
+1. Removed the "(New)" prefix in the name of the `2022/responsive-web-design` course in the `intro.json` file
 
 2. TBD
 

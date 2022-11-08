@@ -11,7 +11,7 @@ const event = {
     resources: [
         "arn:aws:events:us-east-1:123456789012:rule/ExampleRule"
     ],
-    detail: { pageLimit: 2 }
+    detail: { pageLimit: 5 }
 };
 
 (async () => {

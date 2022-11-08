@@ -83,6 +83,6 @@
     "node": "16.15.0"
   },
   "prisma": {
-    "schema": "src/utils/udemy-course-fetcher/prisma/schema.prisma"
+    "schema": "src/prisma/schema.prisma"
   }
 }

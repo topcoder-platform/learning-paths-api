@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const s3Store = require('./course_s3_store');
-const courseWriter = require('./course_writer');
+const courseDbWriter = require('./course_db_writer');
 
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
@@ -16,7 +16,7 @@ const COURSE_LOCALES = ['en_US']
 
 const BASE_URL = `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/${ACCOUNT_ID}/courses/list/`
 const URL_WITH_PAGE_SIZE = `${BASE_URL}?page_size=${PAGE_SIZE}`
-const UDEMY_API_TIMEOUT = 20 * 1000; // milliseconds
+const UDEMY_API_TIMEOUT = process.env.UDEMY_API_TIMEOUT || 20000; // milliseconds
 
 const COURSE_FILES_DIR = "course-files"
 const COURSES_FILE = 'udemy-courses';
@@ -26,7 +26,7 @@ const courseCategories = require('./categories.json');
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
 module.exports.handleCourses = async (event) => {
-    console.log("fetcher.handleCourses triggered by event", JSON.stringify(event, null, 2));
+    // console.log("fetcher.handleCourses triggered by event", JSON.stringify(event, null, 2));
     const pageLimit = event.detail?.pageLimit;
 
     try {
@@ -35,7 +35,7 @@ module.exports.handleCourses = async (event) => {
 
         if (courses.length > 0) {
             await writeCourseFile(courses);
-            return await courseWriter.updateCourses(courses);
+            return await courseDbWriter.updateCourses(courses);
         } else {
             console.error("** no courses were retrieved -- exiting!")
             return false;
@@ -72,9 +72,11 @@ async function fetchAllCourses(pageLimit = null) {
  * @returns an array of UdemyCourse objects
  */
 async function fetchCourses(pages) {
+    const totalPages = pages.length;
+
     const result = await Promise.allSettled(
         pages.map(async (page, pageIndex) => {
-            const courses = await getUdemyCourses(page, pageIndex);
+            const courses = await getUdemyCourses(page, pageIndex, totalPages);
             return courses;
         })
     );
@@ -105,20 +107,36 @@ async function fetchNumPages() {
  * Gets a page of course listings from the Udemy Business Courses API
  * 
  * @param {Integer} page the page number to retrieve
- * @param {Integer} pageIndex (optional) the page number for delay computation
+ * @param {Integer} pageIndex the page number for delay computation
+ * @param {Integer} totalPages the total number of results pages to retrieve
  * @returns an array of course listing results 
  */
-async function getUdemyCourses(page, pageIndex) {
+async function getUdemyCourses(page, pageIndex, totalPages) {
     const url = `${URL_WITH_PAGE_SIZE}&page=${page}`
 
     // adding a delay here to deal with UB API throttling of 
     // requests, which as of Nov 2022 is about 20 req/min
     await delay(API_CALL_DELAY * pageIndex)
 
-    console.log("* getting page", page);
+    logPage(page, pageIndex, totalPages);
     const result = await axios.get(url, { timeout: UDEMY_API_TIMEOUT });
 
     return result.data.results;
+}
+
+function logPage(page, pageIndex, totalPages) {
+    if (totalPages <= 20) {
+        if (page == (pageIndex + 1)) {
+            console.log(`* getting page # ${page} of ${totalPages}`);
+        } else {
+            console.log(`* getting page # ${page}, ${pageIndex + 1} of ${totalPages}`);
+        }
+    } else {
+        // show a periodic page update 
+        if (pageIndex == 0 || (pageIndex + 1) % 10 == 0 || (pageIndex == totalPages - 1)) {
+            console.log(`* getting page # ${page}, ${pageIndex + 1} of ${totalPages}`);
+        }
+    }
 }
 
 /**
@@ -318,9 +336,19 @@ function collectCategoryInfo(categories, course) {
  * @returns the file path 
  */
 function courseFilePath() {
-    const ts = new Date(Date.now()).toISOString();
-    const filename = `${COURSES_FILE}-${ts}.json`
-    return path.join(__dirname, COURSE_FILES_DIR, filename);
+    return path.join(__dirname, COURSE_FILES_DIR, courseFileName());
+}
+
+/**
+ * Generates a file name for the Udemy course JSON file. Replaces 
+ * dots and colons in timestamp with dashes.
+ * 
+ * @returns string file name
+ */
+function courseFileName() {
+    let ts = new Date(Date.now()).toISOString().replace(/[\.:]/g, '-');
+
+    return `${COURSES_FILE}-${ts}.json`
 }
 
 /**

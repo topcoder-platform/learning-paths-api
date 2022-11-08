@@ -7,13 +7,14 @@ provider:
   stage: ${opt:stage,'dev'} 
   runtime: nodejs14.x
   memorySize: 512
-  timeout: 720
+  timeout: 900
   environment:
     DATABASE_URL: ${self:custom.DATABASE_URL}
     UDEMY_ACCOUNT_NAME: ${self:custom.UDEMY_ACCOUNT_NAME}
     UDEMY_ACCOUNT_ID: ${self:custom.UDEMY_ACCOUNT_ID}
     UDEMY_CLIENT_ID: ${self:custom.UDEMY_CLIENT_ID}
     UDEMY_CLIENT_SECRET: ${self:custom.UDEMY_CLIENT_SECRET}
+    UDEMY_API_TIMEOUT: 30000
   tracing: 
     lambda: true
 

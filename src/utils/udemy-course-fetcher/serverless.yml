@@ -9,16 +9,24 @@ provider:
   memorySize: 512
   timeout: 720
   environment:
-    UDEMY_CRS_PG_USER: ${self:custom.UDEMY_CRS_PG_USER}
-    UDEMY_CRS_PG_PASSWORD: ${self:custom.UDEMY_CRS_PG_PASSWORD}
-    UDEMY_CRS_PG_DATABASE: ${self:custom.UDEMY_CRS_PG_DATABASE}
-    UDEMY_CRS_PG_HOST: ${self:custom.POSTGRESQL.HOST}
-    UDEMY_CRS_PG_PORT: ${self:custom.POSTGRESQL.PORT}
+    DATABASE_URL: ${self:custom.DATABASE_URL}
+    UDEMY_ACCOUNT_NAME: ${self:custom.UDEMY_ACCOUNT_NAME}
+    UDEMY_ACCOUNT_ID: ${self:custom.UDEMY_ACCOUNT_ID}
+    UDEMY_CLIENT_ID: ${self:custom.UDEMY_CLIENT_ID}
+    UDEMY_CLIENT_SECRET: ${self:custom.UDEMY_CLIENT_SECRET}
   tracing: 
     lambda: true
 
+package:
+  patterns:
+    - '!node_modules/@prisma/engines/**'
+    - '!node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node'
+    - '!course-files/**'
+    - '!test/**'
+    - '!*.sh'
+
 custom:
-  UDEMY_CRS_PG_USER: postgres
+  UDEMY_CRS_PG_USER: ${env:UDEMY_CRS_PG_USER}
   UDEMY_CRS_PG_PASSWORD: ${env:UDEMY_CRS_PG_PASSWORD}
   UDEMY_CRS_PG_DATABASE: ${env:UDEMY_CRS_PG_DATABASE}
   POSTGRESQL:
@@ -26,7 +34,23 @@ custom:
       Fn::GetAtt: [UdemyCourseDB, Endpoint.Address]
     PORT:
       Fn::GetAtt: [UdemyCourseDB, Endpoint.Port]
-
+  UDEMY_ACCOUNT_NAME: ${env:UDEMY_ACCOUNT_NAME}
+  UDEMY_ACCOUNT_ID: ${env:UDEMY_ACCOUNT_ID}
+  UDEMY_CLIENT_ID: ${env:UDEMY_CLIENT_ID}
+  UDEMY_CLIENT_SECRET: ${env:UDEMY_CLIENT_SECRET}
+  DATABASE_URL: 
+    !Join
+      - ''
+      - - 'postgresql://'
+        - ${self:custom.UDEMY_CRS_PG_USER}
+        - ':'
+        - ${self:custom.UDEMY_CRS_PG_PASSWORD}
+        - '@'
+        - ${self:custom.POSTGRESQL.HOST}
+        - ':'
+        - ${self:custom.POSTGRESQL.PORT}
+        - '/'
+        - ${self:custom.UDEMY_CRS_PG_DATABASE}
 resources:
   - ${file(./resource/UdemyCourseDB.yml)} 
    
@@ -36,7 +60,7 @@ functions:
     events:
       - eventBridge:
           enabled: true
-          schedule: cron(0 5 * * ? *)
+          schedule: cron(0 8 * * ? *)
     vpc:
       securityGroupIds:
         - sg-c31b46a6
@@ -45,3 +69,4 @@ functions:
         - subnet-0c6b178fbcae39d21
         - subnet-b66acd9d
         - subnet-0c82c136
+

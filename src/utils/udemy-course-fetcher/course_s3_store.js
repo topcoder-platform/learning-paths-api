@@ -15,7 +15,7 @@ async function writeToS3(courseJson) {
 
     console.log('S3 store uploading:', filename);
 
-    var data = {
+    var params = {
         Bucket: UDEMY_COURSE_DATA_BUCKET,
         Key: filename,
         Body: buf,
@@ -24,10 +24,8 @@ async function writeToS3(courseJson) {
     };
 
     try {
-        const startTime = performance.now();
-        await s3.upload(data).promise();
-        const duration = performance.now() - startTime;
-        console.log(`Course data successfully uploaded, took ${duration.toFixed(1)} ms`);
+        const data = await s3.upload(params).promise();
+        console.log(`Course file successfully uploaded to S3 ${data.Location}`);
 
         return filename;
     } catch (error) {

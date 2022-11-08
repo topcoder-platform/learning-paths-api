@@ -1,5 +1,5 @@
 Resources:
-  GamificationEngineDB:
+  UdemyCourseDB:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: udemy-course-${opt:stage,'dev'}
@@ -10,5 +10,5 @@ Resources:
       DBSubnetGroupName: mysql-db-subnet
       AllocatedStorage: 20
       Engine: postgres
-      MasterUsername: ${self:custom.ENGINE_PG_USER}
-      MasterUserPassword: ${self:custom.ENGINE_PG_PASSWORD}
+      MasterUsername: ${self:custom.UDEMY_CRS_PG_USER}
+      MasterUserPassword: ${self:custom.UDEMY_CRS_PG_PASSWORD}

@@ -81,4 +81,8 @@ local/docker
 set_dev.sh
 set_prod.sh
 
+# serverless 
+.serverless
+
+# udemy course fetcher
 udemy-courses*.json

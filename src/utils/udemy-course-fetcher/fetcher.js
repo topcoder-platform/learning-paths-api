@@ -16,6 +16,7 @@ const COURSE_LOCALES = ['en_US']
 
 const BASE_URL = `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/${ACCOUNT_ID}/courses/list/`
 const URL_WITH_PAGE_SIZE = `${BASE_URL}?page_size=${PAGE_SIZE}`
+const UDEMY_API_TIMEOUT = 20 * 1000; // milliseconds
 
 const COURSE_FILES_DIR = "course-files"
 const COURSES_FILE = 'udemy-courses';
@@ -24,13 +25,22 @@ const courseCategories = require('./categories.json');
 
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
-module.exports.handleCourses = async (pageLimit = null) => {
+module.exports.handleCourses = async (event) => {
+    console.log("fetcher.handleCourses triggered by event", JSON.stringify(event, null, 2));
+    const pageLimit = event.detail?.pageLimit;
+
     try {
         const courseData = await fetchAllCourses(pageLimit);
         const courses = await processCourseResults(courseData);
-        await writeCourseFile(courses);
 
-        // return await courseWriter.updateCourses(courses);
+        if (courses.length > 0) {
+            await writeCourseFile(courses);
+            return await courseWriter.updateCourses(courses);
+        } else {
+            console.error("** no courses were retrieved -- exiting!")
+            return false;
+        }
+
     } catch (error) {
         console.error(error);
     }
@@ -45,6 +55,10 @@ module.exports.handleCourses = async (pageLimit = null) => {
  * @returns an array of resolved course retrieval Promises
  */
 async function fetchAllCourses(pageLimit = null) {
+    if (pageLimit) {
+        console.log(`retrieving ${pageLimit} pages of Udemy course results`)
+    }
+
     const numPages = pageLimit ? pageLimit : await fetchNumPages();
     const pages = mapPages(numPages);
 
@@ -102,7 +116,7 @@ async function getUdemyCourses(page, pageIndex) {
     await delay(API_CALL_DELAY * pageIndex)
 
     console.log("* getting page", page);
-    const result = await axios.get(url);
+    const result = await axios.get(url, { timeout: UDEMY_API_TIMEOUT });
 
     return result.data.results;
 }
@@ -217,10 +231,35 @@ async function retryUnfulfilledPageRequests(courses, pages) {
     return courses;
 }
 
+/**
+ * Writes the Udemy course data to a JSON file, locally and/or to AWS S3.
+ * We only want the file written to S3 when the function is executing in AWS
+ * so we use a simple check of an env var. We also allow 'forcing' the S3 
+ * upload for local testing by setting an env var.
+ * 
+ * @param {Array} courses array of Udemy course objects
+ * of where the function is executing (allows local testing)
+ */
 async function writeCourseFile(courses) {
-    writeLocalCourseFile(courses);
-    writeCourseFileToS3(courses);
+    const forceS3 = process.env.FORCE_S3 ? true : false
+    if (runningInAWS() || forceS3) {
+        writeCourseFileToS3(courses);
+    }
+
+    if (!runningInAWS()) {
+        writeLocalCourseFile(courses);
+    }
 }
+
+/**
+ * Simple check to see if the function is running in AWS
+ * 
+ * @returns true if the function is running in AWS
+ */
+function runningInAWS() {
+    return process.env.AWS_EXECUTION_ENV ? true : false
+}
+
 /**
  * Writes the retrieved course objects to a file
  * 
@@ -228,7 +267,7 @@ async function writeCourseFile(courses) {
  */
 function writeLocalCourseFile(courses) {
     const coursesPath = courseFilePath();
-    // console.log("** writing course data to:", coursesPath);
+    console.log("** writing course data to:", coursesPath);
 
     fs.writeFileSync(coursesPath, JSON.stringify(courses, null, 2));
     return coursesPath;
@@ -271,15 +310,6 @@ function collectCategoryInfo(categories, course) {
     } else {
         console.log("-- no category info for course", course.id)
     }
-
-    // const uniqueCategories = [...new Set(categories)]
-    // console.log('categories', uniqueCategories.sort());
-
-    // console.log('primary categories', primaryCategories)
-
-    // const uniqueTopics = [...new Set(topics)]
-    // console.log('unique topics', uniqueTopics.length);
-    // console.log('topics', uniqueTopics.sort())
 }
 
 /**
@@ -289,7 +319,7 @@ function collectCategoryInfo(categories, course) {
  */
 function courseFilePath() {
     const ts = new Date(Date.now()).toISOString();
-    const filename = `${COURSES_FILE} -${ts}.json`
+    const filename = `${COURSES_FILE}-${ts}.json`
     return path.join(__dirname, COURSE_FILES_DIR, filename);
 }
 

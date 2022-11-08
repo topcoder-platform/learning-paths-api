@@ -31,8 +31,6 @@ async function updateCourses(courseData) {
  * @param {String} rawCourseData the JSON data making up the courses
  */
 async function replaceCourseData(rawCourseData) {
-    const startTime = performance.now();
-
     // update the course data to a new version, as described above
     // TODO: there's probably a way to wrap this in a DB transaction via Prisma
     const courseVersion = new CourseVersion();
@@ -43,9 +41,6 @@ async function replaceCourseData(rawCourseData) {
     const writeCourseResult = await writeCoursesToTable(courseData);
     const versionUpdateResult = await courseVersion.updateVersion();
     const removeCourseResult = await removePreviousCourseVersions(newVersion);
-
-    const endTime = performance.now();
-    console.log(`replaceCourseData time: ${(endTime - startTime).toFixed(1)} ms`)
 
     return {
         coursesRemoved: removeCourseResult,

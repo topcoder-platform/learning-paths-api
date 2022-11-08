@@ -9,11 +9,11 @@
   "author": "chris.mccann@topcoder.com",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^4.5.0",
+    "@prisma/client": "^4.6.0",
     "aws-sdk": "^2.1148.0",
     "axios": "^0.27.2"
   },
   "devDependencies": {
-    "prisma": "^4.5.0"
+    "prisma": "^4.6.0"
   }
 }

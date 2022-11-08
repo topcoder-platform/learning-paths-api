@@ -26,7 +26,7 @@ const courseCategories = require('./categories.json');
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
 module.exports.handleCourses = async (event) => {
-    // console.log("fetcher.handleCourses triggered by event", JSON.stringify(event, null, 2));
+    console.log("function triggered by event", JSON.stringify(event, null, 2));
     const pageLimit = event.detail?.pageLimit;
 
     try {
@@ -124,6 +124,15 @@ async function getUdemyCourses(page, pageIndex, totalPages) {
     return result.data.results;
 }
 
+/**
+ * Logs the page of API results that's being requested. For a request for 
+ * a large number of pages it logs every 10th page request, along with the 
+ * first and last pages, so we can see latency in the logs. 
+ * 
+ * @param {Integer} page the current numbered page
+ * @param {Integer} pageIndex the index of the page in the array of pages
+ * @param {Integer} totalPages the total number of pages being requested
+ */
 function logPage(page, pageIndex, totalPages) {
     if (totalPages <= 20) {
         if (page == (pageIndex + 1)) {
@@ -294,40 +303,6 @@ function writeLocalCourseFile(courses) {
 async function writeCourseFileToS3(courses) {
     const uploadedFilename = await s3Store.writeToS3(courses);
     return uploadedFilename;
-}
-
-/**
- * Parses the category and subcategory out of a Course object and adds 
- * their values to the list of categories/subcategories represented across
- * all of the courses
- * 
- * TODO: this method is currently a placeholder in case we need this function
- * and because it is handy for understanding what categories are represented
- * in any arbitrary download of courses
- * 
- * @param {Array} categories a list of categories
- * @param {Object} course a Course object
- */
-function collectCategoryInfo(categories, course) {
-    categories = categories.concat(course.categories);
-
-    const topicList = course.topics.map(topic => topic.title);
-    topics = topics.concat(topicList);
-
-    const primaryCategory = course.primary_category?.title;
-    const subCategory = course.primary_subcategory?.title;
-
-    if (primaryCategory && subCategory) {
-        if (Object.keys(primaryCategories).includes(primaryCategory)) {
-            primaryCategories[primaryCategory].add(subCategory)
-        } else {
-            const subCategories = new Set();
-            subCategories.add(subCategory);
-            primaryCategories[primaryCategory] = subCategories;
-        }
-    } else {
-        console.log("-- no category info for course", course.id)
-    }
 }
 
 /**

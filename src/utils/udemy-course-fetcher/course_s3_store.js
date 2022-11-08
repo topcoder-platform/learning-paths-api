@@ -7,6 +7,12 @@ var s3 = new AWS.S3();
 const UDEMY_COURSE_DATA_BUCKET = process.env.UDEMY_COURSE_DATA_BUCKET || 'tca-udemy-course-data'
 const COURSES_FILE = 'udemy-courses';
 
+/**
+ * Writes the JSON course data to AWS S3
+ * 
+ * @param {Object} courseJson a JSON object representing the Udemy Courses to save to a file
+ * @returns the filename of the JSON file written to S3
+ */
 async function writeToS3(courseJson) {
     var buf = Buffer.from(JSON.stringify(courseJson));
 
@@ -33,6 +39,12 @@ async function writeToS3(courseJson) {
     }
 }
 
+/**
+ * Gets a file from AWS S3 and returns it's contents as JSON
+ * 
+ * @param {String} filename the filename to read
+ * @returns the JSON contents of the file
+ */
 async function readFromS3(filename) {
     try {
         const params = {

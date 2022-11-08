@@ -49,6 +49,15 @@ async function replaceCourseData(rawCourseData) {
     }
 }
 
+/**
+ * Converts raw Udemy Course data from the API to a format that can be used by 
+ * Prisma to create the data in the database. It injects the data version into 
+ * each record to allow replacing the existing data with a new version.
+ * 
+ * @param {Object} rawCourseData the raw JSON course data returned from the API
+ * @param {String} dataVersion the data version for the new data
+ * @returns the formatted course data as JSON
+ */
 function formatRawCourseDataForInput(rawCourseData, dataVersion) {
     let inputData = [];
 
@@ -60,13 +69,23 @@ function formatRawCourseDataForInput(rawCourseData, dataVersion) {
     return inputData;
 }
 
+/**
+ * Writes the course data to the database via Prisma
+ * 
+ * @param {Object} courseData Udemy course data as JSON
+ * @returns the count of courses written to the database (the result of the DB write)
+ */
 async function writeCoursesToTable(courseData) {
     const writeCourses = await prisma.udemyCourse.createMany({ data: courseData })
-    // console.log("writeCourses", writeCourses);
-
     return writeCourses
 }
 
+/**
+ * Removes all course data with a version older than the current (latest) version 
+ * 
+ * @param {timestamp} currentVersion the current (latest) version of the data
+ * @returns the result of the database delete operation (the number of rows deleted)
+ */
 async function removePreviousCourseVersions(currentVersion) {
     const deleteCourses = await prisma.udemyCourse.deleteMany({
         where: {
@@ -76,17 +95,31 @@ async function removePreviousCourseVersions(currentVersion) {
         }
     })
 
-    // console.log("removePreviousCourseVersions", deleteCourses);
     return deleteCourses;
 }
 
+/**
+ * Deletes all of the records in the course table
+ * 
+ * NOTE: this method is currently unused but is handy to have for maintenance, so 
+ * let's leave it for now.
+ * 
+ * @returns the result of the database delete operation (the number of rows deleted)
+ */
 async function clearCourseTable() {
     const deleteCourses = await prisma.udemyCourse.deleteMany({})
-
-    console.log("clearCourses result", deleteCourses);
     return deleteCourses;
 }
 
+/**
+ * Converts raw API JSON to a format suitable for persisting to the 
+ * database via Prisma. Includes a data version value to allow wholesale
+ * versioning of the course data.
+ * 
+ * @param {Object} data a raw Udemy Course API data object
+ * @param {timestamp} dataVersion the new data version timestamp 
+ * @returns a JSON course object 
+ */
 function recordFromRawData(data, dataVersion) {
     return {
         id: data.id,
@@ -114,6 +147,14 @@ function recordFromRawData(data, dataVersion) {
     }
 }
 
+/**
+ * Normalizes learner level values to fit the Prisma enum values, 
+ * including coercing null or empty values to +All_Levels+ since 
+ * the Udemy data has inconsistencies.
+ * 
+ * @param {String} level the level from the Udemy course object
+ * @returns a string representing the learner level
+ */
 function setLearnerLevel(level) {
     if (level === null ||
         level == '' ||
@@ -123,5 +164,6 @@ function setLearnerLevel(level) {
 }
 
 module.exports = {
+    clearCourseTable,
     updateCourses
 }

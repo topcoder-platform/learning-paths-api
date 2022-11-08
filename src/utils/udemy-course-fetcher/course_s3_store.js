@@ -4,7 +4,7 @@ var AWS = require('aws-sdk');
 AWS.config.update({ region: 'us-east-1' });
 var s3 = new AWS.S3();
 
-const UDEMY_COURSE_DATA_BUCKET = 'tca-udemy-course-data'
+const UDEMY_COURSE_DATA_BUCKET = process.env.UDEMY_COURSE_DATA_BUCKET || 'tca-udemy-course-data'
 const COURSES_FILE = 'udemy-courses';
 
 async function writeToS3(courseJson) {

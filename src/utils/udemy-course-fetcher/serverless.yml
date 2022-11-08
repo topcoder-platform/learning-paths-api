@@ -15,6 +15,19 @@ provider:
     UDEMY_CLIENT_ID: ${self:custom.UDEMY_CLIENT_ID}
     UDEMY_CLIENT_SECRET: ${self:custom.UDEMY_CLIENT_SECRET}
     UDEMY_API_TIMEOUT: 30000
+    UDEMY_COURSE_DATA_BUCKET: ${self:custom.UDEMY_COURSE_DATA_BUCKET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: s3:ListBucket
+          Resource: arn:aws:s3:::${self:custom.UDEMY_COURSE_DATA_BUCKET}
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource:
+            - arn:aws:s3:::${self:custom.UDEMY_COURSE_DATA_BUCKET}/*
   tracing: 
     lambda: true
 
@@ -39,6 +52,7 @@ custom:
   UDEMY_ACCOUNT_ID: ${env:UDEMY_ACCOUNT_ID}
   UDEMY_CLIENT_ID: ${env:UDEMY_CLIENT_ID}
   UDEMY_CLIENT_SECRET: ${env:UDEMY_CLIENT_SECRET}
+  UDEMY_COURSE_DATA_BUCKET: tca-udemy-course-data
   DATABASE_URL: 
     !Join
       - ''
@@ -52,6 +66,7 @@ custom:
         - ${self:custom.POSTGRESQL.PORT}
         - '/'
         - ${self:custom.UDEMY_CRS_PG_DATABASE}
+
 resources:
   - ${file(./resource/UdemyCourseDB.yml)} 
    
@@ -70,4 +85,3 @@ functions:
         - subnet-0c6b178fbcae39d21
         - subnet-b66acd9d
         - subnet-0c82c136
-

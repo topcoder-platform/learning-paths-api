@@ -1,0 +1,19 @@
+{
+  "name": "udemy-course-loader",
+  "version": "1.0.0",
+  "description": "Lambda function to load Udemy Business course data",
+  "main": "fetcher.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "chris.mccann@topcoder.com",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.5.0",
+    "aws-sdk": "^2.1148.0",
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "prisma": "^4.5.0"
+  }
+}

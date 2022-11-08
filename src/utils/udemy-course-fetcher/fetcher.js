@@ -20,7 +20,7 @@ const URL_WITH_PAGE_SIZE = `${BASE_URL}?page_size=${PAGE_SIZE}`
 const COURSE_FILES_DIR = "course-files"
 const COURSES_FILE = 'udemy-courses';
 
-const courseCategories = require('./course-files/categories.json');
+const courseCategories = require('./categories.json');
 
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
@@ -30,7 +30,7 @@ module.exports.handleCourses = async (pageLimit = null) => {
         const courses = await processCourseResults(courseData);
         await writeCourseFile(courses);
 
-        return await courseWriter.updateCourses(courses);
+        // return await courseWriter.updateCourses(courses);
     } catch (error) {
         console.error(error);
     }

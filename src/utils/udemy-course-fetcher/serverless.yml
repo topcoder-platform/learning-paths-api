@@ -1,0 +1,47 @@
+service: udemy-course-loader
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: ${opt:stage,'dev'} 
+  runtime: nodejs14.x
+  memorySize: 512
+  timeout: 720
+  environment:
+    UDEMY_CRS_PG_USER: ${self:custom.UDEMY_CRS_PG_USER}
+    UDEMY_CRS_PG_PASSWORD: ${self:custom.UDEMY_CRS_PG_PASSWORD}
+    UDEMY_CRS_PG_DATABASE: ${self:custom.UDEMY_CRS_PG_DATABASE}
+    UDEMY_CRS_PG_HOST: ${self:custom.POSTGRESQL.HOST}
+    UDEMY_CRS_PG_PORT: ${self:custom.POSTGRESQL.PORT}
+  tracing: 
+    lambda: true
+
+custom:
+  UDEMY_CRS_PG_USER: postgres
+  UDEMY_CRS_PG_PASSWORD: ${env:UDEMY_CRS_PG_PASSWORD}
+  UDEMY_CRS_PG_DATABASE: ${env:UDEMY_CRS_PG_DATABASE}
+  POSTGRESQL:
+    HOST:
+      Fn::GetAtt: [UdemyCourseDB, Endpoint.Address]
+    PORT:
+      Fn::GetAtt: [UdemyCourseDB, Endpoint.Port]
+
+resources:
+  - ${file(./resource/UdemyCourseDB.yml)} 
+   
+functions:
+  courseLoader:
+    handler: src/utils/udemy-course-fetcher/fetcher.handleCourses
+    events:
+      - eventBridge:
+          enabled: true
+          schedule: cron(0 5 * * ? *)
+    vpc:
+      securityGroupIds:
+        - sg-c31b46a6
+      subnetIds:
+        - subnet-0c1e33c01100208dc
+        - subnet-0c6b178fbcae39d21
+        - subnet-b66acd9d
+        - subnet-0c82c136

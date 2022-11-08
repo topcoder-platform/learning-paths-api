@@ -1,0 +1,14 @@
+Resources:
+  GamificationEngineDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: udemy-course-${opt:stage,'dev'}
+      DBName: tcUdemyCourse
+      DBInstanceClass: db.t4g.small
+      VPCSecurityGroups:
+        - sg-c31b46a6
+      DBSubnetGroupName: mysql-db-subnet
+      AllocatedStorage: 20
+      Engine: postgres
+      MasterUsername: ${self:custom.ENGINE_PG_USER}
+      MasterUserPassword: ${self:custom.ENGINE_PG_PASSWORD}

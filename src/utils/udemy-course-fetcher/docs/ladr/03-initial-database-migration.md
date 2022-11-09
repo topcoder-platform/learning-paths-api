@@ -1,4 +1,4 @@
-# LADR 03-initial-database-migration
+# LADR 03-initial-database-migration - Nov 7, 2022
 
 The database that was created in AWS via the serverless deployment is initially empty. Using the Prisma ORM tool the database needs to be migrated to the current state defined by the collection of migration files in the [prisma/migrations directory](../../prisma/migrations/). The migration process for the deployed database is described in the [Prisma documentation](https://www.prisma.io/docs/guides/deployment/deployment-guides/deploying-to-aws-lambda#2-set-the-database_url-environment-variable-locally).
 

@@ -1,4 +1,4 @@
-# LADR 02-serverless-deployment
+# LADR 02-serverless-deployment - Nov 4, 2022
 
 This function uses the [`serverless`](https://serverless.com) framework to manage deployments to AWS.
 

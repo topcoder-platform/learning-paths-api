@@ -717,14 +717,19 @@ async function completeLessonViaMongoTrigger(query) {
 
 /**
  * Checks and sets the module status as follows:
- *   - if one or more lessons are completed, but not all, it's set to 'in-progress'
+ *   - if a module has been completed already, it simply returns
+ *   - if one or more lessons have been completed, but not all of them, 
+ *     it's set to 'in-progress'
  *   - if all of the lessons have been completed, it's set to 'completed'
  * 
  * @param {Object} module the module to check for completion
  */
 function checkAndSetModuleStatus(userId, module) {
-    const moduleInProgress = (module.completedLessons.length < module.lessonCount)
-    const moduleCompleted = (module.completedLessons.length == module.lessonCount)
+    if (module.moduleStatus == STATUS_COMPLETED) return;
+
+    const completedLessonCount = module.completedLessons.length;
+    const moduleInProgress = ((completedLessonCount > 0) && (completedLessonCount < module.lessonCount))
+    const moduleCompleted = (completedLessonCount == module.lessonCount)
 
     if (moduleInProgress) {
         // console.log(`User ${userId} started module ${module.module}`)

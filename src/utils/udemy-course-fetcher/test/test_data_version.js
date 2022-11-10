@@ -1,6 +1,6 @@
 'use strict';
 
-const CourseVersion = require('../course_version');
+const CourseVersion = require('../src/course_version');
 
 (async () => {
     const courseVersion = new CourseVersion();

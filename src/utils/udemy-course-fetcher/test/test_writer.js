@@ -3,8 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const fetcher = require('../fetcher');
-const writer = require('../course_writer.js');
+const fetcher = require('../src/fetcher');
+const writer = require('../src/course_writer.js');
 
 const COURSE_FILES_DIR = "course-files";
 

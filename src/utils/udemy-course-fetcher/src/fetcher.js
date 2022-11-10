@@ -311,7 +311,7 @@ async function writeCourseFileToS3(courses) {
  * @returns the file path 
  */
 function courseFilePath() {
-    return path.join(__dirname, COURSE_FILES_DIR, courseFileName());
+    return path.join(__dirname, '..', COURSE_FILES_DIR, courseFileName());
 }
 
 /**

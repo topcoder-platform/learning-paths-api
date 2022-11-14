@@ -54,6 +54,16 @@ async function searchCertificationProgresses(query) {
     }
 }
 
+async function addCompletedLessonToModule(currentUser, certificationProgressId, query) {
+    const userId = currentUser.userId;
+    const moduleName = query.module;
+    const lessonName = query.lesson;
+    const lessonId = query.uuid;
+
+    let progress = await getCertificationProgress(userId, certificationProgressId);
+
+}
+
 // TODO - modify and use this schema to verify the input request
 // searchCertificationProgresses.schema = {
 //     criteria: Joi.object().keys({
@@ -590,7 +600,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     const lessonName = query.lesson;
     const lessonId = query.uuid;
 
-    console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}...`)
+    console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}, id ${lessonId}`)
 
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)
@@ -633,11 +643,11 @@ async function setLessonComplete(userId, certificationProgressId, moduleName, le
     }
 
     const lesson = progress.modules[moduleIndex].completedLessons.find(
-        lesson => lesson.dashedName == lessonName)
+        lesson => lesson.id == lessonId)
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName}`);
+        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonId}`);
         decorateProgressCompletion(progress)
         return progress
     } else {
@@ -773,6 +783,7 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    addCompletedLessonToModule,
     assessmentModuleNotCompleted,
     checkAndSetModuleStatus,
     checkCertificateCompletion,

@@ -54,14 +54,13 @@ async function searchCertificationProgresses(query) {
     }
 }
 
-async function addCompletedLessonToModule(currentUser, certificationProgressId, query) {
-    const userId = currentUser.userId;
+async function addCompletedLessonToModule(userId, certificationProgressId, query) {
     const moduleName = query.module;
     const lessonName = query.lesson;
     const lessonId = query.uuid;
 
     let progress = await getCertificationProgress(userId, certificationProgressId);
-
+    return progress
 }
 
 // TODO - modify and use this schema to verify the input request

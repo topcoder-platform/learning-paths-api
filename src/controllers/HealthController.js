@@ -1,13 +1,12 @@
 /**
  * Controller for health check endpoint
  */
+
 const config = require('config')
 
-const service = require('../services/LearningResourceProviderService')
+const service = require('../services/HealthCheckService')
 const errors = require('../common/errors')
 
-// the topcoder-healthcheck-dropin library returns checksRun count,
-// here it follows that to return such count
 let checksRun = 0
 
 /**
@@ -22,7 +21,8 @@ async function checkHealth(req, res) {
   checksRun += 1
   const timestampMS = new Date().getTime()
   try {
-    await service.searchLearningResourceProviders({ page: 1, perPage: 1 })
+    const id = config.HEALTH_CHECK_ID || 'health-check'
+    await service.getHealthCheck(config.HEALTH_CHECK_ID)
   } catch (e) {
     throw new errors.ServiceUnavailableError(`An error occurred checking the database, ${e.message}`)
   }

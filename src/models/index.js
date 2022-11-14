@@ -30,5 +30,6 @@ module.exports = {
   Certification: dynamoose.model('Certification', require('./Certification')),
   CertificationProgress: dynamoose.model('CertificationProgress', require('./CertificationProgress')),
   Course: dynamoose.model('Course', require('./Course')),
+  TopcoderAcademyHealthCheck: dynamoose.model('TopcoderAcademyHealthCheck', require('./TopcoderAcademyHealthCheck')),
   LearningResourceProvider: dynamoose.model('LearningResourceProvider', require('./LearningResourceProvider')),
 }

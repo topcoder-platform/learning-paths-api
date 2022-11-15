@@ -1,0 +1,41 @@
+{
+    "Cloud Computing": {
+        "subcategories": [
+            "Cloud Certifications",
+            "Cloud Development",
+            "Cloud Fundamentals"
+        ]
+    },
+    "Data Science": {
+        "subcategories": [
+            "Analytics",
+            "Big Data",
+            "Data Visualization",
+            "Machine Learning",
+            "Statistical Analysis"
+        ]
+    },
+    "Design": {
+        "subcategories": [
+            "3D & Animation",
+            "Design Tools",
+            "Game Design",
+            "Graphic Design & Illustration",
+            "Mobile Design",
+            "User Experience Design",
+            "Web Design"
+        ]
+    },
+    "Development": {
+        "subcategories": [
+            "Database Design & Development",
+            "Game Development",
+            "Mobile Development",
+            "Programming Languages",
+            "Software Development Tools",
+            "Software Engineering",
+            "Software Testing",
+            "Web Development"
+        ]
+    }
+}

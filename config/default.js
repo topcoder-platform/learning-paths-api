@@ -43,7 +43,7 @@ module.exports = {
 
   // health check timeout in milliseconds
   HEALTH_CHECK_TIMEOUT: process.env.HEALTH_CHECK_TIMEOUT || 3000,
-
+  HEALTH_CHECK_ID: 'health-check',
   M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
 
   INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800

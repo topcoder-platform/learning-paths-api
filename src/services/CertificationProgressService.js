@@ -54,13 +54,52 @@ async function searchCertificationProgresses(query) {
     }
 }
 
-async function addCompletedLessonToModule(userId, certificationProgressId, query) {
+/**
+ * Adds a completed lesson to the course module in the CertificationProgress record.
+ * Uses a native DynamoDB SDK call for performance.
+ * 
+ * @param {String} certification the certification name
+ * @param {String} certificationProgressId the ID of the CertificationProgress record
+ * @param {Number} userId the ID of the user owning the cert progress
+ * @param {Object} query the query object describing the module and lesson
+ * @returns The updated CertificationProgress record
+ */
+async function addCompletedLessonToModule(certification, certificationProgressId, userId, query) {
     const moduleName = query.module;
     const lessonName = query.lesson;
     const lessonId = query.uuid;
 
     let progress = await getCertificationProgress(userId, certificationProgressId);
-    return progress
+
+    const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
+    if (moduleIndex == -1) {
+        console.error("Could not find module", moduleName);
+        return
+    }
+
+    const keyFields = {
+        partitionKey: {
+            key: 'id',
+            value: certificationProgressId
+        },
+        sortKey: {
+            key: 'certification',
+            value: certification
+        }
+    }
+
+    const updateObj = {
+        itemIndex: moduleIndex,
+        addItem: {
+            dashedName: lessonName,
+            id: lessonId,
+            completedDate: Date.now()
+        }
+    }
+
+    const result = await helper.addCompletedLessonNative('CertificationProgress', keyFields, updateObj);
+
+    return result;
 }
 
 // TODO - modify and use this schema to verify the input request

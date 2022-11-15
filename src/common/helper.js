@@ -1,6 +1,12 @@
 /**
  * This file defines helper methods
  */
+// Create service client module using ES6 syntax.
+const {
+  DynamoDBClient,
+  GetItemCommand,
+  UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+
 const axios = require('axios')
 const Joi = require('joi')
 const _ = require('lodash')
@@ -24,6 +30,13 @@ AWS.config.update({
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
   region: config.AMAZON.AWS_REGION
 })
+
+// console.log(AWS.config);
+
+const ddbClient = new DynamoDBClient({
+  region: config.AMAZON.AWS_REGION,
+  endpoint: config.AMAZON.DYNAMODB_URL
+});
 
 const completedCertAttributes = [
   "id",
@@ -402,6 +415,70 @@ async function updateAtomic(modelName, idObj, updateObj) {
 }
 
 /**
+ * Uses the native AWS DynamoDB SDK to add a completed lesson to the CertificationProgress
+ * record's course module's completeLessons array.
+ * 
+ * @param {String} modelName the DynamoDB table name
+ * @param {Object} keyFields object containing the partion and sort key field names and values
+ * @param {Object} updateObj object comprising the data to update
+ * @returns the updated CertificationProgress record
+ */
+async function addCompletedLessonNative(modelName, keyFields, updateObj) {
+  const { itemIndex, addItem } = updateObj;
+
+  const key = {
+    [keyFields.partitionKey.key]: { "S": keyFields.partitionKey.value },
+    [keyFields.sortKey.key]: { "S": keyFields.sortKey.value }
+  }
+
+  const updateExprValue = `modules[${itemIndex}].completedLessons`
+  const exprAttrValues = {
+    ":lesson": {
+      "L": [
+        {
+          "M": {
+            "id": {
+              "S": addItem.id
+            },
+            "completedDate": {
+              "N": addItem.completedDate.toString() // must coerce values to strings for DynamoDB
+            },
+            "dashedName": {
+              "S": addItem.dashedName
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  const params = {
+    TableName: modelName,
+    Key: key,
+    UpdateExpression: `SET ${updateExprValue} = list_append(${updateExprValue}, :lesson)`,
+    ExpressionAttributeValues: exprAttrValues,
+    ReturnValues: "ALL_NEW"
+  };
+
+  try {
+    const startTime = performance.now();
+    const data = await ddbClient.send(new UpdateItemCommand(params));
+
+    if (data.Attributes) {
+      const jsonData = AWS.DynamoDB.Converter.unmarshall(data.Attributes);
+      logExecutionTime2(startTime, 'addCompletedLessonNative');
+
+      return jsonData;
+    } else {
+      return {}
+    }
+  } catch (error) {
+    console.error(error)
+    return {}
+  }
+}
+
+/**
  * Get data collection by scan parameters
  * @param {Object} modelName The dynamoose model name
  * @param {Object} scanParams The scan parameters object
@@ -560,6 +637,7 @@ function parseQueryParam(param) {
 }
 
 module.exports = {
+  addCompletedLessonNative,
   autoWrapExpress,
   checkIfExists,
   create,

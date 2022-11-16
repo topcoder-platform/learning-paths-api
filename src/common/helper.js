@@ -416,22 +416,33 @@ async function updateAtomic(modelName, idObj, updateObj) {
 
 /**
  * Uses the native AWS DynamoDB SDK to add a completed lesson to the CertificationProgress
- * record's course module's completeLessons array.
+ * record's course module's completeLessons array. Also updated the module's status and 
+ * the record's updatedAt timestamp.
  * 
  * @param {String} modelName the DynamoDB table name
  * @param {Object} keyFields object containing the partion and sort key field names and values
  * @param {Object} updateObj object comprising the data to update
  * @returns the updated CertificationProgress record
  */
-async function addCompletedLessonNative(modelName, keyFields, updateObj) {
-  const { itemIndex, addItem } = updateObj;
+async function addCompletedLessonNative(keyFields, updateObj) {
+  const { itemIndex, moduleStatus, addItem } = updateObj;
 
   const key = {
     [keyFields.partitionKey.key]: { "S": keyFields.partitionKey.value },
     [keyFields.sortKey.key]: { "S": keyFields.sortKey.value }
   }
 
-  const updateExprValue = `modules[${itemIndex}].completedLessons`
+  const moduleIndex = `modules[${itemIndex}]`
+  const lessonExprValue = `${moduleIndex}.completedLessons`
+  const statusExprValue = `${moduleIndex}.moduleStatus`
+
+  // Build the update expression to add the completed lesson, set the 
+  // module status, and the updatedAt timestamp
+  var updateExpr = `SET ${lessonExprValue} = list_append(${lessonExprValue}, :lesson)`;
+  updateExpr += `, ${statusExprValue} = :moduleStatus`
+  updateExpr += `, updatedAt = :updatedAt`
+
+  // Note: you must coerce values to strings for DynamoDB
   const exprAttrValues = {
     ":lesson": {
       "L": [
@@ -441,7 +452,7 @@ async function addCompletedLessonNative(modelName, keyFields, updateObj) {
               "S": addItem.id
             },
             "completedDate": {
-              "N": addItem.completedDate.toString() // must coerce values to strings for DynamoDB
+              "N": addItem.completedDate.toString()
             },
             "dashedName": {
               "S": addItem.dashedName
@@ -449,13 +460,19 @@ async function addCompletedLessonNative(modelName, keyFields, updateObj) {
           }
         }
       ]
+    },
+    ":moduleStatus": {
+      "S": moduleStatus
+    },
+    ":updatedAt": {
+      "N": Date.now().toString()
     }
   };
 
   const params = {
-    TableName: modelName,
+    TableName: 'CertificationProgress',
     Key: key,
-    UpdateExpression: `SET ${updateExprValue} = list_append(${updateExprValue}, :lesson)`,
+    UpdateExpression: updateExpr,
     ExpressionAttributeValues: exprAttrValues,
     ReturnValues: "ALL_NEW"
   };

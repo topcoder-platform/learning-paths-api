@@ -54,54 +54,6 @@ async function searchCertificationProgresses(query) {
     }
 }
 
-/**
- * Adds a completed lesson to the course module in the CertificationProgress record.
- * Uses a native DynamoDB SDK call for performance.
- * 
- * @param {String} certification the certification name
- * @param {String} certificationProgressId the ID of the CertificationProgress record
- * @param {Number} userId the ID of the user owning the cert progress
- * @param {Object} query the query object describing the module and lesson
- * @returns The updated CertificationProgress record
- */
-async function addCompletedLessonToModule(certification, certificationProgressId, userId, query) {
-    const moduleName = query.module;
-    const lessonName = query.lesson;
-    const lessonId = query.uuid;
-
-    let progress = await getCertificationProgress(userId, certificationProgressId);
-
-    const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
-    if (moduleIndex == -1) {
-        console.error("Could not find module", moduleName);
-        return
-    }
-
-    const keyFields = {
-        partitionKey: {
-            key: 'id',
-            value: certificationProgressId
-        },
-        sortKey: {
-            key: 'certification',
-            value: certification
-        }
-    }
-
-    const updateObj = {
-        itemIndex: moduleIndex,
-        addItem: {
-            dashedName: lessonName,
-            id: lessonId,
-            completedDate: Date.now()
-        }
-    }
-
-    const result = await helper.addCompletedLessonNative('CertificationProgress', keyFields, updateObj);
-
-    return result;
-}
-
 // TODO - modify and use this schema to verify the input request
 // searchCertificationProgresses.schema = {
 //     criteria: Joi.object().keys({
@@ -673,6 +625,31 @@ completeLesson.schema = {
  */
 async function setLessonComplete(userId, certificationProgressId, moduleName, lessonName, lessonId) {
     let progress = await getCertificationProgress(userId, certificationProgressId);
+    const { certification, moduleIndex, lesson } = resolveCertificationModuleLesson(progress, moduleName, lessonId)
+
+    if (lesson) {
+        // it's already been completed, so just log it and return the current progress object
+        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName} (id: ${lessonId})`);
+        decorateProgressCompletion(progress)
+        return progress
+    } else {
+        return await updateCompletedLessonNative(progress, moduleIndex, moduleName, lessonId, lessonName)
+    }
+}
+
+/**
+ * A helper function that looks for a completed module and lesson in a  
+ * CertificationProgress record.
+ * 
+ * The returned lesson can be null if it hasn't been completed yet.
+ * 
+ * @param {Object} progress CertificationProgress object
+ * @param {String} moduleName name of the module to resolve
+ * @param {String} lessonId ID of the lesson to resolve
+ * @returns an object containing the resolved certification name, 
+ *      module index, and lesson (or null)
+ */
+function resolveCertificationModuleLesson(progress, moduleName, lessonId) {
     const certification = progress.certification;
 
     const moduleIndex = progress.modules.findIndex(mod => mod.module == moduleName)
@@ -683,38 +660,58 @@ async function setLessonComplete(userId, certificationProgressId, moduleName, le
     const lesson = progress.modules[moduleIndex].completedLessons.find(
         lesson => lesson.id == lessonId)
 
-    if (lesson) {
-        // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonId}`);
-        decorateProgressCompletion(progress)
-        return progress
-    } else {
-        const completedLesson = {
-            id: lessonId,
-            dashedName: lessonName,
-            completedDate: new Date()
-        }
-        progress.modules[moduleIndex].completedLessons.push(completedLesson)
+    return { certification, moduleIndex, lesson }
+}
 
-        // checks to see if the module has been completed and marks it accordingly
-        checkAndSetModuleStatus(userId, progress.modules[moduleIndex])
+/**
+ * Uses a native AWS DynamoDB SDK call (via helper method) to update a Certification 
+ * Progress record with a completed lesson.
+ * 
+ * @param {Object} progress the CertificationProgress record to update
+ * @param {Integer} moduleIndex the index of the module to update in the array of modules
+ * @param {String} lessonId the ID of the lesson that was completed
+ * @param {String} lessonName the name of the lesson that was completed
+ * @returns a CertificationProgress record updated with the completed lesson
+ */
+async function updateCompletedLessonNative(progress, moduleIndex, moduleName, lessonId, lessonName) {
+    const { userId, certification } = progress;
 
-        const updatedModules = {
-            modules: progress.modules
-        }
-
-        const idObj = {
-            id: certificationProgressId,
-            certification: progress.certification
-        }
-
-        let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules);
-        decorateProgressCompletion(updatedProgress);
-
-        console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName}`);
-
-        return updatedProgress
+    const completedLesson = {
+        id: lessonId,
+        dashedName: lessonName,
+        completedDate: Date.now()
     }
+    progress.modules[moduleIndex].completedLessons.push(completedLesson)
+
+    // checks to see if the module has been completed and marks it accordingly
+    checkAndSetModuleStatus(progress.modules[moduleIndex])
+    const moduleStatus = progress.modules[moduleIndex].moduleStatus
+
+    // setup the object that identifies the record to update
+    const keyFields = {
+        partitionKey: {
+            key: 'id',
+            value: progress.id
+        },
+        sortKey: {
+            key: 'certification',
+            value: progress.certification
+        }
+    }
+
+    // setup the object that contains the update
+    const updateObj = {
+        itemIndex: moduleIndex,
+        moduleStatus: moduleStatus,
+        addItem: completedLesson
+    }
+
+    const updatedProgress = await helper.addCompletedLessonNative(keyFields, updateObj);
+    decorateProgressCompletion(updatedProgress);
+
+    console.log(`User ${userId} completed ${certification}/${moduleName}/${lessonName} (id: ${lessonId})`);
+
+    return updatedProgress
 }
 
 /**
@@ -772,18 +769,22 @@ async function completeLessonViaMongoTrigger(query) {
  * 
  * @param {Object} module the module to check for completion
  */
-function checkAndSetModuleStatus(userId, module) {
+function checkAndSetModuleStatus(module) {
     if (module.moduleStatus == STATUS_COMPLETED) return;
 
     const completedLessonCount = module.completedLessons.length;
     const moduleInProgress = ((completedLessonCount > 0) && (completedLessonCount < module.lessonCount))
-    const moduleCompleted = (completedLessonCount == module.lessonCount)
+    // Using >= in the following check for cases where a lesson has been added
+    // to a module after the progress record was initially created. In that case 
+    // the original lessonCount can be less than the total number of lessons 
+    // the user completes. TODO: this should probably be addressed when an FCC 
+    // course update is performed by updating the module lessonCount for all certifications
+    // that have not been completed.
+    const moduleCompleted = (completedLessonCount >= module.lessonCount)
 
     if (moduleInProgress) {
-        // console.log(`User ${userId} started module ${module.module}`)
         module.moduleStatus = STATUS_IN_PROGRESS
     } else if (moduleCompleted) {
-        // console.log(`User ${userId} completed module ${module.module}`)
         module.moduleStatus = STATUS_COMPLETED
         if (!module.completedDate) {
             module.completedDate = new Date()
@@ -821,7 +822,6 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
 
 module.exports = {
     acceptAcademicHonestyPolicy,
-    addCompletedLessonToModule,
     assessmentModuleNotCompleted,
     checkAndSetModuleStatus,
     checkCertificateCompletion,
@@ -831,6 +831,7 @@ module.exports = {
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,
+    setLessonComplete,
     startCertification,
     updateCurrentLesson,
 }

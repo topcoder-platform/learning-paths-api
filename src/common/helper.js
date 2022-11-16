@@ -414,7 +414,7 @@ async function updateAtomic(modelName, idObj, updateObj) {
 
 /**
  * Uses the native AWS DynamoDB SDK to add a completed lesson to the CertificationProgress
- * record's course module's completeLessons array. Also updated the module's status and 
+ * record's course module's completedLessons array. Also updated the module's status and 
  * the record's updatedAt timestamp.
  * 
  * @param {String} modelName the DynamoDB table name

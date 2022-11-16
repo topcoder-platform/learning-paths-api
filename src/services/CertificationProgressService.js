@@ -699,7 +699,7 @@ async function updateCompletedLessonNative(progress, moduleIndex, moduleName, le
         }
     }
 
-    // setup the object that contains the update
+    // set up the object that contains the update
     const updateObj = {
         itemIndex: moduleIndex,
         moduleStatus: moduleStatus,

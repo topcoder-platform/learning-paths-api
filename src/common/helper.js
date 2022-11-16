@@ -31,8 +31,6 @@ AWS.config.update({
   region: config.AMAZON.AWS_REGION
 })
 
-// console.log(AWS.config);
-
 const ddbClient = new DynamoDBClient({
   region: config.AMAZON.AWS_REGION,
   endpoint: config.AMAZON.DYNAMODB_URL

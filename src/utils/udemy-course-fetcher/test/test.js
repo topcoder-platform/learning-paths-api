@@ -1,6 +1,6 @@
 'use strict';
 
-const fetcher = require('../src/fetcher');
+const fetcher = require('../src/course_fetcher');
 let event = {
     id: "cdc73f9d-aea9-11e3-9d5a-835b769c0d9c",
     "detail-type": "Scheduled Event",

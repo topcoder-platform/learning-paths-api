@@ -72,7 +72,7 @@ resources:
    
 functions:
   courseLoader:
-    handler: src/utils/udemy-course-fetcher/src/fetcher.handleCourses
+    handler: src/utils/udemy-course-fetcher/src/course_fetcher.handleCourses
     events:
       - eventBridge:
           enabled: true

@@ -4,7 +4,6 @@
 // Create service client module using ES6 syntax.
 const {
   DynamoDBClient,
-  GetItemCommand,
   UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 
 const axios = require('axios')

@@ -38,6 +38,10 @@ async function replaceCourseData(rawCourseData) {
 
     const courseData = formatRawCourseDataForInput(rawCourseData, newVersion);
 
+    // Validate that the course update is reasonable 
+    // before continuing.
+    if (!validateCourseUpdate(courseData)) return;
+
     const writeCourseResult = await writeCoursesToTable(courseData);
     const versionUpdateResult = await courseVersion.updateVersion();
     const removeCourseResult = await removePreviousCourseVersions(newVersion);
@@ -67,6 +71,19 @@ function formatRawCourseDataForInput(rawCourseData, dataVersion) {
     }
 
     return inputData;
+}
+
+/**
+ * Examines the incoming course data and compares it to the current set 
+ * of course data to determine if the update is valid. The checks it performs
+ * are:
+ *   - If there is no incoming data, the update is INVALID
+ *   - 
+ * @param {Array} courses array of JSON course objects from the Udemy API
+ * @returns true or false if the course update appears to be valid
+ */
+async function validateCourseUpdate(courses, forceUpdate = false) {
+
 }
 
 /**

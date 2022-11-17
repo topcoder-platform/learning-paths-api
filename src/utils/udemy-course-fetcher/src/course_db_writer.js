@@ -26,7 +26,7 @@ async function updateCourses(courseData) {
  *   1. Get a new data version timestamp
  *   2. Load all of the new data into the DB with that new version
  *   3. Make that new version the current version
- *   4. Delete the course data for the previous (older) version
+ *   4. Delete the course data for the previous (older) version(s)
  * 
  * @param {String} rawCourseData the JSON data making up the courses
  */

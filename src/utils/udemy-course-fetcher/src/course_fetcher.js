@@ -4,6 +4,7 @@ const path = require('path');
 
 const s3Store = require('./course_s3_store');
 const courseDbWriter = require('./course_db_writer');
+const courseReconciler = require('./course_reconciler');
 
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
@@ -11,7 +12,9 @@ const CLIENT_ID = process.env.UDEMY_CLIENT_ID;
 const CLIENT_SECRET = process.env.UDEMY_CLIENT_SECRET;
 
 const PAGE_SIZE = 100;
-const API_CALL_DELAY = 4; // seconds between calls to Udemy API
+// seconds between calls to Udemy API, to avoid throttling
+const API_CALL_DELAY = process.env.API_CALL_DELAY || 4;
+// the languages for which we will filter courses
 const COURSE_LOCALES = ['en_US']
 
 const BASE_URL = `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/${ACCOUNT_ID}/courses/list/`
@@ -24,7 +27,13 @@ const COURSES_FILE = 'udemy-courses';
 const courseCategories = require('./categories.json');
 
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
-
+/**
+ * A Lambda handler function that retrieves Udemy Business course data and 
+ * updates Topcoder Academy's internal copy of the courses.
+ * 
+ * @param {Object} event the event that triggered this lambda
+ * @returns details on courses that were added, updated, or removed
+ */
 module.exports.handleCourses = async (event) => {
     console.log("function triggered by event", JSON.stringify(event, null, 2));
     const pageLimit = event.detail?.pageLimit;
@@ -35,7 +44,8 @@ module.exports.handleCourses = async (event) => {
 
         if (courses.length > 0) {
             await writeCourseFile(courses);
-            return await courseDbWriter.updateCourses(courses);
+            await courseDbWriter.updateCourses(courses);
+            await courseReconciler.reconcileCourses();
         } else {
             console.error("** no courses were retrieved -- exiting!")
             return false;

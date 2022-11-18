@@ -28,6 +28,7 @@ const COURSES_FILE = 'udemy-courses';
 const courseCategories = require('./categories.json');
 
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
+
 /**
  * A Lambda handler function that retrieves Udemy Business course data and 
  * updates Topcoder Academy's internal copy of the courses.
@@ -110,7 +111,7 @@ async function fetchCourses(pages) {
  * @returns integer count of total pages of courses available
  */
 async function fetchNumPages() {
-    const url = `${BASE_URL}?page=1`
+    const url = `${BASE_URL}?page=1&page_size=1`
     const result = await axios.get(url, { timeout: UDEMY_API_TIMEOUT });
     const courseCount = result.data.count;
 
@@ -365,7 +366,7 @@ function mapPages(lastPage) {
  * @returns base64-encoded string 
  */
 function base64ClientCredentials() {
-    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET} `;
+    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
     const buf = Buffer.from(clientCredentials);
     const authString = buf.toString('base64');
 

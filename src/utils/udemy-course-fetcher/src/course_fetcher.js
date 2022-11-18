@@ -5,6 +5,7 @@ const path = require('path');
 const s3Store = require('./course_s3_store');
 const courseDbWriter = require('./course_db_writer');
 const courseReconciler = require('./course_reconciler');
+const courseValidator = require('./course_update_validator')
 
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
@@ -42,14 +43,18 @@ module.exports.handleCourses = async (event) => {
         const courseData = await fetchAllCourses(pageLimit);
         const courses = await processCourseResults(courseData);
 
-        if (courses.length > 0) {
+        const { validUpdate, validationIssue } = courseValidator.validateCourseUpdate(courses)
+
+        if (validUpdate) {
             await writeCourseFile(courses);
             await courseDbWriter.updateCourses(courses);
             await courseReconciler.reconcileCourses();
         } else {
-            console.error("** no courses were retrieved -- exiting!")
-            return false;
+            console.error("** course update was not valid, not updating!")
+            console.error("- validation issue:", validationIssue)
         }
+
+        return validUpdate;
 
     } catch (error) {
         console.error(error);

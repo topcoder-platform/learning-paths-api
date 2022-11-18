@@ -18,7 +18,6 @@ const config = require('config')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 const NodeCache = require('node-cache')
-const HttpStatus = require('http-status-codes')
 const xss = require('xss')
 const { CertificationProgress } = require('../models')
 const { performance } = require('perf_hooks');

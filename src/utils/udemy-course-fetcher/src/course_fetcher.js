@@ -5,7 +5,7 @@ const path = require('path');
 const s3Store = require('./course_s3_store');
 const courseDbWriter = require('./course_db_writer');
 const courseReconciler = require('./course_reconciler');
-const courseValidator = require('./course_update_validator')
+const CourseUpdateValidator = require('./course_update_validator')
 
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
@@ -38,12 +38,14 @@ axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredential
 module.exports.handleCourses = async (event) => {
     console.log("function triggered by event", JSON.stringify(event, null, 2));
     const pageLimit = event.detail?.pageLimit;
+    const forceUpdate = event.detail?.forceUpdate;
 
     try {
         const courseData = await fetchAllCourses(pageLimit);
         const courses = await processCourseResults(courseData);
 
-        const { validUpdate, validationIssue } = courseValidator.validateCourseUpdate(courses)
+        const courseValidator = await CourseUpdateValidator.initialize(courses, forceUpdate);
+        const { validUpdate, validationIssue } = await courseValidator.validate();
 
         if (validUpdate) {
             await writeCourseFile(courses);
@@ -257,7 +259,10 @@ async function retryUnfulfilledPageRequests(courses, pages) {
     for (const result of results) {
         page += 1;
         if (result?.status == 'fulfilled') {
-            for (const course of result.value) {
+            // filter out courses we don't care about
+            const courseResults = result.value.filter(filterCourse)
+
+            for (const course of courseResults) {
                 courseCount += 1;
                 courses.push(course);
             }
@@ -269,7 +274,8 @@ async function retryUnfulfilledPageRequests(courses, pages) {
         }
     }
 
-    console.log("retried and retrieved courses:", courseCount)
+    console.log("additional courses retrieved after retry:", courseCount)
+
     return courses;
 }
 

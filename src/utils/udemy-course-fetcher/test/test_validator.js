@@ -1,52 +1,52 @@
 'use strict';
 
 const { exist } = require('joi');
-const validator = require('../src/course_update_validator');
+const CourseUpdateValidator = require('../src/course_update_validator');
 
 (async () => {
     let validUpdate, validationIssue;
 
     let courses = undefined;
-    ({ validUpdate, validationIssue } = await validator.validateInputDataExists(courses));
-    console.log('courses undefined', validUpdate, validationIssue);
+    let validator = new CourseUpdateValidator(courses);
+
+    validator.validateInputDataExists();
+    console.log('courses undefined', validator.validUpdate, validator.validationIssue);
 
     courses = [];
-    ({ validUpdate, validationIssue } = await validator.validateInputDataExists(courses));
-    console.log('courses empty', validUpdate, validationIssue);
+    validator = new CourseUpdateValidator(courses);
+    validator.validateInputDataExists(courses);
+    console.log('courses empty', validator.validUpdate, validator.validationIssue);
 
     courses = [{ id: 1 }];
-    ({ validUpdate, validationIssue } = await validator.validateInputDataExists(courses));
-    console.log('1 course', validUpdate, validationIssue);
+    validator.validateInputDataExists(courses);
+    console.log('1 course', validator.validUpdate, validator.validationIssue);
 
     let inputCourseCount = 0;
     let existingCourseCount = 0;
 
-    ({ validUpdate, validationIssue } = await validator.validateInputDataSize(inputCourseCount, existingCourseCount));
-    console.log('no existing or incoming courses', validUpdate, validationIssue);
+    validator.validateInputDataSize(inputCourseCount, existingCourseCount);
+    console.log('no existing or incoming courses', validator.validUpdate, validator.validationIssue);
 
     existingCourseCount = 1;
-    ({ validUpdate, validationIssue } = await validator.validateInputDataSize(inputCourseCount, existingCourseCount));
-    console.log('no incoming courses, 1 existing', validUpdate, validationIssue);
+    validator.validateInputDataSize(inputCourseCount, existingCourseCount);
+    console.log('no incoming courses, 1 existing', validator.validUpdate, validator.validationIssue);
 
     existingCourseCount = 1000;
     inputCourseCount = 991;
-    ({ validUpdate, validationIssue } = await validator.validateInputDataSize(inputCourseCount, existingCourseCount));
-    console.log('< delta % difference', validUpdate, validationIssue);
+    validator.validateInputDataSize(inputCourseCount, existingCourseCount);
+    console.log('< delta % difference should be true', validator.validUpdate, validator.validationIssue);
 
     existingCourseCount = 1000;
     inputCourseCount = 985;
-    ({ validUpdate, validationIssue } = await validator.validateInputDataSize(inputCourseCount, existingCourseCount));
-    console.log('> delta % difference', validUpdate, validationIssue);
+    validator.validateInputDataSize(inputCourseCount, existingCourseCount);
+    console.log('> delta % difference should be false', validator.validUpdate, validator.validationIssue);
 
     existingCourseCount = 17072;
     inputCourseCount = 16900;
-    ({ validUpdate, validationIssue } = await validator.validateInputDataSize(inputCourseCount, existingCourseCount));
-    console.log('> delta % difference', validUpdate, validationIssue);
+    validator.validateInputDataSize(inputCourseCount, existingCourseCount);
+    console.log('> delta % difference', validator.validUpdate, validator.validationIssue);
 
-    const dbCourseCount = await validator.getExistingCourseCount();
-    console.log('DB course count', dbCourseCount);
-
-    const forceUpdate = true;
-    ({ validUpdate, validationIssue } = await validator.validateCourseUpdate({}, forceUpdate))
-    console.log('force', validUpdate, validationIssue)
+    validator = await CourseUpdateValidator.initialize([{}]);
+    const validation = validator.validate();
+    console.log('validation', validation);
 })();

@@ -15,9 +15,7 @@ let event = {
 };
 
 (async () => {
-    // event.detail = { pageLimit: 5 }
-
+    event.detail = { pageLimit: 5, forceUpdate: false }
     const result = await fetcher.handleCourses(event);
-
     console.log('fetcher result', result);
 })();

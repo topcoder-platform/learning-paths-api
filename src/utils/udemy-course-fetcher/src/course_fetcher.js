@@ -111,6 +111,7 @@ async function fetchCourses(pages) {
  * @returns integer count of total pages of courses available
  */
 async function fetchNumPages() {
+    console.log("** requesting count of total pages")
     const url = `${BASE_URL}?page=1&page_size=1`
     const result = await axios.get(url, { timeout: UDEMY_API_TIMEOUT });
     const courseCount = result.data.count;

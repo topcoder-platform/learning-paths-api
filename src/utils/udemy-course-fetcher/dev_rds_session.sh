@@ -21,7 +21,7 @@
 #
 # Also note that your AWS RDS instance needs to be in the same VPC as the EC2 jump host,
 # otherwise socat won't be able to connect to it. If you don't specify VPC settings for 
-# your RDS instance it will be configred on the default VPC.
+# your RDS instance it will be configured on the default VPC.
 
 aws ssm start-session \
     --profile 811668436784_AWSPowerUserPlusIAM \

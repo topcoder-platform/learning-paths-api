@@ -8,5 +8,5 @@ In order to connect to the Postgres instance deployed in AWS RDS you must setup 
 
 There is a script in this project [dev_rds_session.sh](../../dev_rds_session.sh) that takes care of 1) above. The script also contains detailed instructions on setting up the `socat` connection on the NAT host in AWS.
 
-With both 1) and 2) above configured you should be able to execute the Prisma migrations to setup the database.
+With both 1) and 2) above configured you should be able to execute the Prisma migrations to set up the database.
 

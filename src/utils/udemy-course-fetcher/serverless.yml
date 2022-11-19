@@ -6,7 +6,7 @@ provider:
   region: us-east-1
   stage: ${opt:stage,'dev'} 
   runtime: nodejs14.x
-  memorySize: 512
+  memorySize: 1024
   timeout: 900
   environment:
     DATABASE_URL: ${self:custom.DATABASE_URL}
@@ -72,7 +72,7 @@ resources:
    
 functions:
   courseLoader:
-    handler: src/utils/udemy-course-fetcher/fetcher.handleCourses
+    handler: src/course_fetcher.handleCourses
     events:
       - eventBridge:
           enabled: true

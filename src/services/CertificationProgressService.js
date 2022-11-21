@@ -22,7 +22,7 @@ const PROVIDER_FREECODECAMP = "freeCodeCamp";
 
 async function searchCertificationProgresses(query) {
     const userId = query.userId;
-    console.log(`getting certification progresses for user ${userId} with query ${JSON.stringify(query, null, 2)}`);
+    console.log(`getting certification progresses for user ${userId}`);
     const startTime = performance.now();
 
     let queryStatement = CertificationProgress.

@@ -22,8 +22,6 @@ const PROVIDER_FREECODECAMP = "freeCodeCamp";
 
 async function searchCertificationProgresses(query) {
     const userId = query.userId;
-    // console.log(`getting certification progresses for user ${userId}`);
-    const startTime = performance.now();
 
     let queryStatement = CertificationProgress.
         query("userId").eq(userId).
@@ -45,7 +43,6 @@ async function searchCertificationProgresses(query) {
     try {
         let progresses = await queryStatement.exec();
         decorateProgresses(progresses);
-        helper.logExecutionTime2(startTime, "searchCertificationProgresses");
 
         return progresses;
     } catch (error) {
@@ -590,7 +587,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
     const lessonName = query.lesson;
     const lessonId = query.uuid;
 
-    console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}, id ${lessonId}`)
+    // console.log(`User ${userId} completing lesson ${moduleName}/${lessonName}, id ${lessonId}`)
 
     // Validate the data in the request
     const schema = Joi.object().keys(completeLesson.schema)

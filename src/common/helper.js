@@ -426,7 +426,7 @@ async function updateAtomic(modelName, idObj, updateObj) {
         return reject(err)
       } else {
         const endTime = performance.now()
-        logExecutionTime(startTime, endTime, 'helper.updateAtomic')
+        // logExecutionTime(startTime, endTime, 'helper.updateAtomic')
         return resolve(dbItem)
       }
     })
@@ -516,6 +516,9 @@ async function addCompletedLessonNative(keyFields, updateObj) {
     logExecutionTime2(startTime, 'transactionWrite');
   } catch (error) {
     if (error instanceof IdempotentParameterMismatchException) {
+      // logging this for now just so we can get a sense when this
+      // is occurring. TODO: remove this once we have confidence that 
+      // the duplicate updates are fixed.
       console.log(`** IdempotentParameterMismatchException for lesson ${lessonId}`)
     } else {
       // something else happened

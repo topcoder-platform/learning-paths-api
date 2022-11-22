@@ -512,22 +512,18 @@ async function addCompletedLessonNative(keyFields, updateObj) {
   try {
     const startTime = performance.now();
     const transactCmd = new TransactWriteItemsCommand(transUpdateInput);
-    const data = await ddbClient.send(transactCmd);
-
-    if (data.httpStatusCode == 200) {
-      // Sadly, it does not appear we can both update and read an item within a 
-      // single transaction, so we have to make a second call to get the updated
-      // Certification Progress record
-      const progress = await getCertProgressByIdAndCertification(progressId, certification)
-      logExecutionTime2(startTime, 'addCompletedLessonNative');
-
-      return progress;
-    } else {
-      return {}
-    }
+    await ddbClient.send(transactCmd);
+    logExecutionTime2(startTime, 'transactionWrite');
   } catch (error) {
-    console.error(error)
-    return {}
+    if (error instanceof IdempotentParameterMismatchException) {
+      console.log(`** IdempotentParameterMismatchException for lesson ${lessonId}`)
+    } else {
+      // something else happened
+      console.error(error)
+    }
+  } finally {
+    // return the current progress record regardless
+    return await getCertProgressByIdAndCertification(progressId, certification)
   }
 }
 

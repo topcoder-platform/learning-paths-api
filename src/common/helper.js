@@ -4,9 +4,10 @@
 // Create service client module using ES6 syntax.
 const {
   DynamoDBClient,
-  UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+  TransactWriteItemsCommand } = require("@aws-sdk/client-dynamodb");
 
 const axios = require('axios')
+const crypto = require('crypto')
 const Joi = require('joi')
 const _ = require('lodash')
 const querystring = require('querystring')
@@ -246,6 +247,28 @@ async function getByIdAndUser(modelName, id, userId) {
 }
 
 /**
+ * Get a CertificationProgress by id and named certification
+ * 
+ * @param {String} id The id value
+ * @param {String} certification The name of the certification
+ * @returns {Promise<void>}
+ */
+async function getCertProgressByIdAndCertification(id, certification) {
+  return new Promise((resolve, reject) => {
+    models['CertificationProgress'].query('id').eq(id).where('certification').eq(certification).consistent().exec((err, result) => {
+      if (err) {
+        return reject(err)
+      }
+      if (result.length > 0) {
+        return resolve(result[0])
+      } else {
+        return reject(new errors.NotFoundError(`CertificationProgress with id: ${id} for certification: ${certification} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
  * Get Data by hashkey and rangekey
  * 
  * @param {String} modelName The dynamoose model name
@@ -415,7 +438,6 @@ async function updateAtomic(modelName, idObj, updateObj) {
  * record's course module's completedLessons array. Also updated the module's status and 
  * the record's updatedAt timestamp.
  * 
- * @param {String} modelName the DynamoDB table name
  * @param {Object} keyFields object containing the partion and sort key field names and values
  * @param {Object} updateObj object comprising the data to update
  * @returns the updated CertificationProgress record
@@ -423,9 +445,11 @@ async function updateAtomic(modelName, idObj, updateObj) {
 async function addCompletedLessonNative(keyFields, updateObj) {
   const { itemIndex, moduleStatus, addItem } = updateObj;
 
+  const progressId = keyFields.partitionKey.value;
+  const certification = keyFields.sortKey.value;
   const key = {
-    [keyFields.partitionKey.key]: { "S": keyFields.partitionKey.value },
-    [keyFields.sortKey.key]: { "S": keyFields.sortKey.value }
+    [keyFields.partitionKey.key]: { "S": progressId },
+    [keyFields.sortKey.key]: { "S": certification }
   }
 
   const moduleIndex = `modules[${itemIndex}]`
@@ -438,6 +462,7 @@ async function addCompletedLessonNative(keyFields, updateObj) {
   updateExpr += `, ${statusExprValue} = :moduleStatus`
   updateExpr += `, updatedAt = :updatedAt`
 
+  const lessonId = addItem.id;
   // Note: you must coerce values to strings for DynamoDB
   const exprAttrValues = {
     ":lesson": {
@@ -445,7 +470,7 @@ async function addCompletedLessonNative(keyFields, updateObj) {
         {
           "M": {
             "id": {
-              "S": addItem.id
+              "S": lessonId
             },
             "completedDate": {
               "N": addItem.completedDate.toString()
@@ -465,7 +490,7 @@ async function addCompletedLessonNative(keyFields, updateObj) {
     }
   };
 
-  const params = {
+  const updateParams = {
     TableName: 'CertificationProgress',
     Key: key,
     UpdateExpression: updateExpr,
@@ -473,15 +498,30 @@ async function addCompletedLessonNative(keyFields, updateObj) {
     ReturnValues: "ALL_NEW"
   };
 
+  // +ClientRequestToken+ is an idempotency token to prevent the same 
+  // update occurring again within 10 minutes (per AWS docs)
+  const transUpdateInput = {
+    ClientRequestToken: generateClientToken(progressId, lessonId),
+    TransactItems: [
+      {
+        Update: updateParams
+      }
+    ]
+  }
+
   try {
     const startTime = performance.now();
-    const data = await ddbClient.send(new UpdateItemCommand(params));
+    const transactCmd = new TransactWriteItemsCommand(transUpdateInput);
+    const data = await ddbClient.send(transactCmd);
 
-    if (data.Attributes) {
-      const jsonData = AWS.DynamoDB.Converter.unmarshall(data.Attributes);
+    if (data.httpStatusCode == 200) {
+      // Sadly, it does not appear we can both update and read an item within a 
+      // single transaction, so we have to make a second call to get the updated
+      // Certification Progress record
+      const progress = await getCertProgressByIdAndCertification(progressId, certification)
       logExecutionTime2(startTime, 'addCompletedLessonNative');
 
-      return jsonData;
+      return progress;
     } else {
       return {}
     }
@@ -489,6 +529,19 @@ async function addCompletedLessonNative(keyFields, updateObj) {
     console.error(error)
     return {}
   }
+}
+
+/**
+ * Returns a unique idempotency token for use in a DynamoDB transaction that
+ * adds a completed lesson to a user's certification progress record. Though 
+ * not stated in the AWS docs, this string must be <= 36 characters in length.
+ * 
+ * @param {String} progressId the certification progress ID of the record to update
+ * @param {String} lessonId the ID of the module lesson to add
+ * @returns a hex string of the MD5 hash of the two input values
+ */
+function generateClientToken(progressId, lessonId) {
+  return crypto.createHash('md5').update(`${progressId}:${lessonId}`).digest('hex')
 }
 
 /**

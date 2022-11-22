@@ -247,7 +247,7 @@ async function getByIdAndUser(modelName, id, userId) {
 }
 
 /**
- * Get Data by model id scoped to the given user ID
+ * Get a CertificationProgress by id and named certification
  * 
  * @param {String} id The id value
  * @param {String} certification The name of the certification

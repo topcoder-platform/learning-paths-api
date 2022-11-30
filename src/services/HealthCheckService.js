@@ -12,9 +12,7 @@ const helper = require('../common/helper')
  * @returns {Object} the health check with given ID
  */
 async function getHealthCheck(id) {
-    const startTime = performance.now();
     const result = await helper.getById('TopcoderAcademyHealthCheck', id)
-    helper.logExecutionTime2(startTime, "getHealthCheck");
 
     return result
 }

@@ -1,7 +1,13 @@
 /**
  * This file defines helper methods
  */
+// Create service client module using ES6 syntax.
+const {
+  DynamoDBClient,
+  TransactWriteItemsCommand } = require("@aws-sdk/client-dynamodb");
+
 const axios = require('axios')
+const crypto = require('crypto')
 const Joi = require('joi')
 const _ = require('lodash')
 const querystring = require('querystring')
@@ -13,7 +19,6 @@ const config = require('config')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 const NodeCache = require('node-cache')
-const HttpStatus = require('http-status-codes')
 const xss = require('xss')
 const { CertificationProgress } = require('../models')
 const { performance } = require('perf_hooks');
@@ -24,6 +29,11 @@ AWS.config.update({
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
   region: config.AMAZON.AWS_REGION
 })
+
+const ddbClient = new DynamoDBClient({
+  region: config.AMAZON.AWS_REGION,
+  endpoint: config.AMAZON.DYNAMODB_URL
+});
 
 const completedCertAttributes = [
   "id",
@@ -237,6 +247,28 @@ async function getByIdAndUser(modelName, id, userId) {
 }
 
 /**
+ * Get a CertificationProgress by id and named certification
+ * 
+ * @param {String} id The id value
+ * @param {String} certification The name of the certification
+ * @returns {Promise<void>}
+ */
+async function getCertProgressByIdAndCertification(id, certification) {
+  return new Promise((resolve, reject) => {
+    models['CertificationProgress'].query('id').eq(id).where('certification').eq(certification).consistent().exec((err, result) => {
+      if (err) {
+        return reject(err)
+      }
+      if (result.length > 0) {
+        return resolve(result[0])
+      } else {
+        return reject(new errors.NotFoundError(`CertificationProgress with id: ${id} for certification: ${certification} doesn't exist`))
+      }
+    })
+  })
+}
+
+/**
  * Get Data by hashkey and rangekey
  * 
  * @param {String} modelName The dynamoose model name
@@ -394,11 +426,121 @@ async function updateAtomic(modelName, idObj, updateObj) {
         return reject(err)
       } else {
         const endTime = performance.now()
-        logExecutionTime(startTime, endTime, 'helper.updateAtomic')
+        // logExecutionTime(startTime, endTime, 'helper.updateAtomic')
         return resolve(dbItem)
       }
     })
   })
+}
+
+/**
+ * Uses the native AWS DynamoDB SDK to add a completed lesson to the CertificationProgress
+ * record's course module's completedLessons array. Also updated the module's status and 
+ * the record's updatedAt timestamp.
+ * 
+ * @param {Object} keyFields object containing the partion and sort key field names and values
+ * @param {Object} updateObj object comprising the data to update
+ * @returns the updated CertificationProgress record
+ */
+async function addCompletedLessonNative(keyFields, updateObj) {
+  const { itemIndex, moduleStatus, addItem } = updateObj;
+
+  const progressId = keyFields.partitionKey.value;
+  const certification = keyFields.sortKey.value;
+  const key = {
+    [keyFields.partitionKey.key]: { "S": progressId },
+    [keyFields.sortKey.key]: { "S": certification }
+  }
+
+  const moduleIndex = `modules[${itemIndex}]`
+  const lessonExprValue = `${moduleIndex}.completedLessons`
+  const statusExprValue = `${moduleIndex}.moduleStatus`
+
+  // Build the update expression to add the completed lesson, set the 
+  // module status, and the updatedAt timestamp
+  var updateExpr = `SET ${lessonExprValue} = list_append(${lessonExprValue}, :lesson)`;
+  updateExpr += `, ${statusExprValue} = :moduleStatus`
+  updateExpr += `, updatedAt = :updatedAt`
+
+  const lessonId = addItem.id;
+  // Note: you must coerce values to strings for DynamoDB
+  const exprAttrValues = {
+    ":lesson": {
+      "L": [
+        {
+          "M": {
+            "id": {
+              "S": lessonId
+            },
+            "completedDate": {
+              "N": addItem.completedDate.toString()
+            },
+            "dashedName": {
+              "S": addItem.dashedName
+            }
+          }
+        }
+      ]
+    },
+    ":moduleStatus": {
+      "S": moduleStatus
+    },
+    ":updatedAt": {
+      "N": Date.now().toString()
+    }
+  };
+
+  const updateParams = {
+    TableName: 'CertificationProgress',
+    Key: key,
+    UpdateExpression: updateExpr,
+    ExpressionAttributeValues: exprAttrValues,
+    ReturnValues: "ALL_NEW"
+  };
+
+  // +ClientRequestToken+ is an idempotency token to prevent the same 
+  // update occurring again within 10 minutes (per AWS docs)
+  const transUpdateInput = {
+    ClientRequestToken: generateClientToken(progressId, lessonId),
+    TransactItems: [
+      {
+        Update: updateParams
+      }
+    ]
+  }
+
+  try {
+    const startTime = performance.now();
+    const transactCmd = new TransactWriteItemsCommand(transUpdateInput);
+    await ddbClient.send(transactCmd);
+    logExecutionTime2(startTime, 'transactionWrite');
+  } catch (error) {
+    if (error instanceof IdempotentParameterMismatchException) {
+      // logging this for now just so we can get a sense when this
+      // is occurring. TODO: remove this once we have confidence that 
+      // the duplicate updates are fixed.
+      console.log(`** IdempotentParameterMismatchException for lesson ${lessonId}`)
+    } else {
+      // something else happened
+      console.error(error)
+    }
+  } finally {
+    // return the current progress record regardless
+    return await getCertProgressByIdAndCertification(progressId, certification)
+  }
+}
+
+/**
+ * Returns a unique idempotency token for use in a DynamoDB transaction that
+ * adds a completed lesson to a user's certification progress record. Though 
+ * not stated in the AWS docs, this string must be <= 36 characters in length.
+ * 
+ * @param {String} progressId the certification progress ID of the record to update
+ * @param {String} lessonId the ID of the module lesson to add
+ * @returns a hex string of the MD5 hash of the two input values
+ */
+function generateClientToken(progressId, lessonId) {
+  return crypto.createHash('md5').update(`${progressId}:${lessonId}`).digest('hex')
 }
 
 /**
@@ -560,6 +702,7 @@ function parseQueryParam(param) {
 }
 
 module.exports = {
+  addCompletedLessonNative,
   autoWrapExpress,
   checkIfExists,
   create,

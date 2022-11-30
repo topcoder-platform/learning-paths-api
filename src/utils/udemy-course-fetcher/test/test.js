@@ -1,7 +1,7 @@
 'use strict';
 
-const fetcher = require('../fetcher');
-const event = {
+const fetcher = require('../src/course_fetcher');
+let event = {
     id: "cdc73f9d-aea9-11e3-9d5a-835b769c0d9c",
     "detail-type": "Scheduled Event",
     source: "aws.events",
@@ -11,11 +11,11 @@ const event = {
     resources: [
         "arn:aws:events:us-east-1:123456789012:rule/ExampleRule"
     ],
-    detail: { pageLimit: 5 }
+    detail: {}
 };
 
 (async () => {
+    event.detail = { pageLimit: 5, forceUpdate: false }
     const result = await fetcher.handleCourses(event);
-
     console.log('fetcher result', result);
 })();

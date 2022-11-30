@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const s3Store = require('../course_s3_store');
+const s3Store = require('../src/course_s3_store');
 
 const COURSE_FILES_DIR = "course-files";
 

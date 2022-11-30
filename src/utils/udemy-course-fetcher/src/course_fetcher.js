@@ -4,6 +4,8 @@ const path = require('path');
 
 const s3Store = require('./course_s3_store');
 const courseDbWriter = require('./course_db_writer');
+const courseReconciler = require('./course_reconciler');
+const CourseUpdateValidator = require('./course_update_validator')
 
 const ACCOUNT_NAME = process.env.UDEMY_ACCOUNT_NAME;
 const ACCOUNT_ID = process.env.UDEMY_ACCOUNT_ID;
@@ -11,7 +13,9 @@ const CLIENT_ID = process.env.UDEMY_CLIENT_ID;
 const CLIENT_SECRET = process.env.UDEMY_CLIENT_SECRET;
 
 const PAGE_SIZE = 100;
-const API_CALL_DELAY = 4; // seconds between calls to Udemy API
+// seconds between calls to Udemy API, to avoid throttling
+const API_CALL_DELAY = process.env.API_CALL_DELAY || 4;
+// the languages for which we will filter courses
 const COURSE_LOCALES = ['en_US']
 
 const BASE_URL = `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/${ACCOUNT_ID}/courses/list/`
@@ -25,21 +29,35 @@ const courseCategories = require('./categories.json');
 
 axios.defaults.headers.common['Authorization'] = `Basic ${base64ClientCredentials()}`
 
+/**
+ * A Lambda handler function that retrieves Udemy Business course data and 
+ * updates Topcoder Academy's internal copy of the courses.
+ * 
+ * @param {Object} event the event that triggered this lambda
+ * @returns details on courses that were added, updated, or removed
+ */
 module.exports.handleCourses = async (event) => {
     console.log("function triggered by event", JSON.stringify(event, null, 2));
     const pageLimit = event.detail?.pageLimit;
+    const forceUpdate = event.detail?.forceUpdate;
 
     try {
         const courseData = await fetchAllCourses(pageLimit);
         const courses = await processCourseResults(courseData);
 
-        if (courses.length > 0) {
+        const courseValidator = await CourseUpdateValidator.initialize(courses, forceUpdate);
+        const { validUpdate, validationIssue } = await courseValidator.validate();
+
+        if (validUpdate) {
             await writeCourseFile(courses);
-            return await courseDbWriter.updateCourses(courses);
+            await courseDbWriter.updateCourses(courses);
+            await courseReconciler.reconcileCourses();
         } else {
-            console.error("** no courses were retrieved -- exiting!")
-            return false;
+            console.error("** course update was not valid, not updating!")
+            console.error("- validation issue:", validationIssue)
         }
+
+        return validUpdate;
 
     } catch (error) {
         console.error(error);
@@ -93,7 +111,8 @@ async function fetchCourses(pages) {
  * @returns integer count of total pages of courses available
  */
 async function fetchNumPages() {
-    const url = `${BASE_URL}?page=1`
+    console.log("** requesting count of total pages")
+    const url = `${BASE_URL}?page=1&page_size=1`
     const result = await axios.get(url, { timeout: UDEMY_API_TIMEOUT });
     const courseCount = result.data.count;
 
@@ -242,7 +261,10 @@ async function retryUnfulfilledPageRequests(courses, pages) {
     for (const result of results) {
         page += 1;
         if (result?.status == 'fulfilled') {
-            for (const course of result.value) {
+            // filter out courses we don't care about
+            const courseResults = result.value.filter(filterCourse)
+
+            for (const course of courseResults) {
                 courseCount += 1;
                 courses.push(course);
             }
@@ -254,7 +276,8 @@ async function retryUnfulfilledPageRequests(courses, pages) {
         }
     }
 
-    console.log("retried and retrieved courses:", courseCount)
+    console.log("additional courses retrieved after retry:", courseCount)
+
     return courses;
 }
 
@@ -311,7 +334,7 @@ async function writeCourseFileToS3(courses) {
  * @returns the file path 
  */
 function courseFilePath() {
-    return path.join(__dirname, COURSE_FILES_DIR, courseFileName());
+    return path.join(__dirname, '..', COURSE_FILES_DIR, courseFileName());
 }
 
 /**
@@ -344,7 +367,7 @@ function mapPages(lastPage) {
  * @returns base64-encoded string 
  */
 function base64ClientCredentials() {
-    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET} `;
+    const clientCredentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
     const buf = Buffer.from(clientCredentials);
     const authString = buf.toString('base64');
 

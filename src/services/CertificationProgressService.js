@@ -10,7 +10,6 @@ const Joi = require('joi')
 const logger = require('../common/logger')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
-const { performance } = require('perf_hooks');
 const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
 const courseService = require('./CourseService');
 
@@ -626,7 +625,7 @@ async function setLessonComplete(userId, certificationProgressId, moduleName, le
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName} (id: ${lessonId})`);
+        console.log(`User ${userId} completed lesson ${certification}/${moduleName}/${lessonName} (id: ${lessonId}), skipping Mongo update`);
         decorateProgressCompletion(progress)
         return progress
     } else {
@@ -817,6 +816,22 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
     return updatedProgress
 }
 
+async function getCompletedLessonIds(userId, progressId) {
+    const certProgress = await getCertificationProgress(userId, progressId);
+    return mapCompletedLessonIds(certProgress);
+}
+
+function mapCompletedLessonIds(certProgress) {
+    let completedLessonIds = [];
+    certProgress.modules.forEach(module => {
+        module.completedLessons.forEach(lesson => {
+            completedLessonIds.push(lesson.id);
+        })
+    });
+
+    return completedLessonIds;
+}
+
 module.exports = {
     acceptAcademicHonestyPolicy,
     assessmentModuleNotCompleted,
@@ -827,8 +842,10 @@ module.exports = {
     completeLessonViaMongoTrigger,
     deleteCertificationProgress,
     getCertificationProgress,
+    getCompletedLessonIds,
+    mapCompletedLessonIds,
     searchCertificationProgresses,
     setLessonComplete,
     startCertification,
-    updateCurrentLesson,
+    updateCurrentLesson
 }

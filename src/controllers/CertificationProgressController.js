@@ -2,7 +2,6 @@
  * Controller for certification progress endpoints
  */
 
-const { StatusCodes } = require('http-status-codes')
 const service = require('../services/CertificationProgressService')
 const helper = require('../common/helper')
 

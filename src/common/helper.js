@@ -98,6 +98,7 @@ function getPageLink(req, page) {
 
 /**
  * Set HTTP response headers from result.
+ * 
  * @param {Object} req the HTTP request
  * @param {Object} res the HTTP response
  * @param {Object} result the operation result

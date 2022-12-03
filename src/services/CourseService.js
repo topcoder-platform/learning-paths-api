@@ -6,6 +6,7 @@ const _ = require('lodash')
 const { Course } = require('../models')
 const Joi = require('joi')
 const helper = require('../common/helper')
+const PROVIDER_FREECODECAMP = 'freeCodeCamp'
 
 /**
  * Search Courses - uses a query using a global secondary index on 
@@ -173,7 +174,7 @@ async function getCourseModule(id, moduleKey) {
  * @returns {Object} an object whose keys are the unique lesson IDs and 
  *      values are the lesson's module, course, and certification identifiers.
  */
-async function getCourseLessonMap(provider) {
+async function getCourseLessonMap(provider = PROVIDER_FREECODECAMP) {
     const cacheKey = `lesson-map:${provider}`
     let lessonMap = helper.getFromInternalCache(cacheKey)
 
@@ -219,6 +220,22 @@ async function generateCourseLessonMap(provider) {
     return lessonMap;
 }
 
+async function courseLessonMap(courseId) {
+    const course = await helper.getById('Course', courseId);
+
+    let lessonMap = {};
+    course.modules.forEach(module => {
+        module.lessons.forEach(lesson => {
+            lessonMap[lesson.id] = {
+                dashedName: lesson.dashedName,
+                moduleKey: module.key,
+            }
+        })
+    })
+
+    return lessonMap;
+}
+
 /**
  * Decorates each element of the collection with lession counts
  * 
@@ -251,9 +268,10 @@ getCourseModules.schema = {
 }
 
 module.exports = {
-    searchCourses,
+    courseLessonMap,
     getCourse,
     getCourseLessonMap,
     getCourseModules,
-    getCourseModule
+    getCourseModule,
+    searchCourses
 }

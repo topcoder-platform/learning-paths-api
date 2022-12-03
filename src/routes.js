@@ -124,4 +124,11 @@ module.exports = {
       method: 'getCompletedCertifications'
     },
   },
+  '/learning-paths/shortcut-fcc-course-completion/:certificationProgressId': {
+    put: {
+      controller: 'CourseCompletionShortcutController',
+      method: 'shortcutFccCourseCompletion',
+      auth: 'jwt'
+    },
+  },
 }

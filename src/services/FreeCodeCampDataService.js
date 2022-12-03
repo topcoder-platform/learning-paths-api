@@ -4,17 +4,17 @@ const { MONGOHQ_URL } = process.env;
 const client = new MongoClient(MONGOHQ_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverApi: ServerApiVersion.v1
+    // serverApi: ServerApiVersion.v1 // this only applies to Mongo Cloud, comment out for local
 });
 
 const dbName = 'freecodecamp';
-const collectionName = 'user';
+const userCollection = 'user';
 
 async function findUsers(query = {}) {
     try {
         await client.connect();
 
-        const collection = client.db(dbName).collection(collectionName);
+        const collection = client.db(dbName).collection(userCollection);
 
         const options = {
             projection: {
@@ -23,16 +23,18 @@ async function findUsers(query = {}) {
                 name: 1,
                 email: 1,
                 completedChallenges: 1,
+                progressTimestamps: 1,
             },
         }
 
         let users = [];
-        const cursor = collection.find({}, options)
+        const cursor = collection.find(query, options)
+
         await cursor.forEach(user => users.push(user));
 
         return users;
     } catch (error) {
-        console.error
+        console.log(error);
         return null
     } finally {
         await client.close();
@@ -64,7 +66,35 @@ async function getCompletedChallengesForAllUsers() {
     return completedUserChallenges;
 }
 
+async function addCompletedLessons(userExternalId, completedLessons, progressTimestamps) {
+    try {
+        await client.connect();
+        const users = client.db(dbName).collection(userCollection);
+        const result = await users.updateOne(
+            { externalId: userExternalId },
+            {
+                $push:
+                {
+                    completedChallenges: {
+                        $each: completedLessons
+                    },
+                    progressTimestamps: {
+                        $each: progressTimestamps
+                    }
+                }
+            }
+        )
+
+        return result
+    } catch (error) {
+        console.error(error)
+    } finally {
+        await client.close();
+    }
+}
+
 module.exports = {
+    addCompletedLessons,
     findUsers,
     getCompletedChallengesForAllUsers
 }

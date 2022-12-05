@@ -46,7 +46,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"client_id\": \"BXWXUWnilVUPdN01t2Se29Tw2ZYNGZvH\",\n    \"code\": \"wV-Aer45U1fN0ffV3PiJvfa6Mtnyx_V_qZ8mdDnKDIeP3\",\n    \"code_verifier\": \"2pOCS6mUqJe9C4iDW8fqiFTmTvURp9H22zXRVkdNCVh\",\n    \"grant_type\": \"authorization_code\",\n    \"redirect_uri\": \"https://accounts-auth0.topcoder-dev.com\"\n    }",
+					"raw": "{\n    \"client_id\": \"9ErVJW7gd1czZOZ43612efGEtuTOJ6EM\",\n    \"client_secret\": \"CTAnpEYZbg2d2LVo3aHDGKrJQGtHuuybtq_g3OLqNUjirEOGneYHvyqQ2dGXdl5J\",\n    \"audience\": \"https://m2m.topcoder-dev.com/\",\n    \"grant_type\": \"client_credentials\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -54,11 +54,11 @@
 					}
 				},
 				"url": {
-					"raw": "https://auth.topcoder-dev.com/oauth/token",
+					"raw": "https://topcoder-dev.auth0.com/oauth/token",
 					"protocol": "https",
 					"host": [
-						"auth",
 						"topcoder-dev",
+						"auth0",
 						"com"
 					],
 					"path": [
@@ -179,13 +179,19 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses",
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId=40029484",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"certification-progresses"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "40029484"
+						}
 					]
 				}
 			},
@@ -203,7 +209,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp&certification=responsive-web-design",
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp",
 					"host": [
 						"{{URL}}"
 					],
@@ -219,10 +225,6 @@
 						{
 							"key": "provider",
 							"value": "freeCodeCamp"
-						},
-						{
-							"key": "certification",
-							"value": "responsive-web-design"
 						}
 					]
 				}
@@ -294,14 +296,51 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/completed-certifications/88778831",
+					"raw": "{{URL}}/learning-paths/completed-certifications/{{USER_ID}}",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"completed-certifications",
-						"88778831"
+						"{{USER_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Certification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/{{CERTIFICATION_ID}}/{{COURSE_ID}}?module=learn-html-by-building-a-cat-photo-app&lesson=step-1",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{USER_ID}}",
+						"{{CERTIFICATION_ID}}",
+						"{{COURSE_ID}}"
+					],
+					"query": [
+						{
+							"key": "module",
+							"value": "learn-html-by-building-a-cat-photo-app"
+						},
+						{
+							"key": "lesson",
+							"value": "step-1"
+						}
 					]
 				}
 			},
@@ -333,42 +372,6 @@
 			"response": []
 		},
 		{
-			"name": "Start Certification",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"module\": \"learn-html-by-building-a-cat-photo-app\",\n    \"lesson\": \"step-1\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{USER_ID}}/{{CERTIFICATION_ID}}/{{COURSE_ID}}",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-progresses",
-						"{{USER_ID}}",
-						"{{CERTIFICATION_ID}}",
-						"{{COURSE_ID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Complete Lesson",
 			"event": [
 				{
@@ -388,10 +391,7 @@
 							"    pm.response.to.have.status(200);",
 							"});",
 							"if(pm.response.status === 'OK') {",
-							"    const response = pm.response.json();",
-							"    pm.expect(response.id).to.eq(pm.environment.get('CERTIFICATION_PROGRESS_ID'))",
-							"    // pm.expect(response.completedLessonCount).to.eq(2)",
-							"    // pm.expect(response.modules[0].completedLessons.length).to.eq(2)",
+							"",
 							"}"
 						],
 						"type": "text/javascript"
@@ -409,7 +409,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"module\": \"build-a-personal-portfolio-webpage-project\",\n    \"lesson\": \"build-a-personal-portfolio-webpage\"\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -417,7 +417,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-lesson",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-lesson?module=tensorflow&lesson=core-learning-algorithms-building-the-model&uuid=5e8f2f13c4cdbe86b5c72d8e",
 					"host": [
 						"{{URL}}"
 					],
@@ -426,6 +426,91 @@
 						"certification-progresses",
 						"{{CERTIFICATION_PROGRESS_ID}}",
 						"complete-lesson"
+					],
+					"query": [
+						{
+							"key": "module",
+							"value": "tensorflow"
+						},
+						{
+							"key": "lesson",
+							"value": "core-learning-algorithms-building-the-model"
+						},
+						{
+							"key": "uuid",
+							"value": "5e8f2f13c4cdbe86b5c72d8e"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Lesson via Mongo trigger",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger?userId=40029484&lessonId=587d7fa6367417b2b2512bc2&completedDate=1658244066375",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"complete-lesson-via-mongo-trigger"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "40029484"
+						},
+						{
+							"key": "lessonId",
+							"value": "587d7fa6367417b2b2512bc2"
+						},
+						{
+							"key": "completedDate",
+							"value": "1658244066375"
+						}
 					]
 				}
 			},
@@ -466,7 +551,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/current-lesson?module=learn-html-by-building-a-cat-photo-app&lesson=step-1",
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/current-lesson?module=data-visualization-with-d3&lesson=select-a-group-of-elements-with-d3",
 					"host": [
 						"{{URL}}"
 					],
@@ -479,11 +564,11 @@
 					"query": [
 						{
 							"key": "module",
-							"value": "learn-html-by-building-a-cat-photo-app"
+							"value": "data-visualization-with-d3"
 						},
 						{
 							"key": "lesson",
-							"value": "step-1"
+							"value": "select-a-group-of-elements-with-d3"
 						}
 					]
 				}
@@ -515,15 +600,77 @@
 					"query": [
 						{
 							"key": "certificateUrl",
-							"value": "{{CERTIFICATE_URL}}"
+							"value": "https://google.com",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Shortcut FCC Course Completion",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/shortcut-fcc-course-completion/{{CERTIFICATION_PROGRESS_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"shortcut-fcc-course-completion",
+						"{{CERTIFICATION_PROGRESS_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Certification with Cert URL",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}/complete-certification?certificateUrl=https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate&certificateElement=[class^=Certificate_wrap]&bucket=tca-certificate-generator-s3&filePath=certificate/{{USER_ID}}/{{COURSE_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}",
+						"complete-certification"
+					],
+					"query": [
+						{
+							"key": "certificateUrl",
+							"value": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
 						},
 						{
 							"key": "certificateElement",
-							"value": "{{CERTIFICATE_ELEMENT}}"
+							"value": "[class^=Certificate_wrap]"
 						},
 						{
-							"key": "certificateAlternateParams[view-style]",
-							"value": "large-container"
+							"key": "bucket",
+							"value": "tca-certificate-generator-s3"
+						},
+						{
+							"key": "filePath",
+							"value": "certificate/{{USER_ID}}/{{COURSE_ID}}"
 						}
 					]
 				}
@@ -580,7 +727,41 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/courses?provider=freeCodeCamp",
+					"raw": "{{URL}}/learning-paths/courses/?certification=responsive-web-design&provider=freeCodeCamp",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"courses",
+						""
+					],
+					"query": [
+						{
+							"key": "certification",
+							"value": "responsive-web-design"
+						},
+						{
+							"key": "key",
+							"value": "javascript-algorithms-and-data-structures",
+							"disabled": true
+						},
+						{
+							"key": "provider",
+							"value": "freeCodeCamp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Course by Key",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/learning-paths/courses?key=coding-interview-prep",
 					"host": [
 						"{{URL}}"
 					],
@@ -590,8 +771,8 @@
 					],
 					"query": [
 						{
-							"key": "provider",
-							"value": "freeCodeCamp"
+							"key": "key",
+							"value": "coding-interview-prep"
 						}
 					]
 				}
@@ -604,7 +785,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/courses?certification=responsive-web-design",
+					"raw": "{{URL}}/learning-paths/courses?certification=information-security",
 					"host": [
 						"{{URL}}"
 					],
@@ -615,7 +796,7 @@
 					"query": [
 						{
 							"key": "certification",
-							"value": "responsive-web-design"
+							"value": "information-security"
 						}
 					]
 				}
@@ -647,14 +828,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/learning-paths/courses/{{COURSE_ID}}/modules",
+					"raw": "{{URL}}/learning-paths/courses/b6c7df8a-a45a-43ec-ba32-523422ee0eb7/modules",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"learning-paths",
 						"courses",
-						"{{COURSE_ID}}",
+						"b6c7df8a-a45a-43ec-ba32-523422ee0eb7",
 						"modules"
 					]
 				}
@@ -664,10 +845,20 @@
 		{
 			"name": "Get user profile",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.topcoder-dev.com/v5/members/steveburns",
+					"raw": "https://api.topcoder-dev.com/v5/members/topacc_three",
 					"protocol": "https",
 					"host": [
 						"api",
@@ -677,19 +868,90 @@
 					"path": [
 						"v5",
 						"members",
-						"steveburns"
+						"topacc_three"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Get SSR CERT",
+			"name": "MongoDB findOne",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "MBo6zT4muRq5ZTtv7xRXNEDHDlhpJgZ5E9vFktgy29Q3tK7uCWvY8ZV1liBHdoZd",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"collection\":\"user\",\n    \"database\":\"freecodecamp\",\n    \"dataSource\":\"Cluster0\",\n    \"projection\": {\n        \"_id\": 1,\n        \"email\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{CERTIFICATE_SSR_URL}}/{{HANDLE}}/{{PROVIDER}}/{{CERTIFICATION}}/{{CERTIFICATE_TITLE}}"
+					"raw": "https://data.mongodb-api.com/app/data-hugov/endpoint/data/v1/action/findOne",
+					"protocol": "https",
+					"host": [
+						"data",
+						"mongodb-api",
+						"com"
+					],
+					"path": [
+						"app",
+						"data-hugov",
+						"endpoint",
+						"data",
+						"v1",
+						"action",
+						"findOne"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MongoDB find",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "MBo6zT4muRq5ZTtv7xRXNEDHDlhpJgZ5E9vFktgy29Q3tK7uCWvY8ZV1liBHdoZd",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"collection\": \"user\",\n    \"database\": \"freecodecamp\",\n    \"dataSource\": \"Cluster0\",\n    \"projection\": {\n        \"_id\": 1,\n        \"email\": 1,\n        \"externalId\": 1,\n        \"completedChallenges\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://data.mongodb-api.com/app/data-hugov/endpoint/data/v1/action/find",
+					"protocol": "https",
+					"host": [
+						"data",
+						"mongodb-api",
+						"com"
+					],
+					"path": [
+						"app",
+						"data-hugov",
+						"endpoint",
+						"data",
+						"v1",
+						"action",
+						"find"
+					]
 				}
 			},
 			"response": []

@@ -66,6 +66,15 @@ async function getCompletedChallengesForAllUsers() {
     return completedUserChallenges;
 }
 
+/**
+ * Uses the MongoDB Client to write completed lessons and timestamps to the 
+ * MongoDB database.
+ * 
+ * @param {String} userExternalId user's externalId identifier
+ * @param {Array} completedLessons an array of completed lesson objects
+ * @param {Array} progressTimestamps an array of lesson completion timestamps
+ * @returns result of MongoDB update
+ */
 async function addCompletedLessons(userExternalId, completedLessons, progressTimestamps) {
     try {
         await client.connect();

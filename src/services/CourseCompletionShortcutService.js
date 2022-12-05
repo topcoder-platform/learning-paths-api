@@ -20,6 +20,8 @@ const helper = require('../common/helper')
  * @returns the completed CertificationProgress record
  */
 async function shortcutCompleteFccCourse(certificationProgressId, authUserId) {
+    console.log(`Getting cert progress ${certificationProgressId}`)
+
     let certProgress = await helper.getByIdAndUser('CertificationProgress', certificationProgressId, authUserId)
 
     if (certProgress.status == 'completed') {
@@ -28,6 +30,7 @@ async function shortcutCompleteFccCourse(certificationProgressId, authUserId) {
     }
 
     if (certProgress) {
+        console.log(`Auto-completing cert progress ${certificationProgressId} for user ${authUserId}`)
         await autocompleteCourse(certProgress)
     }
 }

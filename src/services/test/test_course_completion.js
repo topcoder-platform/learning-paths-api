@@ -1,7 +1,7 @@
 const service = require('../CourseCompletionShortcutService');
 
 (async () => {
-    const progressId = 'f7ab28ae-beb0-4084-8a4d-b21a8cdb5323';
+    const progressId = '6bab39a3-4821-458f-a943-41911c919800';
     const userId = '88778750';
 
     const completion = await service.shortcutCompleteFccCourse(progressId, userId);

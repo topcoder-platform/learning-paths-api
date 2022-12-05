@@ -7,13 +7,11 @@ const helper = require('../common/helper')
 /**
  * Automatically completes a freeCodeCamp course that has been started by a user. A course is 
  * completed by:
- *  - completing all of the lessons in all of the modules in the course (adding an entry
- *      to each module's +completedLessons+ array for every lesson in every module in the course)
- *  - marking every module as completed
- *  - marking the certification progress as completed
  *  - marking the lessons completed in FCC's MongoDB instance by:
  *    - adding a progress timestamp for each completed lesson
  *    - adding a completed challenge entry for each lesson
+ * - allowing the MongoDB lesson completion trigger update the DynamoDB certification
+ *   progress record 
  * 
  * @param {String} certificationProgressId the ID of the certification progress record to complete
  * @param {String} authUserId the user ID of the requesting user, who owns the cert progress record

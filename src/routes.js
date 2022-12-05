@@ -3,6 +3,7 @@
  */
 
 const constants = require('../app-constants')
+
 const { SCOPES: {
   UPDATE,
 } } = require('config')
@@ -128,7 +129,8 @@ module.exports = {
     put: {
       controller: 'CourseCompletionShortcutController',
       method: 'shortcutFccCourseCompletion',
-      auth: 'jwt'
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
     },
   },
 }

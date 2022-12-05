@@ -7,6 +7,7 @@ const {
   TransactWriteItemsCommand } = require("@aws-sdk/client-dynamodb");
 
 const axios = require('axios')
+const constants = require('../../app-constants')
 const crypto = require('crypto')
 const Joi = require('joi')
 const _ = require('lodash')
@@ -129,13 +130,14 @@ function setResHeaders(req, res, result) {
 }
 
 /**
- * Check if the user has admin role
+ * Check if the user has TCA Admin role
+ * 
  * @param {Object} authUser the user
  */
-function hasAdminRole(authUser) {
+function hasTCAAdminRole(authUser) {
   if (authUser && authUser.roles) {
     for (let i = 0; i < authUser.roles.length; i++) {
-      if (authUser.roles[i].toLowerCase() === constants.UserRoles.Admin.toLowerCase()) {
+      if (authUser.roles[i].toLowerCase() === constants.UserRoles.TCAAdmin.toLowerCase()) {
         return true
       }
     }
@@ -716,7 +718,7 @@ module.exports = {
   getByIds,
   getByTableKeys,
   getFromInternalCache,
-  hasAdminRole,
+  hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,
   parseQueryParam,

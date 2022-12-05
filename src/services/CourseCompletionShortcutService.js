@@ -20,8 +20,6 @@ const helper = require('../common/helper')
  * @returns the completed CertificationProgress record
  */
 async function shortcutCompleteFccCourse(certificationProgressId, authUserId) {
-    console.log(`Getting cert progress ${certificationProgressId}`)
-
     let certProgress = await helper.getByIdAndUser('CertificationProgress', certificationProgressId, authUserId)
 
     if (certProgress.status == 'completed') {
@@ -35,6 +33,11 @@ async function shortcutCompleteFccCourse(certificationProgressId, authUserId) {
     }
 }
 
+/**
+ * Updates the MongoDB user record to complete a specific freeCodeCamp course 
+ * 
+ * @param {String} certProgress the id of the Certification Progress record to complete
+ */
 async function autocompleteCourse(certProgress) {
     const userExternalId = `auth0|${certProgress.userId}`;
 
@@ -42,10 +45,15 @@ async function autocompleteCourse(certProgress) {
     const lessonsToComplete = buildLessonsToComplete(lessonIds);
     const lessonTimestamps = buildLessonTimestamps(lessonsToComplete);
 
-    const result = await freeCodeCampService.addCompletedLessons(userExternalId, lessonsToComplete, lessonTimestamps);
-    console.log('mongo result', result);
+    return await freeCodeCampService.addCompletedLessons(userExternalId, lessonsToComplete, lessonTimestamps);
 }
 
+/**
+ * Creates a list of lesson IDs that need to be completed to complete a course
+ * 
+ * @param {Object} certProgress Certification Progress record of course to complete
+ * @returns array of lesson IDs to complete 
+ */
 async function lessonIdsToComplete(certProgress) {
     const completedLessonIds = certProgressService.mapCompletedLessonIds(certProgress);
     const courseLessonMap = await courseService.courseLessonMap(certProgress.courseId);
@@ -58,6 +66,12 @@ async function lessonIdsToComplete(certProgress) {
     return lessonIdsToComplete;
 }
 
+/**
+ * Builds an array of lesson objects to write to MongoDB to complete a course 
+ * 
+ * @param {Array} lessonIds an array of lesson IDs
+ * @returns an array of objects representing lessons to be completed in MongoDB
+ */
 function buildLessonsToComplete(lessonIds) {
     let timestamp = Date.now();
     const completedLessons = lessonIds.map((id, index) => {
@@ -70,6 +84,12 @@ function buildLessonsToComplete(lessonIds) {
     return completedLessons
 }
 
+/**
+ * Builds an array of lesson completion timestamps to write to MongoDB
+ * 
+ * @param {Array} lessons an array of lesson objects
+ * @returns an array of completion timestamps
+ */
 function buildLessonTimestamps(lessons) {
     return lessons.map(lesson => lesson.completedDate);
 }

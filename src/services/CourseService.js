@@ -220,6 +220,12 @@ async function generateCourseLessonMap(provider) {
     return lessonMap;
 }
 
+/**
+ * Generates a map of all lessons in a course and their associated module. 
+ * 
+ * @param {String} courseId the ID of the course of interest
+ * @returns {Object} an object of lesson IDs and lesson and module names
+ */
 async function courseLessonMap(courseId) {
     const course = await helper.getById('Course', courseId);
 

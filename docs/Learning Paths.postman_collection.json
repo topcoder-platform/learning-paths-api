@@ -209,7 +209,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp",
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp&certification=data-analysis-with-python",
 					"host": [
 						"{{URL}}"
 					],
@@ -225,6 +225,10 @@
 						{
 							"key": "provider",
 							"value": "freeCodeCamp"
+						},
+						{
+							"key": "certification",
+							"value": "data-analysis-with-python"
 						}
 					]
 				}
@@ -348,6 +352,31 @@
 		},
 		{
 			"name": "Delete Certification Progress by ID",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses",
+						"{{CERTIFICATION_PROGRESS_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete last completed lesson",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -957,6 +986,26 @@
 			"response": []
 		}
 	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "NEW_CERTIFICATION",
@@ -964,15 +1013,19 @@
 		},
 		{
 			"key": "STEP_TO_COMPLETE",
-			"value": ""
+			"value": "step-5"
 		},
 		{
 			"key": "NEXT_LESSON",
-			"value": ""
+			"value": "step-3"
 		},
 		{
 			"key": "LESSON_TO_COMPLETE",
-			"value": ""
+			"value": "step-2"
+		},
+		{
+			"key": "MODULE",
+			"value": "front-end-development-libraries-projects"
 		}
 	]
 }

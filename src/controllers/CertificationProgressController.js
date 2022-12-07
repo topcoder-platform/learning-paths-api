@@ -47,6 +47,22 @@ async function deleteCertificationProgress(req, res) {
 }
 
 /**
+ * Delete the last completed lesson in a module in a certification 
+ * progress for a particular user and certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function deleteLastModuleLesson(req, res) {
+    const result = await service.deleteLastModuleLesson(
+        req.authUser,
+        req.params.certificationProgressId,
+        req.params.module)
+
+    res.send(result)
+}
+
+/**
  * Start a certification for a user
  * 
  * @param {Object} req the request
@@ -141,6 +157,7 @@ module.exports = {
     completeLesson,
     completeLessonViaMongoTrigger,
     deleteCertificationProgress,
+    deleteLastModuleLesson,
     getCertificationProgress,
     searchCertificationProgresses,
     startCertification,

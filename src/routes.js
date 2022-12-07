@@ -76,6 +76,14 @@ module.exports = {
       auth: 'jwt'
     },
   },
+  '/learning-paths/certification-progresses/:certificationProgressId/last-lesson/:module': {
+    delete: {
+      controller: 'CertificationProgressController',
+      method: 'deleteLastModuleLesson',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
+  },
   '/learning-paths/certification-progresses/:certificationProgressId/honesty-policy': {
     put: {
       controller: 'CertificationProgressController',

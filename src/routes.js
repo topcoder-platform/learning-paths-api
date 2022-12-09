@@ -141,4 +141,11 @@ module.exports = {
       access: [constants.UserRoles.TCAAdmin],
     },
   },
+  '/learning-paths/payments/stripe/subscribe': {
+    post: {
+      controller: 'StripePaymentsController',
+      method: 'createSubscriptionHandler',
+      auth: 'jwt',
+    },
+  },
 }

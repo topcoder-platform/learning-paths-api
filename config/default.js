@@ -46,5 +46,10 @@ module.exports = {
   HEALTH_CHECK_ID: 'health-check',
   M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
 
-  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800
+  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800,
+
+  STRIPE: {
+    SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    API_VERSION: process.env.STRIPE_API_VERSION || '2020-08-27'
+  }
 }

@@ -1,7 +1,7 @@
 const stripeService = require('../services/StripePaymentService')
 
 /**
- * Creates subsription in Stripe to prepare for payment
+ * Creates subsription in Stripe
  */
 async function createSubscriptionHandler(req, res) {
     // get the customer per email from stripe
@@ -28,8 +28,8 @@ async function createSubscriptionHandler(req, res) {
     })
 
     res.json({
-        customer,
-        subscription
+        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+        subscriptionId: subscription.id
     })
 }
 

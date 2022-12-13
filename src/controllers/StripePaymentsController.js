@@ -4,21 +4,8 @@ const stripeService = require('../services/StripePaymentService')
  * Creates subsription in Stripe
  */
 async function createSubscriptionHandler(req, res) {
-    // get the customer per email from stripe
-    let customer = await stripeService.getCustomerPerEmail(req.authUser.email)
-    // if not exists create it
-    if (!customer.data.length) {
-        customer = await stripeService.createCustomer({
-            email: req.authUser.email,
-            name: req.authUser.name,
-            metadata: {
-                userId: req.authUser.userId,
-                handle: req.authUser.handle
-            }
-        })
-    } else {
-        customer = customer.data[0]
-    }
+    // get or create the customer per email from stripe
+    const customer = await stripeService.getOrCreateCustomerPerEmail(req.authUser)
     // create the user's subscription
     const subscription = await stripeService.createSubscription({
         customer: customer.id,
@@ -33,6 +20,58 @@ async function createSubscriptionHandler(req, res) {
     })
 }
 
+/**
+ * Search prices in Stripe
+ */
+async function searchPricesHandler(req, res) {
+    const search = await stripeService.searchPrices({
+        ...req.query,
+        expand: ['data.product']
+    })
+
+    res.json(search)
+}
+
+/**
+ * Search products in Stripe
+ */
+async function searchProductsHandler(req, res) {
+    const search = await stripeService.searchProducts({
+        ...req.query,
+        expand: ['data.default_price']
+    })
+
+    res.json(search)
+}
+
+/**
+ * Get price from Stripe by id
+ */
+async function getPriceHandler(req, res) {
+    const price = await stripeService.getPriceById(req.params.id)
+
+    res.json(price)
+}
+
+/**
+ * Member purchase ertification
+ */
+async function purchaseCertificationsHandler(req, res) {
+    // get or create the customer per email from stripe
+    const customer = await stripeService.getOrCreateCustomerPerEmail(req.authUser)
+    // prepare invoice for this purchase
+    const invoice = await stripeService.createCertificationInvoice(customer.id, req.body.priceIDs)
+
+    res.json({
+        invoice: invoice.id,
+        paymentIntent: invoice.payment_intent
+    })
+}
+
 module.exports = {
-    createSubscriptionHandler
+    searchPricesHandler,
+    searchProductsHandler,
+    createSubscriptionHandler,
+    purchaseCertificationsHandler,
+    getPriceHandler,
 }

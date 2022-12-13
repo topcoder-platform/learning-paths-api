@@ -1,4 +1,4 @@
-const config = require('config')
+const config = require('config');
 
 const stripe = require('stripe')(config.STRIPE.SECRET_KEY, {
     apiVersion: config.STRIPE.API_VERSION
@@ -14,11 +14,26 @@ async function createCustomer(customer) {
 }
 
 /**
- * Create a customer in Stripe
- * @param {String} The customer's email 
+ * Get or create a customer in Stripe by email
+ * @param {Object} customerUser The new customer - uses req.authUser from the auth
  */
- async function getCustomerPerEmail(email) {
-    return stripe.customers.list({ email })
+async function getOrCreateCustomerPerEmail(customerUser) {
+    let customer = await stripe.customers.list({ email: customerUser.email })
+    // if not exists, create it
+    if (!customer.data.length) {
+        customer = await createCustomer({
+            email: customerUser.email,
+            name: customerUser.name,
+            metadata: {
+                userId: customerUser.userId,
+                handle: customerUser.handle
+            }
+        })
+    } else {
+        customer = customer.data[0]
+    }
+
+    return customer
 }
 
 /**
@@ -28,8 +43,55 @@ async function createSubscription(subscription) {
     return stripe.subscriptions.create(subscription)
 }
 
+/**
+ * Search prices in Stripe
+ */
+async function searchPrices(query) {
+    return stripe.prices.search(query)
+}
+
+/**
+ * Search products in Stripe
+ */
+async function searchProducts(query) {
+    return stripe.products.search(query)
+}
+
+/**
+ * Get price from Stripe by API id
+ * @param {string} priceId 
+ */
+async function getPriceById(priceId) {
+    return stripe.prices.retrieve(priceId)
+}
+
+/**
+ * Create cert invoice
+ * @param {String} customerId The id of the customer paying
+ */
+async function createCertificationInvoice(customerId, priceIDs) {
+    // create items for cert invoice
+    for (const priceId of priceIDs) {
+        await stripe.invoiceItems.create({
+            customer: customerId,
+            price: priceId,
+        });
+    }
+    // create customer invoice
+    const invoice = await stripe.invoices.create({
+        auto_advance: false,
+        customer: customerId
+    })
+    // finalize
+    return stripe.invoices.finalizeInvoice(invoice.id)
+}
+
 module.exports = {
     createSubscription,
-    getCustomerPerEmail,
-    createCustomer
+    getOrCreateCustomerPerEmail,
+    createCustomer,
+    searchPrices,
+    searchProducts,
+    createCertificationInvoice,
+    getPriceById,
 }

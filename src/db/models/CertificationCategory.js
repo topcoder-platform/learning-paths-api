@@ -1,6 +1,11 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('CertificationCategory', {
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class CertificationCategory extends Model {
+
+  }
+
+  CertificationCategory.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -18,6 +23,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'CertificationCategory',
+    modelName: 'CertificationCategory',
     schema: 'public',
     timestamps: false,
     indexes: [

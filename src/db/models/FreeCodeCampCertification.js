@@ -66,6 +66,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     tableName: 'FreeCodeCampCertification',
+    modelName: 'FreeCodeCampCertification',
     schema: 'public',
     timestamps: false,
     indexes: [

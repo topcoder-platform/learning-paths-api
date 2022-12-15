@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     tableName: 'TopcoderUdemyCourse',
+    modelName: 'TopcoderUdemyCourse',
     schema: 'public',
     timestamps: true,
     indexes: [

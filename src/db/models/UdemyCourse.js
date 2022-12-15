@@ -94,6 +94,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'UdemyCourse',
+    modelName: 'UdemyCourse',
     schema: 'public',
     timestamps: false,
     indexes: [

@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('ResourceProvider', {
     id: {
       autoIncrement: true,
@@ -26,6 +26,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'ResourceProvider',
+    modelName: 'ResourceProvider',
     schema: 'public',
     timestamps: false,
     indexes: [

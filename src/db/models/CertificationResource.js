@@ -72,6 +72,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     tableName: 'CertificationResource',
+    modelName: 'CertificationResource',
     schema: 'public',
     timestamps: false,
     indexes: [

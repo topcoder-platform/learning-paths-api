@@ -52,6 +52,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'TopcoderCertification',
+    modelName: 'TopcoderCertification',
     schema: 'public',
     timestamps: false,
     indexes: [

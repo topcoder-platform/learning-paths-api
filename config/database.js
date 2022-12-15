@@ -1,9 +1,9 @@
 module.exports = {
   development: {
-    username: process.env.CERT_PG_USER,
-    password: process.env.CERT_PG_PASSWORD,
-    database: process.env.CERT_PG_DATABASE,
-    host: process.env.CERT_PG_HOST,
+    username: process.env.TCA_PG_USER,
+    password: process.env.TCA_PG_PASSWORD,
+    database: process.env.TCA_PG_DATABASE,
+    host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
     pool: {
       max: 2,
@@ -21,10 +21,10 @@ module.exports = {
   //   dialect: 'postgres',
   // },
   production: {
-    username: process.env.CERT_PG_USER,
-    password: process.env.CERT_PG_PASSWORD,
-    database: process.env.CERT_PG_DATABASE,
-    host: process.env.CERT_PG_HOST,
+    username: process.env.TCA_PG_USER,
+    password: process.env.TCA_PG_PASSWORD,
+    database: process.env.TCA_PG_DATABASE,
+    host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
   }
 }

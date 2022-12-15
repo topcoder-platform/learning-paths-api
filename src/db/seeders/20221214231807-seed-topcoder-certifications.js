@@ -21,7 +21,8 @@ module.exports = {
         estimatedCompletionTime: 600,
         certificationCategoryId: webId,
         learnerLevel: 'All Levels',
-        version: new Date()
+        version: new Date(),
+        skills: ['web development', 'Javascript', 'APIs']
       },
       {
         title: 'Data Science Certification',
@@ -29,7 +30,8 @@ module.exports = {
         estimatedCompletionTime: 600,
         certificationCategoryId: dataSciId,
         learnerLevel: 'All Levels',
-        version: new Date()
+        version: new Date(),
+        skills: ['data structures', 'machine learning', 'AI']
       },
     ], {});
   },

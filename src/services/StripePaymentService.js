@@ -80,10 +80,18 @@ async function createCertificationInvoice(customerId, priceIDs) {
     // create customer invoice
     const invoice = await stripe.invoices.create({
         auto_advance: false,
-        customer: customerId
+        customer: customerId,
+        expand: ['payment_intent']
     })
-    // finalize
-    return stripe.invoices.finalizeInvoice(invoice.id)
+    // finalize the invoice
+    const finalInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
+    // get the client secret from the payment intent
+    const clientSecret = await stripe.paymentIntents.retrieve(finalInvoice.payment_intent)
+
+    return {
+        invoice: finalInvoice.id,
+        clientSecret: clientSecret.client_secret
+    }
 }
 
 /**

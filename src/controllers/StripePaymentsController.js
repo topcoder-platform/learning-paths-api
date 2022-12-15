@@ -60,12 +60,9 @@ async function purchaseCertificationsHandler(req, res) {
     // get or create the customer per email from stripe
     const customer = await stripeService.getOrCreateCustomerPerEmail(req.authUser)
     // prepare invoice for this purchase
-    const invoice = await stripeService.createCertificationInvoice(customer.id, req.body.priceIDs)
+    const certPayment = await stripeService.createCertificationInvoice(customer.id, req.body.priceIDs)
 
-    res.json({
-        invoice: invoice.id,
-        paymentIntent: invoice.payment_intent
-    })
+    res.json(certPayment)
 }
 
 /**

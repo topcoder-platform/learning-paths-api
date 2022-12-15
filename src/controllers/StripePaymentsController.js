@@ -68,10 +68,20 @@ async function purchaseCertificationsHandler(req, res) {
     })
 }
 
+/**
+ * Get product from Stripe
+ */
+async function getProductHandler(req, res) {
+    const product = await stripeService.getProductById(req.params.id)
+
+    res.json(product)
+}
+
 module.exports = {
     searchPricesHandler,
     searchProductsHandler,
     createSubscriptionHandler,
     purchaseCertificationsHandler,
     getPriceHandler,
+    getProductHandler,
 }

@@ -170,6 +170,13 @@ module.exports = {
       auth: 'jwt',
     },
   },
+  '/learning-paths/payments/stripe/products/:id': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'getProductHandler',
+      auth: 'jwt',
+    },
+  },
   '/learning-paths/payments/stripe/purchase-certifications': {
     post: {
       controller: 'StripePaymentsController',

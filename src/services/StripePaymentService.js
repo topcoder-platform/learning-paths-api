@@ -86,6 +86,28 @@ async function createCertificationInvoice(customerId, priceIDs) {
     return stripe.invoices.finalizeInvoice(invoice.id)
 }
 
+/**
+ * Get product from Stripe by API id
+ * @param {string} productId 
+ */
+async function getProductById(productId) {
+    const product = await stripe.products.retrieve(productId)
+
+    // expand default price if set
+    if (product.default_price) {
+        product.default_price = await getPriceById(product.default_price)
+    }
+
+    // load product prices
+    // default limit is 10, for more update if needed
+    product.prices = await stripe.prices.list({
+        active: true,
+        product: productId
+    })
+
+    return product
+}
+
 module.exports = {
     createSubscription,
     getOrCreateCustomerPerEmail,
@@ -94,4 +116,5 @@ module.exports = {
     searchProducts,
     createCertificationInvoice,
     getPriceById,
+    getProductById,
 }

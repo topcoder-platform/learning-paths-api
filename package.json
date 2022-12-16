@@ -38,7 +38,8 @@
     "mocha-prepare": "^0.1.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
-    "prisma": "^4.5.0"
+    "prisma": "^4.5.0",
+    "sequelize-cli": "^6.5.2"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.208.0",
@@ -64,6 +65,10 @@
     "mongodb": "^4.8.1",
     "node-cache": "^5.1.2",
     "stripe": "^11.3.0",
+    "pg": "^8.8.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.27.0",
+    "sequelize-auto": "^0.8.8",
     "swagger-ui-express": "^4.4.0",
     "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.7",
     "topcoder-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git",

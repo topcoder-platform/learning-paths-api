@@ -22,7 +22,8 @@ module.exports = {
         certificationCategoryId: webId,
         learnerLevel: 'All Levels',
         version: new Date(),
-        skills: ['web development', 'Javascript', 'APIs']
+        skills: ['web development', 'Javascript', 'APIs'],
+        stripeProductId: 'prod_MzAGVmH4YG42lA'
       },
       {
         title: 'Data Science Certification',
@@ -31,7 +32,8 @@ module.exports = {
         certificationCategoryId: dataSciId,
         learnerLevel: 'All Levels',
         version: new Date(),
-        skills: ['data structures', 'machine learning', 'AI']
+        skills: ['data structures', 'machine learning', 'AI'],
+        stripeProductId: 'prod_MyBDpJ53eSVYRr'
       },
     ], {});
   },

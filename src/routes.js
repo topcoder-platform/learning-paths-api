@@ -3,6 +3,7 @@
  */
 
 const constants = require('../app-constants')
+
 const { SCOPES: {
   UPDATE,
 } } = require('config')
@@ -75,6 +76,14 @@ module.exports = {
       auth: 'jwt'
     },
   },
+  '/learning-paths/certification-progresses/:certificationProgressId/last-lesson/:module': {
+    delete: {
+      controller: 'CertificationProgressController',
+      method: 'deleteLastModuleLesson',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
+  },
   '/learning-paths/certification-progresses/:certificationProgressId/honesty-policy': {
     put: {
       controller: 'CertificationProgressController',
@@ -122,6 +131,14 @@ module.exports = {
     get: {
       controller: 'CompletedCertificationsController',
       method: 'getCompletedCertifications'
+    },
+  },
+  '/learning-paths/shortcut-fcc-course-completion/:certificationProgressId': {
+    put: {
+      controller: 'CourseCompletionShortcutController',
+      method: 'shortcutFccCourseCompletion',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
     },
   },
 }

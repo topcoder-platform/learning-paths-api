@@ -32,6 +32,7 @@ functions:
   trigger-handler:
     handler: handler.handle
     memorySize: 128
+    timeout: 30
     events:
       - eventBridge:
           eventBus: ${self:custom.aws.event_bus.${self:provider.stage}}

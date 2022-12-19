@@ -10,7 +10,6 @@ const Joi = require('joi')
 const logger = require('../common/logger')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
-const { performance } = require('perf_hooks');
 const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
 const courseService = require('./CourseService');
 
@@ -364,6 +363,69 @@ async function deleteCertificationProgress(currentUser, progressId) {
 }
 
 /**
+ * Delete the last completed lesson in a given module for the given certification 
+ * 
+ * @param {String} currentUser the user making the request
+ * @param {String} progressId the ID of the CertificationProgress 
+ * @param {String} module the dashed name key of the module
+ * @returns {Object} the updated CertificationProgress
+ */
+async function deleteLastModuleLesson(currentUser, progressId, moduleName) {
+    const userId = currentUser.userId;
+    let progress = await helper.getByIdAndUser('CertificationProgress', progressId, userId)
+
+    const certification = progress.certification
+    console.log(`Deleting last lesson in ${certification}/${moduleName} for user ${userId}`)
+
+    targetModule = progress.modules.find(module => module.module == moduleName)
+
+    if (targetModule) {
+        lessons = targetModule.completedLessons
+        if (!_.isEmpty(lessons)) {
+            progress = await deleteModuleLesson(progress, targetModule);
+        } else {
+            console.log(`No completed lessons found in ${certification}/${moduleName}`)
+        }
+    } else {
+        console.error(`Did not find module ${moduleName} in ${certification}`)
+    }
+
+    return progress
+}
+
+/**
+ * Removes the last lesson in a given module in the given CertProgress record. Sets 
+ * the certification progress and module statuses to 'in-progress'.
+ * 
+ * @param {Object} progress CertificationProgress record
+ * @param {Object} targetModule the module from which the lesson is to be removed
+ * @returns the updated CertProgress record
+ */
+async function deleteModuleLesson(progress, targetModule) {
+    const lastLesson = targetModule.completedLessons.pop()
+    const lessonName = lastLesson.dashedName;
+
+    const idObj = {
+        id: progress.id,
+        certification: progress.certification
+    }
+
+    targetModule.moduleStatus = 'in-progress'
+    const updatedModules = {
+        status: 'in-progress',
+        modules: progress.modules
+    }
+
+    let updatedProgress = await helper.updateAtomic("CertificationProgress", idObj, updatedModules)
+    if (updatedProgress) {
+        console.log(`Deleted lesson ${progress.certification}/${targetModule.module}/${lessonName}`)
+        decorateProgressCompletion(updatedProgress);
+
+        return updatedProgress
+    }
+}
+
+/**
  * Adds course and module completion progress information
  * 
  * @param {Object} progress the progress object to decorate
@@ -626,7 +688,7 @@ async function setLessonComplete(userId, certificationProgressId, moduleName, le
 
     if (lesson) {
         // it's already been completed, so just log it and return the current progress object
-        console.log(`User ${userId} previously completed lesson ${certification}/${moduleName}/${lessonName} (id: ${lessonId})`);
+        console.log(`User ${userId} completed lesson ${certification}/${moduleName}/${lessonName} (id: ${lessonId}), skipping Mongo update`);
         decorateProgressCompletion(progress)
         return progress
     } else {
@@ -817,6 +879,22 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
     return updatedProgress
 }
 
+async function getCompletedLessonIds(userId, progressId) {
+    const certProgress = await getCertificationProgress(userId, progressId);
+    return mapCompletedLessonIds(certProgress);
+}
+
+function mapCompletedLessonIds(certProgress) {
+    let completedLessonIds = [];
+    certProgress.modules.forEach(module => {
+        module.completedLessons.forEach(lesson => {
+            completedLessonIds.push(lesson.id);
+        })
+    });
+
+    return completedLessonIds;
+}
+
 module.exports = {
     acceptAcademicHonestyPolicy,
     assessmentModuleNotCompleted,
@@ -826,9 +904,12 @@ module.exports = {
     completeLesson,
     completeLessonViaMongoTrigger,
     deleteCertificationProgress,
+    deleteLastModuleLesson,
     getCertificationProgress,
+    getCompletedLessonIds,
+    mapCompletedLessonIds,
     searchCertificationProgresses,
     setLessonComplete,
     startCertification,
-    updateCurrentLesson,
+    updateCurrentLesson
 }

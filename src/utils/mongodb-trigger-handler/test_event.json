@@ -11,106 +11,32 @@
     ],
     "detail": {
         "_id": {
-            "_data": "82630E9C11000000022B022C0100296E5A1004EBC8DEB7A0AE4FFB80084480BAC782A246645F6964006462CF39C9CF6D0B001B732B9A0004"
+            "_data": "82630E9C1100000002001B732B9A0004"
         },
         "operationType": "update",
-        "clusterTime": {
-            "T": 1661901841,
-            "I": 2
-        },
         "fullDocument": {
-            "_id": "62cf39c9cf6d0b001b732b9a",
             "email": "chris.mccann@topcoder.com",
-            "emailVerified": true,
             "externalId": "auth0|88778750",
-            "unsubscribeId": "d4dmSVIr1pOGq9R0jpbBA",
-            "progressTimestamps": [
-                1661901705662,
-                1661901841601
-            ],
-            "isBanned": false,
-            "isCheater": false,
-            "username": "fccee905004-2b5a-4fa8-885b-38b8fb70ff86",
-            "usernameDisplay": "fccee905004-2b5a-4fa8-885b-38b8fb70ff86",
-            "about": "",
-            "name": "",
-            "location": "",
-            "picture": "",
-            "acceptedPrivacyTerms": true,
-            "sendQuincyEmail": false,
-            "currentChallengeId": "",
-            "isHonest": true,
-            "needsModeration": true,
-            "isFrontEndCert": false,
-            "isDataVisCert": false,
-            "isBackEndCert": false,
-            "isFullStackCert": false,
-            "isRespWebDesignCert": false,
-            "is2018DataVisCert": false,
-            "isFrontEndLibsCert": false,
-            "isJsAlgoDataStructCert": false,
-            "isApisMicroservicesCert": false,
-            "isInfosecQaCert": false,
-            "isQaCertV7": false,
-            "isInfosecCertV7": false,
-            "is2018FullStackCert": false,
-            "isSciCompPyCertV7": false,
-            "isDataAnalysisPyCertV7": false,
-            "isMachineLearningPyCertV7": false,
-            "isRelationalDatabaseCertV8": false,
-            "completedChallenges": [
-                {
-                    "id": "616971b3cd990186b66c99a1",
-                    "completedDate": 1661901705662
-                },
-                {
-                    "id": "616d47bc9eedc4bc7f621bec",
-                    "completedDate": 1661901841601
-                }
-            ],
-            "partiallyCompletedChallenges": [],
-            "savedChallenges": [],
-            "portfolio": [],
-            "yearsTopContributor": [],
-            "rand": 0.32410546149738684,
-            "theme": "default",
-            "sound": false,
-            "profileUI": {
-                "isLocked": true,
-                "showAbout": false,
-                "showCerts": false,
-                "showDonation": false,
-                "showHeatMap": false,
-                "showLocation": false,
-                "showName": false,
-                "showPoints": false,
-                "showPortfolio": false,
-                "showTimeLine": false
-            },
-            "badges": {
-                "coreTeam": []
-            },
-            "isDonating": false,
-            "emailAuthLinkTTL": null,
-            "emailVerifyTTL": null
-        },
-        "ns": {
-            "db": "freecodecamp",
-            "coll": "user"
-        },
-        "documentKey": {
-            "_id": "62cf39c9cf6d0b001b732b9a"
+            "username": "fccee905004-2b5a-4fa8-885b-38b8fb70ff86"
         },
         "updateDescription": {
             "updatedFields": {
-                "completedChallenges.39": {
-                    "id": "616d47bc9eedc4bc7f621bec",
-                    "completedDate": 1661901841601
+                "completedChallenges.61": {
+                    "id": "5e8f2f13c4cdbe86b5c72d94",
+                    "completedDate": 1670262271331
                 },
-                "progressTimestamps.40": 1661901841601
-            },
-            "removedFields": [],
-            "truncatedArrays": []
+                "completedChallenges.62": {
+                    "id": "5e8f2f13c4cdbe86b5c72d95",
+                    "completedDate": 1670262271332
+                },
+                "completedChallenges.63": {
+                    "id": "5e8f2f13c4cdbe86b5c72d96",
+                    "completedDate": 1670262271333
+                },
+                "progressTimestamps.62": 1670262271331,
+                "progressTimestamps.63": 1670262271332,
+                "progressTimestamps.64": 1670262271333
+            }
         }
     }
 }

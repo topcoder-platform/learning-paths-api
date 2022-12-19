@@ -1,6 +1,16 @@
-const Sequelize = require('sequelize');
-module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('TopcoderCertification', {
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class TopcoderCertification extends Model {
+    static associate(models) {
+      this.hasMany(models.CertificationResource, {
+        as: 'CertificationResource',
+        foreignKey: 'topcoderCertificationId'
+      });
+    }
+  }
+
+  TopcoderCertification.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -72,4 +82,6 @@ module.exports = function (sequelize, DataTypes) {
       },
     ]
   });
+
+  return TopcoderCertification
 };

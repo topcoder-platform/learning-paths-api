@@ -11,7 +11,10 @@ module.exports = {
       idle: 0,
       acquire: 3000,
       evict: 5000
-    }
+    },
+    define: {
+      freezeTableName: true
+    },
   },
   // test: {
   //   username: process.env.CI_DB_USERNAME,
@@ -26,5 +29,8 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
+    define: {
+      freezeTableName: true
+    },
   }
 }

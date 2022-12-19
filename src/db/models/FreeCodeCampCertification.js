@@ -3,9 +3,13 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FreeCodeCampCertification extends Model {
     static associate(models) {
-      this.belongsTo(models.CertificationResource, {
-        foreignKey: 'resourceableId',
-        constraints: false
+      this.hasOne(models.CertificationResource, {
+        as: 'FreeCodeCampCertification',
+        foreignKey: 'id',
+        constraints: false,
+        scope: {
+          resourceableType: 'FreeCodeCampCertification',
+        }
       });
     }
   }

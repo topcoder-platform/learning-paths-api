@@ -5,20 +5,21 @@ const uppercaseFirst = str => `${str[0].toUpperCase()}${str.substr(1)}`;
 module.exports = (sequelize, DataTypes) => {
   class CertificationResource extends Model {
     static associate(models) {
-      this.hasMany(models.FreeCodeCampCertification, {
-        foreignKey: 'resourceableId',
-        constraints: false,
-        scope: {
-          resourceableType: 'FreeCodeCampCertification'
-        }
+      this.belongsTo(models.TopcoderCertification, {
+        as: 'CertificationResource',
+        foreignKey: 'topcoderCertificationId'
       });
 
-      this.hasMany(models.TopcoderUdemyCourse, {
+      this.belongsTo(models.FreeCodeCampCertification, {
+        as: 'FreeCodeCampCertification',
         foreignKey: 'resourceableId',
         constraints: false,
-        scope: {
-          resourceableType: 'TopcoderUdemyCourse'
-        }
+      });
+
+      this.belongsTo(models.TopcoderUdemyCourse, {
+        as: 'TopcoderUdemyCourse',
+        foreignKey: 'resourceableId',
+        constraints: false,
       });
     }
 
@@ -36,6 +37,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
+    },
+    topcoderCertificationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'TopcoderCertification',
+        key: 'id'
+      }
     },
     resourceProviderId: {
       type: DataTypes.INTEGER,
@@ -87,7 +96,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   CertificationResource.addHook("afterFind", findResult => {
-    if (!Array.isArray(findResult)) findResult = [findResult];
+    // if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {
       if (instance.resourceableType === "FreeCodeCampCertification" && instance.FreeCodeCampCertification !== undefined) {

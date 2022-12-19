@@ -4,6 +4,11 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const cert = await queryInterface.sequelize.query(
+      `SELECT id from "TopcoderCertification" where title = 'Web Development Certification'`
+    )
+    const certId = cert[0][0].id;
+
     const fccProvider = await queryInterface.sequelize.query(
       `SELECT id from "ResourceProvider" where name = 'freeCodeCamp';`
     );
@@ -22,6 +27,7 @@ module.exports = {
     await queryInterface.bulkInsert('CertificationResource',
       [{
         resourceProviderId: providerId,
+        topcoderCertificationId: certId,
         resourceableType: 'FreeCodeCampCertification',
         resourceableId: webCertId,
         resourceTitle: 'Responsive Web Design',
@@ -30,6 +36,7 @@ module.exports = {
       },
       {
         resourceProviderId: providerId,
+        topcoderCertificationId: certId,
         resourceableType: 'FreeCodeCampCertification',
         resourceableId: algoCertId,
         resourceTitle: 'Javascript Algorithms and Data Structures',

@@ -15,6 +15,11 @@ module.exports = {
       method: 'checkHealth'
     }
   },
+
+  /**
+   * The following endpoints are specifically for freeCodeCamp resources
+   */
+
   '/learning-paths/providers': {
     get: {
       controller: 'LearningResourceProviderController',
@@ -139,6 +144,17 @@ module.exports = {
       method: 'shortcutFccCourseCompletion',
       auth: 'jwt',
       access: [constants.UserRoles.TCAAdmin],
+    },
+  },
+
+  /**
+   * The following endpoints support Topcoder Academy Certifications
+   */
+
+  '/learning-paths/topcoder-certifications': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'searchCertifications'
     },
   },
 }

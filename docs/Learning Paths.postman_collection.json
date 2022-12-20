@@ -1,11 +1,313 @@
 {
 	"info": {
-		"_postman_id": "331ee769-02ed-45a2-bb87-1217c4726423",
+		"_postman_id": "d0e2245a-c73c-41c2-ac4b-63ebf8a0f192",
 		"name": "Learning Paths",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19526465"
+		"_exporter_id": "10740"
 	},
 	"item": [
+		{
+			"name": "Stripe",
+			"item": [
+				{
+					"name": "Create Premium Subscription",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\"price\": \"price_1MBvTmIxp8SyEX2Kn0UqExAe\"}\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/subscribe",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"subscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Purchase Certification Invoice",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"priceIDs\": [\n        \"price_1MFF7AIxp8SyEX2K3P1iNC2s\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/purchase-certifications",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"purchase-certifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Prices",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/prices?query=active:'true' AND metadata['lookup_key']:'1234'",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"prices"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "active:'true' AND metadata['lookup_key']:'1234'"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Prices by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/prices/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"prices",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "price_1MEEqbIxp8SyEX2KQaXUpGTF"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/products/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "prod_MzAGVmH4YG42lA"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/payments/stripe/products?query=active:'true'",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"payments",
+								"stripe",
+								"products"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "active:'true'"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TC-Certs",
+			"item": [
+				{
+					"name": "Search Topcoder Certifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "order_by",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "order_type",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Topcoder Certifications by ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Health check",
 			"request": {
@@ -209,7 +511,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp&certification=data-analysis-with-python",
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId={{USER_ID}}&provider=freeCodeCamp",
 					"host": [
 						"{{URL}}"
 					],
@@ -225,10 +527,6 @@
 						{
 							"key": "provider",
 							"value": "freeCodeCamp"
-						},
-						{
-							"key": "certification",
-							"value": "data-analysis-with-python"
 						}
 					]
 				}
@@ -352,31 +650,6 @@
 		},
 		{
 			"name": "Delete Certification Progress by ID",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses/{{CERTIFICATION_PROGRESS_ID}}",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-progresses",
-						"{{CERTIFICATION_PROGRESS_ID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete last completed lesson",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -986,26 +1259,6 @@
 			"response": []
 		}
 	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
 	"variable": [
 		{
 			"key": "NEW_CERTIFICATION",
@@ -1013,19 +1266,15 @@
 		},
 		{
 			"key": "STEP_TO_COMPLETE",
-			"value": "step-5"
+			"value": ""
 		},
 		{
 			"key": "NEXT_LESSON",
-			"value": "step-3"
+			"value": ""
 		},
 		{
 			"key": "LESSON_TO_COMPLETE",
-			"value": "step-2"
-		},
-		{
-			"key": "MODULE",
-			"value": "front-end-development-libraries-projects"
+			"value": ""
 		}
 	]
 }

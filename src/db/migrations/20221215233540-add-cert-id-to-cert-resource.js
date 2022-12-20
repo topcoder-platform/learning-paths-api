@@ -10,6 +10,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    queryInterface.removeColumn('TopcoderCertification', 'skills')
+    queryInterface.removeColumn('CertificationResource', 'topcoderCertificationId')
   }
 };

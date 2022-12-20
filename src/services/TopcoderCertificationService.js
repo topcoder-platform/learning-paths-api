@@ -22,7 +22,8 @@ async function getCertifications(query = {}) {
         //     }
         // ],
         // include: { all: true, nested: true },
-        include: db.CertificationCategory,
+        // include: db.CertificationCategory,
+        // include: [{model: db.CertificationCategory, as: 'certificationCategory'}],
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [

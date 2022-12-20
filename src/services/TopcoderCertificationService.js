@@ -21,7 +21,8 @@ async function getCertifications(query = {}) {
         //         as: 'CertificationResource'
         //     }
         // ],
-        include: { all: true, nested: true },
+        // include: { all: true, nested: true },
+        include: db.CertificationCategory,
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [
@@ -30,10 +31,10 @@ async function getCertifications(query = {}) {
     };
     // check for order params
     if (query.order_by || query.order_type) {
-        dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']];
+        dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']]
     }
 
-    return db.TopcoderCertification.findAndCountAll(dbQuery);
+    return db.TopcoderCertification.findAndCountAll(dbQuery)
 }
 
 /**
@@ -43,10 +44,10 @@ async function getCertifications(query = {}) {
  * @returns {Object} the certification with given ID
  */
 async function getCertification(id) {
-    const ret = await helper.getById('Certification', id)
-    return ret
+    return db.TopcoderCertification.findByPk(id)
 }
 
 module.exports = {
-    getCertifications
+    getCertifications,
+    getCertification
 }

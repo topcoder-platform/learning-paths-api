@@ -157,4 +157,10 @@ module.exports = {
       method: 'searchCertifications'
     },
   },
+  '/learning-paths/topcoder-certifications/:id': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'getCertification'
+    },
+  },
 }

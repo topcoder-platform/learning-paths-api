@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "start:debug": "DEBUG=express:* node app.js",
+    "dev": "nodemon app.js",
     "generate-courses": "node src/utils/course-generator/generate-courses.js",
     "lint": "eslint src --ext js,jsx",
     "lint:fix": "eslint src --ext js,jsx --fix",
@@ -35,6 +36,7 @@
     "eslint": "^8.17.0",
     "mocha": "^10.0.0",
     "mocha-prepare": "^0.1.0",
+    "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "prisma": "^4.5.0",
     "sequelize-cli": "^6.5.2"
@@ -62,6 +64,7 @@
     "moment": "^2.29.3",
     "mongodb": "^4.8.1",
     "node-cache": "^5.1.2",
+    "stripe": "^11.3.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.27.0",

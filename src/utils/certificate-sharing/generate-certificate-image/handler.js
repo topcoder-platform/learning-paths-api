@@ -53,7 +53,7 @@ async function generateAndSaveImageAsync(browser, bucket, file, screenshotSelect
     if (!!screenshotSelector) {
 
         // wait for the specific element to appear
-        await page.waitForSelector(screenshotSelector, { timeout: 1000 })
+        await page.waitForSelector(screenshotSelector, { timeout: 2000 })
 
         // select the element
         const element = await page.$(screenshotSelector)

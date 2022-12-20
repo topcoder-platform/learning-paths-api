@@ -80,7 +80,9 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: develop
+              only:
+                - develop
+                - feat/TCA-795
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.

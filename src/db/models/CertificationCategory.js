@@ -43,4 +43,6 @@ module.exports = (sequelize, DataTypes) => {
       },
     ]
   });
+
+  return CertificationCategory;
 };

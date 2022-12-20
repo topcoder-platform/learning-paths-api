@@ -15,15 +15,7 @@ const DEFAULT_PAGE_LIMIT = 10
 async function getCertifications(query = {}) {
 
     const dbQuery = {
-        // include: [
-        //     {
-        //         model: db.CertificationResource,
-        //         as: 'CertificationResource'
-        //     }
-        // ],
-        // include: { all: true, nested: true },
-        // include: db.CertificationCategory,
-        // include: [{model: db.CertificationCategory, as: 'certificationCategory'}],
+        include: { all: true, nested: true },
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [

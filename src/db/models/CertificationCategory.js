@@ -2,7 +2,12 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationCategory extends Model {
-
+    static associate(models) {
+      this.hasMany(models.TopcoderCertification, {
+        as: 'TopcoderCertifications',
+        foreignKey: 'certificationCategoryId'
+      });
+    }
   }
 
   CertificationCategory.init({

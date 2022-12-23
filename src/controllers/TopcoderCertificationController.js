@@ -3,6 +3,7 @@
  */
 
 const service = require('../services/TopcoderCertificationService')
+const errors = require('../common/errors')
 
 /**
  * Search certifications
@@ -11,9 +12,9 @@ const service = require('../services/TopcoderCertificationService')
  * @param {Object} res the response
  */
 async function searchCertifications(req, res) {
-    const result = await service.searchCertifications(req.query)
-    helper.setResHeaders(req, res, result)
-    res.send(result.result)
+    const result = await service.getCertifications(req.query)
+
+    res.send(result)
 }
 
 /**
@@ -24,6 +25,10 @@ async function searchCertifications(req, res) {
  */
 async function getCertification(req, res) {
     const result = await service.getCertification(req.params.id)
+    if (!result) {
+        throw new errors.NotFoundError(`Topcoder Certification id '${req.params.id}' does not exists.`)
+    }
+
     res.send(result)
 }
 

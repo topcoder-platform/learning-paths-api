@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'CertificationResource',
         foreignKey: 'topcoderCertificationId'
       });
+
+      this.belongsTo(models.CertificationCategory, {
+        as: 'certificationCategory',
+        foreignKey: 'certificationCategoryId'
+      });
     }
   }
 

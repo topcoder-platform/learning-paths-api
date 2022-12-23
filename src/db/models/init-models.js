@@ -9,12 +9,12 @@ var _TopcoderUdemyCourse = require("./TopcoderUdemyCourse");
 var _UdemyCourse = require("./UdemyCourse");
 
 function initModels(sequelize) {
+  var ResourceProvider = _ResourceProvider(sequelize, DataTypes);
   var CertificationCategory = _CertificationCategory(sequelize, DataTypes);
+  var TopcoderCertification = _TopcoderCertification(sequelize, DataTypes);
   var CertificationResource = _CertificationResource(sequelize, DataTypes);
   var DataVersion = _DataVersion(sequelize, DataTypes);
   var FreeCodeCampCertification = _FreeCodeCampCertification(sequelize, DataTypes);
-  var ResourceProvider = _ResourceProvider(sequelize, DataTypes);
-  var TopcoderCertification = _TopcoderCertification(sequelize, DataTypes);
   var TopcoderUdemyCourse = _TopcoderUdemyCourse(sequelize, DataTypes);
   var UdemyCourse = _UdemyCourse(sequelize, DataTypes);
 

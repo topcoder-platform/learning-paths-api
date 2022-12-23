@@ -157,4 +157,56 @@ module.exports = {
       method: 'searchCertifications'
     },
   },
+  '/learning-paths/topcoder-certifications/:id': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'getCertification'
+    }
+  },
+  /**
+   * Stripe related endpoints
+   */
+  // TODO: Activate this endpoint for TCA Premium
+  // '/learning-paths/payments/stripe/subscribe': {
+  //   post: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'createSubscriptionHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  '/learning-paths/payments/stripe/prices': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'searchPricesHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/prices/:id': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'getPriceHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/products': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'searchProductsHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/products/:id': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'getProductHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/purchase-certifications': {
+    post: {
+      controller: 'StripePaymentsController',
+      method: 'purchaseCertificationsHandler',
+      auth: 'jwt',
+    },
+  },
 }

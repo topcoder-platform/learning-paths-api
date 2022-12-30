@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     state: {
-      type: DataTypes.ENUM("active", "inactive", "coming_soon", "deprecated"),
+      type: DataTypes.ENUM("active", "inactive", "coming-soon", "deprecated"),
       allowNull: false,
       defaultValue: "active"
     },
@@ -82,10 +82,10 @@ module.exports = (sequelize, DataTypes) => {
         ]
       },
       {
-        name: "FreeCodeCampCertification_key_key",
+        name: "FreeCodeCampCertification_title_key",
         unique: true,
         fields: [
-          { name: "key" },
+          { name: "title" },
         ]
       },
       {

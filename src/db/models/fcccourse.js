@@ -4,23 +4,28 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FccCourse extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      this.hasMany(models.FccModule, {
+        as: 'modules',
+        foreignKey: 'fccCourseId'
+      });
+
+      this.belongsTo(models.FreeCodeCampCertification, {
+        foreignKey: 'certificationId'
+      });
     }
   }
   FccCourse.init({
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4
+    },
     providerId: DataTypes.INTEGER,
     key: DataTypes.STRING,
     title: DataTypes.STRING,
     certificationId: DataTypes.INTEGER,
-    certificationUuid: DataTypes.UUID,
-    certification: DataTypes.STRING,
     estimatedCompletionTimeValue: DataTypes.INTEGER,
     estimatedCompletionTimeUnits: DataTypes.STRING,
     introCopy: DataTypes.ARRAY(DataTypes.STRING),
@@ -30,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'FccCourse',
+    tableName: 'FccCourses'
   });
   return FccCourse;
 };

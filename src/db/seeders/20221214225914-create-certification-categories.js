@@ -11,7 +11,7 @@ module.exports = {
       },
       {
         category: 'Data Science',
-        track: 'DEV',
+        track: 'DATASCIENCE',
       },
     ], {});
   },

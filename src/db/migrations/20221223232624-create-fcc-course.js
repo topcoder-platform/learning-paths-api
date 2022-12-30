@@ -35,19 +35,6 @@ module.exports = {
           key: 'id'
         },
       },
-      certificationUuid: {
-        type: Sequelize.UUID,
-        references: {
-          model: {
-            tableName: 'FreeCodeCampCertification',
-            schema: 'public'
-          },
-          key: 'fccId'
-        },
-      },
-      certification: {
-        type: Sequelize.STRING
-      },
       estimatedCompletionTimeValue: {
         type: Sequelize.INTEGER
       },

@@ -47,7 +47,7 @@ async function searchCertifications(criteria) {
 
 searchCertifications.schema = {
     criteria: Joi.object().keys({
-        page: Joi.page(),
+        page: Joi.number(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
         provider: Joi.string(),
     })
@@ -65,7 +65,7 @@ async function getCertification(id) {
 }
 
 getCertification.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 module.exports = {

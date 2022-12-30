@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     fccModuleId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     title: {
@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     isAssessment: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      allowNull: false,
+    },
+    order: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     }
   }, {

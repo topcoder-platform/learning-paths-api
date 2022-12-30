@@ -74,8 +74,8 @@ async function migrateCourses() {
                 }
             }
             console.log(`Bulk inserting ${courses.length} courses`)
-            // console.log(courses);
-            newCourses = await db.FccCourse.bulkCreate(courses);
+            // console.log(JSON.stringify(courses[0], null, 2));
+            newCourses = await createCourses(courses);
         }
 
         console.log('newCourses', newCourses);
@@ -83,6 +83,17 @@ async function migrateCourses() {
         console.error(error);
     }
 
+}
+
+async function createCourses(courses) {
+    const newCourses = await db.FccCourse.bulkCreate(courses, {
+        include: [{
+            association: db.FccCourse.FccModules,
+            include: [db.FccModule.FccLessons]
+        }]
+    });
+
+    return newCourses;
 }
 
 function buildCourseAttrs(tcaCourse) {
@@ -97,6 +108,7 @@ function buildCourseAttrs(tcaCourse) {
         key: tcaCourse.key,
         title: tcaCourse.title,
         certificationId: cert.id,
+        modules: buildModulesAttrs(tcaCourse.modules),
         estimatedCompletionTimeValue: tcaCourse.estimatedCompletionTime.value,
         estimatedCompletionTimeUnits: tcaCourse.estimatedCompletionTime.units,
         introCopy: tcaCourse.introCopy,
@@ -108,6 +120,47 @@ function buildCourseAttrs(tcaCourse) {
     }
 
     return courseAttrs;
+}
+
+function buildModulesAttrs(tcaModules) {
+    let module;
+    let modules = [];
+
+    for (const tcaModule of tcaModules) {
+        const meta = tcaModule.meta;
+
+        module = {
+            key: tcaModule.key,
+            name: meta.name,
+            dashedName: meta.dashedName,
+            estimatedCompletionTimeValue: meta.estimatedCompletionTime.value,
+            estimatedCompletionTimeUnits: meta.estimatedCompletionTime.units,
+            introCopy: meta.introCopy,
+            isAssessment: meta.isAssessment,
+            lessons: buildLessonsAttrs(tcaModule.lessons)
+        }
+        modules.push(module);
+    }
+
+    return modules;
+}
+
+function buildLessonsAttrs(tcaLessons) {
+    let lesson;
+    let lessons = [];
+    let order = 0;
+
+    for (const tcaLesson of tcaLessons) {
+        lesson = {
+            title: tcaLesson.title,
+            dashedName: tcaLesson.dashedName,
+            isAssessment: tcaLesson.isAssessment,
+            order: order++
+        };
+        lessons.push(lesson);
+    }
+
+    return lessons;
 }
 
 async function getCertCategories() {

@@ -74,8 +74,8 @@ async function migrateCourses() {
                 }
             }
             console.log(`Bulk inserting ${courses.length} courses`)
-            // console.log(JSON.stringify(courses[0], null, 2));
-            newCourses = await createCourses(courses);
+            console.dir(courses[0], { depth: null });
+            // newCourses = await createCourses(courses);
         }
 
         console.log('newCourses', newCourses);
@@ -87,10 +87,20 @@ async function migrateCourses() {
 
 async function createCourses(courses) {
     const newCourses = await db.FccCourse.bulkCreate(courses, {
-        include: [{
-            association: db.FccCourse.FccModules,
-            include: [db.FccModule.FccLessons]
-        }]
+        include: [
+            // {
+            // association: db.FccModule,
+            // as: 'modules',
+            // include: [{
+            //     association: db.FccLesson,
+            //     as: 'lessons'
+            // }]
+            // }
+            {
+                association: db.FccModule,
+                as: 'modules'
+            }
+        ]
     });
 
     return newCourses;
@@ -180,7 +190,7 @@ async function getTcaDynamoCertifications() {
 async function getTcaDynamoCourses() {
     const query = { provider: FCC_PROVIDER }
     const courses = await courseService.searchCourses(query);
-    // console.log(courses);
+    // console.dir(courses, { depth: null });
 
     return courses;
 }

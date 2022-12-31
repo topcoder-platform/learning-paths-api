@@ -74,11 +74,8 @@ async function migrateCourses() {
                 }
             }
             console.log(`Bulk inserting ${courses.length} courses`)
-            console.dir(courses[0], { depth: null });
-            // newCourses = await createCourses(courses);
+            newCourses = await createCourses(courses);
         }
-
-        console.log('newCourses', newCourses);
     } catch (error) {
         console.error(error);
     }
@@ -87,20 +84,14 @@ async function migrateCourses() {
 
 async function createCourses(courses) {
     const newCourses = await db.FccCourse.bulkCreate(courses, {
-        include: [
-            // {
-            // association: db.FccModule,
-            // as: 'modules',
-            // include: [{
-            //     association: db.FccLesson,
-            //     as: 'lessons'
-            // }]
-            // }
-            {
-                association: db.FccModule,
-                as: 'modules'
-            }
-        ]
+        include: [{
+            model: db.FccModule,
+            as: 'modules',
+            include: [{
+                model: db.FccLesson,
+                as: 'lessons'
+            }]
+        }]
     });
 
     return newCourses;
@@ -162,6 +153,7 @@ function buildLessonsAttrs(tcaLessons) {
 
     for (const tcaLesson of tcaLessons) {
         lesson = {
+            id: tcaLesson.id,
             title: tcaLesson.title,
             dashedName: tcaLesson.dashedName,
             isAssessment: tcaLesson.isAssessment,

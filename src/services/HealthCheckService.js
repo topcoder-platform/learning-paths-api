@@ -3,6 +3,8 @@
  */
 
 const Joi = require('joi')
+
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 
 /**
@@ -12,7 +14,12 @@ const helper = require('../common/helper')
  * @returns {Object} the health check with given ID
  */
 async function getHealthCheck(id) {
-    const result = await helper.getById('TopcoderAcademyHealthCheck', id)
+    let result;
+    if (helper.featureFlagSet('TCA_DATASTORE', 'postgres')) {
+        result = await dbHelper.dbHealthCheck()
+    } else {
+        result = await helper.getById('TopcoderAcademyHealthCheck', id)
+    }
 
     return result
 }

@@ -52,5 +52,9 @@ module.exports = {
     SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     API_VERSION: process.env.STRIPE_API_VERSION || '2020-08-27',
     WEBHOOK_SIG: process.env.STRIPE_WEBHOOK_SIG
+  },
+
+  FEATURE_FLAG: {
+    TCA_DATASTORE: process.env.TCA_DATASTORE || 'dynamodb'
   }
 }

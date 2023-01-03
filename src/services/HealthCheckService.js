@@ -15,7 +15,7 @@ const helper = require('../common/helper')
  */
 async function getHealthCheck(id) {
     let result;
-    if (helper.featureFlagSet('TCA_DATASTORE', 'postgres')) {
+    if (dbHelper.usePostgresFF()) {
         result = await dbHelper.dbHealthCheck()
     } else {
         result = await helper.getById('TopcoderAcademyHealthCheck', id)

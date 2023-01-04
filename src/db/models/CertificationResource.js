@@ -83,7 +83,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'CertificationResource',
     modelName: 'CertificationResource',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "CertificationResource_pkey",

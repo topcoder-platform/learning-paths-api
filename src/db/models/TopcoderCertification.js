@@ -63,13 +63,16 @@ module.exports = (sequelize, DataTypes) => {
     stripeProductId: {
       type: DataTypes.TEXT,
       allowNull: true
-    }
+    },
+    skills: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true,
+    },
   }, {
     sequelize,
     tableName: 'TopcoderCertification',
     modelName: 'TopcoderCertification',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "TopcoderCertification_pkey",

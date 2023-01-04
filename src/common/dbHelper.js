@@ -8,11 +8,27 @@ async function dbHealthCheck() {
     }
 }
 
-function usePostgresFF() {
+async function findAndCountAllPages(model, page, perPage, where = {}) {
+    let params = {
+        offset: (page - 1) * perPage,
+        limit: perPage
+    }
+
+    if (where != {}) {
+        params.where = where
+    }
+
+    const { count, rows } = await db[model].findAndCountAll(params)
+
+    return { count, rows }
+}
+
+function featureFlagUsePostgres() {
     return helper.featureFlagSet('TCA_DATASTORE', 'postgres')
 }
 
 module.exports = {
     dbHealthCheck,
-    usePostgresFF
+    findAndCountAllPages,
+    featureFlagUsePostgres
 }

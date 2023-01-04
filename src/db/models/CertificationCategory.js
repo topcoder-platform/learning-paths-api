@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'CertificationCategory',
     modelName: 'CertificationCategory',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "CertificationCategory_category_key",

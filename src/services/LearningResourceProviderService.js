@@ -4,7 +4,7 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
-const { v4: uuidv4 } = require('uuid');
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 
 /**
@@ -13,14 +13,23 @@ const helper = require('../common/helper')
  * @returns {Object} the search result
  */
 async function searchLearningResourceProviders(criteria) {
-
-    records = await helper.scanAll('LearningResourceProvider')
-
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
 
-    const total = records.length
-    const result = records.slice((page - 1) * perPage, page * perPage)
+    let records = [];
+    let total, result;
+
+    if (dbHelper.featureFlagUsePostgres()) {
+        let query = {};
+        if (criteria.query) {
+            query = criteria.query
+        }
+        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('ResourceProvider', page, perPage, query));
+    } else {
+        records = await helper.scanAll('LearningResourceProvider')
+        total = records.length
+        result = records.slice((page - 1) * perPage, page * perPage)
+    }
 
     return { total, page, perPage, result }
 }
@@ -51,5 +60,3 @@ module.exports = {
     searchLearningResourceProviders,
     getLearningResourceProvider,
 }
-
- // logger.buildService(module.exports)

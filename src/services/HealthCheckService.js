@@ -1,7 +1,7 @@
 /**
  * This service provides access to the HealthCheck table
  */
-
+const config = require('config')
 const Joi = require('joi')
 
 const dbHelper = require('../common/dbHelper')
@@ -15,10 +15,11 @@ const helper = require('../common/helper')
  */
 async function getHealthCheck(id) {
     let result;
-    if (dbHelper.usePostgresFF()) {
+    if (dbHelper.featureFlagUsePostgres()) {
         result = await dbHelper.dbHealthCheck()
     } else {
-        result = await helper.getById('TopcoderAcademyHealthCheck', id)
+        const healthCheckId = config.HEALTH_CHECK_ID || 'health-check'
+        result = await helper.getById('TopcoderAcademyHealthCheck', healthCheckId)
     }
 
     return result

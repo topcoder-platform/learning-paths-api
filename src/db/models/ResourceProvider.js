@@ -19,7 +19,7 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    attributionUrl: {
+    url: {
       type: DataTypes.TEXT,
       allowNull: true
     }
@@ -28,7 +28,6 @@ module.exports = function (sequelize, DataTypes) {
     tableName: 'ResourceProvider',
     modelName: 'ResourceProvider',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "ResourceProvider_name_key",

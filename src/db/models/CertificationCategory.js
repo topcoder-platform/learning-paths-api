@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'TopcoderCertifications',
         foreignKey: 'certificationCategoryId'
       });
+
+      this.hasMany(models.FreeCodeCampCertification, {
+        as: 'FreeCodeCampCertifications',
+        foreignKey: 'certificationCategoryId'
+      })
     }
   }
 

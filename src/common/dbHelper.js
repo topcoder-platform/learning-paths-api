@@ -1,5 +1,6 @@
 const db = require('../db/models');
 const helper = require('../common/helper');
+const { query } = require('express');
 
 async function dbHealthCheck() {
     const provider = await db.ResourceProvider.findOne()
@@ -8,19 +9,33 @@ async function dbHealthCheck() {
     }
 }
 
-async function findAndCountAllPages(model, page, perPage, where = {}) {
+async function findAndCountAllPages(model, page, perPage, where = null, include = null) {
     let params = {
         offset: (page - 1) * perPage,
         limit: perPage
     }
 
-    if (where != {}) {
+    // add where clause if provided
+    if (where) {
         params.where = where
+    }
+
+    // add include clause if provided
+    if (include) {
+        params.include = include
     }
 
     const { count, rows } = await db[model].findAndCountAll(params)
 
     return { count, rows }
+}
+
+async function findOne(model, where, includeAssociations = null) {
+    let query = { where: where }
+    if (includeAssociations) {
+        query.include = includeAssociations
+    }
+    return db[model].findOne(query);
 }
 
 function featureFlagUsePostgres() {
@@ -30,5 +45,6 @@ function featureFlagUsePostgres() {
 module.exports = {
     dbHealthCheck,
     findAndCountAllPages,
+    findOne,
     featureFlagUsePostgres
 }

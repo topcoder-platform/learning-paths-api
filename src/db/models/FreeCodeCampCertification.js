@@ -11,6 +11,11 @@ module.exports = (sequelize, DataTypes) => {
           resourceableType: 'FreeCodeCampCertification',
         }
       });
+
+      this.belongsTo(models.CertificationCategory, {
+        as: 'certificationCategory',
+        foreignKey: 'certificationCategoryId'
+      });
     }
   }
 
@@ -72,7 +77,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'FreeCodeCampCertification',
     modelName: 'FreeCodeCampCertification',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "FreeCodeCampCertification_fccId_key",

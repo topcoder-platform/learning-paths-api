@@ -4,7 +4,11 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
+
+const db = require('../db/models');
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
+const { Op } = require("sequelize");
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 
@@ -15,8 +19,35 @@ const ACTIVE_STATES = ['active', 'coming-soon'];
  * @returns {Object} the search result
  */
 async function searchCertifications(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+    let total, result;
 
-    records = await helper.scanAll('Certification')
+    if (dbHelper.featureFlagUsePostgres()) {
+        let query = {};
+        if (criteria.state) {
+            query.state = criteria.state
+        } else {
+            query.state = {
+                [Op.or]: ACTIVE_STATES
+            }
+        }
+
+        const includeAssociations = [{
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
+        }];
+
+        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, query, includeAssociations));
+    } else {
+        ({ total, result } = await searchDynamoCertifications(criteria))
+    }
+
+    return { total, page, perPage, result }
+}
+
+async function searchDynamoCertifications(criteria) {
+    let records = await helper.scanAll('Certification')
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
@@ -42,7 +73,7 @@ async function searchCertifications(criteria) {
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 
-    return { total, page, perPage, result }
+    return { total, result }
 }
 
 searchCertifications.schema = {
@@ -60,8 +91,20 @@ searchCertifications.schema = {
  * @returns {Object} the certification with given ID
  */
 async function getCertification(id) {
-    const ret = await helper.getById('Certification', id)
-    return ret
+    let certification;
+
+    if (dbHelper.featureFlagUsePostgres()) {
+        const where = { fccId: id }
+        const includeAssociations = [{
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
+        }];
+
+        certification = await dbHelper.findOne('FreeCodeCampCertification', where, includeAssociations)
+    } else {
+        certification = await helper.getById('Certification', id)
+    }
+    return certification
 }
 
 getCertification.schema = {

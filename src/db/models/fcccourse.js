@@ -31,7 +31,15 @@ module.exports = (sequelize, DataTypes) => {
     introCopy: DataTypes.ARRAY(DataTypes.STRING),
     keyPoints: DataTypes.ARRAY(DataTypes.STRING),
     completionSuggestions: DataTypes.ARRAY(DataTypes.STRING),
-    note: DataTypes.STRING
+    note: DataTypes.STRING,
+    learnerLevel: {
+      type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
+      allowNull: false
+    },
+    skills: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'FccCourse',

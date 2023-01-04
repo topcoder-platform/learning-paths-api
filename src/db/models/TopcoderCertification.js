@@ -66,7 +66,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     skills: {
       type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: true,
+      allowNull: false,
+    },
+    learningOutcomes: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    prerequisites: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
     },
   }, {
     sequelize,

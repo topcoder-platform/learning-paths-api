@@ -5,6 +5,9 @@
 const _ = require('lodash')
 const { Course } = require('../models')
 const Joi = require('joi')
+
+const db = require('../db/models')
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 const PROVIDER_FREECODECAMP = 'freeCodeCamp'
 
@@ -17,6 +20,43 @@ const PROVIDER_FREECODECAMP = 'freeCodeCamp'
  * @returns {Object} the search result
  */
 async function searchCourses(criteria) {
+    if (dbHelper.featureFlagUsePostgres()) {
+        return await searchPostgresCourses(criteria)
+    } else {
+        return await searchDynamoCourses(criteria)
+    }
+}
+
+async function searchPostgresCourses(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+    let total, result;
+
+    let query = criteria.query;
+
+    const includeAssociations = [{
+        model: db.FccModule,
+        as: 'modules',
+        include: [{
+            model: db.FccLesson,
+            as: 'lessons',
+            attributes: ['id', 'title', 'dashedName', 'isAssessment'],
+            separate: true,
+            order: ['order']
+        }]
+    }];
+
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+        'FccCourse',
+        page,
+        perPage,
+        query,
+        includeAssociations));
+
+    return { total, page, perPage, result }
+}
+
+async function searchDynamoCourses(criteria) {
     if (criteria.provider) {
         return await searchCoursesForProvider(criteria)
     } else {

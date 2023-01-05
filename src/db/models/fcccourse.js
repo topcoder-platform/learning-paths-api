@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'fccCourseId'
       });
 
+      this.belongsTo(models.ResourceProvider, {
+        foreignKey: 'providerId',
+        as: 'resourceProvider'
+      });
+
       this.belongsTo(models.FreeCodeCampCertification, {
         foreignKey: 'certificationId'
       });

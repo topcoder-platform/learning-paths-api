@@ -31,20 +31,32 @@ async function searchPostgresCourses(criteria) {
     let page = criteria.page || 1
     let perPage = criteria.perPage || 50
     let total, result;
+    let query = {};
 
-    let query = criteria.query;
+    if (criteria.key) {
+        query['key'] = criteria.key
+    }
 
-    const includeAssociations = [{
-        model: db.FccModule,
-        as: 'modules',
-        include: [{
-            model: db.FccLesson,
-            as: 'lessons',
-            attributes: ['id', 'title', 'dashedName', 'isAssessment'],
-            separate: true,
-            order: ['order']
-        }]
-    }];
+    // include associated models to provide the 
+    // front-end with a fully-formed response
+    const includeAssociations = [
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProvider',
+            attributes: ['name', 'attributionStatement', 'url']
+        },
+        {
+            model: db.FccModule,
+            as: 'modules',
+            include: [{
+                model: db.FccLesson,
+                as: 'lessons',
+                attributes: ['id', 'title', 'dashedName', 'isAssessment'],
+                separate: true,
+                order: ['order']
+            }]
+        }
+    ];
 
     ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
         'FccCourse',

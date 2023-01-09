@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'FccModuleProgress',
+    tableName: 'FccModuleProgresses',
   });
   return FccModuleProgress;
 };

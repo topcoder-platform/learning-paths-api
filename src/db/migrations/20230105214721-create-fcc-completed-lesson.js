@@ -10,6 +10,7 @@ module.exports = {
       },
       fccModuleProgressId: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         references: {
           model: {
             tableName: 'FccModuleProgresses',

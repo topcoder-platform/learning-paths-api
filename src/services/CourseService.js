@@ -70,10 +70,9 @@ async function searchPostgresCourses(criteria) {
 
 async function searchDynamoCourses(criteria) {
     if (criteria.provider) {
-        return await searchCoursesForProvider(criteria)
+        return { total, page, perPage, result } = await searchCoursesForProvider(criteria)
     } else {
-        const { result } = await scanAllCourses(criteria)
-        return result;
+        return { total, page, perPage, result } = await scanAllCourses(criteria)
     }
 }
 
@@ -81,29 +80,30 @@ async function searchDynamoCourses(criteria) {
  * Queries the Course table using a global secondary index
  * and additional +where+ criteria from the given query 
  * 
- * @param {Object} query the query on which to search
+ * @param {Object} criteria the query on which to search
  * @returns an array of Course objects
  */
-async function searchCoursesForProvider(query) {
-    const provider = query.provider;
+async function searchCoursesForProvider(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+
+    const provider = criteria.provider;
     let queryStatement = Course.
         query("provider").eq(provider).
         using("provider-key-index")
 
-    if (query.key) {
-        queryStatement = queryStatement.where("key").eq(query.key)
+    if (criteria.key) {
+        queryStatement = queryStatement.where("key").eq(criteria.key)
     }
-    if (query.certification) {
-        queryStatement = queryStatement.where("certification").eq(query.certification)
+    if (criteria.certification) {
+        queryStatement = queryStatement.where("certification").eq(criteria.certification)
     }
 
-    try {
-        let courses = await queryStatement.exec();
-        return courses;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
+    let records = await queryStatement.exec();
+    const total = records.length
+    const result = records.slice((page - 1) * perPage, page * perPage)
+
+    return { total, page, perPage, result };
 }
 
 /**

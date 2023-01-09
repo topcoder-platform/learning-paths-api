@@ -33,7 +33,8 @@ Object.keys(db).forEach(modelName => {
 });
 
 if (env === 'development') {
-  sequelize.sync();
+  // TODO - uncomment this
+  // sequelize.sync();
 }
 
 db.sequelize = sequelize;

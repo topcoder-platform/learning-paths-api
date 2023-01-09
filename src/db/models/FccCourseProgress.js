@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'modules',
         foreignKey: 'fccCourseProgressId'
       });
+
+      this.belongsTo(models.FccCourse, {
+        foreignKey: 'fccCourseId'
+      });
     }
   }
   FccCourseProgress.init({
@@ -38,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    courseId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     providerId: {
       type: DataTypes.INTEGER,
     },
@@ -61,6 +61,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'FccCourseProgress',
+    tableName: 'FccCourseProgresses',
   });
   return FccCourseProgress;
 };

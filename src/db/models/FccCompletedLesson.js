@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     fccModuleProgressId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
     },
     dashedName: {
       type: DataTypes.STRING,
@@ -28,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'FccCompletedLesson',
+    tableName: 'FccCompletedLessons',
+    timestamps: false,
   });
+
   return FccCompletedLesson;
 };

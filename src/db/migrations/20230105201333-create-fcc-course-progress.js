@@ -40,10 +40,6 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
       },
-      courseId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
       providerId: {
         type: Sequelize.INTEGER,
         references: {

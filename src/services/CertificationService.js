@@ -4,11 +4,11 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
+const { Op } = require("sequelize");
 
 const db = require('../db/models');
 const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
-const { Op } = require("sequelize");
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 

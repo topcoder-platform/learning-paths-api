@@ -15,6 +15,7 @@ module.exports = {
     define: {
       freezeTableName: true
     },
+    minifyAliases: true,
   },
   // test: {
   //   username: process.env.CI_DB_USERNAME,
@@ -33,5 +34,6 @@ module.exports = {
     define: {
       freezeTableName: true
     },
+    minifyAliases: true,
   }
 }

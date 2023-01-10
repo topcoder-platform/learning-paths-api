@@ -14,14 +14,17 @@ module.exports = {
     );
     const dataSciId = dataSciCategory[0][0].id;
 
+    const createDate = new Date();
+
     await queryInterface.bulkInsert('TopcoderCertification', [
       {
         title: 'Web Development Certification',
         description: 'Covers all the basics of front-end and back-end web development',
         estimatedCompletionTime: 600,
+        status: 'active',
         certificationCategoryId: webId,
         learnerLevel: 'All Levels',
-        version: new Date(),
+        version: createDate,
         skills: ['web development', 'Javascript', 'APIs'],
         stripeProductId: 'prod_MzAGVmH4YG42lA'
       },
@@ -29,9 +32,10 @@ module.exports = {
         title: 'Data Science Certification',
         description: 'Learn the basics of data science along with practical applications',
         estimatedCompletionTime: 600,
+        status: 'active',
         certificationCategoryId: dataSciId,
         learnerLevel: 'All Levels',
-        version: new Date(),
+        version: createDate,
         skills: ['data structures', 'machine learning', 'AI'],
         stripeProductId: 'prod_MyBDpJ53eSVYRr'
       },

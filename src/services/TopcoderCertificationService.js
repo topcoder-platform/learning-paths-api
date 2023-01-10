@@ -15,9 +15,26 @@ const DEFAULT_PAGE_LIMIT = 10
 async function getCertifications(query = {}) {
 
     const dbQuery = {
-        include: {
+        include:
+        {
             model: db.CertificationResource,
             as: 'certificationResources',
+            include: [
+                {
+                    model: db.FreeCodeCampCertification,
+                    as: 'FreeCodeCampCertification'
+                },
+
+                // TODO: leaving this here as an example of how we will 
+                // need to handle the polymorphic association between resources
+                // and the underlying course data. We are only currently 
+                // using FreeCodeCamp certifications.
+
+                // {
+                //     model: db.TopcoderUdemyCourse,
+                //     as: 'TopcoderUdemyCourse'
+                // }
+            ]
         },
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,

@@ -26,7 +26,7 @@ async function searchCertifications(req, res) {
 async function getCertification(req, res) {
     const result = await service.getCertification(req.params.id)
     if (!result) {
-        throw new errors.NotFoundError(`Topcoder Certification id '${req.params.id}' does not exists.`)
+        throw new errors.NotFoundError(`Topcoder Certification id '${req.params.id}' does not exist.`)
     }
 
     res.send(result)

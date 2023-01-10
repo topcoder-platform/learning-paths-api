@@ -16,11 +16,16 @@ module.exports = (sequelize, DataTypes) => {
         constraints: false,
       });
 
-      this.belongsTo(models.TopcoderUdemyCourse, {
-        as: 'TopcoderUdemyCourse',
-        foreignKey: 'resourceableId',
-        constraints: false,
-      });
+      // TODO: leaving this here as a marker for future implementation
+      // when we add in another resource provider. Currently only using
+      // FreeCodeCamp, but if/when we add another resource provider, we
+      // will need to add this type of polymorphic association. 
+
+      // this.belongsTo(models.TopcoderUdemyCourse, {
+      //   as: 'TopcoderUdemyCourse',
+      //   foreignKey: 'resourceableId',
+      //   constraints: false,
+      // });
     }
 
     getResourceable(options) {
@@ -95,7 +100,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   CertificationResource.addHook("afterFind", findResult => {
-    // if (!Array.isArray(findResult)) findResult = [findResult];
+    console.log('** in afterFind hook');
+
+    if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {
       if (instance.resourceableType === "FreeCodeCampCertification" && instance.FreeCodeCampCertification !== undefined) {

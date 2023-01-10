@@ -44,7 +44,8 @@ module.exports = (sequelize, DataTypes) => {
     note: DataTypes.STRING,
     learnerLevel: {
       type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
-      allowNull: false
+      allowNull: false,
+      defaultValue: "Beginner",
     },
     skills: {
       type: DataTypes.ARRAY(DataTypes.STRING),

@@ -3,11 +3,18 @@
 const certificationService = require('../../services/CertificationService');
 const courseService = require('../../services/CourseService');
 const db = require('../../db/models');
+const fccCourseSkills = require('../../db/models/fcc_course_skills.json')
 
-const FCC_PROVIDER = 'freeCodeCamp';
+let fccResourceProvider;
+const FCC_PROVIDER_NAME = 'freeCodeCamp';
 
 let certCategories;
 let fccCerts;
+
+async function migrate() {
+    let certs = await migrateCertifications();
+    let courses = await migrateCourses();
+}
 
 async function migrateCertifications() {
     certCategories = await getCertCategories();
@@ -25,8 +32,6 @@ async function migrateCertifications() {
             console.log(`Bulk inserting ${certifications.length} certifications`)
             newCerts = await db.FreeCodeCampCertification.bulkCreate(certifications);
         }
-
-        console.log('newCerts', newCerts);
     } catch (error) {
         console.error(error);
     }
@@ -59,7 +64,17 @@ function buildCertificationAttrs(tcaCert) {
 }
 
 async function migrateCourses() {
+    fccResourceProvider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
+    if (!fccResourceProvider) {
+        throw "Could not find FCC ResourceProvider"
+    }
+
     fccCerts = await db.FreeCodeCampCertification.findAll();
+    if (!fccCerts || fccCerts.length == 0) {
+        throw "No FCC Certifications found -- cannot load course data"
+    } else {
+        console.log(`** Migrating FCC courses for ${fccCerts.length} certifications`)
+    }
 
     let newCourses;
     let courses = [];
@@ -68,17 +83,20 @@ async function migrateCourses() {
 
         if (tcaCourses && tcaCourses.length > 0) {
             for (let tcaCourse of tcaCourses) {
+                console.log('** migrating course', tcaCourse.key)
                 const course = buildCourseAttrs(tcaCourse);
                 if (course) {
                     courses.push(course);
                 }
             }
-            console.log(`Bulk inserting ${courses.length} courses`)
+            console.log(`** Bulk inserting ${courses.length} courses`)
             newCourses = await createCourses(courses);
         }
     } catch (error) {
         console.error(error);
     }
+
+    return newCourses;
 }
 
 async function createCourses(courses) {
@@ -103,11 +121,17 @@ function buildCourseAttrs(tcaCourse) {
         return undefined
     }
 
+    const courseSkills = fccCourseSkills[tcaCourse.key]
+    if (!courseSkills) {
+        console.error(`Could not find skills for course ${tcaCourse.key}`)
+    }
+
     const courseAttrs = {
         id: tcaCourse.id,
         key: tcaCourse.key,
         title: tcaCourse.title,
         certificationId: cert.id,
+        providerId: fccResourceProvider.id,
         modules: buildModulesAttrs(tcaCourse.modules),
         estimatedCompletionTimeValue: tcaCourse.estimatedCompletionTime.value,
         estimatedCompletionTimeUnits: tcaCourse.estimatedCompletionTime.units,
@@ -115,6 +139,8 @@ function buildCourseAttrs(tcaCourse) {
         keyPoints: tcaCourse.keyPoints,
         completionSuggestions: tcaCourse.completionSuggestions,
         note: tcaCourse.note,
+        learnerLevel: 'Beginner',
+        skills: courseSkills,
         createdAt: tcaCourse.createdAt,
         updatedAt: tcaCourse.updatedAt
     }
@@ -171,7 +197,7 @@ async function getCertCategories() {
 }
 
 async function getTcaDynamoCertifications() {
-    const query = { providerName: FCC_PROVIDER };
+    const query = { providerName: FCC_PROVIDER_NAME };
     const certifications = await certificationService.searchCertifications(query);
     // console.log(certifications.result);
 
@@ -179,14 +205,15 @@ async function getTcaDynamoCertifications() {
 }
 
 async function getTcaDynamoCourses() {
-    const query = { provider: FCC_PROVIDER }
-    const courses = await courseService.searchCourses(query);
+    const query = { provider: FCC_PROVIDER_NAME }
+    const { result: courses } = await courseService.scanAllCourses(query);
     // console.dir(courses, { depth: null });
 
     return courses;
 }
 
 module.exports = {
+    migrate,
     migrateCertifications,
     migrateCourses
 }

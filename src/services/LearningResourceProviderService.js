@@ -21,11 +21,13 @@ async function searchLearningResourceProviders(criteria) {
 
     if (dbHelper.featureFlagUsePostgres()) {
         // add any query params to the where clause
-        let query = {};
-        if (criteria.key) {
-            query.key = criteria.key
+        let options = {};
+
+        if (criteria.name) {
+            options.where = { name: criteria.name }
         }
-        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('ResourceProvider', page, perPage, query));
+
+        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('ResourceProvider', page, perPage, options));
     } else {
         records = await helper.scanAll('LearningResourceProvider')
         total = records.length

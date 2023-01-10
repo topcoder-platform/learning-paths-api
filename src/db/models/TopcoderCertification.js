@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class TopcoderCertification extends Model {
     static associate(models) {
       this.hasMany(models.CertificationResource, {
-        as: 'CertificationResource',
+        as: 'certificationResources',
         foreignKey: 'topcoderCertificationId'
       });
 

@@ -24,6 +24,7 @@ async function searchCertifications(criteria) {
     let total, result;
 
     if (dbHelper.featureFlagUsePostgres()) {
+        let options = {};
         let query = {};
         if (criteria.state) {
             query.state = criteria.state
@@ -32,13 +33,14 @@ async function searchCertifications(criteria) {
                 [Op.or]: ACTIVE_STATES
             }
         }
+        options.where = query;
 
-        const includeAssociations = [{
+        options.include = [{
             model: db.CertificationCategory,
             as: 'certificationCategory'
         }];
 
-        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, query, includeAssociations));
+        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, options));
     } else {
         ({ total, result } = await searchDynamoCertifications(criteria))
     }

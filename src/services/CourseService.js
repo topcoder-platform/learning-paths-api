@@ -31,10 +31,11 @@ async function searchPostgresCourses(criteria) {
     let page = criteria.page || 1
     let perPage = criteria.perPage || 50
     let total, result;
-    let query = {};
+
+    let options = {};
 
     if (criteria.key) {
-        query['key'] = criteria.key
+        options.where = { key: criteria.key }
     }
 
     // include associated models to provide the 
@@ -57,13 +58,30 @@ async function searchPostgresCourses(criteria) {
             }]
         }
     ];
+    options.include = includeAssociations;
+
+    // add a computed attribute to get the count of modules
+    // in the course
+    options.attributes = {
+        include: [
+            [
+                // Note the wrapping parentheses in the call below!
+                db.sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM "FccModules" AS module
+                    WHERE
+                        module."fccCourseId" = "FccCourse".id
+                )`),
+                'moduleCount'
+            ]
+        ]
+    };
 
     ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
         'FccCourse',
         page,
         perPage,
-        query,
-        includeAssociations));
+        options));
 
     return { total, page, perPage, result }
 }
@@ -331,5 +349,6 @@ module.exports = {
     getCourseLessonMap,
     getCourseModules,
     getCourseModule,
+    scanAllCourses,
     searchCourses
 }

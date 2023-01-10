@@ -9,20 +9,25 @@ async function dbHealthCheck() {
     }
 }
 
-async function findAndCountAllPages(model, page, perPage, where = null, include = null) {
+async function findAndCountAllPages(model, page, perPage, options = {}) {
     let params = {
         offset: (page - 1) * perPage,
         limit: perPage
     }
 
     // add where clause if provided
-    if (where) {
-        params.where = where
+    if (options.where) {
+        params.where = options.where
     }
 
     // add include clause if provided
-    if (include) {
-        params.include = include
+    if (options.include) {
+        params.include = options.include
+    }
+
+    // add attributes clause if provided
+    if (options.attributes) {
+        params.attributes = options.attributes
     }
 
     const { count, rows } = await db[model].findAndCountAll(params)

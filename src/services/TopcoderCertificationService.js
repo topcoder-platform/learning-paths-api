@@ -12,7 +12,7 @@ const DEFAULT_PAGE_LIMIT = 10
  * @param {Object} criteria the search criteria
  * @returns {Object} the search result
  */
-async function getCertifications(query = {}) {
+async function searchCertifications(query = {}) {
 
     const dbQuery = {
         include:
@@ -57,10 +57,23 @@ async function getCertifications(query = {}) {
  * @returns {Object} the certification with given ID
  */
 async function getCertification(id) {
-    return db.TopcoderCertification.findByPk(id)
+    const options = {
+        include: {
+            model: db.CertificationResource,
+            as: 'certificationResources',
+            include: [
+                {
+                    model: db.FreeCodeCampCertification,
+                    as: 'FreeCodeCampCertification'
+                },
+            ]
+        }
+    }
+
+    return db.TopcoderCertification.findByPk(id, options)
 }
 
 module.exports = {
-    getCertifications,
+    searchCertifications,
     getCertification
 }

@@ -12,7 +12,7 @@ const errors = require('../common/errors')
  * @param {Object} res the response
  */
 async function searchCertifications(req, res) {
-    const result = await service.getCertifications(req.query)
+    const result = await service.searchCertifications(req.query)
 
     res.send(result)
 }

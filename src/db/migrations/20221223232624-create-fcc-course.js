@@ -4,10 +4,15 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('FccCourses', {
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         allowNull: false,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4
+
+      },
+      fccCourseUuid: {
+        type: Sequelize.UUID,
+        allowNull: false,
       },
       providerId: {
         type: Sequelize.INTEGER,

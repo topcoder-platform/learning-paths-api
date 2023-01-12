@@ -7,7 +7,8 @@ module.exports = {
       queryInterface.addColumn('FccCourses', 'learnerLevel',
         {
           type: Sequelize.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
-          allowNull: true
+          allowNull: true,
+          defaultValue: 'Beginner'
         }),
       queryInterface.addColumn('FccCourses', 'skills',
         {
@@ -21,6 +22,7 @@ module.exports = {
     return Promise.all([
       queryInterface.removeColumn('FccCourses', 'learnerLevel'),
       queryInterface.removeColumn('FccCourses', 'skills'),
+      queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_FccCourses_learnerLevel";'),
     ]);
   }
 };

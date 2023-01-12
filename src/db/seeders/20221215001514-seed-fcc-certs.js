@@ -20,7 +20,9 @@ module.exports = {
         state: "active",
         certificationCategoryId: webId,
         certType: "certification",
-        publishedAt: new Date(Date.parse("2022-08-31T12:00:00Z"))
+        publishedAt: new Date(Date.parse("2022-08-31T12:00:00Z")),
+        createdAt: new Date(Date.parse("2022-08-31T12:00:00Z")),
+        updatedAt: new Date(Date.parse("2022-08-31T12:00:00Z"))
       },
       {
         fccId: "aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d",
@@ -32,7 +34,9 @@ module.exports = {
         state: "active",
         certificationCategoryId: webId,
         certType: "certification",
-        publishedAt: new Date(Date.parse("2022-09-05T12:00:00Z"))
+        publishedAt: new Date(Date.parse("2022-09-05T12:00:00Z")),
+        createdAt: new Date(Date.parse("2022-09-05T12:00:00Z")),
+        updatedAt: new Date(Date.parse("2022-09-05T12:00:00Z"))
       }],
       { returning: true });
 

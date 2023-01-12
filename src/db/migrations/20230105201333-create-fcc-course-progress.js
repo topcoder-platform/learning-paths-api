@@ -9,9 +9,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fccProgressId: {
+      fccCertProgressUuid: {
         type: Sequelize.UUID,
-
+      },
+      fccCourseId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'FccCourses',
+            schema: 'public'
+          },
+          key: 'id'
+        },
       },
       userId: {
         type: Sequelize.STRING,
@@ -35,20 +44,6 @@ module.exports = {
       courseKey: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      fccCourseId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-      },
-      providerId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'ResourceProvider',
-            schema: 'public'
-          },
-          key: 'id'
-        },
       },
       status: {
         type: Sequelize.ENUM("in-progress", "completed"),
@@ -84,6 +79,9 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('FccCourseProgresses');
+    return Promise.all([
+      queryInterface.dropTable('FccCourseProgresses'),
+      queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_FccCourseProgresses_status";'),
+    ])
   }
 };

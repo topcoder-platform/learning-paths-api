@@ -27,10 +27,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   FccCourse.init({
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4
+      autoIncrement: true,
+    },
+    fccCourseUuid: {
+      type: DataTypes.UUID,
+      allowNull: false,
     },
     providerId: DataTypes.INTEGER,
     key: DataTypes.STRING,

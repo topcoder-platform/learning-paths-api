@@ -6,12 +6,21 @@ module.exports = (sequelize, DataTypes) => {
   class FccCourseProgress extends Model {
     static associate(models) {
       this.hasMany(models.FccModuleProgress, {
-        as: 'modules',
+        as: 'moduleProgresses',
         foreignKey: 'fccCourseProgressId'
       });
 
       this.belongsTo(models.FccCourse, {
         foreignKey: 'fccCourseId'
+      });
+
+      this.hasOne(models.CertificationResourceProgress, {
+        as: 'FccCourseProgress',
+        foreignKey: 'id',
+        constraints: false,
+        scope: {
+          resourceableType: 'FccCourseProgress',
+        }
       });
     }
   }
@@ -22,8 +31,12 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    fccProgressId: {
+    fccCertProgressUuid: {
       type: DataTypes.UUID,
+    },
+    fccCourseId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     userId: {
       type: DataTypes.STRING,
@@ -37,13 +50,6 @@ module.exports = (sequelize, DataTypes) => {
     courseKey: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    fccCourseId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    },
-    providerId: {
-      type: DataTypes.INTEGER,
     },
     status: {
       type: DataTypes.ENUM("in-progress", "completed"),

@@ -23,7 +23,7 @@ module.exports = {
         estimatedCompletionTime: 600,
         status: 'active',
         certificationCategoryId: webId,
-        learnerLevel: 'All Levels',
+        learnerLevel: 'Beginner',
         version: createDate,
         skills: ['web development', 'Javascript', 'APIs'],
         stripeProductId: 'prod_MzAGVmH4YG42lA'
@@ -34,7 +34,7 @@ module.exports = {
         estimatedCompletionTime: 600,
         status: 'active',
         certificationCategoryId: dataSciId,
-        learnerLevel: 'All Levels',
+        learnerLevel: 'Beginner',
         version: createDate,
         skills: ['data structures', 'machine learning', 'AI'],
         stripeProductId: 'prod_MyBDpJ53eSVYRr'

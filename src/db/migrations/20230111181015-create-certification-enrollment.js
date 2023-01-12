@@ -2,48 +2,33 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('FccModules', {
+    await queryInterface.createTable('CertificationEnrollments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fccCourseId: {
+      topcoderCertificationId: {
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: 'FccCourses',
+            tableName: 'TopcoderCertification',
             schema: 'public'
           },
           key: 'id'
-        }
+        },
       },
-      key: {
-        type: Sequelize.STRING,
+      userId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      dashedName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      estimatedCompletionTimeValue: {
-        type: Sequelize.INTEGER
-      },
-      estimatedCompletionTimeUnits: {
+      userHandle: {
         type: Sequelize.STRING
       },
-      introCopy: {
-        type: Sequelize.ARRAY(Sequelize.STRING)
-      },
-      isAssessment: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+      status: {
+        type: Sequelize.ENUM("enrolled", "disenrolled", "completed"),
+        defaultValue: "enrolled",
       },
       createdAt: {
         allowNull: false,
@@ -52,10 +37,16 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      completedAt: {
+        type: Sequelize.DATE
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('FccModules');
+    return Promise.all([
+      queryInterface.dropTable('CertificationEnrollments'),
+      queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_CertificationEnrollment_status";'),
+    ])
   }
 };

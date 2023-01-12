@@ -46,7 +46,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     learnerLevel: {
       type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
-      allowNull: false
+      allowNull: false,
+      defaultValue: "Beginner"
     },
     version: {
       type: DataTypes.DATE,

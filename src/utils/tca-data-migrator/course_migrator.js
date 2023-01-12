@@ -11,6 +11,11 @@ const FCC_PROVIDER_NAME = 'freeCodeCamp';
 let certCategories;
 let fccCerts;
 
+/**
+ * This function loads all of the freeCodeCamp certifications, courses,
+ * modules, and lessons from DynamoDB into Postgres. It assumes the database
+ * is empty when it runs and does not check for existing data.
+ */
 async function migrate() {
     let certs = await migrateCertifications();
     let courses = await migrateCourses();
@@ -127,11 +132,11 @@ function buildCourseAttrs(tcaCourse) {
     }
 
     const courseAttrs = {
-        id: tcaCourse.id,
+        fccCourseUuid: tcaCourse.id,
+        providerId: fccResourceProvider.id,
         key: tcaCourse.key,
         title: tcaCourse.title,
         certificationId: cert.id,
-        providerId: fccResourceProvider.id,
         modules: buildModulesAttrs(tcaCourse.modules),
         estimatedCompletionTimeValue: tcaCourse.estimatedCompletionTime.value,
         estimatedCompletionTimeUnits: tcaCourse.estimatedCompletionTime.units,

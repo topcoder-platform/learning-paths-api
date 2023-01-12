@@ -2,45 +2,42 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('FccModuleProgresses', {
+    await queryInterface.createTable('CertificationResourceProgresses', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      module: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      fccCourseProgressId: {
+      certificationEnrollmentId: {
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: 'FccCourseProgresses',
+            tableName: 'CertificationEnrollments',
             schema: 'public'
           },
           key: 'id'
         },
       },
-      moduleStatus: {
+      certificationResourceId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'CertificationResource',
+            schema: 'public'
+          },
+          key: 'id'
+        },
+      },
+      status: {
         type: Sequelize.ENUM("not-started", "in-progress", "completed"),
         defaultValue: "not-started",
       },
-      lessonCount: {
+      resourceProgressId: {
         type: Sequelize.INTEGER
       },
-      isAssessment: {
-        type: Sequelize.BOOLEAN
-      },
-      startDate: {
-        type: Sequelize.DATE
-      },
-      lastInteractionDate: {
-        type: Sequelize.DATE
-      },
-      completedDate: {
-        type: Sequelize.DATE
+      resourceProgressType: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -54,8 +51,8 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
     return Promise.all([
-      queryInterface.dropTable('FccModuleProgresses'),
-      queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_FccModuleProgresses_moduleStatus";'),
+      queryInterface.dropTable('CertificationResourceProgresses'),
+      queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_CertificationResourceProgresses_status";'),
     ])
   }
 };

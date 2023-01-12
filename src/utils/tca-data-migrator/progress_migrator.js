@@ -55,7 +55,7 @@ async function createCourseProgresses(progresses) {
     const newProgresses = await db.FccCourseProgress.bulkCreate(progresses, {
         include: [{
             model: db.FccModuleProgress,
-            as: 'modules',
+            as: 'moduleProgresses',
             include: [{
                 model: db.FccCompletedLesson,
                 as: 'completedLessons'
@@ -70,7 +70,7 @@ function buildCourseProgressAttrs(tcaProgress, fccProviderId, fccCourses) {
     const progressCourseId = tcaProgress.courseId;
     const progressCourseKey = tcaProgress.courseKey;
 
-    const fccCourse = fccCourses.find(course => course.id == progressCourseId)
+    const fccCourse = fccCourses.find(course => course.fccCourseUuid == progressCourseId)
 
     if (!fccCourse) {
         console.error(`-- Could not find FccCourse ${progressCourseKey}, ID ${progressCourseId} for user ${tcaProgress.userId}`);
@@ -80,24 +80,22 @@ function buildCourseProgressAttrs(tcaProgress, fccProviderId, fccCourses) {
     }
 
     const courseProgressAttrs = {
-        fccProgressId: tcaProgress.id,
-        userId: tcaProgress.userId,
+        fccCertProgressUuid: tcaProgress.id,
         fccCourseId: fccCourse.id,
+        userId: tcaProgress.userId,
         certification: tcaProgress.certification,
         certificationId: tcaProgress.certificationId,
         certificationTitle: tcaProgress.certificationTitle,
         certificationTrackType: tcaProgress.certificationTrackType,
         certType: tcaProgress.certType,
         courseKey: tcaProgress.courseKey,
-        fccCourseId: tcaProgress.courseId,
-        providerId: fccProviderId,
         status: tcaProgress.status,
         startDate: tcaProgress.startDate,
         completedDate: tcaProgress.completedDate,
         academicHonestyPolicyAcceptedAt: tcaProgress.academicHonestyPolicyAcceptedAt,
         currentLesson: tcaProgress.currentLesson,
         certificationImageUrl: tcaProgress.certificationImageUrl,
-        modules: buildModuleProgressAttrs(tcaProgress.modules),
+        moduleProgresses: buildModuleProgressAttrs(tcaProgress.modules),
         createdAt: tcaProgress.createdAt,
         updatedAt: tcaProgress.updatedAt
     }

@@ -3,7 +3,6 @@
  */
 
 const db = require('../db/models')
-const ACTIVE_STATES = ['active', 'coming-soon'];
 const DEFAULT_PAGE_LIMIT = 10
 
 /**

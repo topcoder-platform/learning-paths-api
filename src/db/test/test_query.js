@@ -2,6 +2,6 @@
 const db = require('../models');
 
 (async () => {
-    const providers = await db.ResourceProvider.findAll();
-    console.log("All providers:", JSON.stringify(providers, null, 2));
+    const results = await db.CertificationEnrollment.findAll();
+    console.log(JSON.stringify(results, null, 2));
 })();

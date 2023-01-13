@@ -1,13 +1,17 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class FccCourseProgress extends Model {
+  class FccCertificationProgress extends Model {
     static associate(models) {
       this.hasMany(models.FccModuleProgress, {
         as: 'moduleProgresses',
-        foreignKey: 'fccCourseProgressId'
+        foreignKey: 'fccCertificationProgressId'
+      });
+
+      this.belongsTo(models.FreeCodeCampCertification, {
+        foreignKey: 'fccCertificationId'
       });
 
       this.belongsTo(models.FccCourse, {
@@ -15,23 +19,27 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.hasOne(models.CertificationResourceProgress, {
-        as: 'FccCourseProgress',
+        as: 'FccCertificationProgress',
         foreignKey: 'id',
         constraints: false,
         scope: {
-          resourceableType: 'FccCourseProgress',
+          resourceableType: 'FccCertificationProgress',
         }
       });
     }
   }
-  FccCourseProgress.init({
+  FccCertificationProgress.init({
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
-    fccCertProgressUuid: {
+    fccCertificationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    certProgressDynamoUuid: {
       type: DataTypes.UUID,
     },
     fccCourseId: {
@@ -66,8 +74,8 @@ module.exports = (sequelize, DataTypes) => {
     certificationImageUrl: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'FccCourseProgress',
-    tableName: 'FccCourseProgresses',
+    modelName: 'FccCertificationProgress',
+    tableName: 'FccCertificationProgresses',
   });
-  return FccCourseProgress;
+  return FccCertificationProgress;
 };

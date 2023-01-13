@@ -5,8 +5,9 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class FccModuleProgress extends Model {
     static associate(models) {
-      this.belongsTo(models.FccCourseProgress, {
-        foreignKey: 'fccCourseProgressId'
+      this.belongsTo(models.FccCertificationProgress, {
+        as: 'certificationProgress',
+        foreignKey: 'fccCertificationProgressId'
       });
 
       this.hasMany(models.FccCompletedLesson, {
@@ -26,11 +27,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    fccCourseProgressId: {
+    fccCertificationProgressId: {
       type: DataTypes.INTEGER,
       references: {
         model: {
-          tableName: 'FccCourseProgress',
+          tableName: 'FccCertificationProgresses',
           schema: 'public'
         },
         key: 'id'

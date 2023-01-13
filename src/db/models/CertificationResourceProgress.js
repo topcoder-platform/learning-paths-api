@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'certificationEnrollmentId'
       });
 
-      this.belongsTo(models.FccCourseProgress, {
-        as: 'fccCourseProgress',
+      this.belongsTo(models.FccCertificationProgress, {
+        as: 'fccCertificationProgress',
         foreignKey: 'resourceProgressId',
         constraints: false,
       });

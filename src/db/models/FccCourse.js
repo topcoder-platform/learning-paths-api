@@ -21,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'certificationId'
       });
 
-      this.hasMany(models.FccCourseProgress, {
-        as: 'courseProgresses',
-        foreignKey: 'fccCourseId'
-      });
+      this.hasMany(models.FccCertificationProgress, {
+        foreignKey: 'fccCourseId',
+        as: 'certificationProgresses'
+      })
     }
   }
   FccCourse.init({

@@ -11,20 +11,21 @@ async function migrateProgresses() {
     let progresses = [];
     try {
         const fccProviderId = await getFccProviderId();
+        const fccCertifications = await getFccCertifications();
         const fccCourses = await getFccCourses();
         const certProgresses = await getTcaDynamoCertProgresses();
 
         if (certProgresses && certProgresses.length > 0) {
             console.log(`** Got ${certProgresses.length} DynamoDB CertificationProgress documents`);
             for (let tcaProgress of certProgresses) {
-                const progress = buildCourseProgressAttrs(tcaProgress, fccProviderId, fccCourses);
+                const progress = buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses);
 
                 if (progress) {
                     progresses.push(progress);
                 }
             }
-            console.log(`** Bulk inserting ${progresses.length} Postgres FccCourseProgress records`)
-            newProgresses = await createCourseProgresses(progresses);
+            console.log(`** Bulk inserting ${progresses.length} Postgres FccCertificationProgress records`)
+            newProgresses = await createCertificationProgresses(progresses);
         }
     } catch (error) {
         console.error(error);
@@ -42,6 +43,15 @@ async function getFccProviderId() {
     return fccProvider.id;
 }
 
+async function getFccCertifications() {
+    const fccCerts = await db.FreeCodeCampCertification.findAll();
+    if (!fccCerts || fccCerts.length == 0) {
+        throw "Could not retrieve FreeCodeCampCertifications"
+    }
+
+    return fccCerts;
+}
+
 async function getFccCourses() {
     const fccCourses = await db.FccCourse.findAll();
     if (!fccCourses || fccCourses.length == 0) {
@@ -51,8 +61,8 @@ async function getFccCourses() {
     return fccCourses;
 }
 
-async function createCourseProgresses(progresses) {
-    const newProgresses = await db.FccCourseProgress.bulkCreate(progresses, {
+async function createCertificationProgresses(progresses) {
+    const newProgresses = await db.FccCertificationProgress.bulkCreate(progresses, {
         include: [{
             model: db.FccModuleProgress,
             as: 'moduleProgresses',
@@ -66,21 +76,32 @@ async function createCourseProgresses(progresses) {
     return newProgresses;
 }
 
-function buildCourseProgressAttrs(tcaProgress, fccProviderId, fccCourses) {
+function buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses) {
+    const progressCertId = tcaProgress.certificationId;
+    const progressCertification = tcaProgress.certification;
     const progressCourseId = tcaProgress.courseId;
     const progressCourseKey = tcaProgress.courseKey;
 
+    const fccCert = fccCertifications.find(cert => cert.fccId == progressCertId)
     const fccCourse = fccCourses.find(course => course.fccCourseUuid == progressCourseId)
+
+    // check that we have a matching FCC certification and course in the database,
+    // bailout if not.
+    if (!fccCert) {
+        console.error(`-- Could not find FreeCodeCampCertification ${progressCertification}, ID ${progressCertId} for user ${tcaProgress.userId}`);
+        return undefined;
+    } else {
+        console.log(`** Processing certification ${progressCertification} for user ${tcaProgress.userId}`)
+    }
 
     if (!fccCourse) {
         console.error(`-- Could not find FccCourse ${progressCourseKey}, ID ${progressCourseId} for user ${tcaProgress.userId}`);
         return undefined;
-    } else {
-        console.log(`** Processing course ${progressCourseKey} for user ${tcaProgress.userId}`)
     }
 
-    const courseProgressAttrs = {
-        fccCertProgressUuid: tcaProgress.id,
+    const certProgressAttrs = {
+        fccCertificationId: fccCert.id,
+        certProgressDynamoUuid: tcaProgress.id,
         fccCourseId: fccCourse.id,
         userId: tcaProgress.userId,
         certification: tcaProgress.certification,
@@ -100,7 +121,7 @@ function buildCourseProgressAttrs(tcaProgress, fccProviderId, fccCourses) {
         updatedAt: tcaProgress.updatedAt
     }
 
-    return courseProgressAttrs;
+    return certProgressAttrs;
 }
 
 function buildModuleProgressAttrs(tcaModuleProgresses) {

@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'topcoderCertificationId'
       });
 
+      this.belongsTo(models.ResourceProvider, {
+        as: 'ResourceProvider',
+        foreignKey: 'resourceProviderId'
+      });
+
       this.belongsTo(models.FreeCodeCampCertification, {
         as: 'FreeCodeCampCertification',
         foreignKey: 'resourceableId',
@@ -54,10 +59,6 @@ module.exports = (sequelize, DataTypes) => {
     resourceProviderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'ResourceProvider',
-        key: 'id'
-      }
     },
     resourceableId: {
       type: DataTypes.INTEGER,

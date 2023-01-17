@@ -163,6 +163,12 @@ module.exports = {
       method: 'getCertification'
     }
   },
+  '/learning-paths/certification-enrollment/:id': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollment'
+    },
+  },
   /**
    * Stripe related endpoints
    */

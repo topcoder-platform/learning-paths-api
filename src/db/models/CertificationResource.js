@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsTo(models.FreeCodeCampCertification, {
-        as: 'FreeCodeCampCertification',
+        as: 'freeCodeCampCertification',
         foreignKey: 'resourceableId',
         constraints: false,
       });

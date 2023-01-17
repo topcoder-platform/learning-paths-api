@@ -26,7 +26,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    status: DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM("not-started", "in-progress", "completed"),
+      defaultValue: "not-started",
+    },
     resourceProgressId: DataTypes.INTEGER,
     resourceProgressType: DataTypes.STRING
   }, {

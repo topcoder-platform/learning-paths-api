@@ -8,10 +8,14 @@ module.exports = {
       {
         category: 'Web Development',
         track: 'DEV',
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         category: 'Data Science',
         track: 'DATASCIENCE',
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
     ], {});
   },

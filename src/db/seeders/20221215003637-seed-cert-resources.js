@@ -32,7 +32,9 @@ module.exports = {
         resourceableId: webCertId,
         resourceTitle: 'Responsive Web Design',
         resourceDescription: 'The fundamentals of responsive web design',
-        displayOrder: 0
+        displayOrder: 0,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         resourceProviderId: providerId,
@@ -41,7 +43,9 @@ module.exports = {
         resourceableId: algoCertId,
         resourceTitle: 'Javascript Algorithms and Data Structures',
         resourceDescription: 'Algorithms and data structures in Javascript for backend code',
-        displayOrder: 1
+        displayOrder: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }],
       {});
   },

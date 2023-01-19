@@ -1,6 +1,7 @@
 'use strict';
 
 const { Model } = require('sequelize');
+const FccLesson = require('./FccLesson')
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
@@ -50,24 +51,52 @@ module.exports = (sequelize, DataTypes) => {
         certType: fccCertification.certType,
         certificationTrackType: certCategory.track,
         status: 'not-started',
+        moduleProgresses: await this.buildModuleProgresses(course)
       }
 
-      const certProgress = await this.create(progressAttrs);
-      await certProgress.buildModuleProgress();
+      // Using Sequelize's model +create+ method with an embedded 
+      // association. Since we refer to the association by the 
+      // alias 'moduleProgresses' we have to add the +include+
+      // below.
+      const certProgress = await this.create(progressAttrs,
+        {
+          include: [{
+            model: sequelize.model('FccModuleProgress'),
+            as: 'moduleProgresses'
+          }]
+        });
 
       return certProgress
     }
 
     /**
      * Builds the collection of FccModuleProgress records for a
-     * certification progress object.
+     * certification progress object so they can be created all 
+     * at once.
      */
-    async buildModuleProgress() {
-      const cert = await this.getFreeCodeCampCertification();
-      const course = await cert.getCourse();
-      const modules = await course.getModules();
+    static async buildModuleProgresses(course) {
+      // including FccLesson so we can get the lesson count in 
+      // one query instead of n queries
+      const modules = await course.getModules({
+        include: {
+          model: sequelize.model('FccLesson'),
+          as: 'lessons',
+          attributes: ['id']
+        }
+      });
 
-      console.log('modules', modules);
+      const moduleProgressAttrs = []
+      for (const module of modules) {
+        const progressAttrs = {
+          module: module.key,
+          moduleStatus: 'not-started',
+          lessonCount: module.lessons.length,
+          isAssessment: module.isAssessment,
+        }
+        moduleProgressAttrs.push(progressAttrs)
+      }
+
+      return moduleProgressAttrs
     }
   }
 

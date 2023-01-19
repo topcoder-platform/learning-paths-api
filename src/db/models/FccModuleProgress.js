@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     moduleStatus: {
-      type: DataTypes.ENUM("in-progress", "completed"),
+      type: DataTypes.ENUM("not-started", "in-progress", "completed"),
       allowNull: false,
       defaultValue: "in-progress",
     },

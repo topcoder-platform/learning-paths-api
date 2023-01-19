@@ -26,7 +26,11 @@ module.exports = {
         learnerLevel: 'Beginner',
         version: createDate,
         skills: ['web development', 'Javascript', 'APIs'],
-        stripeProductId: 'prod_MzAGVmH4YG42lA'
+        stripeProductId: 'prod_MzAGVmH4YG42lA',
+        learningOutcomes: ['learningOutcomes'],
+        prerequisites: ['prerequisites1'],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         title: 'Data Science Certification',
@@ -37,7 +41,11 @@ module.exports = {
         learnerLevel: 'Beginner',
         version: createDate,
         skills: ['data structures', 'machine learning', 'AI'],
-        stripeProductId: 'prod_MyBDpJ53eSVYRr'
+        stripeProductId: 'prod_MyBDpJ53eSVYRr',
+        learningOutcomes: ['learningOutcomes'],
+        prerequisites: ['prerequisites1'],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
     ], {});
   },

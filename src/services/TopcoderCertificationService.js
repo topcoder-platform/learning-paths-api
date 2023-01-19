@@ -14,27 +14,31 @@ const DEFAULT_PAGE_LIMIT = 10
 async function searchCertifications(query = {}) {
 
     const dbQuery = {
-        include:
-        {
-            model: db.CertificationResource,
-            as: 'certificationResources',
-            include: [
-                {
-                    model: db.FreeCodeCampCertification,
-                    as: 'FreeCodeCampCertification'
-                },
+        include: [
+            {
+                model: db.CertificationResource,
+                as: 'certificationResources',
+                include: [
+                    {
+                        model: db.FreeCodeCampCertification,
+                        as: 'FreeCodeCampCertification'
+                    },
 
-                // TODO: leaving this here as an example of how we will 
-                // need to handle the polymorphic association between resources
-                // and the underlying course data. We are only currently 
-                // using FreeCodeCamp certifications.
+                    // TODO: leaving this here as an example of how we will 
+                    // need to handle the polymorphic association between resources
+                    // and the underlying course data. We are only currently 
+                    // using FreeCodeCamp certifications.
 
-                // {
-                //     model: db.TopcoderUdemyCourse,
-                //     as: 'TopcoderUdemyCourse'
-                // }
-            ]
-        },
+                    // {
+                    //     model: db.TopcoderUdemyCourse,
+                    //     as: 'TopcoderUdemyCourse'
+                    // }
+                ]
+            },
+            {
+                model: db.CertificationCategory,
+                as: 'certificationCategory'
+            },],
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [

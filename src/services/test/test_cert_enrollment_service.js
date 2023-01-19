@@ -5,6 +5,5 @@ const service = require('../CertificationEnrollmentService');
     const userId = '88778750';
     const certificationId = 14;
 
-    const enrollment = await service.enrollUser(userId, certificationId);
-    console.log('enrollment', enrollment);
+    const attrs = await service.buildEnrollmentProgressAttrs(userId, certificationId);
 })();

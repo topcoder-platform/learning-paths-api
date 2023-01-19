@@ -4,6 +4,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
+
     static associate(models) {
       this.hasMany(models.FccModuleProgress, {
         as: 'moduleProgresses',
@@ -27,7 +28,49 @@ module.exports = (sequelize, DataTypes) => {
         }
       });
     }
+
+    /**
+     * Builds a fully-formed certification progress record from an existing 
+     * FCC Certification.
+     * 
+     * @param {Object} certification a FreeCodeCampCertification object
+     */
+    static async buildFromCertification(userId, fccCertification) {
+      const certCategory = await fccCertification.getCertificationCategory();
+      const course = await fccCertification.getCourse();
+
+      let progressAttrs = {
+        fccCertificationId: fccCertification.id,
+        userId: userId,
+        fccCourseId: course.id,
+        courseKey: course.key,
+        certification: fccCertification.certification,
+        certificationId: fccCertification.fccId,
+        certificationTitle: fccCertification.title,
+        certType: fccCertification.certType,
+        certificationTrackType: certCategory.track,
+        status: 'not-started',
+      }
+
+      const certProgress = await this.create(progressAttrs);
+      await certProgress.buildModuleProgress();
+
+      return certProgress
+    }
+
+    /**
+     * Builds the collection of FccModuleProgress records for a
+     * certification progress object.
+     */
+    async buildModuleProgress() {
+      const cert = await this.getFreeCodeCampCertification();
+      const course = await cert.getCourse();
+      const modules = await course.getModules();
+
+      console.log('modules', modules);
+    }
   }
+
   FccCertificationProgress.init({
     id: {
       type: DataTypes.INTEGER,
@@ -60,12 +103,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("in-progress", "completed"),
+      type: DataTypes.ENUM("not-started", "in-progress", "completed"),
       allowNull: false,
     },
     startDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     lastInteractionDate: DataTypes.DATE,
     completedDate: DataTypes.DATE,
@@ -77,5 +120,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'FccCertificationProgress',
     tableName: 'FccCertificationProgresses',
   });
+
   return FccCertificationProgress;
 };

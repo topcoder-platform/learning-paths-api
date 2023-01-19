@@ -58,12 +58,12 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("in-progress", "completed"),
+        type: Sequelize.ENUM("not-started", "in-progress", "completed"),
         allowNull: false,
       },
       startDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       lastInteractionDate: {
         type: Sequelize.DATE

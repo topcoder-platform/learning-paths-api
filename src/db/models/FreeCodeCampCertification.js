@@ -71,7 +71,12 @@ module.exports = (sequelize, DataTypes) => {
     publishedAt: {
       type: DataTypes.DATE,
       allowNull: false
-    }
+    },
+    learnerLevel: {
+      type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
+      allowNull: false,
+      defaultValue: "Beginner"
+    },
   }, {
     sequelize,
     tableName: 'FreeCodeCampCertification',

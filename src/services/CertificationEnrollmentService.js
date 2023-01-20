@@ -12,7 +12,6 @@ const db = require('../db/models');
 async function enrollUser(userId, certificationId) {
 
     const existingEnrollment = await getExistingEnrollment(userId, certificationId);
-    // console.log('existingEnrollment', existingEnrollment);
 
     if (existingEnrollment != null) {
         const certification = existingEnrollment.topcoderCertification;
@@ -58,17 +57,32 @@ async function getEnrollmentById(id) {
     return await db.CertificationEnrollment.findByPk(id, options);
 }
 
-async function createCertificationEnrollment(certificationId, userId, userHandle = null) {
-
+/**
+ * Enrolls a user in a certification, creating all of the necessary progress tracking 
+ * records in the process.
+ * 
+ * @param {Integer} certificationId the ID of the certification in which the user is enrolling
+ * @param {String} userId the ID of the user who's enrolling
+ * @param {String} userHandle optional handle of the enrolling user, if we have it (to make 
+ *                 finding their info in the DB easier)
+ * @returns the completed CertificationEnrollment object
+ */
+async function createCertificationEnrollment(userId, certificationId, userHandle = null) {
     const enrollmentAttrs = {
         topcoderCertificationId: certificationId,
         userId: userId,
         userHandle: userHandle,
-        resourceProgresses: buildEnrollmentProgressAttrs(userId, certificationId)
+        resourceProgresses: await buildEnrollmentProgressAttrs(userId, certificationId)
     }
 
     try {
-        const enrollment = db.CertificationEnrollment.create(enrollmentAttrs);
+        const enrollment = db.CertificationEnrollment.create(enrollmentAttrs,
+            {
+                include: [{
+                    model: db.CertificationResourceProgress,
+                    as: 'resourceProgresses'
+                }]
+            });
         return enrollment;
     } catch (error) {
         console.error("Error creating certification enrollment", error);
@@ -76,10 +90,31 @@ async function createCertificationEnrollment(certificationId, userId, userHandle
     }
 }
 
+/**
+ * Builds the attributes to track a user's enrollment and progress in a Topcoder 
+ * Certification. 
+ * 
+ * @param {String} userId the ID of the user who's enrolling in the certification
+ * @param {Integer} certificationId the ID of the certification in which they're enrolling
+ */
 async function buildEnrollmentProgressAttrs(userId, certificationId) {
-    // Get the Certification info and the resources it contains, along with 
-    // any existing progress records (the user could have already completed 
-    // one or more of the courses or be in-progress in them)
+    const certification = await getCertificationEnrollmentDetails(userId, certificationId);
+
+    const resourceProgresses = await buildCertResourceProgressAttrs(userId, certification);
+
+    return resourceProgresses;
+}
+
+/**
+ * Get the Certification info and the resources it contains, along with 
+ * any existing progress records (the user could have already completed 
+ * one or more of the courses or be in-progress in them).
+ * 
+ * @param {String} userId the ID of the user who's enrolling
+ * @param {Integer} certificationId the ID of the certification in which they're enrolling
+ * @returns the TopcoderCertification object with associated FCC certs and user progress
+ */
+async function getCertificationEnrollmentDetails(userId, certificationId) {
     const certification = await db.TopcoderCertification.findByPk(certificationId, {
         include: {
             model: db.CertificationResource,
@@ -90,8 +125,9 @@ async function buildEnrollmentProgressAttrs(userId, certificationId) {
                 include: {
                     model: db.FccCertificationProgress,
                     as: 'certificationProgresses',
-                    // NOTE: +required: false+ below is needed here, otherwise the freeCodeCampCertification
-                    // won't be returned if the user doesn't have a progress record for it.
+                    // NOTE: +required: false+ below is needed here, otherwise the 
+                    // freeCodeCampCertification won't be returned if the user 
+                    // doesn't have a progress record for it.
                     required: false,
                     where: {
                         userId: userId
@@ -100,47 +136,49 @@ async function buildEnrollmentProgressAttrs(userId, certificationId) {
             }
         }
     })
-    // console.log('certification', JSON.stringify(certification, null, 2));
 
-    // Build the collection of CertificationResourceProgress objects that 
-    // will track the user's progress in this certification. For each resource
-    // in the Certification, link to the existing progress records (if any) and 
-    // create new progress records for any resources the user hasn't already 
-    // started or completed.
+    return certification;
+}
+
+/**
+ *  Build the collection of CertificationResourceProgress objects that 
+ *  will track the user's progress in this certification. For each resource
+ *  in the Certification, link to the existing progress records (if any) and 
+ *  create new progress records for any resources the user hasn't already 
+ *  started or completed.
+ * 
+ * @param {Object} certification the Topcoder Certification for which progress
+ *      records are being constructed.
+ * @returns {Object} an object containing all the CertificationReourceProgress attributes
+ */
+async function buildCertResourceProgressAttrs(userId, certification) {
     let resourceProgresses = [];
+
     for (const resource of certification.certificationResources) {
         const fccCert = resource.freeCodeCampCertification
-        const fccProgress = _.first(fccCert?.certificationProgresses)
+        let fccProgress = _.first(fccCert?.certificationProgresses)
+
+        // if a progress record doesn't exist it means the user hasn't 
+        // started this course yet, so enroll them in it by creating a
+        // progress record.
+        if (!fccProgress) {
+            fccProgress = await createProgressRecord(userId, fccCert)
+        }
 
         const resourceProgress = {
-            fccCertification: fccCert,
             certificationResourceId: resource.id,
-            resourceProgressId: fccProgress ? fccProgress.id : null,
-            resourceProgressType: fccProgress ? fccProgress.constructor.name : null,
+            resourceProgressId: fccProgress.id,
+            resourceProgressType: fccProgress.constructor.name
         }
 
         resourceProgresses.push(resourceProgress);
     }
 
-    // For each certification resource, check to see if an existing progress
-    // record exists, meaning the user has already enrolled in or completed 
-    // the associated course. If not, create the progress record by enrolling
-    // them in the course.
-    for (const resourceProgress of resourceProgresses) {
-        if (resourceNeedsProgressRecord(resourceProgress)) {
-            createProgressRecord(userId, resourceProgress)
-        }
-    }
-    // console.log('resourceProgresses', resourceProgresses);
+    return resourceProgresses;
 }
 
-function resourceNeedsProgressRecord(progress) {
-    return (progress.resourceProgressId === null)
-}
-
-async function createProgressRecord(userId, resourceProgress) {
-    const fccCert = resourceProgress.fccCertification
-    const newProgress = db.FccCertificationProgress.buildFromCertification(fccCert);
+async function createProgressRecord(userId, fccCertification) {
+    return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
 }
 
 module.exports = {

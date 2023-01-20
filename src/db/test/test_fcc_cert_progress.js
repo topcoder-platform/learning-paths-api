@@ -2,7 +2,8 @@
 const db = require('../models');
 
 (async () => {
-    const userId = Math.floor(Math.random() * 10000000); // '88778750';
+    // creating a bogus user ID for testing
+    const userId = Math.floor(Math.random() * 10000000);
     const options = {
         where: {
             certification: 'responsive-web-design'

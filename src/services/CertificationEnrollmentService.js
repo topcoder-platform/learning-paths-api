@@ -40,6 +40,17 @@ async function getExistingEnrollment(userId, certificationId) {
     return await getEnrollment(options)
 }
 
+async function unenrollUser(userId, certificationId) {
+    let result = null;
+    const enrollment = await getExistingEnrollment(userId, certificationId);
+    if (enrollment) {
+        // await enrollment.removeResourceProgresses()
+        result = await enrollment.destroy()
+    }
+
+    return result;
+}
+
 async function getEnrollment(options = {}) {
     const enrollment = await db.CertificationEnrollment.findOne(options);
 
@@ -186,5 +197,6 @@ module.exports = {
     createCertificationEnrollment,
     enrollUser,
     getEnrollment,
-    getEnrollmentById
+    getEnrollmentById,
+    unenrollUser
 }

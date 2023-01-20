@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
 
       this.hasMany(models.CertificationResourceProgress, {
         as: 'resourceProgresses',
-        foreignKey: 'certificationEnrollmentId'
+        foreignKey: 'certificationEnrollmentId',
+        onDelete: 'CASCADE'
       });
     }
   }

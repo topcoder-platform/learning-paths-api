@@ -38,9 +38,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(200),
       allowNull: false
     },
+    dashedName: {
+      type: DataTypes.STRING,
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    introText: {
+      type: DataTypes.TEXT,
     },
     estimatedCompletionTime: {
       type: DataTypes.INTEGER,

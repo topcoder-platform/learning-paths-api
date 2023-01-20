@@ -21,9 +21,8 @@ async function searchCertifications(query = {}) {
                 include: [
                     {
                         model: db.FreeCodeCampCertification,
-                        as: 'FreeCodeCampCertification'
+                        as: 'freeCodeCampCertification'
                     },
-
                     // TODO: leaving this here as an example of how we will 
                     // need to handle the polymorphic association between resources
                     // and the underlying course data. We are only currently 
@@ -33,12 +32,16 @@ async function searchCertifications(query = {}) {
                     //     model: db.TopcoderUdemyCourse,
                     //     as: 'TopcoderUdemyCourse'
                     // }
-                ]
+                ],
             },
             {
                 model: db.CertificationCategory,
                 as: 'certificationCategory'
-            },],
+            },
+            {
+                model: db.ResourceProvider,
+                as: 'resourceProviders',
+            }],
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [

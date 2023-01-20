@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsTo(models.ResourceProvider, {
-        as: 'ResourceProvider',
+        as: 'resourceProvider',
         foreignKey: 'resourceProviderId'
       });
 

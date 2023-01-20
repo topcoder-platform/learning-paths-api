@@ -8,6 +8,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'topcoderCertificationId'
       });
 
+      this.belongsToMany(models.ResourceProvider, {
+        through: models.CertificationResource,
+        as: 'resourceProviders',
+        foreignKey: 'topcoderCertificationId',
+        otherKey: 'resourceProviderId'
+      })
+
       this.belongsTo(models.CertificationCategory, {
         as: 'certificationCategory',
         foreignKey: 'certificationCategoryId'
@@ -31,9 +38,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(200),
       allowNull: false
     },
+    dashedName: {
+      type: DataTypes.STRING,
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    introText: {
+      type: DataTypes.TEXT,
     },
     estimatedCompletionTime: {
       type: DataTypes.INTEGER,
@@ -82,6 +95,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
+    coursesCount: {
+      type: DataTypes.VIRTUAL,
+    },
+    providers: {
+      type: DataTypes.VIRTUAL,
+    }
   }, {
     sequelize,
     tableName: 'TopcoderCertification',
@@ -103,6 +122,21 @@ module.exports = (sequelize, DataTypes) => {
         ]
       },
     ]
+  });
+
+  // add computed (virtual) attributes
+  TopcoderCertification.addHook("afterFind", findResult => {
+    if (!Array.isArray(findResult)) findResult = [findResult];
+
+    for (const instance of findResult) {
+      instance.coursesCount = instance.certificationResources.length
+      // just returning a subset of the ResourceProvider attributes from the
+      // hasMany :through association. Can't seem to find a way to remove 
+      // the +resourceProviders+ attribute, so just ignore it.
+      instance.providers = instance.resourceProviders.map(provider => {
+        return (({ id, name, description, url }) => ({ id, name, description, url }))(provider)
+      })
+    }
   });
 
   return TopcoderCertification

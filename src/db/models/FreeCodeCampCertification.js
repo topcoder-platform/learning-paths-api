@@ -3,9 +3,14 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FreeCodeCampCertification extends Model {
     static associate(models) {
-      this.hasOne(models.CertificationResource, {
-        as: 'FreeCodeCampCertification',
-        foreignKey: 'id',
+      this.hasOne(models.FccCourse, {
+        as: 'course',
+        foreignKey: 'certificationId'
+      });
+
+      this.hasMany(models.CertificationResource, {
+        as: 'certificationResources',
+        foreignKey: 'resourceableId',
         constraints: false,
         scope: {
           resourceableType: 'FreeCodeCampCertification',
@@ -16,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'certificationCategory',
         foreignKey: 'certificationCategoryId'
       });
+
+      this.hasMany(models.FccCertificationProgress, {
+        as: 'certificationProgresses',
+        foreignKey: 'fccCertificationId',
+      })
     }
   }
 
@@ -58,10 +68,6 @@ module.exports = (sequelize, DataTypes) => {
     certificationCategoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'CertificationCategory',
-        key: 'id'
-      }
     },
     certType: {
       type: DataTypes.ENUM("certification", "course-completion"),

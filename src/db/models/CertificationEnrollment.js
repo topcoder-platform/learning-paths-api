@@ -1,7 +1,9 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {
     static associate(models) {
@@ -12,11 +14,18 @@ module.exports = (sequelize, DataTypes) => {
 
       this.hasMany(models.CertificationResourceProgress, {
         as: 'resourceProgresses',
-        foreignKey: 'certificationEnrollmentId'
+        foreignKey: 'certificationEnrollmentId',
+        onDelete: 'CASCADE'
       });
     }
   }
   CertificationEnrollment.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     topcoderCertificationId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -28,9 +37,17 @@ module.exports = (sequelize, DataTypes) => {
     userHandle: {
       type: DataTypes.STRING
     },
+    status: {
+      type: DataTypes.ENUM("enrolled", "disenrolled", "completed"),
+      defaultValue: "enrolled",
+    },
+    completedAt: {
+      type: DataTypes.DATE
+    }
   }, {
     sequelize,
     modelName: 'CertificationEnrollment',
+    tableName: 'CertificationEnrollments',
   });
 
   return CertificationEnrollment;

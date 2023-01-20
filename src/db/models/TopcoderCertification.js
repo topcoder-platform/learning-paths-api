@@ -12,6 +12,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'certificationCategory',
         foreignKey: 'certificationCategoryId'
       });
+
+      this.hasMany(models.CertificationEnrollment, {
+        as: 'certificationEnrollments',
+        foreignKey: 'topcoderCertificationId'
+      });
     }
   }
 

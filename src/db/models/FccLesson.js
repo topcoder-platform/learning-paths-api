@@ -42,5 +42,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'FccLesson',
     tableName: 'FccLessons'
   });
+
   return FccLesson;
 };

@@ -1,7 +1,9 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class FccCourse extends Model {
     static associate(models) {
@@ -19,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'certificationId'
       });
 
-      this.hasMany(models.FccCourseProgress, {
-        as: 'courseProgresses',
-        foreignKey: 'fccCourseId'
-      });
+      this.hasMany(models.FccCertificationProgress, {
+        foreignKey: 'fccCourseId',
+        as: 'certificationProgresses'
+      })
     }
   }
   FccCourse.init({

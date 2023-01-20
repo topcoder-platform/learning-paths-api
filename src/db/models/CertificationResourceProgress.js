@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'certificationEnrollmentId'
       });
 
-      this.belongsTo(models.FccCourseProgress, {
-        as: 'fccCourseProgress',
+      this.belongsTo(models.FccCertificationProgress, {
+        as: 'fccCertificationProgress',
         foreignKey: 'resourceProgressId',
         constraints: false,
       });
@@ -26,12 +26,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    status: DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM("not-started", "in-progress", "completed"),
+      defaultValue: "not-started",
+    },
     resourceProgressId: DataTypes.INTEGER,
     resourceProgressType: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'CertificationResourceProgress',
+    tableName: 'CertificationResourceProgresses'
   });
   return CertificationResourceProgress;
 };

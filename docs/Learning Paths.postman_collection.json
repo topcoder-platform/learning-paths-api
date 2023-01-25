@@ -188,7 +188,7 @@
 			"response": []
 		},
 		{
-			"name": "Get All TC Certifications",
+			"name": "Get All Topcoder Certifications",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -367,7 +367,7 @@
 			]
 		},
 		{
-			"name": "Get TC Certification",
+			"name": "Get Topcoder Certification",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -891,7 +891,7 @@
 			]
 		},
 		{
-			"name": "Get Certification Enrollment",
+			"name": "Get Topcoder Certification Enrollment",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -917,6 +917,58 @@
 							"value": "3",
 							"disabled": true
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enroll in Topcoder Certification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-enrollment/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-enrollment",
+						"{{USER_ID}}",
+						"{{TOPCODER_CERTIFICATION_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unenroll from Topcoder Certification",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-enrollment/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-enrollment",
+						"{{USER_ID}}",
+						"{{TOPCODER_CERTIFICATION_ID}}"
 					]
 				}
 			},

@@ -44,8 +44,8 @@ async function unEnrollUser(userId, certificationId) {
     let enrollment = null;
     enrollment = await getExistingEnrollment(userId, certificationId);
     if (enrollment) {
-        // TODO: the DB should CASCADE DELETE these instead of 
-        // requiring this next call. Verify this.
+        // The CertificationEnrollment model is setup to CASCADE DELETE
+        // the associated CertificationProgress records automatically.
         await enrollment.destroy()
         console.log(`Unenrolled user ID ${userId} from certification ID ${certificationId}`)
     } else {

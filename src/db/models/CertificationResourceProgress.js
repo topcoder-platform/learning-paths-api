@@ -18,9 +18,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   CertificationResourceProgress.init({
+    id: {
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true
+    },
     certificationEnrollmentId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      allowNull: false,
     },
     certificationResourceId: {
       type: DataTypes.INTEGER,
@@ -35,7 +41,17 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'CertificationResourceProgress',
-    tableName: 'CertificationResourceProgresses'
+    tableName: 'CertificationResourceProgresses',
+    schema: 'public',
+    indexes: [
+      {
+        name: "CertificationResourceProgress_pkey",
+        unique: true,
+        fields: [
+          { name: "id" },
+        ]
+      },
+    ]
   });
   return CertificationResourceProgress;
 };

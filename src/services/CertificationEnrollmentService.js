@@ -15,12 +15,12 @@ async function enrollUser(userId, certificationId) {
 
     if (existingEnrollment != null) {
         const certification = existingEnrollment.topcoderCertification;
-        console.log(`User ${userId} is already enrolled in certification ${certification.title}`);
+        console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
 
         return existingEnrollment;
     }
 
-    const newEnrollment = await createCertificationEnrollment(certificationId, userId)
+    const newEnrollment = await createCertificationEnrollment(userId, certificationId)
 
     return newEnrollment;
 }
@@ -40,15 +40,19 @@ async function getExistingEnrollment(userId, certificationId) {
     return await getEnrollment(options)
 }
 
-async function unenrollUser(userId, certificationId) {
-    let result = null;
-    const enrollment = await getExistingEnrollment(userId, certificationId);
+async function unEnrollUser(userId, certificationId) {
+    let enrollment = null;
+    enrollment = await getExistingEnrollment(userId, certificationId);
     if (enrollment) {
-        // await enrollment.removeResourceProgresses()
-        result = await enrollment.destroy()
+        // TODO: the DB should CASCADE DELETE these instead of 
+        // requiring this next call. Verify this.
+        await enrollment.destroy()
+        console.log(`Unenrolled user ID ${userId} from certification ID ${certificationId}`)
+    } else {
+        console.warn(`User ID ${userId} is not enrolled in certification ID ${certificationId} -- cannot unenroll`)
     }
 
-    return result;
+    return enrollment;
 }
 
 async function getEnrollment(options = {}) {
@@ -198,5 +202,5 @@ module.exports = {
     enrollUser,
     getEnrollment,
     getEnrollmentById,
-    unenrollUser
+    unEnrollUser
 }

@@ -169,6 +169,18 @@ module.exports = {
       method: 'getEnrollment'
     },
   },
+  '/learning-paths/certification-enrollment/:userId/:certificationId': {
+    post: {
+      controller: 'CertificationEnrollmentController',
+      method: 'enrollUser',
+      // auth: 'jwt'
+    },
+    delete: {
+      controller: 'CertificationEnrollmentController',
+      method: 'unEnrollUser',
+      // auth: 'jwt'
+    },
+  },
   /**
    * Stripe related endpoints
    */

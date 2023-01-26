@@ -187,6 +187,12 @@ module.exports = {
       // auth: 'jwt',
     },
   },
+  '/learning-paths/certification-enrollment-progress/:enrollmentId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollmentProgress'
+    },
+  },
   /**
    * Stripe related endpoints
    */

@@ -36,17 +36,19 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        resourceProviderId: providerId,
-        topcoderCertificationId: certId,
-        resourceableType: 'FreeCodeCampCertification',
-        resourceableId: algoCertId,
-        resourceTitle: 'Javascript Algorithms and Data Structures',
-        resourceDescription: 'Algorithms and data structures in Javascript for backend code',
-        displayOrder: 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }],
+      // TODO: findout why duplicate pairs of `topcoderCertificationId` and `resourceProviderId` are not allowed, should they be allowed?
+      // {
+      //   resourceProviderId: providerId,
+      //   topcoderCertificationId: certId,
+      //   resourceableType: 'FreeCodeCampCertification',
+      //   resourceableId: algoCertId,
+      //   resourceTitle: 'Javascript Algorithms and Data Structures',
+      //   resourceDescription: 'Algorithms and data structures in Javascript for backend code',
+      //   displayOrder: 1,
+      //   createdAt: new Date(),
+      //   updatedAt: new Date()
+      // }
+    ],
       {});
   },
 

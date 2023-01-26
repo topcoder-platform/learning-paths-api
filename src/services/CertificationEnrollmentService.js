@@ -142,7 +142,8 @@ async function getCertificationEnrollmentDetails(userId, certificationId) {
                     as: 'certificationProgresses',
                     // NOTE: +required: false+ below is needed here, otherwise the 
                     // freeCodeCampCertification won't be returned if the user 
-                    // doesn't have a progress record for it.
+                    // doesn't have a progress record for it (meaning they haven't
+                    // started the course yet)
                     required: false,
                     where: {
                         userId: userId
@@ -175,7 +176,7 @@ async function buildCertResourceProgressAttrs(userId, certification) {
 
         // if a progress record doesn't exist it means the user hasn't 
         // started this course yet, so enroll them in it by creating a
-        // progress record.
+        // freeCodeCamp progress record.
         if (!fccProgress) {
             fccProgress = await createProgressRecord(userId, fccCert)
         }
@@ -196,11 +197,18 @@ async function createProgressRecord(userId, fccCertification) {
     return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
 }
 
+async function getEnrollmentProgress(enrollmentId) {
+    const enrollment = db.CertificationEnrollment.findByPk(enrollmentId);
+
+    return enrollment;
+}
+
 module.exports = {
     buildEnrollmentProgressAttrs,
     createCertificationEnrollment,
     enrollUser,
     getEnrollment,
     getEnrollmentById,
+    getEnrollmentProgress,
     unEnrollUser
 }

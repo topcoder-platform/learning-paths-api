@@ -48,8 +48,16 @@ async function unEnrollUser(req, res) {
     res.send(enrollment)
 }
 
+async function getEnrollmentProgress(req, res) {
+    const { enrollmentId } = req.params;
+    const progress = await service.getEnrollmentProgress(enrollmentId);
+
+    res.send(progress)
+}
+
 module.exports = {
     enrollUser,
     getEnrollment,
+    getEnrollmentProgress,
     unEnrollUser
 }

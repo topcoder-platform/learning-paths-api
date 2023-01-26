@@ -29,7 +29,13 @@ async function getEnrollment(req, res) {
  */
 async function enrollUser(req, res) {
     const { userId, certificationId } = req.params;
-    const enrollment = await service.enrollUser(userId, certificationId)
+    // check if auth user is enrolling himself
+    // or an admin is enrolling someone
+    if (userId !== req.authUser.userId && !hasTCAAdminRole(req.authUser)) {
+        throw new errors.UnauthorizedError('You are not allowed to enroll members to certifications.')
+    }
+
+    const enrollment = await service.enrollUser(userId, certificationId, req.authUser)
 
     res.send(enrollment)
 }
@@ -43,7 +49,37 @@ async function enrollUser(req, res) {
  */
 async function unEnrollUser(req, res) {
     const { userId, certificationId } = req.params;
-    const enrollment = await service.unEnrollUser(userId, certificationId)
+    // check if auth user is unenrolling himself
+    // or an admin is unenrolling someone
+    if (userId !== req.authUser.userId && !hasTCAAdminRole(req.authUser)) {
+        throw new errors.UnauthorizedError('You are not allowed to unenroll members from certifications.')
+    }
+
+    const enrollment = await service.unEnrollUser(userId, certificationId, req.authUser)
+
+    res.send(enrollment)
+}
+
+/**
+ * Get user enrollment status for a Topcoder Certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ * @returns {Object} the enrollment
+ */
+async function getUserCertEnrollment(req, res) {
+    const { userId, certificationId } = req.params;
+
+    const enrollment = await service.getEnrollment({
+        where: {
+            userId,
+            topcoderCertificationId: certificationId
+        }
+    })
+
+    if (!enrollment) {
+        throw new errors.NotFoundError(`Topcoder Certification Enrollment does not exist.`)
+    }
 
     res.send(enrollment)
 }
@@ -59,5 +95,6 @@ module.exports = {
     enrollUser,
     getEnrollment,
     getEnrollmentProgress,
-    unEnrollUser
+    getUserCertEnrollment,
+    unEnrollUser,
 }

@@ -55,6 +55,12 @@ async function unEnrollUser(userId, certificationId) {
     return enrollment;
 }
 
+/**
+ * Query TCA certification enrollments
+ * 
+ * @param {Object} options query options
+ * @returns {Object | null}
+ */
 async function getEnrollment(options = {}) {
     const enrollment = await db.CertificationEnrollment.findOne(options);
 

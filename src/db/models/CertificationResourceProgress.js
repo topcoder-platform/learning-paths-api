@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.CertificationEnrollment, {
         as: 'certificationEnrollment',
-        foreignKey: 'certificationEnrollmentId'
+        foreignKey: 'certificationEnrollmentId',
       });
 
       this.belongsTo(models.FccCertificationProgress, {
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
     },
     certificationEnrollmentId: {
       type: DataTypes.INTEGER,
@@ -31,6 +31,13 @@ module.exports = (sequelize, DataTypes) => {
     certificationResourceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: {
+          tableName: 'CertificationResource',
+          schema: 'public'
+        },
+        key: 'id'
+      },
     },
     status: {
       type: DataTypes.ENUM("not-started", "in-progress", "completed"),

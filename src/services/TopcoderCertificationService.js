@@ -70,7 +70,7 @@ async function getCertification(id) {
             include: [
                 {
                     model: db.FreeCodeCampCertification,
-                    as: 'FreeCodeCampCertification'
+                    as: 'freeCodeCampCertification'
                 },
             ]
         }

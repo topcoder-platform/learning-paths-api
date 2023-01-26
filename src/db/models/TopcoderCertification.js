@@ -126,6 +126,8 @@ module.exports = (sequelize, DataTypes) => {
 
   // add computed (virtual) attributes
   TopcoderCertification.addHook("afterFind", findResult => {
+    if (findResult === null) return;
+
     if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {

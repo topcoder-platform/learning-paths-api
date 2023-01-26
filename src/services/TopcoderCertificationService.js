@@ -64,16 +64,20 @@ async function searchCertifications(query = {}) {
  */
 async function getCertification(id) {
     const options = {
-        include: {
+        include: [{
             model: db.CertificationResource,
             as: 'certificationResources',
             include: [
                 {
                     model: db.FreeCodeCampCertification,
-                    as: 'FreeCodeCampCertification'
+                    as: 'freeCodeCampCertification'
                 },
             ]
-        }
+        },
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProviders',
+        }]
     }
 
     return db.TopcoderCertification.findByPk(id, options)

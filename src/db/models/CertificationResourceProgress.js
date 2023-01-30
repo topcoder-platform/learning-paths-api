@@ -18,9 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   CertificationResourceProgress.init({
-    certificationEnrollmentId: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+    }
+    certificationEnrollmentId: {
+      type: DataTypes.INTEGER,
     },
     certificationResourceId: {
       type: DataTypes.INTEGER,

@@ -61,18 +61,18 @@ async function unEnrollUser(req, res) {
 }
 
 /**
- * Get user enrollment status for a Topcoder Certification
+ * Get user enrollment for a Topcoder Certification
  * 
  * @param {Object} req the request
  * @param {Object} res the response
  * @returns {Object} the enrollment
  */
-async function getUserCertEnrollment(req, res) {
+async function getUserEnrollment(req, res) {
     const { userId, certificationId } = req.params;
 
     const enrollment = await service.getEnrollment({
         where: {
-            userId,
+            userId: userId,
             topcoderCertificationId: certificationId
         }
     })
@@ -84,6 +84,18 @@ async function getUserCertEnrollment(req, res) {
     res.send(enrollment)
 }
 
+async function getAllUserEnrollments(req, res) {
+    const { userId } = req.params;
+
+    const enrollments = await service.getEnrollments({
+        where: {
+            userId: userId
+        }
+    })
+
+    res.send(enrollments)
+}
+
 async function getEnrollmentProgress(req, res) {
     const { enrollmentId } = req.params;
     const progress = await service.getEnrollmentProgress(enrollmentId);
@@ -91,10 +103,19 @@ async function getEnrollmentProgress(req, res) {
     res.send(progress)
 }
 
+async function getUserEnrollmentProgresses(req, res) {
+    const { userId } = req.params;
+    const progresses = await service.getUserEnrollmentProgresses(userId)
+
+    res.send(progresses);
+}
+
 module.exports = {
     enrollUser,
+    getAllUserEnrollments,
     getEnrollment,
     getEnrollmentProgress,
-    getUserCertEnrollment,
+    getUserEnrollment,
+    getUserEnrollmentProgresses,
     unEnrollUser,
 }

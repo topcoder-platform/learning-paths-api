@@ -56,13 +56,25 @@ async function unEnrollUser(userId, certificationId) {
 }
 
 /**
- * Query TCA certification enrollments
+ * Query TCA certification enrollments for a specific enrollment
  * 
  * @param {Object} options query options
  * @returns {Object | null}
  */
 async function getEnrollment(options = {}) {
     const enrollment = await db.CertificationEnrollment.findOne(options);
+
+    return enrollment;
+}
+
+/**
+ * Query TCA certification enrollments for all matching enrollments
+ * 
+ * @param {Object} options query options
+ * @returns {Object | null}
+ */
+async function getEnrollments(options = {}) {
+    const enrollment = await db.CertificationEnrollment.findAll(options);
 
     return enrollment;
 }
@@ -209,6 +221,29 @@ async function getEnrollmentProgress(enrollmentId) {
     return enrollment;
 }
 
+/**
+ * Gets all of a user's certification enrollments.
+ * 
+ * @param {String} userId the ID of the user
+ * @returns an array of CertificationEnrollment objects along with additional nested data
+ */
+async function getUserEnrollmentProgresses(userId) {
+    const progresses = await db.CertificationEnrollment.findAll({
+        where: {
+            userId: userId
+        },
+        include: [
+            {
+                model: db.CertificationResourceProgress,
+                as: 'resourceProgresses',
+                // all: true,
+            }
+        ]
+    })
+
+    return progresses;
+}
+
 module.exports = {
     buildEnrollmentProgressAttrs,
     createCertificationEnrollment,
@@ -216,5 +251,7 @@ module.exports = {
     getEnrollment,
     getEnrollmentById,
     getEnrollmentProgress,
+    getEnrollments,
+    getUserEnrollmentProgresses,
     unEnrollUser
 }

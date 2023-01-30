@@ -170,10 +170,17 @@ module.exports = {
       // auth: 'jwt',
     },
   },
-  '/learning-paths/certification-enrollment/:userId/:certificationId': {
+  '/learning-paths/user-certification-enrollment/:userId': {
     get: {
       controller: 'CertificationEnrollmentController',
-      method: 'getUserCertEnrollment',
+      method: 'getAllUserEnrollments',
+      // auth: 'jwt',
+    },
+  },
+  '/learning-paths/user-certification-enrollment/:userId/:certificationId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollment',
       // auth: 'jwt',
     },
     post: {
@@ -191,6 +198,12 @@ module.exports = {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getEnrollmentProgress'
+    },
+  },
+  '/learning-paths/certification-enrollment-progresses/:userId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollmentProgresses'
     },
   },
   /**

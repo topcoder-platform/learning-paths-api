@@ -12,7 +12,6 @@ const DEFAULT_PAGE_LIMIT = 10
  * @returns {Object} the search result
  */
 async function searchCertifications(query = {}) {
-
     const dbQuery = {
         include: [
             {
@@ -53,7 +52,7 @@ async function searchCertifications(query = {}) {
         dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']]
     }
 
-    return db.TopcoderCertification.findAndCountAll(dbQuery)
+    return await db.TopcoderCertification.findAndCountAll(dbQuery)
 }
 
 /**

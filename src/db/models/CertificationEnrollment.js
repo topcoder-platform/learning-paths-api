@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   CertificationEnrollment.init({
     id: {
       type: DataTypes.INTEGER,

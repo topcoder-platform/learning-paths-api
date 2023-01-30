@@ -126,16 +126,26 @@ module.exports = (sequelize, DataTypes) => {
 
   // add computed (virtual) attributes
   TopcoderCertification.addHook("afterFind", findResult => {
+    if (findResult === null) return;
+
     if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {
-      instance.coursesCount = instance.certificationResources.length
-      // just returning a subset of the ResourceProvider attributes from the
-      // hasMany :through association. Can't seem to find a way to remove 
-      // the +resourceProviders+ attribute, so just ignore it.
-      instance.providers = instance.resourceProviders.map(provider => {
-        return (({ id, name, description, url }) => ({ id, name, description, url }))(provider)
-      })
+      // TODO: we are checking that the certification contains resources 
+      // and resource providers, but in reality a certification without 
+      // any curriculum resources isn't viable. Need to handle this case 
+      // in a better way.
+      if (instance.certificationResources) {
+        instance.coursesCount = instance.certificationResources.length
+        // just returning a subset of the ResourceProvider attributes from the
+        // hasMany :through association. Can't seem to find a way to remove 
+        // the +resourceProviders+ attribute, so just ignore it.
+        if (instance.resourceProviders) {
+          instance.providers = instance.resourceProviders.map(provider => {
+            return (({ id, name, description, url }) => ({ id, name, description, url }))(provider)
+          })
+        }
+      }
     }
   });
 

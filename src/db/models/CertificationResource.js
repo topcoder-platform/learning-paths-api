@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'topcoderCertificationId'
       });
 
+      this.hasMany(models.CertificationResourceProgress, {
+        as: 'certificationResourceProgresses',
+        foreignKey: 'certificationResourceId'
+      });
+
       this.belongsTo(models.ResourceProvider, {
         as: 'resourceProvider',
         foreignKey: 'resourceProviderId'

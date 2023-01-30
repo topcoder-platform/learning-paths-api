@@ -56,6 +56,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    description: {
+      type: DataTypes.TEXT,
+    },
     completionHours: {
       type: DataTypes.INTEGER,
       allowNull: false

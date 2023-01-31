@@ -52,7 +52,7 @@ async function searchCertifications(query = {}) {
         dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']]
     }
 
-    return await db.TopcoderCertification.findAndCountAll(dbQuery)
+    return await db.TopcoderCertification.findAll(dbQuery)
 }
 
 /**

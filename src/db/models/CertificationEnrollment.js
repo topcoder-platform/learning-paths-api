@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     completedAt: {
       type: DataTypes.DATE
     },
-    courseCount: {
+    coursesCount: {
       type: DataTypes.VIRTUAL,
     },
     certificationProgress: {
@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
       // total resources that make up the certification
       if (instance.resourceProgresses) {
         const resourceCount = instance.resourceProgresses.length;
-        instance.courseCount = resourceCount;
+        instance.coursesCount = resourceCount;
 
         let resourcesCompleted = 0;
         for (const resourceProgress of instance.resourceProgresses) {

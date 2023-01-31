@@ -215,14 +215,32 @@ async function createProgressRecord(userId, fccCertification) {
     return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
 }
 
+/**
+ * A convenience function to define a common set of Sequelize model 
+ * associations to include in the CertificationEnrollment queries.
+ * 
+ * @returns an array of model associations
+ */
+function progressIncludes() {
+    return [
+        {
+            model: db.TopcoderCertification,
+            as: 'topcoderCertification',
+            include: {
+                model: db.ResourceProvider,
+                as: 'resourceProviders',
+            }
+        },
+        {
+            model: db.CertificationResourceProgress,
+            as: 'resourceProgresses',
+        }
+    ]
+}
+
 async function getEnrollmentProgress(enrollmentId) {
     options = {
-        include: [
-            {
-                model: db.CertificationResourceProgress,
-                as: 'resourceProgresses',
-            }
-        ]
+        include: progressIncludes()
     }
     const enrollment = db.CertificationEnrollment.findByPk(enrollmentId, options);
 
@@ -240,12 +258,7 @@ async function getUserEnrollmentProgresses(userId) {
         where: {
             userId: userId
         },
-        include: [
-            {
-                model: db.CertificationResourceProgress,
-                as: 'resourceProgresses',
-            }
-        ]
+        include: progressIncludes()
     }
 
     const progresses = await db.CertificationEnrollment.findAll(options)

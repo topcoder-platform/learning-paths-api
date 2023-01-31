@@ -73,5 +73,6 @@ module.exports = (sequelize, DataTypes) => {
       },
     ]
   });
+
   return CertificationResourceProgress;
 };

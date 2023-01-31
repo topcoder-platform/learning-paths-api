@@ -216,7 +216,15 @@ async function createProgressRecord(userId, fccCertification) {
 }
 
 async function getEnrollmentProgress(enrollmentId) {
-    const enrollment = db.CertificationEnrollment.findByPk(enrollmentId);
+    options = {
+        include: [
+            {
+                model: db.CertificationResourceProgress,
+                as: 'resourceProgresses',
+            }
+        ]
+    }
+    const enrollment = db.CertificationEnrollment.findByPk(enrollmentId, options);
 
     return enrollment;
 }
@@ -228,7 +236,7 @@ async function getEnrollmentProgress(enrollmentId) {
  * @returns an array of CertificationEnrollment objects along with additional nested data
  */
 async function getUserEnrollmentProgresses(userId) {
-    const progresses = await db.CertificationEnrollment.findAll({
+    options = {
         where: {
             userId: userId
         },
@@ -236,10 +244,11 @@ async function getUserEnrollmentProgresses(userId) {
             {
                 model: db.CertificationResourceProgress,
                 as: 'resourceProgresses',
-                // all: true,
             }
         ]
-    })
+    }
+
+    const progresses = await db.CertificationEnrollment.findAll(options)
 
     return progresses;
 }

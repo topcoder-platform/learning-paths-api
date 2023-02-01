@@ -5,6 +5,7 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
+    logging: false,
     pool: {
       max: 2,
       min: 0,

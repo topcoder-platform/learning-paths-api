@@ -4,6 +4,7 @@ const certificationService = require('../../services/CertificationService');
 const courseService = require('../../services/CourseService');
 const db = require('../../db/models');
 const fccCourseSkills = require('../../db/models/fcc_course_skills.json')
+const { tcaDatastoreIsPostgres } = require('./migration_utilities');
 
 let fccResourceProvider;
 const FCC_PROVIDER_NAME = 'freeCodeCamp';
@@ -17,8 +18,53 @@ let fccCerts;
  * is empty when it runs and does not check for existing data.
  */
 async function migrate() {
-    let certs = await migrateCertifications();
-    let courses = await migrateCourses();
+    await verifyCanMigrateData();
+
+    try {
+        let certs = await migrateCertifications();
+        let courses = await migrateCourses();
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
+ * Checks various preconditions to successfully executing the TCA 
+ * data migration.
+ */
+async function verifyCanMigrateData() {
+    if (tcaDatastoreIsPostgres()) {
+        throw "** TCA_DATASTORE env var is set to 'postgres' -- change this to 'dynamodb' to migrate TCA data -- exiting"
+    }
+
+    if (await fccCertificationDataExists()) {
+        throw "** The Postgres DB already contains freeCodeCamp certification or course data -- exiting"
+    }
+}
+
+/**
+ * Checks the TCA Postgres database to see if any FCC course, module, 
+ * or lesson data already exists. 
+ * 
+ * @returns boolean true if FCC course, module, or lesson data exists, 
+ * false otherwise
+ */
+async function fccCertificationDataExists() {
+    let dataExists = false;
+    try {
+        const certCount = await db.FreeCodeCampCertification.count();
+        const courseCount = await db.FccCourse.count();
+        const moduleCount = await db.FccModule.count();
+        const lessonCount = await db.FccLesson.count();
+
+        if (certCount + courseCount + moduleCount + lessonCount > 0) {
+            dataExists = true;
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return dataExists;
+    }
 }
 
 async function migrateCertifications() {
@@ -47,6 +93,7 @@ async function migrateCertifications() {
 function buildCertificationAttrs(tcaCert) {
     const certCategory = certCategories.find(certCat => certCat.category == tcaCert.category)
     if (!certCategory) {
+        console.log('tcaCert', tcaCert);
         throw `Could not find certification category ${tcaCert.category}`
     }
 

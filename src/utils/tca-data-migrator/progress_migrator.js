@@ -3,14 +3,18 @@
 const db = require('../../db/models');
 const dbHelper = require('../../common/dbHelper');
 const helper = require('../../common/helper');
+const { tcaDatastoreIsPostgres } = require('./migration_utilities');
 
 const FCC_PROVIDER_NAME = 'freeCodeCamp';
 
 async function migrateProgresses() {
+    await verifyCanMigrateData();
+
     let newProgresses;
     let progresses = [];
     try {
-        const fccProviderId = await getFccProviderId();
+        // TODO: confirm we don't need this ID to create data
+        // const fccProviderId = await getFccProviderId();
         const fccCertifications = await getFccCertifications();
         const fccCourses = await getFccCourses();
         const certProgresses = await getTcaDynamoCertProgresses();
@@ -32,12 +36,45 @@ async function migrateProgresses() {
     }
 }
 
+/**
+ * Checks various preconditions to successfully executing the TCA 
+ * data migration.
+ */
+async function verifyCanMigrateData() {
+    if (tcaDatastoreIsPostgres()) {
+        throw "** TCA_DATASTORE env var is set to 'postgres' -- change this to 'dynamodb' to migrate TCA data -- exiting"
+    }
+
+    if (await fccCertProgressDataExists()) {
+        throw "** The Postgres DB already contains freeCodeCamp certification progress data -- exiting"
+    }
+}
+
+/**
+ * Checks the TCA Postgres database to see if any FCC certification 
+ * progress data already exists. 
+ * 
+ * @returns boolean true if FCC data exists, false otherwise
+ */
+async function fccCertProgressDataExists() {
+    let dataExists = false;
+    try {
+        const certCount = await db.FccCertificationProgress.count();
+
+        dataExists = (certCount > 0);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return dataExists;
+    }
+}
+
 async function getFccProviderId() {
     const where = { name: FCC_PROVIDER_NAME }
     const fccProvider = await dbHelper.findOne('ResourceProvider', where);
 
     if (!fccProvider) {
-        throw "Could not get FreeCodeCamp resource provider"
+        throw "** Could not get FreeCodeCamp resource provider -- exiting"
     }
 
     return fccProvider.id;
@@ -46,7 +83,7 @@ async function getFccProviderId() {
 async function getFccCertifications() {
     const fccCerts = await db.FreeCodeCampCertification.findAll();
     if (!fccCerts || fccCerts.length == 0) {
-        throw "Could not retrieve FreeCodeCampCertifications"
+        throw "** Could not retrieve FreeCodeCampCertifications -- exiting"
     }
 
     return fccCerts;
@@ -55,7 +92,7 @@ async function getFccCertifications() {
 async function getFccCourses() {
     const fccCourses = await db.FccCourse.findAll();
     if (!fccCourses || fccCourses.length == 0) {
-        throw "Could not retrieve FccCourses"
+        throw "** Could not retrieve FccCourses -- exiting"
     }
 
     return fccCourses;

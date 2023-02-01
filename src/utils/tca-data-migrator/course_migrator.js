@@ -3,8 +3,12 @@
 const certificationService = require('../../services/CertificationService');
 const courseService = require('../../services/CourseService');
 const db = require('../../db/models');
-const fccCourseSkills = require('../../db/models/fcc_course_skills.json')
-const { tcaDatastoreIsPostgres } = require('./migration_utilities');
+const fccCourseSkills = require('../../db/models/fcc_course_skills.json');
+
+const {
+    displayDynamoDBUrl,
+    tcaDatastoreIsPostgres
+} = require('./migration_utilities');
 
 let fccResourceProvider;
 const FCC_PROVIDER_NAME = 'freeCodeCamp';
@@ -18,6 +22,7 @@ let fccCerts;
  * is empty when it runs and does not check for existing data.
  */
 async function migrate() {
+    displayDynamoDBUrl();
     await verifyCanMigrateData();
 
     try {
@@ -93,8 +98,7 @@ async function migrateCertifications() {
 function buildCertificationAttrs(tcaCert) {
     const certCategory = certCategories.find(certCat => certCat.category == tcaCert.category)
     if (!certCategory) {
-        console.log('tcaCert', tcaCert);
-        throw `Could not find certification category ${tcaCert.category}`
+        throw `Could not find certification category ${tcaCert.category} -- exiting`
     }
 
     const certAttrs = {
@@ -169,13 +173,13 @@ async function createCourses(courses) {
 function buildCourseAttrs(tcaCourse) {
     const cert = fccCerts.find(fccCert => fccCert.fccId == tcaCourse.certificationId)
     if (!cert) {
-        console.error(`Could not find certification with fccId ${tcaCourse.certificationId} for course ${tcaCourse.title}`)
+        console.error(`Could not find certification with fccId ${tcaCourse.certificationId} for course '${tcaCourse.title}'`)
         return undefined
     }
 
     const courseSkills = fccCourseSkills[tcaCourse.key]
     if (!courseSkills) {
-        console.error(`Could not find skills for course ${tcaCourse.key}`)
+        console.error(`Could not find skills for course key '${tcaCourse.key}'`)
     }
 
     const courseAttrs = {

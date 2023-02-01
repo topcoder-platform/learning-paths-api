@@ -6,6 +6,7 @@ const helper = require('../../common/helper');
 const { tcaDatastoreIsPostgres } = require('./migration_utilities');
 
 const FCC_PROVIDER_NAME = 'freeCodeCamp';
+let fccLessonMap = {};
 
 async function migrateProgresses() {
     await verifyCanMigrateData();
@@ -22,7 +23,7 @@ async function migrateProgresses() {
         if (certProgresses && certProgresses.length > 0) {
             console.log(`** Got ${certProgresses.length} DynamoDB CertificationProgress documents`);
             for (let tcaProgress of certProgresses) {
-                const progress = buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses);
+                const progress = await buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses);
 
                 if (progress) {
                     progresses.push(progress);
@@ -113,7 +114,7 @@ async function createCertificationProgresses(progresses) {
     return newProgresses;
 }
 
-function buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses) {
+async function buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCourses) {
     const progressCertId = tcaProgress.certificationId;
     const progressCertification = tcaProgress.certification;
     const progressCourseId = tcaProgress.courseId;
@@ -153,7 +154,7 @@ function buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCour
         academicHonestyPolicyAcceptedAt: tcaProgress.academicHonestyPolicyAcceptedAt,
         currentLesson: tcaProgress.currentLesson,
         certificationImageUrl: tcaProgress.certificationImageUrl,
-        moduleProgresses: buildModuleProgressAttrs(tcaProgress.modules),
+        moduleProgresses: await buildModuleProgressAttrs(tcaProgress.modules),
         createdAt: tcaProgress.createdAt,
         updatedAt: tcaProgress.updatedAt
     }
@@ -161,7 +162,7 @@ function buildCertificationProgressAttrs(tcaProgress, fccCertifications, fccCour
     return certProgressAttrs;
 }
 
-function buildModuleProgressAttrs(tcaModuleProgresses) {
+async function buildModuleProgressAttrs(tcaModuleProgresses) {
     let moduleProgressAttrs = [];
 
     for (const moduleProgress of tcaModuleProgresses) {
@@ -172,7 +173,7 @@ function buildModuleProgressAttrs(tcaModuleProgresses) {
             isAssessment: moduleProgress.isAssessment,
             startDate: moduleProgress.startDate,
             completedDate: moduleProgress.completedDate,
-            completedLessons: buildCompletedLessonsAttrs(moduleProgress.completedLessons)
+            completedLessons: await buildCompletedLessonsAttrs(moduleProgress.completedLessons)
         }
         moduleProgressAttrs.push(module);
     }
@@ -180,16 +181,37 @@ function buildModuleProgressAttrs(tcaModuleProgresses) {
     return moduleProgressAttrs;
 }
 
-function buildCompletedLessonsAttrs(tcaCompletedLessons) {
+async function buildCompletedLessonsAttrs(tcaCompletedLessons) {
     let completedLessonAttrs = [];
+    let lessonSet = new Set();
 
     for (const tcaLesson of tcaCompletedLessons) {
-        const lesson = {
-            id: tcaLesson.id,
-            dashedName: tcaLesson.dashedName,
-            completedDate: tcaLesson.completedDate,
-        };
-        completedLessonAttrs.push(lesson);
+        // Some older completed lesson records may lack the 
+        // original FCC lesson ID -- try to fill it in
+        let tcaLessonId = tcaLesson.id || fccLessonMap[tcaLesson.dashedName];
+        if (tcaLessonId == null) {
+            const lesson = await db.FccLesson.findOne({ where: { dashedName: tcaLesson.dashedName } })
+            if (lesson) {
+                fccLessonMap[lesson.dashedName] = lesson.id;
+                tcaLessonId = lesson.id;
+                // console.log("** found lesson", lesson.dashedName, "id", lesson.id)
+            } else {
+                console.error('** could not find FCC lesson', tcaLesson.dashedName)
+            }
+        }
+
+        // Handle the case where the original DynamoDB data can contain 
+        // duplicate entries for the same completed lesson. Keep track of 
+        // the lesson IDs that have already been added and skip any duplicates.
+        if (!lessonSet.has(tcaLessonId)) {
+            lessonSet.add(tcaLessonId)
+            const completedLesson = {
+                id: tcaLessonId,
+                dashedName: tcaLesson.dashedName,
+                completedDate: tcaLesson.completedDate,
+            };
+            completedLessonAttrs.push(completedLesson);
+        }
     }
 
     return completedLessonAttrs;

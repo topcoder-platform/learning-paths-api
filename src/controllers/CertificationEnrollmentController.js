@@ -4,6 +4,7 @@
 
 const service = require('../services/CertificationEnrollmentService')
 const errors = require('../common/errors')
+const { hasTCAAdminRole } = require('../common/helper')
 
 /**
  * Get certification enrollment
@@ -97,8 +98,8 @@ async function getAllUserEnrollments(req, res) {
 }
 
 async function getEnrollmentProgress(req, res) {
-    const { enrollmentId } = req.params;
-    const progress = await service.getEnrollmentProgress(enrollmentId);
+    const { userId, certificationDashedName } = req.params;
+    const progress = await service.getEnrollmentProgress(userId, certificationDashedName);
 
     res.send(progress)
 }

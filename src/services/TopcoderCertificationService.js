@@ -82,7 +82,42 @@ async function getCertification(id) {
     return db.TopcoderCertification.findByPk(id, options)
 }
 
+/**
+ * Get Certification by DashedName
+ * 
+ * @param {String} dashedName the certification dashed name
+ * @returns {Object} the certification with given dashed name
+ */
+async function getCertificationByDashedName(dashedName) {
+    const options = {
+        where: {
+            dashedName,
+        },
+        include: [{
+            model: db.CertificationResource,
+            as: 'certificationResources',
+            include: [
+                {
+                    model: db.FreeCodeCampCertification,
+                    as: 'freeCodeCampCertification'
+                },
+            ]
+        },
+        {
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
+        },
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProviders',
+        }]
+    }
+
+    return db.TopcoderCertification.findOne(options)
+}
+
 module.exports = {
     searchCertifications,
-    getCertification
+    getCertification,
+    getCertificationByDashedName,
 }

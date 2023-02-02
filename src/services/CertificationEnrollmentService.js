@@ -221,11 +221,12 @@ async function createProgressRecord(userId, fccCertification) {
  * 
  * @returns an array of model associations
  */
-function progressIncludes() {
+function progressIncludes(certificationDashedName) {
     return [
         {
             model: db.TopcoderCertification,
             as: 'topcoderCertification',
+            ...(!certificationDashedName ? {} : {where: {dashedName: certificationDashedName}}),
             include: {
                 model: db.ResourceProvider,
                 as: 'resourceProviders',
@@ -234,17 +235,25 @@ function progressIncludes() {
         {
             model: db.CertificationResourceProgress,
             as: 'resourceProgresses',
+            include: {
+                model: db.FccCertificationProgress,
+                as: 'fccCertificationProgress',
+            }
         }
     ]
 }
 
-async function getEnrollmentProgress(enrollmentId) {
+async function getEnrollmentProgress(userId, certificationDashedName) {
     options = {
-        include: progressIncludes()
+        where: {
+            userId: userId,
+        },
+        include: progressIncludes(certificationDashedName),
     }
-    const enrollment = db.CertificationEnrollment.findByPk(enrollmentId, options);
 
-    return enrollment;
+    const progress = await db.CertificationEnrollment.findOne(options);
+
+    return progress;
 }
 
 /**

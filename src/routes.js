@@ -150,12 +150,18 @@ module.exports = {
   /**
    * The following endpoints support Topcoder Academy Certifications
    */
-  
+
   '/learning-paths/topcoder-certifications': {
     get: {
       controller: 'TopcoderCertificationController',
       method: 'searchCertifications'
     },
+  },
+  '/learning-paths/topcoder-certifications/:dashedName': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'getCertification'
+    }
   },
   '/learning-paths/topcoder-certifications/:userId/progresses': {
     get: {
@@ -163,14 +169,6 @@ module.exports = {
       method: 'getUserEnrollmentProgresses'
     },
   },
-
-  '/learning-paths/topcoder-certifications/:dashedName': {
-    get: {
-      controller: 'TopcoderCertificationController',
-      method: 'getCertification'
-    }
-  },
-  
   '/learning-paths/topcoder-certifications/:certificationDashedName/:userId/progress': {
     get: {
       controller: 'CertificationEnrollmentController',

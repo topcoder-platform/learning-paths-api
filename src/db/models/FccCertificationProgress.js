@@ -13,8 +13,24 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsTo(models.FreeCodeCampCertification, {
-        foreignKey: 'fccCertificationId'
+        foreignKey: 'fccCertificationId',
+        as: 'freeCodeCampCertification'
       });
+
+      // trying to create a +belongsTo :through+ association here to get 
+      // the ResourceProvider via the FreeCodeCampCertification association 
+      // but Sequelize doesn't support that natively, so we have to set all 
+      // the keys and modify the association's cardinality manually.
+      const association = this.belongsToMany(models.ResourceProvider, {
+        through: models.FreeCodeCampCertification, // the join table
+        as: 'resourceProvider',                    // the alias for this association
+        sourceKey: 'fccCertificationId',           // the foreign key in this model's belongsTo > FreeCodeCampCertification
+        otherKey: 'resourceProviderId',            // the foreign key in FreeCodeCampCertification > belongsTo > ResourceProvider
+        foreignKey: 'id',                          // either the ID of ResourceProvider or ID of FreeCodeCampCertification ??
+      })
+      association.isMultiAssociation = false;      // to turn off the "many" of belongsToMany
+      association.isSingleAssociation = true;      // apparently also required to force a singular ResourceProvider attribute
+      // Oof, some of this is painful. Do better, Sequelize!
 
       this.belongsTo(models.FccCourse, {
         foreignKey: 'fccCourseId'

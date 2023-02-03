@@ -74,6 +74,7 @@ async function fccCertificationDataExists() {
 
 async function migrateCertifications() {
     certCategories = await getCertCategories();
+    fccResourceProvider = await getFccResourceProvider();
 
     let newCerts;
     const certifications = [];
@@ -103,6 +104,7 @@ function buildCertificationAttrs(tcaCert) {
 
     const certAttrs = {
         fccId: tcaCert.id,
+        resourceProviderId: fccResourceProvider.id,
         key: tcaCert.key,
         providerCertificationId: tcaCert.providerCertificationId,
         title: tcaCert.title,
@@ -120,11 +122,6 @@ function buildCertificationAttrs(tcaCert) {
 }
 
 async function migrateCourses() {
-    fccResourceProvider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
-    if (!fccResourceProvider) {
-        throw "Could not find FCC ResourceProvider"
-    }
-
     fccCerts = await db.FreeCodeCampCertification.findAll();
     if (!fccCerts || fccCerts.length == 0) {
         throw "No FCC Certifications found -- cannot load course data"
@@ -250,6 +247,15 @@ async function getCertCategories() {
     const certificationCategories = await db.CertificationCategory.findAll();
 
     return certificationCategories;
+}
+
+async function getFccResourceProvider() {
+    const provider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
+    if (!fccResourceProvider) {
+        throw "Could not find FCC ResourceProvider"
+    }
+
+    return provider;
 }
 
 async function getTcaDynamoCertifications() {

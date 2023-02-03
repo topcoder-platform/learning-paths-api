@@ -2,8 +2,11 @@
  * Controller for certification progress endpoints
  */
 
-const service = require('../services/CertificationProgressService')
+const progressService = require('../services/CertificationProgressService')
+const fccService = require('../services/FccCertificationProgressServices')
+
 const helper = require('../common/helper')
+const dbHelper = require('../common/dbHelper')
 
 /**
  * Search certification progress
@@ -12,6 +15,13 @@ const helper = require('../common/helper')
  * @param {Object} res the response
  */
 async function searchCertificationProgresses(req, res) {
+    let service;
+    if (dbHelper.featureFlagUsePostgres()) {
+        service = fccService;
+    } else {
+        service = progressService;
+    }
+
     const result = await service.searchCertificationProgresses(req.query)
     helper.setResHeaders(req, res, result)
 
@@ -25,7 +35,7 @@ async function searchCertificationProgresses(req, res) {
  * @param {Object} res the response
  */
 async function getCertificationProgress(req, res) {
-    const result = await service.getCertificationProgress(
+    const result = await progressService.getCertificationProgress(
         req.authUser.userId,
         req.params.certificationProgressId)
 
@@ -39,7 +49,7 @@ async function getCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteCertificationProgress(req, res) {
-    const result = await service.deleteCertificationProgress(
+    const result = await progressService.deleteCertificationProgress(
         req.authUser,
         req.params.certificationProgressId)
 
@@ -54,7 +64,7 @@ async function deleteCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteLastModuleLesson(req, res) {
-    const result = await service.deleteLastModuleLesson(
+    const result = await progressService.deleteLastModuleLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.params.module)
@@ -69,7 +79,7 @@ async function deleteLastModuleLesson(req, res) {
  * @param {Object} res the response
  */
 async function startCertification(req, res) {
-    const result = await service.startCertification(
+    const result = await progressService.startCertification(
         req.authUser,
         req.params.userId,
         req.params.certificationId,
@@ -86,7 +96,7 @@ async function startCertification(req, res) {
  * @param {Object} res the response
  */
 async function completeCertification(req, res) {
-    const result = await service.completeCertification(
+    const result = await progressService.completeCertification(
         req.authUser,
         req.params.certificationProgressId,
         req.query.certificateUrl,
@@ -102,7 +112,7 @@ async function completeCertification(req, res) {
  * @param {Object} res the response
  */
 async function updateCurrentLesson(req, res) {
-    const result = await service.updateCurrentLesson(
+    const result = await progressService.updateCurrentLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.query)
@@ -117,7 +127,7 @@ async function updateCurrentLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLesson(req, res) {
-    const result = await service.completeLesson(
+    const result = await progressService.completeLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.query)
@@ -132,7 +142,7 @@ async function completeLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLessonViaMongoTrigger(req, res) {
-    const result = await service.completeLessonViaMongoTrigger(req.query)
+    const result = await progressService.completeLessonViaMongoTrigger(req.query)
 
     res.send(result)
 }
@@ -144,7 +154,7 @@ async function completeLessonViaMongoTrigger(req, res) {
  * @param {Object} res the response
  */
 async function acceptAcademicHonestyPolicy(req, res) {
-    const result = await service.acceptAcademicHonestyPolicy(
+    const result = await progressService.acceptAcademicHonestyPolicy(
         req.authUser,
         req.params.certificationProgressId)
 

@@ -1,11 +1,589 @@
 {
 	"info": {
-		"_postman_id": "331ee769-02ed-45a2-bb87-1217c4726423",
+		"_postman_id": "be67a9c5-1a3b-4c68-8631-9da33ae67e96",
 		"name": "Learning Paths",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19526465"
+		"_exporter_id": "215943"
 	},
 	"item": [
+		{
+			"name": "TCCertifications Enroll",
+			"item": [
+				{
+					"name": "Unenroll from Topcoder Certification",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}/unenroll",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								"{{USER_ID}}",
+								"{{TOPCODER_CERTIFICATION_ID}}",
+								"unenroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enroll in Topcoder Certification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}/enroll",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								"{{USER_ID}}",
+								"{{TOPCODER_CERTIFICATION_ID}}",
+								"enroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Topcoder Certification Enrollment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/learning-paths/certification-enrollment/3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"certification-enrollment",
+								"3"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TCCertifications",
+			"item": [
+				{
+					"name": "Get All Topcoder Certifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "DynamoDB Certifications",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/learning-paths/certifications",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"learning-paths",
+										"certifications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
+								},
+								{
+									"key": "X-Page",
+									"value": "1"
+								},
+								{
+									"key": "X-Per-Page",
+									"value": "50"
+								},
+								{
+									"key": "X-Total",
+									"value": "7"
+								},
+								{
+									"key": "X-Total-Pages",
+									"value": "1"
+								},
+								{
+									"key": "Link",
+									"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3945"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"f69-1hTZZ3XOZxJl2jKKwOpGobzgK4g\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 04 Jan 2023 01:28:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Visualization\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"certification\": \"data-visualization\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-visualization-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Analysis with Python\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"certification\": \"data-analysis-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 40,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Scientific Computing with Python\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-09-27T17:38:47.651Z\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    }\n]"
+						},
+						{
+							"name": "PG Certifications",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/learning-paths/certifications",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"learning-paths",
+										"certifications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
+								},
+								{
+									"key": "X-Page",
+									"value": "1"
+								},
+								{
+									"key": "X-Per-Page",
+									"value": "50"
+								},
+								{
+									"key": "X-Total",
+									"value": "7"
+								},
+								{
+									"key": "X-Total-Pages",
+									"value": "1"
+								},
+								{
+									"key": "Link",
+									"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2761"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 04 Jan 2023 01:32:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 23,\n        \"fccId\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"key\": \"data-visualization-certification\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"title\": \"Data Visualization\",\n        \"certification\": \"data-visualization\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 24,\n        \"fccId\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"title\": \"Data Analysis with Python\",\n        \"certification\": \"data-analysis-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 25,\n        \"fccId\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 26,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"completionHours\": 40,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 27,\n        \"fccId\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"title\": \"Scientific Computing with Python\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 28,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"certification\": \"responsive-web-design\",\n        \"completionHours\": 300,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-09-28T00:38:47.651Z\"\n    },\n    {\n        \"id\": 29,\n        \"fccId\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Topcoder Certification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/{{TOPCODER_CERTIFICATION}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								"{{TOPCODER_CERTIFICATION}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "PG Certifications",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/learning-paths/certifications",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"learning-paths",
+										"certifications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
+								},
+								{
+									"key": "X-Page",
+									"value": "1"
+								},
+								{
+									"key": "X-Per-Page",
+									"value": "50"
+								},
+								{
+									"key": "X-Total",
+									"value": "7"
+								},
+								{
+									"key": "X-Total-Pages",
+									"value": "1"
+								},
+								{
+									"key": "Link",
+									"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2761"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 04 Jan 2023 01:32:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 23,\n    \"fccId\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n    \"key\": \"data-visualization-certification\",\n    \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n    \"title\": \"Data Visualization\",\n    \"certification\": \"data-visualization\",\n    \"completionHours\": 300,\n    \"state\": \"coming-soon\",\n    \"certificationCategoryId\": 11,\n    \"certType\": \"certification\",\n    \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Topcoder Certification Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/{{TOPCODER_CERTIFICATION}}/{{USER_ID}}/progress",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								"{{TOPCODER_CERTIFICATION}}",
+								"{{USER_ID}}",
+								"progress"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "PG Certification Progress",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/learning-paths/certifications",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"learning-paths",
+										"certifications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
+								},
+								{
+									"key": "X-Page",
+									"value": "1"
+								},
+								{
+									"key": "X-Per-Page",
+									"value": "50"
+								},
+								{
+									"key": "X-Total",
+									"value": "7"
+								},
+								{
+									"key": "X-Total-Pages",
+									"value": "1"
+								},
+								{
+									"key": "Link",
+									"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2761"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 04 Jan 2023 01:32:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 13,\n    \"topcoderCertificationId\": 3,\n    \"userId\": \"88778900\",\n    \"userHandle\": null,\n    \"status\": \"enrolled\",\n    \"completedAt\": null,\n    \"createdAt\": \"2023-02-03T13:24:41.019Z\",\n    \"updatedAt\": \"2023-02-03T13:24:41.019Z\",\n    \"topcoderCertification\": {\n        \"id\": 3,\n        \"title\": \"Web Development Certification\",\n        \"dashedName\": \"web-development-fundamentals\",\n        \"description\": \"Covers all the basics of front-end and back-end web development\",\n        \"introText\": \"Introducing our Web Development fundamentals certification! Start your certification journey with Topcoder.\",\n        \"estimatedCompletionTime\": 600,\n        \"status\": \"active\",\n        \"sequentialCourses\": false,\n        \"learnerLevel\": \"Beginner\",\n        \"version\": \"2023-01-31T22:59:17.681Z\",\n        \"certificationCategoryId\": 3,\n        \"stripeProductId\": \"prod_MzAGVmH4YG42lA\",\n        \"skills\": [\"web development\", \"Javascript\", \"APIs\"],\n        \"learningOutcomes\": [\"Fundamental skills required to begin a career in web development\", \"Introduction to React and other front end libraries - a jumping off point to build awesome websites\", \"Introduction to Java Script - one of the languages every web developer should know for web development and building basic algorithms and data structures\", \"Introduction to backend development with Node and APIs\"],\n        \"prerequisites\": null,\n        \"createdAt\": \"2023-02-01T00:59:17.681Z\",\n        \"updatedAt\": \"2023-02-01T00:59:17.681Z\",\n        \"resourceProviders\": [{\n            \"id\": 3,\n            \"name\": \"freeCodeCamp\",\n            \"description\": \"Free courses about programming and some such\",\n            \"attributionStatement\": \"This material was created by the <a href='https://www.freecodecamp.org'>freeCodeCamp.org community</a>.\",\n            \"url\": \"freeCodeCamp.org\",\n            \"createdAt\": \"2023-02-01T00:59:17.677Z\",\n            \"updatedAt\": \"2023-02-01T00:59:17.677Z\",\n            \"CertificationResource\": {\n                \"id\": 4,\n                \"topcoderCertificationId\": 3,\n                \"resourceProviderId\": 3,\n                \"resourceableId\": 60,\n                \"resourceableType\": \"FreeCodeCampCertification\",\n                \"displayOrder\": 1,\n                \"completionOrder\": null,\n                \"resourceDescription\": \"Algorithms and data structures in Javascript for backend code\",\n                \"resourceTitle\": \"Javascript Algorithms and Data Structures\",\n                \"createdAt\": \"2023-02-01T00:59:17.690Z\",\n                \"updatedAt\": \"2023-02-01T00:59:17.690Z\"\n            }\n        }]\n    },\n    \"resourceProgresses\": [{\n        \"id\": 15,\n        \"certificationEnrollmentId\": 13,\n        \"certificationResourceId\": 3,\n        \"status\": \"not-started\",\n        \"resourceProgressId\": 6110,\n        \"resourceProgressType\": \"FccCertificationProgress\",\n        \"createdAt\": \"2023-02-03T13:24:41.078Z\",\n        \"updatedAt\": \"2023-02-03T13:24:41.078Z\",\n        \"fccCertificationProgress\": {\n            \"id\": 6110,\n            \"fccCertificationId\": 57,\n            \"certProgressDynamoUuid\": \"c9034302-c26f-4114-bda9-d9e248cf71fc\",\n            \"fccCourseId\": 46,\n            \"userId\": \"88778900\",\n            \"certification\": \"responsive-web-design\",\n            \"certificationId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n            \"certificationTitle\": \"Responsive Web Design Certification\",\n            \"certificationTrackType\": \"DEV\",\n            \"certType\": \"certification\",\n            \"courseKey\": \"2022/responsive-web-design\",\n            \"status\": \"completed\",\n            \"startDate\": \"2022-12-09T20:59:06.199Z\",\n            \"lastInteractionDate\": null,\n            \"completedDate\": \"2022-12-15T11:40:54.848Z\",\n            \"academicHonestyPolicyAcceptedAt\": \"2022-12-09T20:59:06.199Z\",\n            \"currentLesson\": \"learn-basic-css-by-building-a-cafe-menu/step-1\",\n            \"certificationImageUrl\": \"https://tca-dev.topcoder-dev.com/certificate/vasilica.olariu/freeCodeCamp/responsive-web-design.jpg\",\n            \"createdAt\": \"2022-12-09T20:59:06.202Z\",\n            \"updatedAt\": \"2022-12-19T18:24:10.340Z\"\n        }\n    }"
+						}
+					]
+				},
+				{
+					"name": "Get All Topcoder Certifications Progresses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/learning-paths/topcoder-certifications/{{USER_ID}}/progresses",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"learning-paths",
+								"topcoder-certifications",
+								"{{USER_ID}}",
+								"progresses"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "PG Certifications Progresses",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/learning-paths/certifications",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"learning-paths",
+										"certifications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
+								},
+								{
+									"key": "X-Page",
+									"value": "1"
+								},
+								{
+									"key": "X-Per-Page",
+									"value": "50"
+								},
+								{
+									"key": "X-Total",
+									"value": "7"
+								},
+								{
+									"key": "X-Total-Pages",
+									"value": "1"
+								},
+								{
+									"key": "Link",
+									"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2761"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 04 Jan 2023 01:32:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[{\n    \"id\": 13,\n    \"topcoderCertificationId\": 3,\n    \"userId\": \"88778900\",\n    \"userHandle\": null,\n    \"status\": \"enrolled\",\n    \"completedAt\": null,\n    \"createdAt\": \"2023-02-03T13:24:41.019Z\",\n    \"updatedAt\": \"2023-02-03T13:24:41.019Z\",\n    \"topcoderCertification\": {\n        \"id\": 3,\n        \"title\": \"Web Development Certification\",\n        \"dashedName\": \"web-development-fundamentals\",\n        \"description\": \"Covers all the basics of front-end and back-end web development\",\n        \"introText\": \"Introducing our Web Development fundamentals certification! Start your certification journey with Topcoder.\",\n        \"estimatedCompletionTime\": 600,\n        \"status\": \"active\",\n        \"sequentialCourses\": false,\n        \"learnerLevel\": \"Beginner\",\n        \"version\": \"2023-01-31T22:59:17.681Z\",\n        \"certificationCategoryId\": 3,\n        \"stripeProductId\": \"prod_MzAGVmH4YG42lA\",\n        \"skills\": [\"web development\", \"Javascript\", \"APIs\"],\n        \"learningOutcomes\": [\"Fundamental skills required to begin a career in web development\", \"Introduction to React and other front end libraries - a jumping off point to build awesome websites\", \"Introduction to Java Script - one of the languages every web developer should know for web development and building basic algorithms and data structures\", \"Introduction to backend development with Node and APIs\"],\n        \"prerequisites\": null,\n        \"createdAt\": \"2023-02-01T00:59:17.681Z\",\n        \"updatedAt\": \"2023-02-01T00:59:17.681Z\",\n        \"resourceProviders\": [{\n            \"id\": 3,\n            \"name\": \"freeCodeCamp\",\n            \"description\": \"Free courses about programming and some such\",\n            \"attributionStatement\": \"This material was created by the <a href='https://www.freecodecamp.org'>freeCodeCamp.org community</a>.\",\n            \"url\": \"freeCodeCamp.org\",\n            \"createdAt\": \"2023-02-01T00:59:17.677Z\",\n            \"updatedAt\": \"2023-02-01T00:59:17.677Z\",\n            \"CertificationResource\": {\n                \"id\": 4,\n                \"topcoderCertificationId\": 3,\n                \"resourceProviderId\": 3,\n                \"resourceableId\": 60,\n                \"resourceableType\": \"FreeCodeCampCertification\",\n                \"displayOrder\": 1,\n                \"completionOrder\": null,\n                \"resourceDescription\": \"Algorithms and data structures in Javascript for backend code\",\n                \"resourceTitle\": \"Javascript Algorithms and Data Structures\",\n                \"createdAt\": \"2023-02-01T00:59:17.690Z\",\n                \"updatedAt\": \"2023-02-01T00:59:17.690Z\"\n            }\n        }]\n    },\n    \"resourceProgresses\": [{\n        \"id\": 15,\n        \"certificationEnrollmentId\": 13,\n        \"certificationResourceId\": 3,\n        \"status\": \"not-started\",\n        \"resourceProgressId\": 6110,\n        \"resourceProgressType\": \"FccCertificationProgress\",\n        \"createdAt\": \"2023-02-03T13:24:41.078Z\",\n        \"updatedAt\": \"2023-02-03T13:24:41.078Z\",\n        \"fccCertificationProgress\": {\n            \"id\": 6110,\n            \"fccCertificationId\": 57,\n            \"certProgressDynamoUuid\": \"c9034302-c26f-4114-bda9-d9e248cf71fc\",\n            \"fccCourseId\": 46,\n            \"userId\": \"88778900\",\n            \"certification\": \"responsive-web-design\",\n            \"certificationId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n            \"certificationTitle\": \"Responsive Web Design Certification\",\n            \"certificationTrackType\": \"DEV\",\n            \"certType\": \"certification\",\n            \"courseKey\": \"2022/responsive-web-design\",\n            \"status\": \"completed\",\n            \"startDate\": \"2022-12-09T20:59:06.199Z\",\n            \"lastInteractionDate\": null,\n            \"completedDate\": \"2022-12-15T11:40:54.848Z\",\n            \"academicHonestyPolicyAcceptedAt\": \"2022-12-09T20:59:06.199Z\",\n            \"currentLesson\": \"learn-basic-css-by-building-a-cafe-menu/step-1\",\n            \"certificationImageUrl\": \"https://tca-dev.topcoder-dev.com/certificate/vasilica.olariu/freeCodeCamp/responsive-web-design.jpg\",\n            \"createdAt\": \"2022-12-09T20:59:06.202Z\",\n            \"updatedAt\": \"2022-12-19T18:24:10.340Z\"\n        }\n    }, {\n        \"id\": 16,\n        \"certificationEnrollmentId\": 13,\n        \"certificationResourceId\": 4,\n        \"status\": \"not-started\",\n        \"resourceProgressId\": 6132,\n        \"resourceProgressType\": \"FccCertificationProgress\",\n        \"createdAt\": \"2023-02-03T13:24:41.078Z\",\n        \"updatedAt\": \"2023-02-03T13:24:41.078Z\",\n        \"fccCertificationProgress\": {\n            \"id\": 6132,\n            \"fccCertificationId\": 60,\n            \"certProgressDynamoUuid\": \"bb1f2432-4fd1-4718-bf21-f500bac3b847\",\n            \"fccCourseId\": 48,\n            \"userId\": \"88778900\",\n            \"certification\": \"javascript-algorithms-and-data-structures\",\n            \"certificationId\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n            \"certificationTitle\": \"JavaScript Algorithms and Data Structures Certification\",\n            \"certificationTrackType\": \"DEV\",\n            \"certType\": \"certification\",\n            \"courseKey\": \"javascript-algorithms-and-data-structures\",\n            \"status\": \"in-progress\",\n            \"startDate\": \"2022-08-12T09:21:06.232Z\",\n            \"lastInteractionDate\": null,\n            \"completedDate\": null,\n            \"academicHonestyPolicyAcceptedAt\": \"2022-08-12T09:21:06.232Z\",\n            \"currentLesson\": \"es6/handle-a-rejected-promise-with-catch\",\n            \"certificationImageUrl\": null,\n            \"createdAt\": \"2022-08-12T09:21:06.233Z\",\n            \"updatedAt\": \"2022-12-13T11:28:37.328Z\"\n        }\n    }],\n    \"coursesCount\": 2,\n    \"certificationProgress\": 0\n}]"
+						}
+					]
+				}
+			]
+		},
 		{
 			"name": "Health check",
 			"request": {
@@ -188,364 +766,6 @@
 			"response": []
 		},
 		{
-			"name": "Get All Topcoder Certifications",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{URL}}/learning-paths/topcoder-certifications",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"topcoder-certifications"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "DynamoDB Certifications",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{URL}}/learning-paths/certifications",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"learning-paths",
-								"certifications"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Access-Control-Allow-Origin",
-							"value": "*"
-						},
-						{
-							"key": "Access-Control-Expose-Headers",
-							"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
-						},
-						{
-							"key": "X-Page",
-							"value": "1"
-						},
-						{
-							"key": "X-Per-Page",
-							"value": "50"
-						},
-						{
-							"key": "X-Total",
-							"value": "7"
-						},
-						{
-							"key": "X-Total-Pages",
-							"value": "1"
-						},
-						{
-							"key": "Link",
-							"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "3945"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"f69-1hTZZ3XOZxJl2jKKwOpGobzgK4g\""
-						},
-						{
-							"key": "Date",
-							"value": "Wed, 04 Jan 2023 01:28:42 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"body": "[\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Visualization\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"certification\": \"data-visualization\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-visualization-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Analysis with Python\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"certification\": \"data-analysis-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 40,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Scientific Computing with Python\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-09-27T17:38:47.651Z\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    }\n]"
-				},
-				{
-					"name": "PG Certifications",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{URL}}/learning-paths/certifications",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"learning-paths",
-								"certifications"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Access-Control-Allow-Origin",
-							"value": "*"
-						},
-						{
-							"key": "Access-Control-Expose-Headers",
-							"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
-						},
-						{
-							"key": "X-Page",
-							"value": "1"
-						},
-						{
-							"key": "X-Per-Page",
-							"value": "50"
-						},
-						{
-							"key": "X-Total",
-							"value": "7"
-						},
-						{
-							"key": "X-Total-Pages",
-							"value": "1"
-						},
-						{
-							"key": "Link",
-							"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "2761"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
-						},
-						{
-							"key": "Date",
-							"value": "Wed, 04 Jan 2023 01:32:14 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"body": "[\n    {\n        \"id\": 23,\n        \"fccId\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"key\": \"data-visualization-certification\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"title\": \"Data Visualization\",\n        \"certification\": \"data-visualization\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 24,\n        \"fccId\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"title\": \"Data Analysis with Python\",\n        \"certification\": \"data-analysis-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 25,\n        \"fccId\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 26,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"completionHours\": 40,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 27,\n        \"fccId\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"title\": \"Scientific Computing with Python\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 28,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"certification\": \"responsive-web-design\",\n        \"completionHours\": 300,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-09-28T00:38:47.651Z\"\n    },\n    {\n        \"id\": 29,\n        \"fccId\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    }\n]"
-				}
-			]
-		},
-		{
-			"name": "Get Topcoder Certification",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{URL}}/learning-paths/topcoder-certifications",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"topcoder-certifications"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "DynamoDB Certifications",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{URL}}/learning-paths/certifications",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"learning-paths",
-								"certifications"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Access-Control-Allow-Origin",
-							"value": "*"
-						},
-						{
-							"key": "Access-Control-Expose-Headers",
-							"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
-						},
-						{
-							"key": "X-Page",
-							"value": "1"
-						},
-						{
-							"key": "X-Per-Page",
-							"value": "50"
-						},
-						{
-							"key": "X-Total",
-							"value": "7"
-						},
-						{
-							"key": "X-Total-Pages",
-							"value": "1"
-						},
-						{
-							"key": "Link",
-							"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "3945"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"f69-1hTZZ3XOZxJl2jKKwOpGobzgK4g\""
-						},
-						{
-							"key": "Date",
-							"value": "Wed, 04 Jan 2023 01:28:42 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"body": "[\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Visualization\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"certification\": \"data-visualization\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-visualization-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Data Analysis with Python\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"certification\": \"data-analysis-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 40,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DATASCIENCE\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Scientific Computing with Python\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Data Science\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-09-27T17:38:47.651Z\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"certification\": \"responsive-web-design\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"state\": \"active\",\n        \"category\": \"Web Development\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    },\n    {\n        \"certType\": \"certification\",\n        \"trackType\": \"DEV\",\n        \"publishedAt\": \"2022-11-28T18:10:03.324Z\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"createdAt\": \"2022-11-28T18:10:03.604Z\",\n        \"providerId\": \"e8e74580-6586-4eb6-9023-bc758c742f1f\",\n        \"id\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"state\": \"coming-soon\",\n        \"category\": \"Web Development\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerName\": \"freeCodeCamp\",\n        \"completionHours\": 300,\n        \"updatedAt\": \"2022-11-28T18:10:03.604Z\"\n    }\n]"
-				},
-				{
-					"name": "PG Certifications",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{URL}}/learning-paths/certifications",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"learning-paths",
-								"certifications"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Access-Control-Allow-Origin",
-							"value": "*"
-						},
-						{
-							"key": "Access-Control-Expose-Headers",
-							"value": "X-Prev-Page,X-Next-Page,X-Page,X-Per-Page,X-Total,X-Total-Pages,Link"
-						},
-						{
-							"key": "X-Page",
-							"value": "1"
-						},
-						{
-							"key": "X-Per-Page",
-							"value": "50"
-						},
-						{
-							"key": "X-Total",
-							"value": "7"
-						},
-						{
-							"key": "X-Total-Pages",
-							"value": "1"
-						},
-						{
-							"key": "Link",
-							"value": "<http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"first\", <http://localhost:3000/v5/learning-paths/certifications?page=1>; rel=\"last\""
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "2761"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"ac9-nOvRlRj7gvBRSfAC4uG7VEt98Cs\""
-						},
-						{
-							"key": "Date",
-							"value": "Wed, 04 Jan 2023 01:32:14 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"body": "[\n    {\n        \"id\": 23,\n        \"fccId\": \"55597a63-e23e-4bc0-9a81-b4f5655a96eb\",\n        \"key\": \"data-visualization-certification\",\n        \"providerCertificationId\": \"5a553ca864b52e1d8bceea14\",\n        \"title\": \"Data Visualization\",\n        \"certification\": \"data-visualization\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 24,\n        \"fccId\": \"269f7d9d-fb10-402b-a942-600f025b0c0f\",\n        \"key\": \"data-analysis-with-python-certification\",\n        \"providerCertificationId\": \"5e46fc95ac417301a38fb934\",\n        \"title\": \"Data Analysis with Python\",\n        \"certification\": \"data-analysis-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 25,\n        \"fccId\": \"aae0ba52-18fe-4c8e-ac4f-fd55715c8b5d\",\n        \"key\": \"javascript-algorithms-and-data-structures-certification\",\n        \"providerCertificationId\": \"561abd10cb81ac38a17513bc\",\n        \"title\": \"JavaScript Algorithms and Data Structures Certification\",\n        \"certification\": \"javascript-algorithms-and-data-structures\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 26,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbcd\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification QA\",\n        \"certification\": \"responsive-web-design-qa\",\n        \"completionHours\": 40,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 27,\n        \"fccId\": \"9796fe32-d2f9-4b1b-92ee-c6003e4400ac\",\n        \"key\": \"scientific-computing-with-python-certification\",\n        \"providerCertificationId\": \"5e44431b903586ffb414c951\",\n        \"title\": \"Scientific Computing with Python\",\n        \"certification\": \"scientific-computing-with-python\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 11,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    },\n    {\n        \"id\": 28,\n        \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n        \"key\": \"responsive-web-design-certification\",\n        \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n        \"title\": \"Responsive Web Design Certification\",\n        \"certification\": \"responsive-web-design\",\n        \"completionHours\": 300,\n        \"state\": \"active\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-09-28T00:38:47.651Z\"\n    },\n    {\n        \"id\": 29,\n        \"fccId\": \"6909044d-508b-4c6e-9b90-999bea2b82b0\",\n        \"key\": \"front-end-development-libraries-certification\",\n        \"providerCertificationId\": \"561acd10cb82ac38a17513bc\",\n        \"title\": \"Front End Development Libraries Certification\",\n        \"certification\": \"front-end-development-libraries-certification\",\n        \"completionHours\": 300,\n        \"state\": \"coming-soon\",\n        \"certificationCategoryId\": 10,\n        \"certType\": \"certification\",\n        \"publishedAt\": \"2022-11-29T02:10:03.324Z\"\n    }\n]"
-				}
-			]
-		},
-		{
 			"name": "Get All Certifications",
 			"request": {
 				"method": "GET",
@@ -725,6 +945,36 @@
 			]
 		},
 		{
+			"name": "Get All Certification Progresses",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/learning-paths/certification-progresses?userId=40029484",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"learning-paths",
+						"certification-progresses"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "40029484"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Certifications for Provider",
 			"request": {
 				"method": "GET",
@@ -889,120 +1139,6 @@
 					"body": "{\n    \"id\": 28,\n    \"fccId\": \"9bd93a8a-1fcb-405a-b2e3-4a283915bbca\",\n    \"key\": \"responsive-web-design-certification\",\n    \"providerCertificationId\": \"561add10cb82ac38a17513bc\",\n    \"title\": \"Responsive Web Design Certification\",\n    \"certification\": \"responsive-web-design\",\n    \"completionHours\": 300,\n    \"state\": \"active\",\n    \"certificationCategoryId\": 10,\n    \"certType\": \"certification\",\n    \"publishedAt\": \"2022-09-28T00:38:47.651Z\"\n}"
 				}
 			]
-		},
-		{
-			"name": "Get Topcoder Certification Enrollment",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-enrollment/3",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-enrollment",
-						"3"
-					],
-					"query": [
-						{
-							"key": "id",
-							"value": "3",
-							"disabled": true
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Enroll in Topcoder Certification",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-enrollment/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-enrollment",
-						"{{USER_ID}}",
-						"{{TOPCODER_CERTIFICATION_ID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Unenroll from Topcoder Certification",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-enrollment/{{USER_ID}}/{{TOPCODER_CERTIFICATION_ID}}",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-enrollment",
-						"{{USER_ID}}",
-						"{{TOPCODER_CERTIFICATION_ID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get All Certification Progresses",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{TOKEN}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{URL}}/learning-paths/certification-progresses?userId=40029484",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"learning-paths",
-						"certification-progresses"
-					],
-					"query": [
-						{
-							"key": "userId",
-							"value": "40029484"
-						}
-					]
-				}
-			},
-			"response": []
 		},
 		{
 			"name": "Get Certification Progresses for User",

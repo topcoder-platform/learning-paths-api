@@ -176,6 +176,20 @@ module.exports = {
       auth: 'jwt',
     },
   },
+  '/learning-paths/topcoder-certifications/:userId/:certificationId/enroll': {
+    post: {
+      controller: 'CertificationEnrollmentController',
+      method: 'enrollUser',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:userId/:certificationId/unenroll': {
+    delete: {
+      controller: 'CertificationEnrollmentController',
+      method: 'unEnrollUser',
+      auth: 'jwt',
+    },
+  },
 
 
   '/learning-paths/certification-enrollment/:id': {
@@ -196,16 +210,6 @@ module.exports = {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getUserEnrollment',
-      auth: 'jwt',
-    },
-    post: {
-      controller: 'CertificationEnrollmentController',
-      method: 'enrollUser',
-      auth: 'jwt',
-    },
-    delete: {
-      controller: 'CertificationEnrollmentController',
-      method: 'unEnrollUser',
       auth: 'jwt',
     },
   },

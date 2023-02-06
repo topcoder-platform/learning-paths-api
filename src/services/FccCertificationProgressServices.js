@@ -18,6 +18,19 @@ async function searchCertificationProgresses(query) {
             userId: userId
         },
         include: [
+            // NOTE: including the ResourceProvider two different ways to see 
+            // what the front-end devs prefer. The first one is straightforward 
+            // to setup but nested, the second sets it as a top-level attribute
+            // but is ugly to setup.
+            {
+                model: db.FreeCodeCampCertification,
+                as: 'freeCodeCampCertification',
+                include: {
+                    model: db.ResourceProvider,
+                    as: 'resourceProvider',
+                    attributes: ['id', 'name', 'description', 'attributionStatement', 'url']
+                }
+            },
             {
                 model: db.ResourceProvider,
                 as: 'resourceProvider',

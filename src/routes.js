@@ -214,16 +214,6 @@ module.exports = {
       method: 'getUserEnrollment',
       auth: 'jwt',
     },
-    post: {
-      controller: 'CertificationEnrollmentController',
-      method: 'enrollUser',
-      auth: 'jwt',
-    },
-    delete: {
-      controller: 'CertificationEnrollmentController',
-      method: 'unEnrollUser',
-      auth: 'jwt',
-    },
   },
   '/learning-paths/certification-enrollment-progress/:enrollmentId': {
     get: {

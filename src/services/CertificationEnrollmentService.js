@@ -56,13 +56,25 @@ async function unEnrollUser(userId, certificationId) {
 }
 
 /**
- * Query TCA certification enrollments
+ * Query TCA certification enrollments for a specific enrollment
  * 
  * @param {Object} options query options
  * @returns {Object | null}
  */
 async function getEnrollment(options = {}) {
     const enrollment = await db.CertificationEnrollment.findOne(options);
+
+    return enrollment;
+}
+
+/**
+ * Query TCA certification enrollments for all matching enrollments
+ * 
+ * @param {Object} options query options
+ * @returns {Object | null}
+ */
+async function getEnrollments(options = {}) {
+    const enrollment = await db.CertificationEnrollment.findAll(options);
 
     return enrollment;
 }
@@ -203,10 +215,64 @@ async function createProgressRecord(userId, fccCertification) {
     return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
 }
 
-async function getEnrollmentProgress(enrollmentId) {
-    const enrollment = db.CertificationEnrollment.findByPk(enrollmentId);
+/**
+ * A convenience function to define a common set of Sequelize model 
+ * associations to include in the CertificationEnrollment queries.
+ * 
+ * @returns an array of model associations
+ */
+function progressIncludes(certificationDashedName) {
+    return [
+        {
+            model: db.TopcoderCertification,
+            as: 'topcoderCertification',
+            ...(!certificationDashedName ? {} : {where: {dashedName: certificationDashedName}}),
+            include: {
+                model: db.ResourceProvider,
+                as: 'resourceProviders',
+            }
+        },
+        {
+            model: db.CertificationResourceProgress,
+            as: 'resourceProgresses',
+            include: {
+                model: db.FccCertificationProgress,
+                as: 'fccCertificationProgress',
+            }
+        }
+    ]
+}
 
-    return enrollment;
+async function getEnrollmentProgress(userId, certificationDashedName) {
+    options = {
+        where: {
+            userId: userId,
+        },
+        include: progressIncludes(certificationDashedName),
+    }
+
+    const progress = await db.CertificationEnrollment.findOne(options);
+
+    return progress;
+}
+
+/**
+ * Gets all of a user's certification enrollments.
+ * 
+ * @param {String} userId the ID of the user
+ * @returns an array of CertificationEnrollment objects along with additional nested data
+ */
+async function getUserEnrollmentProgresses(userId) {
+    options = {
+        where: {
+            userId: userId
+        },
+        include: progressIncludes()
+    }
+
+    const progresses = await db.CertificationEnrollment.findAll(options)
+
+    return progresses;
 }
 
 module.exports = {
@@ -216,5 +282,7 @@ module.exports = {
     getEnrollment,
     getEnrollmentById,
     getEnrollmentProgress,
+    getEnrollments,
+    getUserEnrollmentProgresses,
     unEnrollUser
 }

@@ -157,40 +157,68 @@ module.exports = {
       method: 'searchCertifications'
     },
   },
-  '/learning-paths/topcoder-certifications/:id': {
+  '/learning-paths/topcoder-certifications/:dashedName': {
     get: {
       controller: 'TopcoderCertificationController',
       method: 'getCertification'
     }
   },
+  '/learning-paths/topcoder-certifications/:userId/progresses': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollmentProgresses'
+    },
+  },
+  '/learning-paths/topcoder-certifications/:certificationDashedName/:userId/progress': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollmentProgress',
+      auth: 'jwt',
+    },
+  },
+
+
   '/learning-paths/certification-enrollment/:id': {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getEnrollment',
-      // auth: 'jwt',
+      auth: 'jwt',
     },
   },
-  '/learning-paths/certification-enrollment/:userId/:certificationId': {
+  '/learning-paths/user-certification-enrollment/:userId': {
     get: {
       controller: 'CertificationEnrollmentController',
-      method: 'getUserCertEnrollment',
-      // auth: 'jwt',
+      method: 'getAllUserEnrollments',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/user-certification-enrollment/:userId/:certificationId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollment',
+      auth: 'jwt',
     },
     post: {
       controller: 'CertificationEnrollmentController',
       method: 'enrollUser',
-      // auth: 'jwt',
+      auth: 'jwt',
     },
     delete: {
       controller: 'CertificationEnrollmentController',
       method: 'unEnrollUser',
-      // auth: 'jwt',
+      auth: 'jwt',
     },
   },
   '/learning-paths/certification-enrollment-progress/:enrollmentId': {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getEnrollmentProgress'
+    },
+  },
+  '/learning-paths/certification-enrollment-progresses/:userId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollmentProgresses'
     },
   },
   /**

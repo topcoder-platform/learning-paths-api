@@ -12,36 +12,8 @@ const DEFAULT_PAGE_LIMIT = 10
  * @returns {Object} the search result
  */
 async function searchCertifications(query = {}) {
-
     const dbQuery = {
-        include: [
-            {
-                model: db.CertificationResource,
-                as: 'certificationResources',
-                include: [
-                    {
-                        model: db.FreeCodeCampCertification,
-                        as: 'freeCodeCampCertification'
-                    },
-                    // TODO: leaving this here as an example of how we will 
-                    // need to handle the polymorphic association between resources
-                    // and the underlying course data. We are only currently 
-                    // using FreeCodeCamp certifications.
-
-                    // {
-                    //     model: db.TopcoderUdemyCourse,
-                    //     as: 'TopcoderUdemyCourse'
-                    // }
-                ],
-            },
-            {
-                model: db.CertificationCategory,
-                as: 'certificationCategory'
-            },
-            {
-                model: db.ResourceProvider,
-                as: 'resourceProviders',
-            }],
+        include: certificationIncludes(),
         offset: query.offset || 0,
         limit: query.limit || DEFAULT_PAGE_LIMIT,
         order: [
@@ -53,7 +25,7 @@ async function searchCertifications(query = {}) {
         dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']]
     }
 
-    return db.TopcoderCertification.findAndCountAll(dbQuery)
+    return await db.TopcoderCertification.findAll(dbQuery)
 }
 
 /**
@@ -64,7 +36,38 @@ async function searchCertifications(query = {}) {
  */
 async function getCertification(id) {
     const options = {
-        include: [{
+        include: certificationIncludes()
+    }
+
+    return await db.TopcoderCertification.findByPk(id, options)
+}
+
+/**
+ * Get Certification by DashedName
+ * 
+ * @param {String} dashedName the certification dashed name
+ * @returns {Object} the certification with given dashed name
+ */
+async function getCertificationByDashedName(dashedName) {
+    const options = {
+        where: {
+            dashedName,
+        },
+        include: certificationIncludes()
+    }
+
+    return await db.TopcoderCertification.findOne(options)
+}
+
+/**
+ * Provides the list of Sequelize model associations that should
+ * be included when querying TopcoderCertifications
+ * 
+ * @returns Array of model includes 
+ */
+function certificationIncludes() {
+    return [
+        {
             model: db.CertificationResource,
             as: 'certificationResources',
             include: [
@@ -72,18 +75,29 @@ async function getCertification(id) {
                     model: db.FreeCodeCampCertification,
                     as: 'freeCodeCampCertification'
                 },
-            ]
+                // TODO: leaving this here as an example of how we will 
+                // need to handle the polymorphic association between resources
+                // and the underlying course data. We are only currently 
+                // using FreeCodeCamp certifications.
+
+                // {
+                //     model: db.TopcoderUdemyCourse,
+                //     as: 'TopcoderUdemyCourse'
+                // }
+            ],
+        },
+        {
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
         },
         {
             model: db.ResourceProvider,
             as: 'resourceProviders',
         }]
-    }
-
-    return db.TopcoderCertification.findByPk(id, options)
 }
 
 module.exports = {
     searchCertifications,
-    getCertification
+    getCertification,
+    getCertificationByDashedName,
 }

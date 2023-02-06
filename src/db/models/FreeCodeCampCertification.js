@@ -3,6 +3,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FreeCodeCampCertification extends Model {
     static associate(models) {
+      this.belongsTo(models.ResourceProvider, {
+        as: 'resourceProvider',
+        foreignKey: 'resourceProviderId'
+      });
+
       this.hasOne(models.FccCourse, {
         as: 'course',
         foreignKey: 'certificationId'
@@ -40,6 +45,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false
     },
+    resourceProviderId: {
+      type: DataTypes.INTEGER,
+    },
     key: {
       type: DataTypes.TEXT,
       allowNull: false
@@ -55,6 +63,9 @@ module.exports = (sequelize, DataTypes) => {
     certification: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    description: {
+      type: DataTypes.TEXT,
     },
     completionHours: {
       type: DataTypes.INTEGER,

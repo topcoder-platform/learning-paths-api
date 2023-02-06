@@ -19,33 +19,63 @@ const ACTIVE_STATES = ['active', 'coming-soon'];
  * @returns {Object} the search result
  */
 async function searchCertifications(criteria) {
-    let page = criteria.page || 1
-    let perPage = criteria.perPage || 50
+    let page = criteria.page || 1;
+    let perPage = criteria.perPage || 50;
     let total, result;
 
     if (dbHelper.featureFlagUsePostgres()) {
-        let options = {};
-        let query = {};
-        if (criteria.state) {
-            query.state = criteria.state
-        } else {
-            query.state = {
-                [Op.or]: ACTIVE_STATES
-            }
-        }
-        options.where = query;
-
-        options.include = [{
-            model: db.CertificationCategory,
-            as: 'certificationCategory'
-        }];
-
-        ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, options));
+        ({ total, result } = await searchPGCertifications(criteria))
     } else {
         ({ total, result } = await searchDynamoCertifications(criteria))
     }
 
     return { total, page, perPage, result }
+}
+
+async function searchPGCertifications(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+
+    let options = {};
+    let query = {};
+    if (criteria.state) {
+        query.state = criteria.state
+    } else {
+        query.state = {
+            [Op.or]: ACTIVE_STATES
+        }
+    }
+    options.where = query;
+
+    options.include = [
+        {
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
+        },
+        {
+            model: db.FccCourse,
+            as: 'course'
+        }
+    ];
+
+    options.attributes = {
+        include: [
+            [
+                // Note the wrapping parentheses in the call below!
+                db.sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM "FccModules" AS module
+                    WHERE
+                        module."fccCourseId" = "course".id
+                )`),
+                'moduleCount'
+            ]
+        ]
+    };
+
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, options));
+
+    return { total, result }
 }
 
 async function searchDynamoCertifications(criteria) {

@@ -3,7 +3,12 @@
 const certificationService = require('../../services/CertificationService');
 const courseService = require('../../services/CourseService');
 const db = require('../../db/models');
-const fccCourseSkills = require('../../db/models/fcc_course_skills.json')
+const fccCourseSkills = require('../../db/models/fcc_course_skills.json');
+
+const {
+    displayDynamoDBUrl,
+    tcaDatastoreIsPostgres
+} = require('./migration_utilities');
 
 let fccResourceProvider;
 const FCC_PROVIDER_NAME = 'freeCodeCamp';
@@ -17,12 +22,59 @@ let fccCerts;
  * is empty when it runs and does not check for existing data.
  */
 async function migrate() {
-    let certs = await migrateCertifications();
-    let courses = await migrateCourses();
+    displayDynamoDBUrl();
+    await verifyCanMigrateData();
+
+    try {
+        let certs = await migrateCertifications();
+        let courses = await migrateCourses();
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
+ * Checks various preconditions to successfully executing the TCA 
+ * data migration.
+ */
+async function verifyCanMigrateData() {
+    if (tcaDatastoreIsPostgres()) {
+        throw "** TCA_DATASTORE env var is set to 'postgres' -- change this to 'dynamodb' to migrate TCA data -- exiting"
+    }
+
+    if (await fccCertificationDataExists()) {
+        throw "** The Postgres DB already contains freeCodeCamp certification or course data -- exiting"
+    }
+}
+
+/**
+ * Checks the TCA Postgres database to see if any FCC course, module, 
+ * or lesson data already exists. 
+ * 
+ * @returns boolean true if FCC course, module, or lesson data exists, 
+ * false otherwise
+ */
+async function fccCertificationDataExists() {
+    let dataExists = false;
+    try {
+        const certCount = await db.FreeCodeCampCertification.count();
+        const courseCount = await db.FccCourse.count();
+        const moduleCount = await db.FccModule.count();
+        const lessonCount = await db.FccLesson.count();
+
+        if (certCount + courseCount + moduleCount + lessonCount > 0) {
+            dataExists = true;
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return dataExists;
+    }
 }
 
 async function migrateCertifications() {
     certCategories = await getCertCategories();
+    fccResourceProvider = await getFccResourceProvider();
 
     let newCerts;
     const certifications = [];
@@ -47,11 +99,12 @@ async function migrateCertifications() {
 function buildCertificationAttrs(tcaCert) {
     const certCategory = certCategories.find(certCat => certCat.category == tcaCert.category)
     if (!certCategory) {
-        throw `Could not find certification category ${tcaCert.category}`
+        throw `Could not find certification category ${tcaCert.category} -- exiting`
     }
 
     const certAttrs = {
         fccId: tcaCert.id,
+        resourceProviderId: fccResourceProvider.id,
         key: tcaCert.key,
         providerCertificationId: tcaCert.providerCertificationId,
         title: tcaCert.title,
@@ -69,11 +122,6 @@ function buildCertificationAttrs(tcaCert) {
 }
 
 async function migrateCourses() {
-    fccResourceProvider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
-    if (!fccResourceProvider) {
-        throw "Could not find FCC ResourceProvider"
-    }
-
     fccCerts = await db.FreeCodeCampCertification.findAll();
     if (!fccCerts || fccCerts.length == 0) {
         throw "No FCC Certifications found -- cannot load course data"
@@ -122,13 +170,13 @@ async function createCourses(courses) {
 function buildCourseAttrs(tcaCourse) {
     const cert = fccCerts.find(fccCert => fccCert.fccId == tcaCourse.certificationId)
     if (!cert) {
-        console.error(`Could not find certification with fccId ${tcaCourse.certificationId} for course ${tcaCourse.title}`)
+        console.error(`Could not find certification with fccId ${tcaCourse.certificationId} for course '${tcaCourse.title}'`)
         return undefined
     }
 
     const courseSkills = fccCourseSkills[tcaCourse.key]
     if (!courseSkills) {
-        console.error(`Could not find skills for course ${tcaCourse.key}`)
+        console.error(`Could not find skills for course key '${tcaCourse.key}'`)
     }
 
     const courseAttrs = {
@@ -199,6 +247,15 @@ async function getCertCategories() {
     const certificationCategories = await db.CertificationCategory.findAll();
 
     return certificationCategories;
+}
+
+async function getFccResourceProvider() {
+    const provider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
+    if (!fccResourceProvider) {
+        throw "Could not find FCC ResourceProvider"
+    }
+
+    return provider;
 }
 
 async function getTcaDynamoCertifications() {

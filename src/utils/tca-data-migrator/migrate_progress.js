@@ -1,4 +1,4 @@
-const migrator = require('../progress_migrator.js');
+const migrator = require('./progress_migrator.js');
 
 (async () => {
     try {

@@ -1,5 +1,10 @@
 const { Model } = require('sequelize');
 
+const DEFAULT_COMPLETION_TIME_LOW = DEFAULT_COMPLETION_TIME_HIGH = 0;
+const COMPLETION_TIME_UNITS = "hours";
+
+const COMPLETION_LOW_RANGE_DIVISOR = 3;
+
 module.exports = (sequelize, DataTypes) => {
   class TopcoderCertification extends Model {
     static associate(models) {
@@ -48,10 +53,10 @@ module.exports = (sequelize, DataTypes) => {
     introText: {
       type: DataTypes.TEXT,
     },
-    estimatedCompletionTime: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
+    // estimatedCompletionTime: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false
+    // },
     status: {
       type: DataTypes.ENUM("active", "inactive", "coming_soon", "deprecated"),
       allowNull: false,
@@ -100,6 +105,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     providers: {
       type: DataTypes.VIRTUAL,
+    },
+    completionTimeRange: {
+      type: DataTypes.VIRTUAL,
     }
   }, {
     sequelize,
@@ -135,7 +143,29 @@ module.exports = (sequelize, DataTypes) => {
       // and resource providers, but in reality a certification without 
       // any curriculum resources isn't viable. Need to handle this case 
       // in a better way.
+
+      // Set the estimated completion time range values to their defaults
+      instance.completionTimeRange = {
+        lowRangeValue: DEFAULT_COMPLETION_TIME_LOW,
+        highRangeValue: DEFAULT_COMPLETION_TIME_HIGH,
+        units: COMPLETION_TIME_UNITS
+      }
+
       if (instance.certificationResources) {
+        // Compute the estimated completion range based on
+        // the completion time of the contained courses (resources)
+        let highRange = 0;
+        for (const resource of instance.certificationResources) {
+          if (resource.freeCodeCampCertification) {
+            const courseCompletionHours = resource.freeCodeCampCertification.completionHours || 0;
+            highRange += courseCompletionHours
+          }
+        }
+
+        const lowRange = Math.floor(highRange / COMPLETION_LOW_RANGE_DIVISOR);
+        instance.completionTimeRange.lowRangeValue = lowRange;
+        instance.completionTimeRange.highRangeValue = highRange;
+
         instance.coursesCount = instance.certificationResources.length
         // just returning a subset of the ResourceProvider attributes from the
         // hasMany :through association. Can't seem to find a way to remove 

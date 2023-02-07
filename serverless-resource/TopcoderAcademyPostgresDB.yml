@@ -12,4 +12,3 @@ Resources:
       Engine: postgres
       MasterUsername: ${self:custom.TCA_PG_USER}
       MasterUserPassword: ${self:custom.TCA_PG_PASSWORD}
-      

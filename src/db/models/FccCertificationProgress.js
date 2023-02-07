@@ -1,5 +1,6 @@
 'use strict';
 
+const { progressStatuses } = require('../../common/constants');
 const { Model } = require('sequelize');
 const FccLesson = require('./FccLesson')
 
@@ -53,9 +54,19 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {Object} certification a FreeCodeCampCertification object
      */
-    static async buildFromCertification(userId, fccCertification) {
+    static async buildFromCertification(userId, fccCertification, options = {}) {
       const certCategory = await fccCertification.getCertificationCategory();
       const course = await fccCertification.getCourse();
+
+      // if module and lesson options were passed in, set the 
+      // +currrentLesson+, otherwise set it to null
+      let currentLesson = null;
+      if (options.module && options.lesson) {
+        currentLesson = `${options.module}/${options.lesson}`
+      }
+
+      const status = options.status ? options.status : progressStatuses.notStarted;
+      const startDate = options.status == progressStatuses.inProgress ? new Date() : null;
 
       let progressAttrs = {
         fccCertificationId: fccCertification.id,
@@ -67,8 +78,10 @@ module.exports = (sequelize, DataTypes) => {
         certificationTitle: fccCertification.title,
         certType: fccCertification.certType,
         certificationTrackType: certCategory.track,
-        status: 'not-started',
-        moduleProgresses: await this.buildModuleProgresses(course)
+        status: status,
+        startDate: startDate,
+        currentLesson: currentLesson,
+        moduleProgresses: await this.buildModuleProgresses(course, options)
       }
 
       // Using Sequelize's model +create+ method with an embedded 
@@ -89,24 +102,36 @@ module.exports = (sequelize, DataTypes) => {
     /**
      * Builds the collection of FccModuleProgress records for a
      * certification progress object so they can be created all 
-     * at once.
+     * at once. The +options+ object allows setting a module and 
+     * lesson in progress.
      */
-    static async buildModuleProgresses(course) {
+    static async buildModuleProgresses(course, options = {}) {
       // including FccLesson so we can get the lesson count in 
       // one query instead of n queries
       const modules = await course.getModules({
+        order: ['order'],
         include: {
           model: sequelize.model('FccLesson'),
           as: 'lessons',
-          attributes: ['id']
+          attributes: ['id'],
         }
       });
 
       const moduleProgressAttrs = []
       for (const module of modules) {
+        // if a module key was passed in, that module should 
+        // be set to 'in-progress', otherwise set to 'not-started'
+        let moduleStatus = progressStatuses.notStarted;
+        let startDate = null;
+        if (options.module && options.module === module.key) {
+          moduleStatus = progressStatuses.inProgress;
+          startDate = new Date();
+        }
+
         const progressAttrs = {
           module: module.key,
-          moduleStatus: 'not-started',
+          moduleStatus: moduleStatus,
+          startDate: startDate,
           lessonCount: module.lessons.length,
           isAssessment: module.isAssessment,
         }

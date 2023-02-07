@@ -4,11 +4,11 @@
  */
 
 const db = require('../db/models');
+const errors = require('../common/errors')
 
-const {
-    progressStatuses,
-    resourceProviders,
-} = require('../common/constants');
+const { progressStatuses } = require('../common/constants');
+
+const helper = require('../common/helper');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -36,7 +36,7 @@ function buildSearchWhere(query) {
         where.certification = query.certification
     }
     if (query.certificationId) {
-        where.certificationId = query.certificationId
+        where.fccCertificationId = query.certificationId
     }
     if (query.courseId) {
         where.fccCourseId = query.courseId
@@ -239,6 +239,51 @@ async function getCertificationProgress(userId, progressId) {
 }
 
 /**
+ * Create a new certification progress record 
+ * 
+ * @param {String} userId the user's ID
+ * @param {Object} query object containing the provier, certification, module and lesson the user has started
+ * @returns {Object} the new FccCertificationProgress object, or the existing one for the certification
+ */
+async function startCertification(currentUser, userId, certificationId, courseId, query) {
+    helper.ensureRequestForCurrentUser(currentUser, userId)
+
+    const existingProgress = await getExistingProgress(userId, certificationId);
+
+    // if the certification has already been started, just return it
+    if (existingProgress) {
+        const provider = existingProgress?.resourceProvider?.name;
+        const certification = existingProgress.certification;
+        const startDate = existingProgress.startDate;
+
+        console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
+        return existingProgress
+    } else {
+        const fccCertification = await db.FreeCodeCampCertification.findByPk(certificationId);
+        let options = query;
+        options.status = progressStatuses.inProgress;
+
+        return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification, options);
+    }
+}
+
+async function getExistingProgress(userId, certificationId, courseId) {
+    const searchCriteria = {
+        userId: userId,
+        certificationId: certificationId,
+        courseId: courseId
+    };
+
+    results = await searchCertificationProgresses(searchCriteria);
+
+    if (results.length > 1) {
+        throw new errors.BadRequestError(`User ${userId} has multiple certification progresses for certification ID ${certificationId}`);
+    }
+
+    return results[0];
+}
+
+/**
  * Delete FccCertificationProgress by ID
  * 
  * @param {String} currentUser the user making the request
@@ -260,4 +305,5 @@ module.exports = {
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,
+    startCertification,
 }

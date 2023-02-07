@@ -205,6 +205,7 @@ function buildModulesAttrs(tcaModules) {
     let module;
     let modules = [];
 
+    let order = 0;
     for (const tcaModule of tcaModules) {
         const meta = tcaModule.meta;
 
@@ -216,6 +217,7 @@ function buildModulesAttrs(tcaModules) {
             estimatedCompletionTimeUnits: meta.estimatedCompletionTime.units,
             introCopy: meta.introCopy,
             isAssessment: meta.isAssessment,
+            order: order++,
             lessons: buildLessonsAttrs(tcaModule.lessons)
         }
         modules.push(module);

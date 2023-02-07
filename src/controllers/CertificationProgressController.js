@@ -80,7 +80,7 @@ async function deleteLastModuleLesson(req, res) {
  * @param {Object} res the response
  */
 async function startCertification(req, res) {
-    const result = await progressService.startCertification(
+    const result = await service.startCertification(
         req.authUser,
         req.params.userId,
         req.params.certificationId,

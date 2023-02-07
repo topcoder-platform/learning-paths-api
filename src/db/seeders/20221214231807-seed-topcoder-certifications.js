@@ -21,7 +21,6 @@ module.exports = {
         title: 'Web Development Certification',
         dashedName: 'web-development-certification',
         description: 'Covers all the basics of front-end and back-end web development',
-        estimatedCompletionTime: 600,
         status: 'active',
         certificationCategoryId: webId,
         learnerLevel: 'Beginner',
@@ -29,7 +28,7 @@ module.exports = {
         skills: ['Web Development', 'JavaScript', 'APIs'],
         stripeProductId: 'prod_MzAGVmH4YG42lA',
         learningOutcomes: ['learningOutcomes'],
-        prerequisites: ['prerequisites1'],
+        prerequisites: ['There are no prerequisites for this certification.'],
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -37,7 +36,6 @@ module.exports = {
         title: 'Data Science Certification',
         dashedName: 'data-science-certification',
         description: 'Learn the basics of data science along with practical applications',
-        estimatedCompletionTime: 600,
         status: 'active',
         certificationCategoryId: dataSciId,
         learnerLevel: 'Beginner',
@@ -45,7 +43,7 @@ module.exports = {
         skills: ['Data Structures', 'Machine Learning', 'AI'],
         stripeProductId: 'prod_MyBDpJ53eSVYRr',
         learningOutcomes: ['learningOutcomes'],
-        prerequisites: ['prerequisites1'],
+        prerequisites: ['There are no prerequisites for this certification.'],
         createdAt: new Date(),
         updatedAt: new Date()
       },

@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.hasMany(models.FccModuleProgress, {
         as: 'moduleProgresses',
-        foreignKey: 'fccCertificationProgressId'
+        foreignKey: 'fccCertificationProgressId',
+        onDelete: 'CASCADE'
       });
 
       this.belongsTo(models.FreeCodeCampCertification, {
@@ -159,7 +160,10 @@ module.exports = (sequelize, DataTypes) => {
     completedDate: DataTypes.DATE,
     academicHonestyPolicyAcceptedAt: DataTypes.DATE,
     currentLesson: DataTypes.STRING,
-    certificationImageUrl: DataTypes.STRING
+    certificationImageUrl: DataTypes.STRING,
+    // Virtual attributes that are computed server-side
+    courseProgressPercentage: DataTypes.VIRTUAL,
+    certificationProgressPercentage: DataTypes.VIRTUAL,
   }, {
     sequelize,
     modelName: 'FccCertificationProgress',

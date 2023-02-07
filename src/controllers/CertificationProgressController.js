@@ -8,6 +8,14 @@ const fccService = require('../services/FccCertificationProgressServices')
 const helper = require('../common/helper')
 const dbHelper = require('../common/dbHelper')
 
+// Switch between DynamoDB and PostgreSQL-based services
+let service;
+if (dbHelper.featureFlagUsePostgres()) {
+    service = fccService;
+} else {
+    service = progressService;
+}
+
 /**
  * Search certification progress
  * 
@@ -15,13 +23,6 @@ const dbHelper = require('../common/dbHelper')
  * @param {Object} res the response
  */
 async function searchCertificationProgresses(req, res) {
-    let service;
-    if (dbHelper.featureFlagUsePostgres()) {
-        service = fccService;
-    } else {
-        service = progressService;
-    }
-
     const result = await service.searchCertificationProgresses(req.query)
     helper.setResHeaders(req, res, result)
 
@@ -35,7 +36,7 @@ async function searchCertificationProgresses(req, res) {
  * @param {Object} res the response
  */
 async function getCertificationProgress(req, res) {
-    const result = await progressService.getCertificationProgress(
+    const result = await service.getCertificationProgress(
         req.authUser.userId,
         req.params.certificationProgressId)
 
@@ -49,7 +50,7 @@ async function getCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteCertificationProgress(req, res) {
-    const result = await progressService.deleteCertificationProgress(
+    const result = await service.deleteCertificationProgress(
         req.authUser,
         req.params.certificationProgressId)
 
@@ -154,7 +155,7 @@ async function completeLessonViaMongoTrigger(req, res) {
  * @param {Object} res the response
  */
 async function acceptAcademicHonestyPolicy(req, res) {
-    const result = await progressService.acceptAcademicHonestyPolicy(
+    const result = await service.acceptAcademicHonestyPolicy(
         req.authUser,
         req.params.certificationProgressId)
 

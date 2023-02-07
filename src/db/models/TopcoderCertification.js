@@ -53,10 +53,6 @@ module.exports = (sequelize, DataTypes) => {
     introText: {
       type: DataTypes.TEXT,
     },
-    // estimatedCompletionTime: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false
-    // },
     status: {
       type: DataTypes.ENUM("active", "inactive", "coming_soon", "deprecated"),
       allowNull: false,

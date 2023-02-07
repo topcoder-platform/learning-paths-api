@@ -18,7 +18,7 @@
 # should be able to point your local DB tool (for example, PGAdmin) to a DB instance 
 # running on localhost. 
 # 
-# NOTE: If you have a local DB server running on the port your forwarding to EC2
+# NOTE: If you have a local DB server running on the port you're forwarding to EC2
 # you'll need to shut it down before running this script. If you don't, you'll 
 # either get an error that something is already bound to the port (self-explanatory) 
 # or you'll simply connect to the local instance of the database, not the RDS instance,

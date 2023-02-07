@@ -4,3 +4,4 @@ Outputs:
     Value: !GetAtt [TopcoderAcademyPostgresDB, Endpoint.Address]
     Export:
       Name: ${self:service}:${sls:stage}:TopcoderAcademyDBHost
+      

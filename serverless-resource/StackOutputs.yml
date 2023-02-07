@@ -1,0 +1,6 @@
+Outputs:
+  TopcoderAcademyDBHost:
+    Description: The RDS Postgres DB host
+    Value: !GetAtt [TopcoderAcademyPostgresDB, Endpoint.Address]
+    Export:
+      Name: ${self:service}:${sls:stage}:TopcoderAcademyDBHost

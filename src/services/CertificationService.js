@@ -55,7 +55,11 @@ async function searchPGCertifications(criteria) {
         {
             model: db.FccCourse,
             as: 'course'
-        }
+        },
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProvider'
+        },
     ];
 
     options.attributes = {

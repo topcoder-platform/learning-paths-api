@@ -251,7 +251,7 @@ async function getCertCategories() {
 
 async function getFccResourceProvider() {
     const provider = await db.ResourceProvider.findOne({ where: { name: FCC_PROVIDER_NAME } })
-    if (!fccResourceProvider) {
+    if (!provider) {
         throw "Could not find FCC ResourceProvider"
     }
 

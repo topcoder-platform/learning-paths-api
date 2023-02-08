@@ -140,6 +140,28 @@ module.exports = (sequelize, DataTypes) => {
 
       return moduleProgressAttrs
     }
+
+    async allAssessmentModulesCompleted() {
+      const progresses = await this.getModuleProgresses({
+        where: {
+          isAssessment: true
+        }
+      });
+
+      return progresses.every(module => module.isCompleted());
+    }
+
+    /**
+     * Marks an FCC Certificationa as completed
+     */
+    async completeFccCertification(completedDate = new Date()) {
+      this.set({
+        completedDate: completedDate,
+        status: progressStatuses.completed,
+      })
+
+      return await this.save();
+    }
   }
 
   FccCertificationProgress.init({

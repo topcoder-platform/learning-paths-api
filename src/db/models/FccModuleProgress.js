@@ -2,8 +2,12 @@
 const {
   Model
 } = require('sequelize');
+
+const { progressStatuses } = require('../../common/constants');
+
 module.exports = (sequelize, DataTypes) => {
   class FccModuleProgress extends Model {
+
     static associate(models) {
       this.belongsTo(models.FccCertificationProgress, {
         as: 'certificationProgress',
@@ -16,7 +20,22 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       });
     }
+
+    isCompleted() {
+      return this.moduleStatus == progressStatuses.completed
+    }
+
+    /**
+     * Checks if this module progress is an assessment and has 
+     * been completed.
+     * 
+     * @returns true if module is an assessment and is completed, otherwise false
+     */
+    isCompletedAssessment() {
+      return this.isAssessment && this.isCompleted()
+    }
   }
+
   FccModuleProgress.init({
     id: {
       allowNull: false,

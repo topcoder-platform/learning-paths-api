@@ -128,7 +128,7 @@ async function updateCurrentLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLesson(req, res) {
-    const result = await progressService.completeLesson(
+    const result = await service.completeLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.query)

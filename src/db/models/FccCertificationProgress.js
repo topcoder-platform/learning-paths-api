@@ -2,7 +2,6 @@
 
 const { progressStatuses } = require('../../common/constants');
 const { Model } = require('sequelize');
-const FccLesson = require('./FccLesson')
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
@@ -161,6 +160,38 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       return await this.save();
+    }
+
+    /**
+     * Updates the current lesson and the last interacted date
+     * 
+     * @param {String} currentLesson the current lesson, as 'module/lesson'
+     * @returns the updated cert progress record
+     */
+    async updateCurrentLesson(currentLesson) {
+      this.set({
+        currentLesson: currentLesson,
+        lastInteractionDate: new Date()
+      });
+
+      this.save();
+
+      return this;
+    }
+
+    /**
+     * Gets the FccModuleProgress object that corresponds to the given FccModule 
+     * 
+     * @param {FccModule} fccModule the module whose matching progress we want
+     */
+    async getModuleProgressForModule(fccModule) {
+      const moduleProgresses = await this.getModuleProgresses({
+        where: {
+          module: fccModule.key
+        }
+      })
+
+      return moduleProgresses[0]
     }
   }
 

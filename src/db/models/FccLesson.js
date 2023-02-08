@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class FccLesson extends Model {
     static associate(models) {
       this.belongsTo(models.FccModule, {
+        as: 'fccModule',
         foreignKey: 'fccModuleId'
       });
     }

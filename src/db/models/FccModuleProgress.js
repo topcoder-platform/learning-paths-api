@@ -21,6 +21,39 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    /**
+     * Sets the start date and status of a progress module if it hasn't
+     * already been completed.
+     * 
+     * @returns the module
+     */
+    async touchModule(actionDate = new Date()) {
+      // if the module has already been completed, just return it 
+      // without updating anything
+      if (this.isCompleted()) return this;
+
+      // update the interaction date if it's in-progress or not-started
+      let statusAttrs = {
+        lastInteractionDate: actionDate
+      }
+
+      // start the module if it's not-started
+      if (this.moduleStatus == progressStatuses.notStarted) {
+        statusAttrs.startDate = actionDate;
+        statusAttrs.moduleStatus = progressStatuses.inProgress;
+      }
+
+      this.set(statusAttrs);
+
+      await this.save();
+
+      return this;
+    }
+
+    /**
+     * 
+     * @returns true if the module status is completed
+     */
     isCompleted() {
       return this.moduleStatus == progressStatuses.completed
     }

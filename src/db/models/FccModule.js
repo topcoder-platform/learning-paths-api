@@ -1,7 +1,10 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+const { progressStatuses } = require('../../common/constants');
+
 module.exports = (sequelize, DataTypes) => {
   class FccModule extends Model {
     static associate(models) {
@@ -15,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   FccModule.init({
     id: {
       type: DataTypes.INTEGER,
@@ -57,5 +61,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'FccModule',
     tableName: 'FccModules'
   });
+
   return FccModule;
 };

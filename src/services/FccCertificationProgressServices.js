@@ -284,6 +284,50 @@ async function getExistingProgress(userId, certificationId, courseId) {
 }
 
 /**
+ * @param {Integer} certificationProgressId the ID of the certification progress record
+ * @param {Object} query the course data containing the current module and lesson
+ * @returns {Object} the updated course progress
+ */
+async function updateCurrentLesson(currentUser, certificationProgressId, query) {
+    const userId = currentUser.userId;
+
+    const lessonId = query.lessonId;
+    const module = query.module;
+    const lesson = query.lesson;
+    const currentLesson = `${module}/${lesson}`
+
+    console.log(`User ${userId} setting current lesson to ${module}/${lesson}...`)
+
+    // Get the FccCertProgress, FccLesson, and FccModule data
+    const certProgress = await getCertificationProgress(userId, certificationProgressId);
+    const fccLesson = await db.FccLesson.findByPk(lessonId, {
+        include: {
+            model: db.FccModule,
+            as: 'fccModule'
+        }
+    })
+
+    const fccModule = fccLesson.fccModule;
+
+    // verify the module and lesson names correspond to the lesson ID before updating
+    const moduleLessonMatch = (fccModule.key == module && fccLesson.dashedName == lesson)
+    if (!moduleLessonMatch) {
+        throw new errors.BadRequestError(
+            `Module and lesson ${currentLesson} name don't match given FCC lesson ID ${lessonId}`)
+    }
+
+    // Module and lesson verified, get the module progress to update
+    const moduleProgress = await certProgress.getModuleProgressForModule(fccModule);
+    await moduleProgress.touchModule();
+    let updatedProgress = await certProgress.updateCurrentLesson(currentLesson);
+    decorateProgressCompletion(updatedProgress);
+
+    console.log(`User ${certProgress.userId} set current lesson to ${currentLesson}`)
+
+    return updatedProgress
+}
+
+/**
  * Marks a certification as completed in the FCC Certification Progress record.
  * 
  * If the cert URL is present, this function will send a message to the queue to initiate the 
@@ -383,4 +427,5 @@ module.exports = {
     getCertificationProgress,
     searchCertificationProgresses,
     startCertification,
+    updateCurrentLesson,
 }

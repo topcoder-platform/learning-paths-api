@@ -130,13 +130,14 @@ async function getCertification(id) {
     let certification;
 
     if (dbHelper.featureFlagUsePostgres()) {
-        const where = { fccId: id }
-        const includeAssociations = [{
-            model: db.CertificationCategory,
-            as: 'certificationCategory'
-        }];
+        const includeAssociations = {
+            include: [{
+                model: db.CertificationCategory,
+                as: 'certificationCategory'
+            }]
+        };
 
-        certification = await dbHelper.findOne('FreeCodeCampCertification', where, includeAssociations)
+        certification = await db.FreeCodeCampCertification.findByPk(id, includeAssociations)
     } else {
         certification = await helper.getById('Certification', id)
     }

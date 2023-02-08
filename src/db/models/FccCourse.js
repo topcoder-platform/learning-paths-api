@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsTo(models.FreeCodeCampCertification, {
-        foreignKey: 'certificationId'
+        foreignKey: 'certificationId',
+        as: 'freeCodeCampCertification'
       });
 
       this.hasMany(models.FccCertificationProgress, {

@@ -1,5 +1,6 @@
 'use strict';
 
+const errors = require('../../common/errors');
 const { progressStatuses } = require('../../common/constants');
 const { Model } = require('sequelize');
 
@@ -184,14 +185,56 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {FccModule} fccModule the module whose matching progress we want
      */
-    async getModuleProgressForModule(fccModule) {
+    async getModuleProgressForModule(moduleKey) {
       const moduleProgresses = await this.getModuleProgresses({
         where: {
-          module: fccModule.key
+          module: moduleKey
         }
       })
 
       return moduleProgresses[0]
+    }
+
+    async completeLesson(moduleKey, lessonDashedName, lessonId) {
+      const lesson = await this.validateLesson(moduleKey, lessonDashedName, lessonId)
+
+      const moduleProgress = await this.getModuleProgressForModule(moduleKey);
+      if (!moduleProgress) {
+        throw `Did not find module progress with key ${moduleKey}`
+      }
+
+      // check if this lesson has already been completed, and if so,
+      // just return this cert progress
+      const lessonCount = await moduleProgress.countCompletedLessons({
+        where: {
+          dashedName: lessonDashedName
+        }
+      });
+      if (lessonCount == 1) return this;
+
+      // add the completed lesson
+      const lessonAttrs = {
+        id: lesson.id,
+        dashedName: lesson.dashedName,
+        completedDate: new Date()
+      }
+
+      // update the module progress with the completed lesson,
+      // update the last interacted date, and check if the module
+      // itself has been completed.
+      await moduleProgress.createCompletedLesson(lessonAttrs);
+      await moduleProgress.touchModule();
+      await moduleProgress.checkAndSetModuleStatus();
+    }
+
+    async validateLesson(moduleKey, lessonDashedName, lessonId) {
+      const lesson = this.freeCodeCampCertification.getLesson(moduleKey, lessonId);
+      if (!lesson) {
+        throw new errors.BadRequestError(
+          `No lesson '${moduleKey}/${lessonDashedName}' exists in certification '${this.certification}'`)
+      }
+
+      return lesson;
     }
   }
 

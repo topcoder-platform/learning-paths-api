@@ -67,6 +67,29 @@ module.exports = (sequelize, DataTypes) => {
     isCompletedAssessment() {
       return this.isAssessment && this.isCompleted()
     }
+
+    /**
+     * Checks the completion status of a module based on the 
+     * count of completed lessons and updates the status accordingly.
+     */
+    async checkAndSetModuleStatus() {
+      if (this.isCompleted()) return;
+
+      const completedLessonCount = await this.countCompletedLessons();
+      const moduleInProgress = ((completedLessonCount > 0) && (completedLessonCount < this.lessonCount));
+      const moduleCompleted = (completedLessonCount >= this.lessonCount);
+
+      if (moduleInProgress) {
+        this.moduleStatus = progressStatuses.inProgress
+      } else if (moduleCompleted) {
+        this.moduleStatus = progressStatuses.completed
+        if (!this.completedDate) {
+          this.completedDate = new Date()
+        }
+      }
+
+      await this.save();
+    }
   }
 
   FccModuleProgress.init({

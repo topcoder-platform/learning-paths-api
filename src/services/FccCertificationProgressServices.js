@@ -317,12 +317,36 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     }
 
     // Module and lesson verified, get the module progress to update
-    const moduleProgress = await certProgress.getModuleProgressForModule(fccModule);
+    const moduleProgress = await certProgress.getModuleProgressForModule(fccModule.key);
     await moduleProgress.touchModule();
     let updatedProgress = await certProgress.updateCurrentLesson(currentLesson);
     decorateProgressCompletion(updatedProgress);
 
     console.log(`User ${certProgress.userId} set current lesson to ${currentLesson}`)
+
+    return updatedProgress
+}
+
+/**
+ * Marks a lesson as complete for an Fcc Certification Progress
+ * 
+ * @param {Integer} certificationProgressId the certification progress Id
+ * @param {Object} data the course data containing the module/lesson to complete
+ * @returns {Object} the updated course progress
+ */
+async function completeLesson(currentUser, certificationProgressId, query) {
+    const userId = currentUser.userId;
+    const module = query.module;
+    const lesson = query.lesson;
+    const lessonId = query.uuid;
+
+    const certProgress = await getCertificationProgress(userId, certificationProgressId);
+    await certProgress.completeLesson(module, lesson, lessonId);
+    // fetch the full cert progress again to pickup all of the included assocations
+    let updatedProgress = await getCertificationProgress(userId, certificationProgressId);
+    decorateProgressCompletion(updatedProgress);
+
+    console.log(`User ${userId} completed ${certProgress.certification}/${module}/${lesson} (id: ${lessonId})`);
 
     return updatedProgress
 }
@@ -423,6 +447,7 @@ async function deleteCertificationProgress(currentUser, progressId) {
 module.exports = {
     acceptAcademicHonestyPolicy,
     completeCertification,
+    completeLesson,
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,

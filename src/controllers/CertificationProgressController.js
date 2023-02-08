@@ -97,7 +97,7 @@ async function startCertification(req, res) {
  * @param {Object} res the response
  */
 async function completeCertification(req, res) {
-    const result = await progressService.completeCertification(
+    const result = await service.completeCertification(
         req.authUser,
         req.params.certificationProgressId,
         req.query.certificateUrl,

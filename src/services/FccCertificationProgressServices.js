@@ -284,6 +284,82 @@ async function getExistingProgress(userId, certificationId, courseId) {
 }
 
 /**
+ * Marks a certification as completed in the FCC Certification Progress record.
+ * 
+ * If the cert URL is present, this function will send a message to the queue to initiate the 
+ * generation of an image for the cert.
+ * 
+ * @param {Integer} certificationProgressId the ID of the user's certification progress to complete
+ * @param {Object} data the course data containing the current module and lesson
+ * @returns {Object} the updated course progress
+ * @param {String} certificateUrl (optional) the URL at which the cert should be visible
+ * @param {String} certificateElement (optional) the element w/in the cert that should be used for
+ * image generation
+  * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
+ * they will be added to the list of image files that will be created.
+ */
+async function completeCertification(
+    currentUser,
+    certificationProgressId,
+    certificateUrl,
+    certificateElement,
+    certificateAlternateParams,
+) {
+    const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
+
+    await checkCertificateCompletion(progress)
+
+    const userId = progress.userId;
+    const providerName = progress.resourceProvider.name;
+    const certification = progress.certification;
+
+    const completedProgress = await progress.completeFccCertification();
+
+    console.log(`User ${userId} has completed ${providerName} certification '${certification}'`);
+    decorateProgressCompletion(completedProgress);
+
+    // if we have the cert URL, generate the image
+    if (!!certificateUrl) {
+        console.log(`Generating certificate image for ${userId} for ${certification}`)
+        imageGenerator.generateCertificateImage(
+            progress,
+            currentUser.nickname,
+            certification,
+            providerName,
+            certificateUrl,
+            certificateElement,
+            certificateAlternateParams,
+        )
+
+    } else {
+        console.log(`Certificate Image for ${userId} for ${certification} NOT being generated b/c no cert URL was provided.`)
+    }
+
+    return completedProgress
+}
+
+/**
+ * Checks if all of the assessments required for an FCC certification
+ * have been completed
+ * 
+ * @param {Object} module the module to check for completion
+ */
+async function checkCertificateCompletion(progress) {
+    const userId = progress.userId;
+
+    // if any assessment module has not been completed, throw an error that 
+    // will be returned to the caller as a non-success HTTP code 
+    const allAssessmentsCompleted = await progress.allAssessmentModulesCompleted();
+
+    if (!allAssessmentsCompleted) {
+        throw new errors.BadRequestError(
+            `User ${userId} has not completed all required assessment modules for the ${progress.certificationTitle} certification`)
+    } else {
+        return true
+    }
+}
+
+/**
  * Delete FccCertificationProgress by ID
  * 
  * @param {String} currentUser the user making the request
@@ -302,6 +378,7 @@ async function deleteCertificationProgress(currentUser, progressId) {
 
 module.exports = {
     acceptAcademicHonestyPolicy,
+    completeCertification,
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,

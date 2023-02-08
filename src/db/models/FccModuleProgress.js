@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
 
       this.hasMany(models.FccCompletedLesson, {
         as: 'completedLessons',
-        foreignKey: 'fccModuleProgressId'
+        foreignKey: 'fccModuleProgressId',
+        onDelete: 'CASCADE'
       });
     }
   }
@@ -49,7 +50,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     startDate: DataTypes.DATE,
     lastInteractionDate: DataTypes.DATE,
-    completedDate: DataTypes.DATE
+    completedDate: DataTypes.DATE,
+    completedLessonCount: DataTypes.VIRTUAL,
+    completedPercentage: DataTypes.VIRTUAL,
   }, {
     sequelize,
     modelName: 'FccModuleProgress',

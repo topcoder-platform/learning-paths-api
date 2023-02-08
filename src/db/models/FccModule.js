@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    order: DataTypes.INTEGER,
   }, {
     indexes: [
       {

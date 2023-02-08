@@ -1285,7 +1285,7 @@ ALTER TABLE ONLY public."FccCertificationProgresses"
 --
 
 ALTER TABLE ONLY public."FccCompletedLessons"
-    ADD CONSTRAINT "FccCompletedLessons_fccModuleProgressId_fkey" FOREIGN KEY ("fccModuleProgressId") REFERENCES public."FccModuleProgresses"(id);
+    ADD CONSTRAINT "FccCompletedLessons_fccModuleProgressId_fkey" FOREIGN KEY ("fccModuleProgressId") REFERENCES public."FccModuleProgresses"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -1321,7 +1321,7 @@ ALTER TABLE ONLY public."FccLessons"
 --
 
 ALTER TABLE ONLY public."FccModuleProgresses"
-    ADD CONSTRAINT "FccModuleProgresses_fccCertificationProgressId_fkey" FOREIGN KEY ("fccCertificationProgressId") REFERENCES public."FccCertificationProgresses"(id);
+    ADD CONSTRAINT "FccModuleProgresses_fccCertificationProgressId_fkey" FOREIGN KEY ("fccCertificationProgressId") REFERENCES public."FccCertificationProgresses"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

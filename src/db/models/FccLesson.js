@@ -4,6 +4,7 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FccLesson extends Model {
+
     static associate(models) {
       this.belongsTo(models.FccModule, {
         as: 'fccModule',
@@ -11,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
   FccLesson.init({
     id: {
       type: DataTypes.STRING,

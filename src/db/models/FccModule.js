@@ -7,6 +7,7 @@ const { progressStatuses } = require('../../common/constants');
 
 module.exports = (sequelize, DataTypes) => {
   class FccModule extends Model {
+
     static associate(models) {
       this.belongsTo(models.FccCourse, {
         foreignKey: 'fccCourseId'
@@ -17,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'fccModuleId'
       });
     }
+
   }
 
   FccModule.init({

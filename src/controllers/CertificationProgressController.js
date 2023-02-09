@@ -143,7 +143,7 @@ async function completeLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLessonViaMongoTrigger(req, res) {
-    const result = await progressService.completeLessonViaMongoTrigger(req.query)
+    const result = await service.completeLessonViaMongoTrigger(req.query)
 
     res.send(result)
 }

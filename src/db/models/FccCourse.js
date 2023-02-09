@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsTo(models.FreeCodeCampCertification, {
+        as: 'fccCertification',
         foreignKey: 'certificationId'
       });
 

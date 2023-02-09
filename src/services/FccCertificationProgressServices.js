@@ -360,16 +360,19 @@ async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
-    const fccModule = await fccLesson.getModule();
-    const fccCourse = await fccModule.getCourse();
-    const fccCertification = await fccCourse.FreeCodeCampCertification;
+    const fccModule = await fccLesson.getFccModule();
+    const fccCourse = await fccModule.getFccCourse();
+    const fccCertification = await fccCourse.getFccCertification();
 
     // where clause to find the matching Fcc Cert Progress record
     const where = {
         userId: userId,
         fccCertificationId: fccCertification.id
     }
-    const certProgress = db.FccCertificationProgress.findOne(where);
+    const certProgress = await db.FccCertificationProgress.findOne({
+        where: where,
+        include: certProgressIncludes()
+    });
 
     if (certProgress) {
         const certification = certProgress.certification;

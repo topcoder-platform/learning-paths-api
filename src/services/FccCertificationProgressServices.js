@@ -350,6 +350,38 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     return updatedProgress
 }
+/**
+ * Marks a lesson as complete in the FCC Certification Progress using data 
+ * provided by a freeCodeCamp MongoDB update trigger.
+ * 
+ * @param {Object} query the input query describing the user and lesson
+ */
+async function completeLessonViaMongoTrigger(query) {
+    const { userId, lessonId } = query;
+
+    const fccLesson = await db.FccLesson.findByPk(lessonId);
+    const fccModule = await fccLesson.getModule();
+    const fccCourse = await fccModule.getCourse();
+    const fccCertification = await fccCourse.FreeCodeCampCertification;
+
+    // where clause to find the matching Fcc Cert Progress record
+    const where = {
+        userId: userId,
+        fccCertificationId: fccCertification.id
+    }
+    const certProgress = db.FccCertificationProgress.findOne(where);
+
+    if (certProgress) {
+        const certification = certProgress.certification;
+        const module = fccModule.key;
+        const lesson = fccLesson.dashedName;
+        await certProgress.completeLesson(module, lesson, lessonId);
+
+        console.log(`User ${userId} completed ${certification}/${module}/${lesson} (id: ${lessonId}) (via MongoDB trigger)`);
+    } else {
+        console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
+    }
+}
 
 /**
  * Marks a certification as completed in the FCC Certification Progress record.
@@ -448,6 +480,7 @@ module.exports = {
     acceptAcademicHonestyPolicy,
     completeCertification,
     completeLesson,
+    completeLessonViaMongoTrigger,
     deleteCertificationProgress,
     getCertificationProgress,
     searchCertificationProgresses,

@@ -230,6 +230,12 @@ function decorateWithModuleCount(course) {
     return course;
 }
 
+/**
+ * Gets the modules for a given course 
+ * 
+ * @param {String or Integer} id the ID of the course  
+ * @returns array of course module objects
+ */
 async function getCourseModules(id) {
     if (dbHelper.featureFlagUsePostgres()) {
         return await getPostgresCourseModules(id)

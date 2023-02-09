@@ -350,6 +350,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     return updatedProgress
 }
+
 /**
  * Marks a lesson as complete in the FCC Certification Progress using data 
  * provided by a freeCodeCamp MongoDB update trigger.
@@ -384,6 +385,52 @@ async function completeLessonViaMongoTrigger(query) {
     } else {
         console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
     }
+}
+
+/**
+ * Delete the last completed lesson in a given module for the given certification 
+ * 
+ * @param {String} currentUser the user making the request
+ * @param {Integer} progressId the ID of the CertificationProgress 
+ * @param {String} module the dashed name key of the module
+ * @returns {Object} the updated CertificationProgress
+ */
+async function deleteLastModuleLesson(currentUser, progressId, moduleName) {
+    const userId = currentUser.userId;
+
+    let progress = await getCertificationProgress(userId, progressId);
+    const certification = progress.certification
+
+    const modules = await progress.getModuleProgresses({
+        where: {
+            module: moduleName
+        }
+    })
+    const targetModule = modules[0]
+
+    // if we can't find the target module, bail out
+    if (!targetModule) {
+        console.error(`Did not find module ${moduleName} in ${certification}`)
+        return progress;
+    }
+
+    // try to get the most recently completed lesson in the module progress
+    const completedLessons = await targetModule.getCompletedLessons({
+        order: [
+            ['completedDate', 'DESC']
+        ],
+        limit: 1
+    });
+
+    const lastLesson = completedLessons[0]
+    if (lastLesson) {
+        console.log(`Deleting last completed lesson '${lastLesson.dashedName}' in ${certification}/${moduleName} for user ${userId}`);
+        await lastLesson.destroy();
+    } else {
+        console.warn(`Could not get last lesson completed in ${certification}/${moduleName} for user ${userId}`)
+    }
+
+    return await getCertificationProgress(userId, progressId);
 }
 
 /**
@@ -470,8 +517,6 @@ async function checkCertificateCompletion(progress) {
  * @returns {Object} the deleted CertificationProgress
  */
 async function deleteCertificationProgress(currentUser, progressId) {
-    // let progress = await helper.getByIdAndUser('CertificationProgress', progressId, currentUser.userId)
-
     let progress = await getCertificationProgress(currentUser.userId, progressId);
     if (progress) {
         await progress.destroy()
@@ -485,6 +530,7 @@ module.exports = {
     completeLesson,
     completeLessonViaMongoTrigger,
     deleteCertificationProgress,
+    deleteLastModuleLesson,
     getCertificationProgress,
     searchCertificationProgresses,
     startCertification,

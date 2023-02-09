@@ -65,7 +65,7 @@ async function deleteCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteLastModuleLesson(req, res) {
-    const result = await progressService.deleteLastModuleLesson(
+    const result = await service.deleteLastModuleLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.params.module)

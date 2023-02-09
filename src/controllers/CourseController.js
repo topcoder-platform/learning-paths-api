@@ -12,7 +12,7 @@ const helper = require('../common/helper')
  * @param {Object} res the response
  */
 async function searchCourses(req, res) {
-    const result = await service.searchCourses(req.query)
+    const { result } = await service.searchCourses(req.query)
     helper.setResHeaders(req, res, result)
     res.send(result)
 }

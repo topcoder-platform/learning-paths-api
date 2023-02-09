@@ -4,6 +4,10 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
+const { Op } = require("sequelize");
+
+const db = require('../db/models');
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
@@ -15,8 +19,71 @@ const ACTIVE_STATES = ['active', 'coming-soon'];
  * @returns {Object} the search result
  */
 async function searchCertifications(criteria) {
+    let page = criteria.page || 1;
+    let perPage = criteria.perPage || 50;
+    let total, result;
 
-    records = await helper.scanAll('Certification')
+    if (dbHelper.featureFlagUsePostgres()) {
+        ({ total, result } = await searchPGCertifications(criteria))
+    } else {
+        ({ total, result } = await searchDynamoCertifications(criteria))
+    }
+
+    return { total, page, perPage, result }
+}
+
+async function searchPGCertifications(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+
+    let options = {};
+    let query = {};
+    if (criteria.state) {
+        query.state = criteria.state
+    } else {
+        query.state = {
+            [Op.or]: ACTIVE_STATES
+        }
+    }
+    options.where = query;
+
+    options.include = [
+        {
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
+        },
+        {
+            model: db.FccCourse,
+            as: 'course'
+        },
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProvider'
+        },
+    ];
+
+    options.attributes = {
+        include: [
+            [
+                // Note the wrapping parentheses in the call below!
+                db.sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM "FccModules" AS module
+                    WHERE
+                        module."fccCourseId" = "course".id
+                )`),
+                'moduleCount'
+            ]
+        ]
+    };
+
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, options));
+
+    return { total, result }
+}
+
+async function searchDynamoCertifications(criteria) {
+    let records = await helper.scanAll('Certification')
 
     const page = criteria.page || 1
     const perPage = criteria.perPage || 50
@@ -42,12 +109,12 @@ async function searchCertifications(criteria) {
     const total = records.length
     const result = records.slice((page - 1) * perPage, page * perPage)
 
-    return { total, page, perPage, result }
+    return { total, result }
 }
 
 searchCertifications.schema = {
     criteria: Joi.object().keys({
-        page: Joi.page(),
+        page: Joi.number(),
         perPage: Joi.number().integer().min(1).max(100).default(100),
         provider: Joi.string(),
     })
@@ -60,12 +127,25 @@ searchCertifications.schema = {
  * @returns {Object} the certification with given ID
  */
 async function getCertification(id) {
-    const ret = await helper.getById('Certification', id)
-    return ret
+    let certification;
+
+    if (dbHelper.featureFlagUsePostgres()) {
+        const includeAssociations = {
+            include: [{
+                model: db.CertificationCategory,
+                as: 'certificationCategory'
+            }]
+        };
+
+        certification = await db.FreeCodeCampCertification.findByPk(id, includeAssociations)
+    } else {
+        certification = await helper.getById('Certification', id)
+    }
+    return certification
 }
 
 getCertification.schema = {
-    id: Joi.id()
+    id: Joi.string()
 }
 
 module.exports = {

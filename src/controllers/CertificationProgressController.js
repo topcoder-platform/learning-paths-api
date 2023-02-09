@@ -2,8 +2,19 @@
  * Controller for certification progress endpoints
  */
 
-const service = require('../services/CertificationProgressService')
+const progressService = require('../services/CertificationProgressService')
+const fccService = require('../services/FccCertificationProgressServices')
+
 const helper = require('../common/helper')
+const dbHelper = require('../common/dbHelper')
+
+// Switch between DynamoDB and PostgreSQL-based services
+let service;
+if (dbHelper.featureFlagUsePostgres()) {
+    service = fccService;
+} else {
+    service = progressService;
+}
 
 /**
  * Search certification progress
@@ -54,7 +65,7 @@ async function deleteCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteLastModuleLesson(req, res) {
-    const result = await service.deleteLastModuleLesson(
+    const result = await progressService.deleteLastModuleLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.params.module)

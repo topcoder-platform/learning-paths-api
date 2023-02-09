@@ -1,0 +1,70 @@
+{
+    "2022/responsive-web-design": [
+        "HTML",
+        "CSS",
+        "Responsive Web Design"
+    ],
+    "javascript-algorithms-and-data-structures": [
+        "JavaScript",
+        "ES6",
+        "Regular Expressions",
+        "Data Structures",
+        "Algorithms",
+        "Objec Oriented Programming",
+        "Functional Programming"
+    ],
+    "front-end-development-libraries": [
+        "Bootstrap",
+        "jQuery",
+        "Sass",
+        "React",
+        "Redux"
+    ],
+    "back-end-development-and-apis": [
+        "npm",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Mongoose"
+    ],
+    "data-analysis-with-python": [
+        "Python",
+        "SQL",
+        "Jupyter Notebooks",
+        "Numpy",
+        "Pandas",
+        "Data Analysis"
+    ],
+    "data-visualization": [
+        "D3.js",
+        "JSON",
+        "Ajax"
+    ],
+    "scientific-computing-with-python": [
+        "Python",
+        "Functions",
+        "Data Structures",
+        "Web Services",
+        "Relational Database"
+    ],
+    "information-security": [
+        "HelmetJS",
+        "Penetration Testing",
+        "Nmap"
+    ],
+    "quality-assurance": [
+        "Chai",
+        "Test Assertions",
+        "Functional Tests",
+        "Headless Browser",
+        "Passport",
+        "Social Authentication",
+        "Web Sockets"
+    ],
+    "coding-interview-prep": [
+        "Algorithms",
+        "Data Structures",
+        "Rosetta Code",
+        "Project Euler"
+    ]
+}

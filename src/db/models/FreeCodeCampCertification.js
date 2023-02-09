@@ -3,10 +3,59 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class FreeCodeCampCertification extends Model {
     static associate(models) {
-      this.belongsTo(models.CertificationResource, {
-        foreignKey: 'resourceableId',
-        constraints: false
+      this.belongsTo(models.ResourceProvider, {
+        as: 'resourceProvider',
+        foreignKey: 'resourceProviderId'
       });
+
+      this.hasOne(models.FccCourse, {
+        as: 'course',
+        foreignKey: 'certificationId'
+      });
+
+      this.hasMany(models.CertificationResource, {
+        as: 'certificationResources',
+        foreignKey: 'resourceableId',
+        constraints: false,
+        scope: {
+          resourceableType: 'FreeCodeCampCertification',
+        }
+      });
+
+      this.belongsTo(models.CertificationCategory, {
+        as: 'certificationCategory',
+        foreignKey: 'certificationCategoryId'
+      });
+
+      this.hasMany(models.FccCertificationProgress, {
+        as: 'certificationProgresses',
+        foreignKey: 'fccCertificationId',
+      })
+    }
+
+    /**
+     * Attempts to retrieve the specified lessson
+     * from the associated course
+     */
+    async getLesson(moduleKey, lessonId) {
+      const course = await this.getCourse();
+      if (!course) return null;
+
+      const modules = await course.getModules({
+        where: {
+          key: moduleKey
+        }
+      });
+      if (modules.length == 0) return null;
+
+      const module = modules[0];
+      const lessons = await module.getLessons({
+        where: {
+          id: lessonId
+        }
+      });
+
+      return lessons[0];
     }
   }
 
@@ -20,6 +69,9 @@ module.exports = (sequelize, DataTypes) => {
     fccId: {
       type: DataTypes.UUID,
       allowNull: false
+    },
+    resourceProviderId: {
+      type: DataTypes.INTEGER,
     },
     key: {
       type: DataTypes.TEXT,
@@ -37,22 +89,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    description: {
+      type: DataTypes.TEXT,
+    },
     completionHours: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
     state: {
-      type: DataTypes.ENUM("active", "inactive", "coming_soon", "deprecated"),
+      type: DataTypes.ENUM("active", "inactive", "coming-soon", "deprecated"),
       allowNull: false,
       defaultValue: "active"
     },
     certificationCategoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'CertificationCategory',
-        key: 'id'
-      }
     },
     certType: {
       type: DataTypes.ENUM("certification", "course-completion"),
@@ -62,13 +113,17 @@ module.exports = (sequelize, DataTypes) => {
     publishedAt: {
       type: DataTypes.DATE,
       allowNull: false
-    }
+    },
+    learnerLevel: {
+      type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),
+      allowNull: false,
+      defaultValue: "Beginner"
+    },
   }, {
     sequelize,
     tableName: 'FreeCodeCampCertification',
     modelName: 'FreeCodeCampCertification',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "FreeCodeCampCertification_fccId_key",
@@ -78,10 +133,10 @@ module.exports = (sequelize, DataTypes) => {
         ]
       },
       {
-        name: "FreeCodeCampCertification_key_key",
+        name: "FreeCodeCampCertification_title_key",
         unique: true,
         fields: [
-          { name: "key" },
+          { name: "title" },
         ]
       },
       {

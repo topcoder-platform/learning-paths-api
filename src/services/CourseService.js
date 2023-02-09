@@ -5,6 +5,9 @@
 const _ = require('lodash')
 const { Course } = require('../models')
 const Joi = require('joi')
+
+const db = require('../db/models')
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 const PROVIDER_FREECODECAMP = 'freeCodeCamp'
 
@@ -17,11 +20,77 @@ const PROVIDER_FREECODECAMP = 'freeCodeCamp'
  * @returns {Object} the search result
  */
 async function searchCourses(criteria) {
-    if (criteria.provider) {
-        return await searchCoursesForProvider(criteria)
+    if (dbHelper.featureFlagUsePostgres()) {
+        return await searchPostgresCourses(criteria)
     } else {
-        const { result } = await scanAllCourses(criteria)
-        return result;
+        return await searchDynamoCourses(criteria)
+    }
+}
+
+async function searchPostgresCourses(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+    let total, result;
+
+    let options = {};
+
+    if (criteria.key) {
+        options.where = { key: criteria.key }
+    }
+
+    // include associated models to provide the 
+    // front-end with a fully-formed response
+    const includeAssociations = [
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProvider',
+            attributes: ['name', 'attributionStatement', 'url']
+        },
+        {
+            model: db.FccModule,
+            as: 'modules',
+            include: [{
+                model: db.FccLesson,
+                as: 'lessons',
+                attributes: ['id', 'title', 'dashedName', 'isAssessment'],
+                separate: true,
+                order: ['order']
+            }]
+        }
+    ];
+    options.include = includeAssociations;
+
+    // add a computed attribute to get the count of modules
+    // in the course
+    options.attributes = {
+        include: [
+            [
+                // Note the wrapping parentheses in the call below!
+                db.sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM "FccModules" AS module
+                    WHERE
+                        module."fccCourseId" = "FccCourse".id
+                )`),
+                'moduleCount'
+            ]
+        ]
+    };
+
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+        'FccCourse',
+        page,
+        perPage,
+        options));
+
+    return { total, page, perPage, result }
+}
+
+async function searchDynamoCourses(criteria) {
+    if (criteria.provider) {
+        return { total, page, perPage, result } = await searchCoursesForProvider(criteria)
+    } else {
+        return { total, page, perPage, result } = await scanAllCourses(criteria)
     }
 }
 
@@ -29,29 +98,30 @@ async function searchCourses(criteria) {
  * Queries the Course table using a global secondary index
  * and additional +where+ criteria from the given query 
  * 
- * @param {Object} query the query on which to search
+ * @param {Object} criteria the query on which to search
  * @returns an array of Course objects
  */
-async function searchCoursesForProvider(query) {
-    const provider = query.provider;
+async function searchCoursesForProvider(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+
+    const provider = criteria.provider;
     let queryStatement = Course.
         query("provider").eq(provider).
         using("provider-key-index")
 
-    if (query.key) {
-        queryStatement = queryStatement.where("key").eq(query.key)
+    if (criteria.key) {
+        queryStatement = queryStatement.where("key").eq(criteria.key)
     }
-    if (query.certification) {
-        queryStatement = queryStatement.where("certification").eq(query.certification)
+    if (criteria.certification) {
+        queryStatement = queryStatement.where("certification").eq(criteria.certification)
     }
 
-    try {
-        let courses = await queryStatement.exec();
-        return courses;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
+    let records = await queryStatement.exec();
+    const total = records.length
+    const result = records.slice((page - 1) * perPage, page * perPage)
+
+    return { total, page, perPage, result };
 }
 
 /**
@@ -279,5 +349,6 @@ module.exports = {
     getCourseLessonMap,
     getCourseModules,
     getCourseModule,
+    scanAllCourses,
     searchCourses
 }

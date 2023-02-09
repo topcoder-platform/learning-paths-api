@@ -21,8 +21,7 @@ async function checkHealth(req, res) {
   checksRun += 1
   const timestampMS = new Date().getTime()
   try {
-    const healthCheckId = config.HEALTH_CHECK_ID || 'health-check'
-    await service.getHealthCheck(healthCheckId)
+    await service.getHealthCheck()
   } catch (e) {
     throw new errors.ServiceUnavailableError(`An error occurred checking the database, ${e.message}`)
   }

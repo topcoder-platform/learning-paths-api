@@ -1,0 +1,22 @@
+service: tca-pg-db
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  stage: ${opt:stage,'dev'}
+
+custom:
+  TCA_PG_USER: ${env:TCA_PG_USER}
+  TCA_PG_PASSWORD: ${env:TCA_PG_PASSWORD}
+  TCA_PG_DATABASE: ${env:TCA_PG_DATABASE}
+  POSTGRESQL:
+    HOST:
+      Fn::GetAtt: [TopcoderAcademyPostgresDB, Endpoint.Address]
+    PORT:
+      Fn::GetAtt: [TopcoderAcademyPostgresDB, Endpoint.Port]
+
+resources:
+  - ${file(./serverless-resource/TopcoderAcademyPostgresDB.yml)} 
+  - ${file(./serverless-resource/StackOutputs.yml)} 

@@ -2,8 +2,12 @@
 const {
   Model
 } = require('sequelize');
+
+const { progressStatuses } = require('../../common/constants');
+
 module.exports = (sequelize, DataTypes) => {
   class FccModuleProgress extends Model {
+
     static associate(models) {
       this.belongsTo(models.FccCertificationProgress, {
         as: 'certificationProgress',
@@ -16,7 +20,78 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       });
     }
+
+    /**
+     * Sets the start date and status of a progress module if it hasn't
+     * already been completed.
+     * 
+     * @returns the module
+     */
+    async touchModule(actionDate = new Date()) {
+      // if the module has already been completed, just return it 
+      // without updating anything
+      if (this.isCompleted()) return this;
+
+      // update the interaction date if it's in-progress or not-started
+      let statusAttrs = {
+        lastInteractionDate: actionDate
+      }
+
+      // start the module if it's not-started
+      if (this.moduleStatus == progressStatuses.notStarted) {
+        statusAttrs.startDate = actionDate;
+        statusAttrs.moduleStatus = progressStatuses.inProgress;
+      }
+
+      this.set(statusAttrs);
+
+      await this.save();
+
+      return this;
+    }
+
+    /**
+     * 
+     * @returns true if the module status is completed
+     */
+    isCompleted() {
+      return this.moduleStatus == progressStatuses.completed
+    }
+
+    /**
+     * Checks if this module progress is an assessment and has 
+     * been completed.
+     * 
+     * @returns true if module is an assessment and is completed, otherwise false
+     */
+    isCompletedAssessment() {
+      return this.isAssessment && this.isCompleted()
+    }
+
+    /**
+     * Checks the completion status of a module based on the 
+     * count of completed lessons and updates the status accordingly.
+     */
+    async checkAndSetModuleStatus() {
+      if (this.isCompleted()) return;
+
+      const completedLessonCount = await this.countCompletedLessons();
+      const moduleInProgress = ((completedLessonCount > 0) && (completedLessonCount < this.lessonCount));
+      const moduleCompleted = (completedLessonCount >= this.lessonCount);
+
+      if (moduleInProgress) {
+        this.moduleStatus = progressStatuses.inProgress
+      } else if (moduleCompleted) {
+        this.moduleStatus = progressStatuses.completed
+        if (!this.completedDate) {
+          this.completedDate = new Date()
+        }
+      }
+
+      await this.save();
+    }
   }
+
   FccModuleProgress.init({
     id: {
       allowNull: false,

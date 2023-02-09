@@ -1,8 +1,8 @@
 'use strict';
 
+const errors = require('../../common/errors');
 const { progressStatuses } = require('../../common/constants');
 const { Model } = require('sequelize');
-const FccLesson = require('./FccLesson')
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
@@ -139,6 +139,102 @@ module.exports = (sequelize, DataTypes) => {
       }
 
       return moduleProgressAttrs
+    }
+
+    async allAssessmentModulesCompleted() {
+      const progresses = await this.getModuleProgresses({
+        where: {
+          isAssessment: true
+        }
+      });
+
+      return progresses.every(module => module.isCompleted());
+    }
+
+    /**
+     * Marks an FCC Certificationa as completed
+     */
+    async completeFccCertification(completedDate = new Date()) {
+      this.set({
+        completedDate: completedDate,
+        status: progressStatuses.completed,
+      })
+
+      return await this.save();
+    }
+
+    /**
+     * Updates the current lesson and the last interacted date
+     * 
+     * @param {String} currentLesson the current lesson, as 'module/lesson'
+     * @returns the updated cert progress record
+     */
+    async updateCurrentLesson(currentLesson) {
+      this.set({
+        currentLesson: currentLesson,
+        lastInteractionDate: new Date()
+      });
+
+      this.save();
+
+      return this;
+    }
+
+    /**
+     * Gets the FccModuleProgress object that corresponds to the given FccModule 
+     * 
+     * @param {FccModule} fccModule the module whose matching progress we want
+     */
+    async getModuleProgressForModule(moduleKey) {
+      const moduleProgresses = await this.getModuleProgresses({
+        where: {
+          module: moduleKey
+        }
+      })
+
+      return moduleProgresses[0]
+    }
+
+    async completeLesson(moduleKey, lessonDashedName, lessonId) {
+      const lesson = await this.validateLesson(moduleKey, lessonDashedName, lessonId)
+
+      const moduleProgress = await this.getModuleProgressForModule(moduleKey);
+      if (!moduleProgress) {
+        throw `Did not find module progress with key ${moduleKey}`
+      }
+
+      // check if this lesson has already been completed, and if so,
+      // just return this cert progress
+      const lessonCount = await moduleProgress.countCompletedLessons({
+        where: {
+          dashedName: lessonDashedName
+        }
+      });
+      if (lessonCount == 1) return this;
+
+      // add the completed lesson
+      const lessonAttrs = {
+        id: lesson.id,
+        dashedName: lesson.dashedName,
+        completedDate: new Date()
+      }
+
+      // update the module progress with the completed lesson,
+      // update the last interacted date, and check if the module
+      // itself has been completed.
+      await moduleProgress.createCompletedLesson(lessonAttrs);
+      await moduleProgress.touchModule();
+      await moduleProgress.checkAndSetModuleStatus();
+    }
+
+    async validateLesson(moduleKey, lessonDashedName, lessonId) {
+      const lesson = await this.freeCodeCampCertification.getLesson(moduleKey, lessonId);
+      if (!lesson) {
+        throw new errors.BadRequestError(
+          `No lesson '${moduleKey}/${lessonDashedName}' exists in certification '${this.certification}'`)
+      }
+
+      return lesson;
     }
   }
 

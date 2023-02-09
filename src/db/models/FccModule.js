@@ -1,11 +1,16 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+const { progressStatuses } = require('../../common/constants');
+
 module.exports = (sequelize, DataTypes) => {
   class FccModule extends Model {
+
     static associate(models) {
       this.belongsTo(models.FccCourse, {
+        as: 'fccCourse',
         foreignKey: 'fccCourseId'
       });
 
@@ -14,7 +19,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'fccModuleId'
       });
     }
+
   }
+
   FccModule.init({
     id: {
       type: DataTypes.INTEGER,
@@ -57,5 +64,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'FccModule',
     tableName: 'FccModules'
   });
+
   return FccModule;
 };

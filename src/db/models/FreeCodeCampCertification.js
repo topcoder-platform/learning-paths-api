@@ -32,6 +32,31 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'fccCertificationId',
       })
     }
+
+    /**
+     * Attempts to retrieve the specified lessson
+     * from the associated course
+     */
+    async getLesson(moduleKey, lessonId) {
+      const course = await this.getCourse();
+      if (!course) return null;
+
+      const modules = await course.getModules({
+        where: {
+          key: moduleKey
+        }
+      });
+      if (modules.length == 0) return null;
+
+      const module = modules[0];
+      const lessons = await module.getLessons({
+        where: {
+          id: lessonId
+        }
+      });
+
+      return lessons[0];
+    }
   }
 
   FreeCodeCampCertification.init({

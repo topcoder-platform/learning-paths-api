@@ -6,6 +6,7 @@ const {
 
 module.exports = (sequelize, DataTypes) => {
   class FccCourse extends Model {
+
     static associate(models) {
       this.hasMany(models.FccModule, {
         as: 'modules',
@@ -27,7 +28,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'certificationProgresses'
       })
     }
+
   }
+
   FccCourse.init({
     id: {
       type: DataTypes.INTEGER,
@@ -63,5 +66,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'FccCourse',
     tableName: 'FccCourses'
   });
+
   return FccCourse;
 };

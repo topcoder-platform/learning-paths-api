@@ -97,7 +97,7 @@ async function startCertification(req, res) {
  * @param {Object} res the response
  */
 async function completeCertification(req, res) {
-    const result = await progressService.completeCertification(
+    const result = await service.completeCertification(
         req.authUser,
         req.params.certificationProgressId,
         req.query.certificateUrl,
@@ -113,7 +113,7 @@ async function completeCertification(req, res) {
  * @param {Object} res the response
  */
 async function updateCurrentLesson(req, res) {
-    const result = await progressService.updateCurrentLesson(
+    const result = await service.updateCurrentLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.query)
@@ -128,7 +128,7 @@ async function updateCurrentLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLesson(req, res) {
-    const result = await progressService.completeLesson(
+    const result = await service.completeLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.query)
@@ -143,7 +143,7 @@ async function completeLesson(req, res) {
  * @param {Object} res the response
  */
 async function completeLessonViaMongoTrigger(req, res) {
-    const result = await progressService.completeLessonViaMongoTrigger(req.query)
+    const result = await service.completeLessonViaMongoTrigger(req.query)
 
     res.send(result)
 }

@@ -56,7 +56,12 @@ async function searchPostgresCourses(criteria) {
                 separate: true,
                 order: ['order']
             }]
-        }
+        },
+        {
+            model: db.FreeCodeCampCertification,
+            as: 'freeCodeCampCertification',
+            ...(criteria.certification ? {where: { certification: criteria.certification }} : {}),
+        },
     ];
     options.include = includeAssociations;
 

@@ -14,7 +14,7 @@ const { progressStatuses } = require('../common/constants');
  * @returns {Object} the certifications they have completed
  */
 async function getCompletedCertifications(userId) {
-    if (dbHelper.featureFlagUsePostgres()) {
+    if (!dbHelper.featureFlagUsePostgres()) {
         return await helper.queryCompletedCertifications(userId);
     }
 

@@ -2,7 +2,8 @@
  * This service retrieves completed Topcoder Academy certifications
  */
 
-const helper = require('../common/helper')
+const db = require('../db/models');
+const { progressStatuses } = require('../common/constants');
 
 /**
  * Get all completed certifications for a user
@@ -11,9 +12,29 @@ const helper = require('../common/helper')
  * @returns {Object} the certifications they have completed
  */
 async function getCompletedCertifications(userId) {
-    const certifications = await helper.queryCompletedCertifications(userId);
+    let options = {
+        where: {
+            userId,
+            status: progressStatuses.completed,
+        },
+        include: [
+            {
+                model: db.ResourceProvider,
+                as: 'resourceProvider',
+                attributes: ['id', 'name', 'description', 'attributionStatement', 'url'],
+                through: { attributes: [] }
+            }
+        ]
+    }
 
-    return certifications
+    try {
+        let progresses = await db.FccCertificationProgress.findAll(options);
+
+        return progresses;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
 }
 
 module.exports = {

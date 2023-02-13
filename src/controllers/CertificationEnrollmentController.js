@@ -36,7 +36,7 @@ async function enrollUser(req, res) {
         throw new errors.UnauthorizedError('You are not allowed to enroll members to certifications.')
     }
 
-    const enrollment = await service.enrollUser(userId, certificationId, req.authUser)
+    const enrollment = await service.enrollUser(req.authUser, certificationId)
 
     res.send(enrollment)
 }

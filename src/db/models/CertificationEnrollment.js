@@ -38,6 +38,9 @@ module.exports = (sequelize, DataTypes) => {
     userHandle: {
       type: DataTypes.STRING
     },
+    userName: {
+      type: DataTypes.STRING
+    },
     status: {
       type: DataTypes.ENUM("enrolled", "disenrolled", "completed"),
       defaultValue: "enrolled",

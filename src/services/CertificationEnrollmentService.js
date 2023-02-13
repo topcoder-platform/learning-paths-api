@@ -1,26 +1,27 @@
 
 const _ = require('lodash');
 const db = require('../db/models');
+const helper = require('../common/helper');
 
 /**
  * Enrolls a user in a Topcoder Certification 
  * 
  * @param {Integer} certificationId the ID of the Topcoder Certification
- * @param {String} userId the ID of the user enrolling in the certification
+ * @param {Object} authUser the auth user from session
  * @returns {Object} the newly created CertificationEnrollment object
  */
-async function enrollUser(userId, certificationId) {
+async function enrollUser(authUser, certificationId) {
 
-    const existingEnrollment = await getExistingEnrollment(userId, certificationId);
+    const existingEnrollment = await getExistingEnrollment(authUser.userId, certificationId);
 
     if (existingEnrollment != null) {
         const certification = existingEnrollment.topcoderCertification;
-        console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
+        console.log(`User ${authUser.userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
 
         return existingEnrollment;
     }
 
-    const newEnrollment = await createCertificationEnrollment(userId, certificationId)
+    const newEnrollment = await createCertificationEnrollment(authUser, certificationId)
 
     return newEnrollment;
 }
@@ -95,17 +96,18 @@ async function getEnrollmentById(id) {
  * records in the process.
  * 
  * @param {Integer} certificationId the ID of the certification in which the user is enrolling
- * @param {String} userId the ID of the user who's enrolling
- * @param {String} userHandle optional handle of the enrolling user, if we have it (to make 
- *                 finding their info in the DB easier)
+ * @param {Object} authUser the auth user data from jwt session
  * @returns the completed CertificationEnrollment object
  */
-async function createCertificationEnrollment(userId, certificationId, userHandle = null) {
+async function createCertificationEnrollment(authUser, certificationId) {
+    const memberData = await helper.getMemberDataM2M(authUser.handle);
+
     const enrollmentAttrs = {
         topcoderCertificationId: certificationId,
-        userId: userId,
-        userHandle: userHandle,
-        resourceProgresses: await buildEnrollmentProgressAttrs(userId, certificationId)
+        userId: authUser.userId,
+        userHandle: authUser.userHandle,
+        userName: `${memberData.firstName} ${memberData.lastName}`,
+        resourceProgresses: await buildEnrollmentProgressAttrs(authUser.userId, certificationId)
     }
 
     try {

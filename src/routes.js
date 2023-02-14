@@ -146,11 +146,9 @@ module.exports = {
       access: [constants.UserRoles.TCAAdmin],
     },
   },
-
   /**
    * The following endpoints support Topcoder Academy Certifications
    */
-
   '/learning-paths/topcoder-certifications': {
     get: {
       controller: 'TopcoderCertificationController',
@@ -190,8 +188,6 @@ module.exports = {
       auth: 'jwt',
     },
   },
-
-
   '/learning-paths/certification-enrollment/:id': {
     get: {
       controller: 'CertificationEnrollmentController',
@@ -223,6 +219,12 @@ module.exports = {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getUserEnrollmentProgresses'
+    },
+  },
+  '/learning-paths/certification-enrollment-progresses/:userId/:resourceProgressType/:resourceProgressId': {
+    put: {
+      controller: 'CertificationEnrollmentController',
+      method: 'completeEnrollmentProgress'
     },
   },
   /**

@@ -112,7 +112,7 @@ async function validateCertOwnership(topcoderCertificationId, userHandle) {
     })
 
     if (!enrollment) {
-        throw new errors.NotFoundError(`Enrollment of member '${userHandle}' for cert '${topcoderCertificationId}' does not exist.`)
+        throw new errors.NotFoundError(`Enrollment of member '${userHandle}' for cert id '${topcoderCertificationId}' does not exist.`)
     }
 
     const certificationProgresses = await db.CertificationResourceProgress.findAll({
@@ -122,7 +122,7 @@ async function validateCertOwnership(topcoderCertificationId, userHandle) {
     })
 
     if (!certificationProgresses || !certificationProgresses.length) {
-        throw new errors.NotFoundError(`Enrollment progresses for enrollemnt id '${enrollment.id}' not exist.`)
+        throw new errors.NotFoundError(`Enrollment progresses for enrollemnt id '${enrollment.id}' do not exist.`)
     }
 
     // make sure all progresses are with status `completed`

@@ -44,7 +44,7 @@ async function validateCertOwnership(req, res) {
     const certification = await service.getCertificationByDashedName(req.params.dashedName)
 
     if (!certification) {
-        throw new errors.NotFoundError(`Topcoder Certification id '${req.params.dashedName}' does not exist.`)
+        throw new errors.NotFoundError(`Topcoder Certification named '${req.params.dashedName}' does not exist.`)
     }
 
     const enrollment = await service.validateCertOwnership(certification.id, req.params.userHandle)

@@ -166,7 +166,8 @@ module.exports = {
   '/learning-paths/topcoder-certifications/:userId/progresses': {
     get: {
       controller: 'CertificationEnrollmentController',
-      method: 'getUserEnrollmentProgresses'
+      method: 'getUserEnrollmentProgresses',
+      auth: 'jwt',
     },
   },
   '/learning-paths/topcoder-certifications/:certificationDashedName/:userId/progress': {
@@ -174,6 +175,12 @@ module.exports = {
       controller: 'CertificationEnrollmentController',
       method: 'getEnrollmentProgress',
       auth: 'jwt',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:dashedName/:userHandle/validate': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'validateCertOwnership',
     },
   },
   '/learning-paths/topcoder-certifications/:userId/:certificationId/enroll': {
@@ -190,8 +197,6 @@ module.exports = {
       auth: 'jwt',
     },
   },
-
-
   '/learning-paths/certification-enrollment/:id': {
     get: {
       controller: 'CertificationEnrollmentController',
@@ -216,13 +221,15 @@ module.exports = {
   '/learning-paths/certification-enrollment-progress/:enrollmentId': {
     get: {
       controller: 'CertificationEnrollmentController',
-      method: 'getEnrollmentProgress'
+      method: 'getEnrollmentProgress',
+      auth: 'jwt',
     },
   },
   '/learning-paths/certification-enrollment-progresses/:userId': {
     get: {
       controller: 'CertificationEnrollmentController',
-      method: 'getUserEnrollmentProgresses'
+      method: 'getUserEnrollmentProgresses',
+      auth: 'jwt',
     },
   },
   /**
@@ -236,39 +243,39 @@ module.exports = {
   //     auth: 'jwt',
   //   },
   // },
-  '/learning-paths/payments/stripe/prices': {
-    get: {
-      controller: 'StripePaymentsController',
-      method: 'searchPricesHandler',
-      auth: 'jwt',
-    },
-  },
-  '/learning-paths/payments/stripe/prices/:id': {
-    get: {
-      controller: 'StripePaymentsController',
-      method: 'getPriceHandler',
-      auth: 'jwt',
-    },
-  },
-  '/learning-paths/payments/stripe/products': {
-    get: {
-      controller: 'StripePaymentsController',
-      method: 'searchProductsHandler',
-      auth: 'jwt',
-    },
-  },
-  '/learning-paths/payments/stripe/products/:id': {
-    get: {
-      controller: 'StripePaymentsController',
-      method: 'getProductHandler',
-      auth: 'jwt',
-    },
-  },
-  '/learning-paths/payments/stripe/purchase-certifications': {
-    post: {
-      controller: 'StripePaymentsController',
-      method: 'purchaseCertificationsHandler',
-      auth: 'jwt',
-    },
-  },
+  // '/learning-paths/payments/stripe/prices': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'searchPricesHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/prices/:id': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'getPriceHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/products': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'searchProductsHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/products/:id': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'getProductHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/purchase-certifications': {
+  //   post: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'purchaseCertificationsHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
 }

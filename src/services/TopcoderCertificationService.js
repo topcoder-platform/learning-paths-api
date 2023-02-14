@@ -3,6 +3,7 @@
  */
 
 const db = require('../db/models')
+const errors = require('../common/errors')
 const DEFAULT_PAGE_LIMIT = 10
 
 /**
@@ -96,8 +97,47 @@ function certificationIncludes() {
         }]
 }
 
+/**
+ * Validates cert ownership for member handle
+ * @param {*} topcoderCertificationId 
+ * @param {*} userHandle 
+ * @returns 
+ */
+async function validateCertOwnership(topcoderCertificationId, userHandle) {
+    const enrollment = await db.CertificationEnrollment.findOne({
+        where: {
+            topcoderCertificationId,
+            userHandle,
+        }
+    })
+
+    if (!enrollment) {
+        throw new errors.NotFoundError(`Enrollment of member '${userHandle}' for cert id '${topcoderCertificationId}' does not exist.`)
+    }
+
+    const certificationProgresses = await db.CertificationResourceProgress.findAll({
+        where: {
+            certificationEnrollmentId: enrollment.id
+        }
+    })
+
+    if (!certificationProgresses || !certificationProgresses.length) {
+        throw new errors.NotFoundError(`Enrollment progresses for enrollemnt id '${enrollment.id}' do not exist.`)
+    }
+
+    // make sure all progresses are with status `completed`
+    const allCompleted = certificationProgresses.every(cp => cp.status === 'completed')
+
+    if (!allCompleted) {
+        throw new errors.NotFoundError(`Not all resources in enrollemnt id '${enrollment.id}' are completed.`)
+    }
+
+    return enrollment
+}
+
 module.exports = {
     searchCertifications,
     getCertification,
     getCertificationByDashedName,
+    validateCertOwnership,
 }

@@ -5,6 +5,7 @@ const {
 } = require('sequelize');
 const { progressStatuses } = require('../../common/constants');
 const { createId } = require('@paralleldrive/cuid2');
+const imageGenerator = require('../../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {
@@ -26,8 +27,20 @@ module.exports = (sequelize, DataTypes) => {
      * Topcoder Certification have been completed. If so, it marks 
      * this enrollment as completed and trigger the generation of the 
      * user's Topcoder Certification digital certificate.
+     * 
+     * @param {String} The handle of the auth user whose progress is being completed
+     * @param {String} certification The name of the certification for which we are generating an image
+     * @param {String} certificateUrl The URL for the certificate
+     * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
+     * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
      */
-    async checkAndSetCertCompletion() {
+    async checkAndSetCertCompletion(
+      handle,
+      certification,
+      certificateUrl,
+      certificateElement,
+      certificateAlternateParams,
+    ) {
       // if the certification has been completed, just 
       // return that status and the date it was completed
       if (this.status == progressStatuses.completed) {
@@ -57,9 +70,16 @@ module.exports = (sequelize, DataTypes) => {
       }
       const completedEnrollment = await this.update(statusCompleted)
 
-      // TODO: add hook to generate the digital certificate here
-      // If you want to pass the certificate URL or other data back 
-      // to the client you can add it to the +statusCompleted+ object.
+      // generate the TCA digital certificate social share image
+      imageGenerator.generateCertificateImage(
+        undefined,
+        handle,
+        certification,
+        'TCA',
+        certificateUrl,
+        certificateElement,
+        certificateAlternateParams,
+      )
 
       return statusCompleted;
     }

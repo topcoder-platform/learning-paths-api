@@ -28,7 +28,7 @@ const {
  * Wraps an Async function, generateCertificateImageAsync, with a non-async function
  * so that the inner function happens in the background
  * 
- * @param {Object} progress The Certificate Progress record for which the cert is being generated
+ * @param {Object | undefined} progress The Certificate Progress record for which the cert is being generated
  * @param {string} handle The handle of the user who completed the course
  * @param {String} certification The name of the certification for which we are generating an image
  * @param {string} provider The provider of the certificateion
@@ -63,10 +63,12 @@ function generateCertificateImage(
     )
         .then(async (imageUrl) => {
             console.info('Successfully queued generation of', imageUrl)
-            await helper.update(progress, {
-                certificationImageUrl: imageUrl
-            })
-            console.info('Successfully set progress.certificationImageUrl to', imageUrl)
+            if (progress) {
+                await helper.update(progress, {
+                    certificationImageUrl: imageUrl
+                })
+                console.info('Successfully set progress.certificationImageUrl to', imageUrl)
+            }
         })
 }
 

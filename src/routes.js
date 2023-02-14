@@ -230,10 +230,11 @@ module.exports = {
       auth: 'jwt',
     },
   },
-  '/learning-paths/certification-enrollment-progresses/:userId/:resourceProgressType/:resourceProgressId': {
+  '/learning-paths/certification-enrollment-progresses/:resourceProgressType/:resourceProgressId': {
     put: {
       controller: 'CertificationEnrollmentController',
-      method: 'completeEnrollmentProgress'
+      method: 'completeEnrollmentProgress',
+      auth: 'jwt',
     },
   },
   /**

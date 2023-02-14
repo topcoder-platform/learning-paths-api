@@ -56,5 +56,7 @@ module.exports = {
 
   FEATURE_FLAG: {
     TCA_DATASTORE: process.env.TCA_DATASTORE || 'dynamodb'
-  }
+  },
+
+  TCA_WEBSITE_URL: process.env.TCA_WEBSITE_URL || 'https://platform-ui.topcoder-dev.com'
 }

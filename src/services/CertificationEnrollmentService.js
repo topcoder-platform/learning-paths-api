@@ -1,6 +1,7 @@
 
 const _ = require('lodash');
 const db = require('../db/models');
+const errors = require('../common/errors');
 const helper = require('../common/helper');
 
 /**
@@ -281,8 +282,61 @@ async function getUserEnrollmentProgresses(userId) {
     return progresses;
 }
 
+/**
+ * Marks a CertificationResourceProgress record as completed. For example, 
+ * when a user completes a FreeCodeCamp certification that's part of a Topcoder
+ * Certification, the certification progress record needs to be updated to track 
+ * the user's progress towards earning the certification. 
+ * 
+ * @param {String} userId ID of the user whose progress is being completed
+ * @param {String} resourceProgressType type of certification resource
+ * @param {Integer} resourceProgressId ID of the certification resource
+ */
+async function completeEnrollmentProgress(userId, resourceProgressType, resourceProgressId) {
+    const resourceProgress = await db.CertificationResourceProgress.findOne({
+        where: {
+            resourceProgressType: resourceProgressType,
+            resourceProgressId: resourceProgressId
+        }
+    })
+    // If there isn't a resource progress record then the user 
+    // isn't enrolled in a Topcoder Certification containing 
+    // this resource.
+    if (!resourceProgress) return null;
+
+    // Get the CertificationEnrollment for this progress -- it should
+    // belong to the provider userID
+    const certEnrollment = await db.CertificationEnrollment.findOne({
+        where: {
+            id: resourceProgress.certificationEnrollmentId,
+            userId: userId
+        }
+    });
+
+    // If an enrollment wasn't found for the given user, something is not right -- throw an error.
+    if (!certEnrollment) {
+        throw new errors.BadRequestError(`Resource progress ${resourceProgressType}/${resourceProgressId} does not belong to user ${userId}`)
+    }
+
+    // We have the certification resource progress and have verified it's for 
+    // the given user, so mark it as complete.
+    const completedProgress = await resourceProgress.setCompleted();
+
+    // When an individual cert resource progress is completed we need to check
+    // to see if all of requirements for the associated Topcoder Certification 
+    // have been completed. If so, we mark the Certification as completed and 
+    // return that info to the client.
+    const certCompletionStatus = await certEnrollment.checkAndSetCertCompletion();
+
+    return {
+        completedProgress: completedProgress,
+        topcoderCertificationStatus: certCompletionStatus
+    }
+}
+
 module.exports = {
     buildEnrollmentProgressAttrs,
+    completeEnrollmentProgress,
     createCertificationEnrollment,
     enrollUser,
     getEnrollment,

@@ -3,7 +3,7 @@
  */
 
 const progressService = require('../services/CertificationProgressService')
-const fccService = require('../services/FccCertificationProgressServices')
+const fccService = require('../services/FccCertificationProgressService')
 
 const helper = require('../common/helper')
 const dbHelper = require('../common/dbHelper')

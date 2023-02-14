@@ -112,8 +112,8 @@ async function getUserEnrollmentProgresses(req, res) {
 }
 
 async function completeEnrollmentProgress(req, res) {
-    const { userId, resourceProgressType, resourceProgressId } = req.params;
-    const completedProgress = await service.completeEnrollmentProgress(userId, resourceProgressType, resourceProgressId);
+    const { resourceProgressType, resourceProgressId } = req.params;
+    const completedProgress = await service.completeEnrollmentProgress(req.authUser, resourceProgressType, resourceProgressId);
 
     res.send(completedProgress);
 }

@@ -3,6 +3,7 @@ const _ = require('lodash');
 const db = require('../db/models');
 const errors = require('../common/errors');
 const helper = require('../common/helper');
+const config = require('config');
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -288,11 +289,11 @@ async function getUserEnrollmentProgresses(userId) {
  * Certification, the certification progress record needs to be updated to track 
  * the user's progress towards earning the certification. 
  * 
- * @param {String} userId ID of the user whose progress is being completed
+ * @param {Object} the auth user whose progress is being completed
  * @param {String} resourceProgressType type of certification resource
  * @param {Integer} resourceProgressId ID of the certification resource
  */
-async function completeEnrollmentProgress(userId, resourceProgressType, resourceProgressId) {
+async function completeEnrollmentProgress(authUser, resourceProgressType, resourceProgressId) {
     const resourceProgress = await db.CertificationResourceProgress.findOne({
         where: {
             resourceProgressType: resourceProgressType,
@@ -309,24 +310,30 @@ async function completeEnrollmentProgress(userId, resourceProgressType, resource
     const certEnrollment = await db.CertificationEnrollment.findOne({
         where: {
             id: resourceProgress.certificationEnrollmentId,
-            userId: userId
+            userId: authUser.userId
         }
     });
 
     // If an enrollment wasn't found for the given user, something is not right -- throw an error.
     if (!certEnrollment) {
-        throw new errors.BadRequestError(`Resource progress ${resourceProgressType}/${resourceProgressId} does not belong to user ${userId}`)
+        throw new errors.BadRequestError(`Resource progress ${resourceProgressType}/${resourceProgressId} does not belong to user ${authUser.userId}`)
     }
 
     // We have the certification resource progress and have verified it's for 
     // the given user, so mark it as complete.
     const completedProgress = await resourceProgress.setCompleted();
 
+    const certification = await db.TopcoderCertification.findByPk(certEnrollment.topcoderCertificationId)
+
     // When an individual cert resource progress is completed we need to check
     // to see if all of requirements for the associated Topcoder Certification 
     // have been completed. If so, we mark the Certification as completed and 
     // return that info to the client.
-    const certCompletionStatus = await certEnrollment.checkAndSetCertCompletion();
+    const certCompletionStatus = await certEnrollment.checkAndSetCertCompletion(
+        authUser.handle,
+        certification.dashedName,
+        `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}/${authUser.handle}/certificate`
+    );
 
     return {
         completedProgress: completedProgress,

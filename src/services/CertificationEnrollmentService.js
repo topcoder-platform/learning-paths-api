@@ -106,7 +106,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
     const enrollmentAttrs = {
         topcoderCertificationId: certificationId,
         userId: authUser.userId,
-        userHandle: authUser.userHandle,
+        userHandle: authUser.handle,
         userName: `${memberData.firstName} ${memberData.lastName}`,
         resourceProgresses: await buildEnrollmentProgressAttrs(authUser.userId, certificationId)
     }

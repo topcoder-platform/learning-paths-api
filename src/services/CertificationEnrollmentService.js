@@ -199,10 +199,14 @@ async function buildCertResourceProgressAttrs(userId, certification) {
             fccProgress = await createProgressRecord(userId, fccCert)
         }
 
+        // set the attributes for creation of the 
+        // CertificationResourceProgress records, including 
+        // the status
         const resourceProgress = {
             certificationResourceId: resource.id,
             resourceProgressId: fccProgress.id,
-            resourceProgressType: fccProgress.constructor.name
+            resourceProgressType: fccProgress.constructor.name,
+            status: fccProgress.status,
         }
 
         resourceProgresses.push(resourceProgress);
@@ -226,7 +230,7 @@ function progressIncludes(certificationDashedName) {
         {
             model: db.TopcoderCertification,
             as: 'topcoderCertification',
-            ...(!certificationDashedName ? {} : {where: {dashedName: certificationDashedName}}),
+            ...(!certificationDashedName ? {} : { where: { dashedName: certificationDashedName } }),
             include: {
                 model: db.ResourceProvider,
                 as: 'resourceProviders',

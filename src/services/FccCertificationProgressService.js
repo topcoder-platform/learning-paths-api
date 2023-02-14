@@ -211,7 +211,7 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
     }
 
     const updatedProgress = Object.assign(progress, acceptanceData);
-    
+
     await progress.save()
     decorateProgressCompletion(updatedProgress);
 
@@ -251,15 +251,27 @@ async function getCertificationProgress(userId, progressId) {
 async function startCertification(currentUser, userId, certificationId, courseId, query) {
     helper.ensureRequestForCurrentUser(currentUser, userId)
 
-    const existingProgress = await getExistingProgress(userId, certificationId);
+    let existingProgress = await getExistingProgress(userId, certificationId);
 
-    // if the certification has already been started, just return it
     if (existingProgress) {
-        const provider = existingProgress?.resourceProvider?.name;
+        const provider = existingProgress.resourceProvider?.name;
         const certification = existingProgress.certification;
-        const startDate = existingProgress.startDate;
 
-        console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
+        // When the user enrolls in a Topcoder Certification a cert progress object 
+        // will be created for each course in the cert, so it may exist but not yet 
+        // be started -- handle that case here.
+        if (existingProgress.isNotStarted()) {
+            existingProgress = await existingProgress.start(query)
+            console.log(`User ${userId} starting the ${provider} ${certification} certification now!`)
+        } else {
+            const startDate = existingProgress.startDate;
+            console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
+        }
+
+        // Ensure that if this FCC cert is part of a Topcoder Certification in which 
+        // the user is enrolled that the CertResourceProgress status gets updated also.
+        await db.CertificationResourceProgress.checkAndUpdateStatusFromResource(existingProgress)
+
         return existingProgress
     } else {
         const fccCertification = await db.FreeCodeCampCertification.findByPk(certificationId);

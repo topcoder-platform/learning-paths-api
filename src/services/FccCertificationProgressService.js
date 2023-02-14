@@ -378,7 +378,7 @@ async function completeLessonViaMongoTrigger(query) {
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     const fccModule = await fccLesson.getFccModule();
     const fccCourse = await fccModule.getFccCourse();
-    const fccCertification = await fccCourse.getFccCertification();
+    const fccCertification = await fccCourse.getFreeCodeCampCertification();
 
     // where clause to find the matching Fcc Cert Progress record
     const where = {

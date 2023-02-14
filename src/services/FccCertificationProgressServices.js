@@ -5,6 +5,7 @@
 
 const db = require('../db/models');
 const errors = require('../common/errors')
+const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
 
 const { progressStatuses } = require('../common/constants');
 
@@ -209,7 +210,9 @@ async function acceptAcademicHonestyPolicy(currentUser, certificationProgressId)
         academicHonestyPolicyAcceptedAt: new Date()
     }
 
-    let updatedProgress = await helper.update(progress, acceptanceData)
+    const updatedProgress = Object.assign(progress, acceptanceData);
+    
+    await progress.save()
     decorateProgressCompletion(updatedProgress);
 
     console.log(`User ${progress.userId} accepted the academic honesty policy for the ${progress.certification} certification`)

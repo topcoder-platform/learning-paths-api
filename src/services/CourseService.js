@@ -42,7 +42,7 @@ async function searchPostgresCourses(criteria) {
         options.where = { key: criteria.key }
     }
 
-    options.include = courseIncludes()
+    options.include = courseIncludes(criteria)
     options.attributes = courseIncludeAttributes();
 
     ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
@@ -56,11 +56,12 @@ async function searchPostgresCourses(criteria) {
 
 // include associated models to provide the
 // front-end with a fully-formed response
-function courseIncludes() {
+function courseIncludes(criteria) {
     return [
         {
             model: db.FreeCodeCampCertification,
-            as: 'freeCodeCampCertification'
+            as: 'freeCodeCampCertification',
+            ...(criteria.certification ? { where: { certification: criteria.certification } } : {}),
         },
         {
             model: db.ResourceProvider,

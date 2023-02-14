@@ -323,7 +323,7 @@ async function completeEnrollmentProgress(authUser, resourceProgressType, resour
     // the given user, so mark it as complete.
     const completedProgress = await resourceProgress.setCompleted();
 
-    const certification = await db.TopcoderCertification.findByPk(certEnrollment.topcoderCertificationId)
+    const certification = await await certEnrollment.getTopcoderCertification();
 
     // When an individual cert resource progress is completed we need to check
     // to see if all of requirements for the associated Topcoder Certification 

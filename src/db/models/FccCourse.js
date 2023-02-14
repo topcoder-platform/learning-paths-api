@@ -29,6 +29,23 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
 
+    /**
+     * Gets the complete set of lessons from all of the modules
+     * in this course.
+     * 
+     * @returns array of FccLessons
+     */
+    async getLessons() {
+      let lessons = [];
+
+      const modules = await this.getModules();
+      for (const module of modules) {
+        const moduleLessons = await module.getLessons();
+        lessons.push(...moduleLessons)
+      }
+
+      return lessons;
+    }
   }
 
   FccCourse.init({

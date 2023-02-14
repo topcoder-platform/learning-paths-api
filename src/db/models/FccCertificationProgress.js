@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       // Oof, some of this is painful. Do better, Sequelize!
 
       this.belongsTo(models.FccCourse, {
+        as: 'fccCourse',
         foreignKey: 'fccCourseId'
       });
 
@@ -141,6 +142,42 @@ module.exports = (sequelize, DataTypes) => {
       return moduleProgressAttrs
     }
 
+    static async getFullCertificationProgress(userId, progressId) {
+      const options = {
+        where: {
+          userId: userId,
+          id: progressId
+        },
+        include: this.certProgressIncludes()
+      }
+      let progress = await this.findOne(options)
+
+      return progress
+    }
+
+    static certProgressIncludes() {
+      return [
+        {
+          model: sequelize.model('FccModuleProgress'),
+          as: 'moduleProgresses',
+          include: {
+            model: sequelize.model('FccCompletedLesson'),
+            as: 'completedLessons',
+            require: false
+          }
+        },
+        {
+          model: sequelize.model('FreeCodeCampCertification'),
+          as: 'freeCodeCampCertification',
+          include: {
+            model: sequelize.model('ResourceProvider'),
+            as: 'resourceProvider',
+            attributes: ['id', 'name', 'description', 'attributionStatement', 'url']
+          }
+        }
+      ]
+    }
+
     async allAssessmentModulesCompleted() {
       const progresses = await this.getModuleProgresses({
         where: {
@@ -235,6 +272,34 @@ module.exports = (sequelize, DataTypes) => {
       }
 
       return lesson;
+    }
+
+    /**
+     * An implementation of hasMany :through that Sequelize 
+     * seems to lack, for no apparent reason.
+     * 
+     * @returns an array of FccCompletedLesson objects
+     */
+    async completedLessons() {
+      let completedLessons = [];
+
+      const moduleProgresses = await this.getModuleProgresses({
+        include: {
+          model: sequelize.model('FccCompletedLesson'),
+          as: 'completedLessons',
+        }
+      });
+
+      for (const moduleProgress of moduleProgresses) {
+        completedLessons.push(...moduleProgress.completedLessons)
+      }
+
+      return completedLessons;
+    }
+
+    // convenience method to check completion
+    isCompleted() {
+      return this.status == progressStatuses.completed;
     }
   }
 

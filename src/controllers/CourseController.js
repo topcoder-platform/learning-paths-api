@@ -1,7 +1,6 @@
 /**
  * Controller for course endpoints
  */
-const { StatusCodes } = require('http-status-codes')
 const service = require('../services/CourseService')
 const helper = require('../common/helper')
 

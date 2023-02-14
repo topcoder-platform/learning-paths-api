@@ -3,7 +3,7 @@
  */
 
 const progressService = require('../services/CertificationProgressService')
-const fccService = require('../services/FccCertificationProgressServices')
+const fccService = require('../services/FccCertificationProgressService')
 
 const helper = require('../common/helper')
 const dbHelper = require('../common/dbHelper')
@@ -65,7 +65,7 @@ async function deleteCertificationProgress(req, res) {
  * @param {Object} res the response
  */
 async function deleteLastModuleLesson(req, res) {
-    const result = await progressService.deleteLastModuleLesson(
+    const result = await service.deleteLastModuleLesson(
         req.authUser,
         req.params.certificationProgressId,
         req.params.module)

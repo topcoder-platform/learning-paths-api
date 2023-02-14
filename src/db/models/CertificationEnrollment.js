@@ -3,6 +3,8 @@
 const {
   Model
 } = require('sequelize');
+const { progressStatuses } = require('../../common/constants');
+const { createId } = require('@paralleldrive/cuid2');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {
@@ -17,6 +19,49 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'certificationEnrollmentId',
         onDelete: 'CASCADE'
       });
+    }
+
+    /**
+     * Checks if all of the requirements to complete the associated
+     * Topcoder Certification have been completed. If so, it marks 
+     * this enrollment as completed and trigger the generation of the 
+     * user's Topcoder Certification digital certificate.
+     */
+    async checkAndSetCertCompletion() {
+      // if the certification has been completed, just 
+      // return that status and the date it was completed
+      if (this.status == progressStatuses.completed) {
+        return {
+          status: this.status,
+          completedAt: this.completedAt,
+          completionUuid: this.completionUuid,
+        }
+      }
+
+      // check to see if all of the requirements have been completed
+      const resourceProgresses = await this.getResourceProgresses();
+      const certCompleted = resourceProgresses.every(progress => progress.isCompleted());
+
+      // not all completed, so just return the current status
+      if (!certCompleted) {
+        return {
+          status: this.status
+        }
+      }
+
+      // all requirements have been satisfied, so mark this as completed
+      const statusCompleted = {
+        status: progressStatuses.completed,
+        completedAt: new Date(),
+        completionUuid: createId()
+      }
+      const completedEnrollment = await this.update(statusCompleted)
+
+      // TODO: add hook to generate the digital certificate here
+      // If you want to pass the certificate URL or other data back 
+      // to the client you can add it to the +statusCompleted+ object.
+
+      return statusCompleted;
     }
   }
 
@@ -47,6 +92,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     completedAt: {
       type: DataTypes.DATE
+    },
+    completionUuid: {
+      type: DataTypes.STRING,
     },
     coursesCount: {
       type: DataTypes.VIRTUAL,

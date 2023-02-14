@@ -1,7 +1,10 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+const { progressStatuses } = require('../../common/constants');
+
 module.exports = (sequelize, DataTypes) => {
   class CertificationResourceProgress extends Model {
     static associate(models) {
@@ -20,6 +23,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'resourceProgressId',
         constraints: false,
       });
+    }
+
+    /**
+     * Marks a resource progress as complete
+     */
+    async setCompleted() {
+      return await this.update({ status: progressStatuses.completed })
+    }
+
+    isCompleted() {
+      return this.status == progressStatuses.completed
     }
   }
 

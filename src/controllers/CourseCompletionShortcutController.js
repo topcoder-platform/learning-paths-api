@@ -2,8 +2,17 @@
  * ExpressJS controller to auto-complete courses (for QA and testing)
  */
 
-const helper = require('../common/helper')
-const service = require('../services/CourseCompletionShortcutService')
+const dbHelper = require('../common/dbHelper');
+const dynamoService = require('../services/CourseCompletionShortcutService')
+const shortcutService = require('../services/FccCourseCompletionShortcutService')
+
+// Switch between DynamoDB and PostgreSQL-based services
+let service;
+if (dbHelper.featureFlagUsePostgres()) {
+    service = shortcutService;
+} else {
+    service = dynamoService;
+}
 
 /**
  * Completes a freeCodeCamp course autotmatically, given the certification 

@@ -178,6 +178,30 @@ module.exports = (sequelize, DataTypes) => {
       ]
     }
 
+    /**
+     * Starts an existing certification progress by setting the status, the 
+     * start date, and the current lesson.
+     * 
+     * @param {Object} options options for setting status and current lesson
+     */
+    async start(options) {
+      // if it's already been started, just return it
+      if (this.isInProgress()) return this;
+
+      let currentLesson = null;
+      if (options.module && options.lesson) {
+        currentLesson = `${options.module}/${options.lesson}`
+      }
+
+      await this.update({
+        status: progressStatuses.inProgress,
+        startDate: new Date(),
+        currentLesson: currentLesson,
+      })
+
+      return this;
+    }
+
     async allAssessmentModulesCompleted() {
       const progresses = await this.getModuleProgresses({
         where: {
@@ -297,7 +321,15 @@ module.exports = (sequelize, DataTypes) => {
       return completedLessons;
     }
 
-    // convenience method to check completion
+    // convenience methods to check status
+    isNotStarted() {
+      return this.status == progressStatuses.notStarted;
+    }
+
+    isInProgress() {
+      return this.status == progressStatuses.inProgress;
+    }
+
     isCompleted() {
       return this.status == progressStatuses.completed;
     }

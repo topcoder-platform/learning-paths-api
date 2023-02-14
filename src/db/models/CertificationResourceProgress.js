@@ -26,6 +26,38 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     /**
+     * Checks if the given resource progress object is referenced by one of these,
+     * and if so, updates the associated CertResourceProgress status from its 
+     * status.
+     * 
+     * @param {Object} resourceProgress a progress object for an associated resource
+     */
+    static async checkAndUpdateStatusFromResource(resourceProgress) {
+      const resourceProgressId = resourceProgress?.id;
+      const resourceProgressType = resourceProgress?.constructor.name;
+
+      if (resourceProgressId && resourceProgressType) {
+        const certResourceProgress = await this.findOne({
+          where: {
+            resourceProgressId: resourceProgressId,
+            resourceProgressType: resourceProgressType
+          }
+        })
+
+        // if we find a CertificationResourceProgress object for the given 
+        // resourceProgress, and the statuses don't match, update the status 
+        // of the CertificationResourceProgress object.
+        if (certResourceProgress) {
+          if (certResourceProgress.status != resourceProgress.status) {
+            await certResourceProgress.update({
+              status: resourceProgress.status
+            })
+          }
+        }
+      }
+    }
+
+    /**
      * Marks a resource progress as complete
      */
     async setCompleted() {

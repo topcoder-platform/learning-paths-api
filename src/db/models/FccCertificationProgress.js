@@ -184,20 +184,31 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {Object} options options for setting status and current lesson
      */
-    async start(options) {
-      // if it's already been started, just return it
-      if (this.isInProgress()) return this;
+    async start(options = {}) {
+      // if it's already been started or completed, just return it
+      if (this.isInProgress() || this.isCompleted()) return this;
 
+      // build the current lesson if module and lesson provided
       let currentLesson = null;
       if (options.module && options.lesson) {
         currentLesson = `${options.module}/${options.lesson}`
       }
 
-      await this.update({
-        status: progressStatuses.inProgress,
-        startDate: new Date(),
-        currentLesson: currentLesson,
-      })
+      let updateAttrs = {
+        status: progressStatuses.inProgress
+      }
+
+      // update the startDate if it's blank
+      if (!this.startDate) {
+        updateAttrs.startDate = new Date()
+      }
+
+      // update the current lesson if provided
+      if (currentLesson) {
+        updateAttrs.currentLesson = currentLesson;
+      }
+
+      await this.update(updateAttrs)
 
       return this;
     }
@@ -231,10 +242,18 @@ module.exports = (sequelize, DataTypes) => {
      * @returns the updated cert progress record
      */
     async updateCurrentLesson(currentLesson) {
-      this.set({
+      const updateAttrs = {
         currentLesson: currentLesson,
         lastInteractionDate: new Date()
-      });
+      }
+
+      // ensure this cert progress reflects the correct status -- if 
+      // we're setting a current lesson on this progress, it's been 
+      // started, so ensure that status is set.
+      if (this.isNotStarted()) {
+        updateAttrs.status = progressStatuses.inProgress
+      }
+      this.set(updateAttrs);
 
       this.save();
 
@@ -264,6 +283,10 @@ module.exports = (sequelize, DataTypes) => {
         throw `Did not find module progress with key ${moduleKey}`
       }
 
+      // we're completing a lesson, so ensure this progress record has 
+      // the correct status 
+      await this.ensureProgressStarted();
+
       // check if this lesson has already been completed, and if so,
       // just return this cert progress
       const lessonCount = await moduleProgress.countCompletedLessons({
@@ -286,6 +309,15 @@ module.exports = (sequelize, DataTypes) => {
       await moduleProgress.createCompletedLesson(lessonAttrs);
       await moduleProgress.touchModule();
       await moduleProgress.checkAndSetModuleStatus();
+    }
+
+    /**
+     * Ensures a progress record has been started
+     */
+    async ensureProgressStarted() {
+      if (this.isNotStarted()) {
+        await this.start();
+      };
     }
 
     async validateLesson(moduleKey, lessonDashedName, lessonId) {

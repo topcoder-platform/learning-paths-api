@@ -342,6 +342,12 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
+    // adding this to support clients like the 
+    // Community App that we don't want to have 
+    // change if we can avoid it 
+    provider: {
+      type: DataTypes.VIRTUAL,
+    },
     fccCertificationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -379,13 +385,23 @@ module.exports = (sequelize, DataTypes) => {
     academicHonestyPolicyAcceptedAt: DataTypes.DATE,
     currentLesson: DataTypes.STRING,
     certificationImageUrl: DataTypes.STRING,
-    // Virtual attributes that are computed server-side
     courseProgressPercentage: DataTypes.VIRTUAL,
     certificationProgressPercentage: DataTypes.VIRTUAL,
   }, {
     sequelize,
     modelName: 'FccCertificationProgress',
     tableName: 'FccCertificationProgresses',
+  });
+
+  FccCertificationProgress.addHook("afterFind", findResult => {
+    if (findResult === null) return;
+
+    if (!Array.isArray(findResult)) findResult = [findResult];
+
+    for (const instance of findResult) {
+      instance.provider = instance?.resourceProvider?.name;
+    }
+
   });
 
   return FccCertificationProgress;

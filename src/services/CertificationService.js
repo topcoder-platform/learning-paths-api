@@ -131,13 +131,24 @@ async function getCertification(id) {
 
     if (dbHelper.featureFlagUsePostgres()) {
         const includeAssociations = {
-            include: [{
-                model: db.CertificationCategory,
-                as: 'certificationCategory'
-            }]
+            model: db.CertificationCategory,
+            as: 'certificationCategory'
         };
 
-        certification = await db.FreeCodeCampCertification.findByPk(id, includeAssociations)
+        // TODO: This is a workaround for API calls from the front-end that are still
+        // using the FCC UUID values for IDs. Remove this once that is fixed.
+        let where;
+        if (Number.isInteger(parseInt(+id))) {
+            where = { id: id }
+        } else {
+            // assume it's a UUID -- if not, too bad, it will throw
+            where = { fccId: id }
+        }
+
+        certification = await db.FreeCodeCampCertification.findOne({
+            where: where,
+            include: includeAssociations
+        })
     } else {
         certification = await helper.getById('Certification', id)
     }

@@ -45,9 +45,11 @@ module.exports = (sequelize, DataTypes) => {
       // return that status and the date it was completed
       if (this.status == progressStatuses.completed) {
         return {
-          status: this.status,
+          certification,
+          certificateUrl,
           completedAt: this.completedAt,
           completionUuid: this.completionUuid,
+          status: this.status,
         }
       }
 
@@ -58,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       // not all completed, so just return the current status
       if (!certCompleted) {
         return {
+          certification,
+          certificateUrl,
           status: this.status
         }
       }

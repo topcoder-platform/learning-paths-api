@@ -311,8 +311,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     const lesson = query.lesson;
     const currentLesson = `${module}/${lesson}`
 
-    console.log(`User ${userId} setting current lesson to ${module}/${lesson}...`)
-
     // Get the FccCertProgress, FccLesson, and FccModule data
     const certProgress = await getCertificationProgress(userId, certificationProgressId);
     const fccLesson = await db.FccLesson.findByPk(lessonId, {

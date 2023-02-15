@@ -64,9 +64,11 @@ module.exports = (sequelize, DataTypes) => {
 
       // all requirements have been satisfied, so mark this as completed
       const statusCompleted = {
-        status: progressStatuses.completed,
+        certification,
+        certificateUrl,
         completedAt: new Date(),
-        completionUuid: createId()
+        completionUuid: createId(),
+        status: progressStatuses.completed,
       }
       const completedEnrollment = await this.update(statusCompleted)
 
@@ -75,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
         undefined,
         handle,
         certification,
-        'TCA',
+        'tca',
         certificateUrl,
         certificateElement,
         certificateAlternateParams,

@@ -199,7 +199,6 @@ module.exports = {
     get: {
       controller: 'CertificationEnrollmentController',
       method: 'getEnrollment',
-      auth: 'jwt',
     },
   },
   '/learning-paths/user-certification-enrollment/:userId': {

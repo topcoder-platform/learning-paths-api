@@ -4,6 +4,7 @@ const db = require('../db/models');
 const errors = require('../common/errors');
 const helper = require('../common/helper');
 const config = require('config');
+const certificationService = require('./TopcoderCertificationService');
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -82,15 +83,28 @@ async function getEnrollments(options = {}) {
     return enrollment;
 }
 
+/**
+ * Get enrollment from the system
+ * @param {*} id Either id or completionUuid
+ * @returns {Object | null}
+ */
 async function getEnrollmentById(id) {
     const options = {
         include: {
             model: db.TopcoderCertification,
-            as: 'topcoderCertification'
+            as: 'topcoderCertification',
+            include: certificationService.certificationIncludes()
         }
-    }
+    };
 
-    return await db.CertificationEnrollment.findByPk(id, options);
+    return !!Number(id)
+        ? db.CertificationEnrollment.findByPk(id, options)
+        : db.CertificationEnrollment.findOne({
+            where: {
+                completionUuid: id
+            },
+            ...options
+        });
 }
 
 /**

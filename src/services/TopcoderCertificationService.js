@@ -129,7 +129,7 @@ async function validateCertOwnership(topcoderCertificationId, userHandle) {
     const allCompleted = certificationProgresses.every(cp => cp.status === 'completed')
 
     if (!allCompleted) {
-        throw new errors.NotFoundError(`Not all resources in enrollemnt id '${enrollment.id}' are completed.`)
+        throw new errors.UnauthorizedError(`Not all resources in enrollemnt id '${enrollment.id}' are completed.`)
     }
 
     return enrollment
@@ -140,4 +140,5 @@ module.exports = {
     getCertification,
     getCertificationByDashedName,
     validateCertOwnership,
+    certificationIncludes,
 }

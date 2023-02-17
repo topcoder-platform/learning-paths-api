@@ -58,5 +58,10 @@ module.exports = {
     TCA_DATASTORE: process.env.TCA_DATASTORE || 'dynamodb'
   },
 
-  TCA_WEBSITE_URL: process.env.TCA_WEBSITE_URL || 'https://platform-ui.topcoder-dev.com'
+  TCA_WEBSITE_URL: process.env.TCA_WEBSITE_URL || 'https://platform-ui.topcoder-dev.com',
+
+  CERT_ELEMENT_SELECTOR: {
+    attribute: 'data-id',
+    value: 'certificate-container',
+  },
 }

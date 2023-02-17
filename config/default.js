@@ -64,4 +64,8 @@ module.exports = {
     attribute: 'data-id',
     value: 'certificate-container',
   },
+
+  CERT_ADDITIONAL_PARAMS: {
+    'view-style': 'large-container',
+  },
 }

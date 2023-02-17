@@ -347,7 +347,8 @@ async function completeEnrollmentProgress(authUser, resourceProgressType, resour
         authUser.handle,
         certification.dashedName,
         `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}/${authUser.handle}/certificate`,
-        `[${config.CERT_ELEMENT_SELECTOR.attribute}=${config.CERT_ELEMENT_SELECTOR.value}]`
+        `[${config.CERT_ELEMENT_SELECTOR.attribute}=${config.CERT_ELEMENT_SELECTOR.value}]`,
+        config.CERT_ADDITIONAL_PARAMS,
     );
 
     return {

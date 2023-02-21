@@ -57,6 +57,10 @@ async function getCompletedTCAEnrollments(userId) {
         include: [{
             model: db.TopcoderCertification,
             as: 'topcoderCertification',
+            include: {
+                model: db.CertificationCategory,
+                as: 'certificationCategory',
+            }
         }]
     })
 }

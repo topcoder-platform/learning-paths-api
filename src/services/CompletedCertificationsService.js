@@ -6,6 +6,7 @@ const db = require('../db/models');
 const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 const { progressStatuses } = require('../common/constants');
+const enrollmentService = require('./CertificationEnrollmentService');
 
 /**
  * Get all completed certifications for a user
@@ -43,6 +44,24 @@ async function getCompletedCertifications(userId) {
     }
 }
 
+/**
+ * Fetches completed TCA enrollments/certs filtered by `userId`
+ * @param {string} userId 
+ */
+async function getCompletedTCAEnrollments(userId) {
+    return enrollmentService.getEnrollments({
+        where: {
+            status: 'completed',
+            userId
+        },
+        include: [{
+            model: db.TopcoderCertification,
+            as: 'topcoderCertification',
+        }]
+    })
+}
+
 module.exports = {
-    getCompletedCertifications
+    getCompletedCertifications,
+    getCompletedTCAEnrollments
 }

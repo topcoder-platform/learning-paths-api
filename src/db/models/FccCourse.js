@@ -65,9 +65,9 @@ module.exports = (sequelize, DataTypes) => {
     certificationId: DataTypes.INTEGER,
     estimatedCompletionTimeValue: DataTypes.INTEGER,
     estimatedCompletionTimeUnits: DataTypes.STRING,
-    introCopy: DataTypes.ARRAY(DataTypes.STRING),
-    keyPoints: DataTypes.ARRAY(DataTypes.STRING),
-    completionSuggestions: DataTypes.ARRAY(DataTypes.STRING),
+    introCopy: DataTypes.ARRAY(DataTypes.TEXT),
+    keyPoints: DataTypes.ARRAY(DataTypes.TEXT),
+    completionSuggestions: DataTypes.ARRAY(DataTypes.TEXT),
     note: DataTypes.STRING,
     learnerLevel: {
       type: DataTypes.ENUM("Beginner", "Intermediate", "Expert", "All Levels"),

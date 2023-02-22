@@ -89,11 +89,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     learningOutcomes: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
     },
     prerequisites: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
     },
     coursesCount: {

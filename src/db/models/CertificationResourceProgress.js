@@ -26,9 +26,9 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     /**
-     * Checks if the given resource progress object is referenced by one of these,
-     * and if so, updates the associated CertResourceProgress status from its 
-     * status.
+     * Checks if the given resource progress object (for example, an FccCertificationProgress)
+     * is referenced by a CertificationResourceProgress object, and if so, updates 
+     * the associated CertResourceProgress status from its status.
      * 
      * @param {Object} resourceProgress a progress object for an associated resource
      */

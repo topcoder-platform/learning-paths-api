@@ -150,13 +150,13 @@ module.exports = (sequelize, DataTypes) => {
 
         let resourcesCompleted = 0;
         for (const resourceProgress of instance.resourceProgresses) {
-          if (resourceProgress.status == 'completed') {
+          if (resourceProgress.status == progressStatuses.completed) {
             resourcesCompleted += 1;
           }
         }
 
         instance.certificationProgress = 0;
-        if (resourceCount > 0) {
+        if (resourceCount > 0 && resourcesCompleted > 0) {
           const rawProgress = (resourcesCompleted / resourceCount);
           instance.certificationProgress = Math.floor(rawProgress * 100);
         }

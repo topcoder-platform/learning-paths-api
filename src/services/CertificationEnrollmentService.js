@@ -303,7 +303,7 @@ async function getUserEnrollmentProgresses(userId) {
  * Certification, the certification progress record needs to be updated to track 
  * the user's progress towards earning the certification. 
  * 
- * @param {Object} the auth user whose progress is being completed
+ * @param {Object} authUser user whose progress is being completed
  * @param {String} resourceProgressType type of certification resource
  * @param {Integer} resourceProgressId ID of the certification resource
  */
@@ -320,7 +320,7 @@ async function completeEnrollmentProgress(authUser, resourceProgressType, resour
     if (!resourceProgress) return null;
 
     // Get the CertificationEnrollment for this progress -- it should
-    // belong to the provider userID
+    // belong to the authUser
     const certEnrollment = await db.CertificationEnrollment.findOne({
         where: {
             id: resourceProgress.certificationEnrollmentId,

@@ -75,11 +75,23 @@ function certificationIncludes() {
                 {
                     model: db.FreeCodeCampCertification,
                     as: 'freeCodeCampCertification',
-                    include: {
-                        model: db.CertificationCategory,
-                        as: 'certificationCategory',
-                        attributes: ['category', 'track']
-                    }
+                    include: [
+                        {
+                            model: db.CertificationCategory,
+                            as: 'certificationCategory',
+                            attributes: ['category', 'track']
+                        },
+                        {
+                            model: db.FccCourse,
+                            as: 'course',
+                            attributes: ['estimatedCompletionTimeUnits', 'estimatedCompletionTimeValue'],
+                            include: {
+                                model: db.FccModule,
+                                as: 'modules',
+                                attributes: ['estimatedCompletionTimeValue', 'estimatedCompletionTimeUnits']
+                            }
+                        }
+                    ]
                 },
                 // TODO: leaving this here as an example of how we will 
                 // need to handle the polymorphic association between resources

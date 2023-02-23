@@ -84,9 +84,11 @@ function certificationIncludes() {
                         {
                             model: db.FccCourse,
                             as: 'course',
+                            attributes: ['estimatedCompletionTimeUnits', 'estimatedCompletionTimeValue'],
                             include: {
                                 model: db.FccModule,
-                                as: 'modules'
+                                as: 'modules',
+                                attributes: ['estimatedCompletionTimeValue', 'estimatedCompletionTimeUnits']
                             }
                         }
                     ]

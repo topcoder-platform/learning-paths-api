@@ -120,8 +120,7 @@ async function getEnrollmentById(id) {
  * @returns the completed CertificationEnrollment object
  */
 async function createCertificationEnrollment(authUser, certificationId) {
-    // TODO -- changed for local testing
-    const memberData = { firstName: 'Chris', lastName: 'McCann' } //await helper.getMemberDataM2M(authUser.handle);
+    const memberData = await helper.getMemberDataM2M(authUser.handle);
 
     // build the collection of certification resource progress records to 
     // track the user's completion of the courses (resource) contained in 
@@ -144,6 +143,12 @@ async function createCertificationEnrollment(authUser, certificationId) {
                     as: 'resourceProgresses'
                 }]
             });
+
+        // it's possible the user completed all of the requirements to earn the 
+        // certification before enrolling, so check that now
+        await enrollment.checkAndSetCertCompletion();
+        await enrollment.reload();
+
         return enrollment;
     } catch (error) {
         console.error("Error creating certification enrollment", error);
@@ -356,22 +361,14 @@ async function completeEnrollmentProgress(authUser, resourceProgressType, resour
 
     // We have the certification resource progress and have verified it's for 
     // the given user, so mark it as complete.
-    console.log(`Completing cert resource progress for user ${authUser.userId} progress id ${certResourceProgress.id} from ${resourceProgressType}/${resourceProgressId}`)
+    console.log(`Completing cert resource progress id ${certResourceProgress.id} for user ${authUser.userId} from ${resourceProgressType}/${resourceProgressId}`)
     const completedProgress = await certResourceProgress.setCompleted();
-
-    const certification = await await certEnrollment.getTopcoderCertification();
 
     // When an individual cert resource progress is completed we need to check
     // to see if all of requirements for the associated Topcoder Certification 
     // have been completed. If so, we mark the Certification as completed and 
     // return that info to the client.
-    const certCompletionStatus = await certEnrollment.checkAndSetCertCompletion(
-        authUser.handle,
-        certification.dashedName,
-        `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}/${authUser.handle}/certificate`,
-        `[${config.CERT_ELEMENT_SELECTOR.attribute}=${config.CERT_ELEMENT_SELECTOR.value}]`,
-        config.CERT_ADDITIONAL_PARAMS,
-    );
+    const certCompletionStatus = await certEnrollment.checkAndSetCertCompletion();
 
     return {
         completedProgress: completedProgress,

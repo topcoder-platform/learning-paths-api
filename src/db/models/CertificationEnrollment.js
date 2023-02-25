@@ -79,8 +79,12 @@ module.exports = (sequelize, DataTypes) => {
       };
     }
 
-    // check to see if all of the requirements to earn the 
-    // certification have been completed
+    /**
+     * Checks to see if all of the requirements to earn the 
+     * certification have been completed
+     * 
+     * @returns boolean true if completed, false otherwise
+     */
     async allCertRequirementsCompleted() {
       const resourceProgresses = await this.getResourceProgresses();
       const certCompleted = resourceProgresses.every(progress => progress.isCompleted());
@@ -89,8 +93,8 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     /**
-     * Constructs the URL from which to retieve the user Topcoder Certification 
-     * completion certificate 
+     * Constructs the URL from which to retrieve the user  
+     * Topcoder Certification completion certificate 
      * 
      * @returns the certificate URL
      */
@@ -100,6 +104,10 @@ module.exports = (sequelize, DataTypes) => {
       return `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}/${this.userHandle}/certificate`
     }
 
+    /**
+     * A wrapper around the image generator method that creates the 
+     * completion certification image.
+     */
     async generateCertificate() {
       const certification = await this.getTopcoderCertification();
       const certDashedName = certification.dashedName;

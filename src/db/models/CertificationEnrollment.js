@@ -1,10 +1,13 @@
 'use strict';
 
-const {
-  Model
-} = require('sequelize');
-const { progressStatuses } = require('../../common/constants');
+const { Model } = require('sequelize');
+const config = require('config');
 const { createId } = require('@paralleldrive/cuid2');
+
+const {
+  enrollmentStatuses,
+  progressStatuses
+} = require('../../common/constants');
 const imageGenerator = require('../../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService');
 
 module.exports = (sequelize, DataTypes) => {
@@ -25,27 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     /**
      * Checks if all of the requirements to complete the associated
      * Topcoder Certification have been completed. If so, it marks 
-     * this enrollment as completed and trigger the generation of the 
+     * this enrollment as completed and triggers the generation of the 
      * user's Topcoder Certification digital certificate.
-     * 
-     * @param {String} The handle of the auth user whose progress is being completed
-     * @param {String} certification The name of the certification for which we are generating an image
-     * @param {String} certificateUrl The URL for the certificate
-     * @param {String} certificateElement (optional) The Element w/in the DOM of the certificate that 
-     * @param {Object} certificateAlternateParams (optional) If there are any alternate params,
      */
-    async checkAndSetCertCompletion(
-      handle,
-      certification,
-      certificateUrl,
-      certificateElement,
-      certificateAlternateParams,
-    ) {
-      // if the certification has been completed, just 
-      // return that status and the date it was completed
-      if (this.status == progressStatuses.completed) {
+    async checkAndSetCertCompletion() {
+      const certification = await this.getTopcoderCertification();
+      const certDashedName = certification.dashedName;
+      const certificateUrl = await this.certificateUrl();
+
+      // if the certification has been fully completed, return cert info
+      if (this.status == enrollmentStatuses.completed) {
         return {
-          certification,
+          certification: certDashedName,
           certificateUrl,
           completedAt: this.completedAt,
           completionUuid: this.completionUuid,
@@ -53,41 +47,82 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
 
-      // check to see if all of the requirements have been completed
-      const resourceProgresses = await this.getResourceProgresses();
-      const certCompleted = resourceProgresses.every(progress => progress.isCompleted());
+      const certCompleted = await this.allCertRequirementsCompleted();
 
-      // not all completed, so just return the current status
+      // if not all completed progresses have been completed 
+      // return the current status
       if (!certCompleted) {
         return {
-          certification,
-          certificateUrl,
+          certDashedName,
+          certificateUrl: null,
           status: this.status
         }
       }
 
       // all requirements have been satisfied, so mark this as completed
-      const statusCompleted = {
-        certification,
-        certificateUrl,
+      const completedAttrs = {
         completedAt: new Date(),
         completionUuid: createId(),
-        status: progressStatuses.completed,
+        status: enrollmentStatuses.completed,
       }
-      const completedEnrollment = await this.update(statusCompleted)
+      const completedCert = await this.update(completedAttrs)
 
-      // generate the TCA digital certificate social share image
+      // generate the TCA digital certificate image
+      await this.generateCertificate();
+
+      return {
+        certification: certDashedName,
+        certificateUrl: certificateUrl,
+        completedAt: completedCert.completedAt,
+        completionUuid: completedCert.completionUuid,
+        status: completedCert.status
+      };
+    }
+
+    /**
+     * Checks to see if all of the requirements to earn the 
+     * certification have been completed
+     * 
+     * @returns boolean true if completed, false otherwise
+     */
+    async allCertRequirementsCompleted() {
+      const resourceProgresses = await this.getResourceProgresses();
+      const certCompleted = resourceProgresses.every(progress => progress.isCompleted());
+
+      return certCompleted;
+    }
+
+    /**
+     * Constructs the URL from which to retrieve the user  
+     * Topcoder Certification completion certificate 
+     * 
+     * @returns the certificate URL
+     */
+    async certificateUrl() {
+      const certification = await this.getTopcoderCertification();
+
+      return `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}/${this.userHandle}/certificate`
+    }
+
+    /**
+     * A wrapper around the image generator method that creates the 
+     * completion certification image.
+     */
+    async generateCertificate() {
+      const certification = await this.getTopcoderCertification();
+      const certDashedName = certification.dashedName;
+      const certificateUrl = await this.certificateUrl();
+      const certificateElement = `[${config.CERT_ELEMENT_SELECTOR.attribute}=${config.CERT_ELEMENT_SELECTOR.value}]`;
+
       imageGenerator.generateCertificateImage(
         undefined,
-        handle,
-        certification,
+        this.userHandle,
+        certDashedName,
         'tca',
         certificateUrl,
         certificateElement,
-        certificateAlternateParams,
+        config.CERT_ADDITIONAL_PARAMS,
       )
-
-      return statusCompleted;
     }
   }
 
@@ -150,13 +185,13 @@ module.exports = (sequelize, DataTypes) => {
 
         let resourcesCompleted = 0;
         for (const resourceProgress of instance.resourceProgresses) {
-          if (resourceProgress.status == 'completed') {
+          if (resourceProgress.status == progressStatuses.completed) {
             resourcesCompleted += 1;
           }
         }
 
         instance.certificationProgress = 0;
-        if (resourceCount > 0) {
+        if (resourceCount > 0 && resourcesCompleted > 0) {
           const rawProgress = (resourcesCompleted / resourceCount);
           instance.certificationProgress = Math.floor(rawProgress * 100);
         }

@@ -5,6 +5,8 @@ const {
 } = require('sequelize');
 const { progressStatuses } = require('../../common/constants');
 
+const uppercaseFirst = str => `${str[0].toUpperCase()}${str.substr(1)}`;
+
 module.exports = (sequelize, DataTypes) => {
   class CertificationResourceProgress extends Model {
     static associate(models) {
@@ -26,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     /**
-     * Checks if the given resource progress object is referenced by one of these,
-     * and if so, updates the associated CertResourceProgress status from its 
-     * status.
+     * Checks if the given resource progress object (for example, an FccCertificationProgress)
+     * is referenced by a CertificationResourceProgress object, and if so, updates 
+     * the associated CertResourceProgress status from its status.
      * 
      * @param {Object} resourceProgress a progress object for an associated resource
      */
@@ -66,6 +68,19 @@ module.exports = (sequelize, DataTypes) => {
 
     isCompleted() {
       return this.status == progressStatuses.completed
+    }
+
+    /**
+     * Get the associated resource progress object, regardless of type
+     * 
+     * @param {Object} options 
+     * @returns the progress object
+     */
+    getProgressable(options) {
+      if (!this.resourceProgressType) return Promise.resolve(null);
+
+      const mixinMethodName = `get${uppercaseFirst(this.resourceProgressType)}`;
+      return this[mixinMethodName](options);
     }
   }
 

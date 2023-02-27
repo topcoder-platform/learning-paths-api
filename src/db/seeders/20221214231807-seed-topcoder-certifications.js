@@ -69,8 +69,16 @@ module.exports = {
           'Learn the TensorFlow framework to build several neural networks and explore more advanced techniques like natural language processing and reinforcement learning',
           'Dive into neural networks, and learn the principles behind how deep, recurrent, and convolutional neural networks work'
         ],
-        // TODO: add when privided by Glenn
-        learnedOutcomes: [],
+        learnedOutcomes: [
+          'Python fundamentals like variables, loops, conditionals, and functions.',
+          'Complex data structures, networking, relational databases, and data visualization.',
+          'Fundamentals of data analysis with Python.',
+          'Reading data from sources like CSVs and SQLLearn to use libraries like Numpy, Pandas, Matplot.',
+          'Built charts, graphs, and maps to present different types of data with the D3.js library.',
+          'JSON (JavaScript Object Notation), and how to work with data online using an API (Application Programming Interface).',
+          'TensorFlow framework to build several neural networks and explored more advanced techniques like natural language processing and reinforcement learning',
+          'Dived into neural networks, and learned the principles behind how deep, recurrent, and convolutional neural networks work.'
+        ],
         prerequisites: ['There are no prerequisites for this certification.'],
         createdAt: new Date(),
         updatedAt: new Date()

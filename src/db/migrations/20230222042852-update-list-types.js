@@ -13,6 +13,10 @@ module.exports = {
       type: Sequelize.ARRAY(Sequelize.TEXT)
     });
 
+    await queryInterface.changeColumn('FccModules', 'introCopy', {
+      type: Sequelize.ARRAY(Sequelize.TEXT)
+    });
+
     await queryInterface.changeColumn('TopcoderCertification', 'learningOutcomes', {
       type: Sequelize.ARRAY(Sequelize.TEXT)
     });
@@ -29,6 +33,10 @@ module.exports = {
       type: Sequelize.ARRAY(Sequelize.STRING)
     });
     await queryInterface.changeColumn('FccCourses', 'completionSuggestions', {
+      type: Sequelize.ARRAY(Sequelize.STRING)
+    });
+
+    await queryInterface.changeColumn('FccModules', 'introCopy', {
       type: Sequelize.ARRAY(Sequelize.STRING)
     });
 

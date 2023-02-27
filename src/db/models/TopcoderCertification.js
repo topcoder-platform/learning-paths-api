@@ -104,7 +104,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     completionTimeRange: {
       type: DataTypes.VIRTUAL,
-    }
+    },
+    learnedOutcomes: {
+      type: DataTypes.ARRAY(DataTypes.TEXT),
+      allowNull: false,
+    },
   }, {
     sequelize,
     tableName: 'TopcoderCertification',

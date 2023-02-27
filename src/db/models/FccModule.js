@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     estimatedCompletionTimeValue: DataTypes.INTEGER,
     estimatedCompletionTimeUnits: DataTypes.STRING,
-    introCopy: DataTypes.ARRAY(DataTypes.STRING),
+    introCopy: DataTypes.ARRAY(DataTypes.TEXT),
     isAssessment: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

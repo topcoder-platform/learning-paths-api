@@ -120,7 +120,8 @@ async function getEnrollmentById(id) {
  * @returns the completed CertificationEnrollment object
  */
 async function createCertificationEnrollment(authUser, certificationId) {
-    const memberData = await helper.getMemberDataM2M(authUser.handle);
+    // TODO: commented out due to API call failure
+    // const memberData = await helper.getMemberDataM2M(authUser.handle);
 
     // build the collection of certification resource progress records to 
     // track the user's completion of the courses (resource) contained in 
@@ -131,7 +132,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
         topcoderCertificationId: certificationId,
         userId: authUser.userId,
         userHandle: authUser.handle,
-        userName: `${memberData.firstName} ${memberData.lastName}`,
+        userName: authUser.handle, // `${memberData.firstName} ${memberData.lastName}`, // TODO: fix this with API fix
         resourceProgresses: resourceProgresses,
     }
 

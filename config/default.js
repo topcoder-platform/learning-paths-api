@@ -46,5 +46,26 @@ module.exports = {
   HEALTH_CHECK_ID: 'health-check',
   M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
 
-  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800
+  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800,
+
+  STRIPE: {
+    SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    API_VERSION: process.env.STRIPE_API_VERSION || '2020-08-27',
+    WEBHOOK_SIG: process.env.STRIPE_WEBHOOK_SIG
+  },
+
+  FEATURE_FLAG: {
+    TCA_DATASTORE: process.env.TCA_DATASTORE || 'dynamodb'
+  },
+
+  TCA_WEBSITE_URL: process.env.TCA_WEBSITE_URL || 'https://platform-ui.topcoder-dev.com',
+
+  CERT_ELEMENT_SELECTOR: {
+    attribute: 'data-id',
+    value: 'certificate-container',
+  },
+
+  CERT_ADDITIONAL_PARAMS: {
+    'view-style': 'large-container',
+  },
 }

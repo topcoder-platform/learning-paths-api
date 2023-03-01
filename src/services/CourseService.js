@@ -5,23 +5,113 @@
 const _ = require('lodash')
 const { Course } = require('../models')
 const Joi = require('joi')
+
+const db = require('../db/models')
+const dbHelper = require('../common/dbHelper')
 const helper = require('../common/helper')
 const PROVIDER_FREECODECAMP = 'freeCodeCamp'
 
 /**
- * Search Courses - uses a query using a global secondary index on 
- * provider if that criteria is provided, otherwise does a full table 
- * scan and filters data based on the criteria
+ * Search Courses - search for FCC courses
  * 
  * @param {Object} criteria the search criteria
  * @returns {Object} the search result
  */
 async function searchCourses(criteria) {
-    if (criteria.provider) {
-        return await searchCoursesForProvider(criteria)
+    if (dbHelper.featureFlagUsePostgres()) {
+        return await searchPostgresCourses(criteria)
     } else {
-        const { result } = await scanAllCourses(criteria)
-        return result;
+        return await searchDynamoCourses(criteria)
+    }
+}
+
+/**
+ * Search for FCC courses via Postgres DB query 
+ * 
+ * @param {Object} criteria the search criteria
+ * @returns an object with the search results
+ */
+async function searchPostgresCourses(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+    let total, result;
+
+    let options = {};
+
+    if (criteria.key) {
+        options.where = { key: criteria.key }
+    }
+
+    options.include = courseIncludes(criteria)
+    options.attributes = courseIncludeAttributes();
+
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+        'FccCourse',
+        page,
+        perPage,
+        options));
+
+    return { total, page, perPage, result }
+}
+
+// include associated models to provide the
+// front-end with a fully-formed response
+function courseIncludes(criteria) {
+    return [
+        {
+            model: db.FreeCodeCampCertification,
+            as: 'freeCodeCampCertification',
+            ...(criteria.certification ? { where: { certification: criteria.certification } } : {}),
+        },
+        {
+            model: db.ResourceProvider,
+            as: 'resourceProvider',
+            attributes: ['name', 'attributionStatement', 'url']
+        },
+        {
+            model: db.FccModule,
+            as: 'modules',
+            order: ['order'],
+            include: [{
+                model: db.FccLesson,
+                as: 'lessons',
+                attributes: ['id', 'title', 'dashedName', 'isAssessment'],
+                separate: true,
+                order: ['order']
+            }]
+        }
+    ]
+}
+
+// attributes to include in the included associations
+function courseIncludeAttributes() {
+    return {
+        include: [
+            [
+                // Note the wrapping parentheses in the call below!
+                db.sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM "FccModules" AS module
+                    WHERE
+                        module."fccCourseId" = "FccCourse".id
+                )`),
+                'moduleCount'
+            ]
+        ]
+    };
+}
+
+/**
+ * Search for FCC Courses using DynamoDB query 
+ * 
+ * @param {Object} criteria search criteria
+ * @returns object with search results
+ */
+async function searchDynamoCourses(criteria) {
+    if (criteria.provider) {
+        return { total, page, perPage, result } = await searchCoursesForProvider(criteria)
+    } else {
+        return { total, page, perPage, result } = await scanAllCourses(criteria)
     }
 }
 
@@ -29,34 +119,35 @@ async function searchCourses(criteria) {
  * Queries the Course table using a global secondary index
  * and additional +where+ criteria from the given query 
  * 
- * @param {Object} query the query on which to search
+ * @param {Object} criteria the query on which to search
  * @returns an array of Course objects
  */
-async function searchCoursesForProvider(query) {
-    const provider = query.provider;
+async function searchCoursesForProvider(criteria) {
+    let page = criteria.page || 1
+    let perPage = criteria.perPage || 50
+
+    const provider = criteria.provider;
     let queryStatement = Course.
         query("provider").eq(provider).
         using("provider-key-index")
 
-    if (query.key) {
-        queryStatement = queryStatement.where("key").eq(query.key)
+    if (criteria.key) {
+        queryStatement = queryStatement.where("key").eq(criteria.key)
     }
-    if (query.certification) {
-        queryStatement = queryStatement.where("certification").eq(query.certification)
+    if (criteria.certification) {
+        queryStatement = queryStatement.where("certification").eq(criteria.certification)
     }
 
-    try {
-        let courses = await queryStatement.exec();
-        return courses;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
+    let records = await queryStatement.exec();
+    const total = records.length
+    const result = records.slice((page - 1) * perPage, page * perPage)
+
+    return { total, page, perPage, result };
 }
 
 /**
- * Performs a full table scan and filters results to match the 
- * given criteria. A full scan is slow and expensive, so prefer 
+ * Performs a full DynamoDB table scan and filters results to match  
+ * the given criteria. A full scan is slow and expensive, so prefer 
  * to use query approach above if possible.
  * 
  * @param {Object} criteria the criteria on which to search
@@ -102,9 +193,17 @@ scanAllCourses.schema = {
  * @returns {Object} the Course with given ID
  */
 async function getCourse(id) {
-    var course = await helper.getById('Course', id)
+    let course;
 
-    decorateWithModuleCount(course);
+    if (dbHelper.featureFlagUsePostgres()) {
+        course = await db.FccCourse.findByPk(id, {
+            include: courseIncludes(),
+            attributes: courseIncludeAttributes()
+        });
+    } else {
+        course = await helper.getById('Course', id)
+        decorateWithModuleCount(course);
+    }
 
     return course
 }
@@ -133,12 +232,49 @@ function decorateWithModuleCount(course) {
 }
 
 /**
- * Get Course Modules by Course ID
+ * Gets the modules for a given course 
+ * 
+ * @param {String or Integer} id the ID of the course  
+ * @returns array of course module objects
+ */
+async function getCourseModules(id) {
+    if (dbHelper.featureFlagUsePostgres()) {
+        return await getPostgresCourseModules(id)
+    } else {
+        return await getDynamoCourseModules(id);
+    }
+}
+
+async function getPostgresCourseModules(id) {
+    return await db.FccModule.findAll({
+        where: {
+            fccCourseId: id
+        },
+        order: ['order'],
+        attributes: {
+            include: [
+                [
+                    // Note the wrapping parentheses in the call below!
+                    db.sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM "FccLessons" AS lesson
+                        WHERE
+                            lesson."fccModuleId" = "FccModule".id
+                    )`),
+                    'lessonCount'
+                ]
+            ]
+        }
+    })
+}
+
+/**
+ * Get Course Modules by Course ID from DynamoDB
  * 
  * @param {String} id the Course ID
  * @returns {Object} the Modules of the Course with given ID
  */
-async function getCourseModules(id) {
+async function getDynamoCourseModules(id) {
     const course = await helper.getById('Course', id)
 
     var modules = [];
@@ -279,5 +415,6 @@ module.exports = {
     getCourseLessonMap,
     getCourseModules,
     getCourseModule,
+    scanAllCourses,
     searchCourses
 }

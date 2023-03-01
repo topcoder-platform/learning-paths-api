@@ -32,6 +32,11 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+if (env === 'development') {
+  // TODO - uncomment this
+  // sequelize.sync();
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

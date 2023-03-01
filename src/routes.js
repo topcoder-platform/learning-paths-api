@@ -15,6 +15,11 @@ module.exports = {
       method: 'checkHealth'
     }
   },
+
+  /**
+   * The following endpoints are specifically for freeCodeCamp resources
+   */
+
   '/learning-paths/providers': {
     get: {
       controller: 'LearningResourceProviderController',
@@ -141,4 +146,140 @@ module.exports = {
       access: [constants.UserRoles.TCAAdmin],
     },
   },
+  /**
+   * The following endpoints support Topcoder Academy Certifications
+   */
+  '/learning-paths/topcoder-certifications': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'searchCertifications'
+    },
+  },
+  '/learning-paths/topcoder-certifications/:dashedName': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'getCertification'
+    }
+  },
+  '/learning-paths/topcoder-certifications/:userId/progresses': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollmentProgresses',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:certificationDashedName/:userId/progress': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollmentProgress',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:dashedName/:userHandle/validate': {
+    get: {
+      controller: 'TopcoderCertificationController',
+      method: 'validateCertOwnership',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:userId/:certificationId/enroll': {
+    post: {
+      controller: 'CertificationEnrollmentController',
+      method: 'enrollUser',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/topcoder-certifications/:userId/:certificationId/unenroll': {
+    delete: {
+      controller: 'CertificationEnrollmentController',
+      method: 'unEnrollUser',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/certification-enrollment/:id': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollment',
+    },
+  },
+  '/learning-paths/user-certification-enrollment/:userId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getAllUserEnrollments',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/user-certification-enrollment/:userId/:certificationId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollment',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/certification-enrollment-progress/:enrollmentId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getEnrollmentProgress',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/certification-enrollment-progresses/:userId': {
+    get: {
+      controller: 'CertificationEnrollmentController',
+      method: 'getUserEnrollmentProgresses',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/certification-enrollment-progresses/:resourceProgressType/:resourceProgressId': {
+    put: {
+      controller: 'CertificationEnrollmentController',
+      method: 'completeEnrollmentProgress',
+      auth: 'jwt',
+    },
+  },
+  /**
+   * Stripe related endpoints
+   */
+  // TODO: Activate this endpoint for TCA Premium
+  // '/learning-paths/payments/stripe/subscribe': {
+  //   post: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'createSubscriptionHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/prices': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'searchPricesHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/prices/:id': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'getPriceHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/products': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'searchProductsHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/products/:id': {
+  //   get: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'getProductHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
+  // '/learning-paths/payments/stripe/purchase-certifications': {
+  //   post: {
+  //     controller: 'StripePaymentsController',
+  //     method: 'purchaseCertificationsHandler',
+  //     auth: 'jwt',
+  //   },
+  // },
 }

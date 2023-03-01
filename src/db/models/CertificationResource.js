@@ -5,21 +5,37 @@ const uppercaseFirst = str => `${str[0].toUpperCase()}${str.substr(1)}`;
 module.exports = (sequelize, DataTypes) => {
   class CertificationResource extends Model {
     static associate(models) {
-      this.hasMany(models.FreeCodeCampCertification, {
-        foreignKey: 'resourceableId',
-        constraints: false,
-        scope: {
-          resourceableType: 'FreeCodeCampCertification'
-        }
+      this.belongsTo(models.TopcoderCertification, {
+        as: 'CertificationResource',
+        foreignKey: 'topcoderCertificationId'
       });
 
-      this.hasMany(models.TopcoderUdemyCourse, {
+      this.hasMany(models.CertificationResourceProgress, {
+        as: 'certificationResourceProgresses',
+        foreignKey: 'certificationResourceId'
+      });
+
+      this.belongsTo(models.ResourceProvider, {
+        as: 'resourceProvider',
+        foreignKey: 'resourceProviderId'
+      });
+
+      this.belongsTo(models.FreeCodeCampCertification, {
+        as: 'freeCodeCampCertification',
         foreignKey: 'resourceableId',
         constraints: false,
-        scope: {
-          resourceableType: 'TopcoderUdemyCourse'
-        }
       });
+
+      // TODO: leaving this here as a marker for future implementation
+      // when we add in another resource provider. Currently only using
+      // FreeCodeCamp, but if/when we add another resource provider, we
+      // will need to add this type of polymorphic association. 
+
+      // this.belongsTo(models.TopcoderUdemyCourse, {
+      //   as: 'TopcoderUdemyCourse',
+      //   foreignKey: 'resourceableId',
+      //   constraints: false,
+      // });
     }
 
     getResourceable(options) {
@@ -37,13 +53,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       primaryKey: true
     },
-    resourceProviderId: {
+    topcoderCertificationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'ResourceProvider',
+        model: 'TopcoderCertification',
         key: 'id'
       }
+    },
+    resourceProviderId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     resourceableId: {
       type: DataTypes.INTEGER,
@@ -74,7 +94,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'CertificationResource',
     modelName: 'CertificationResource',
     schema: 'public',
-    timestamps: false,
     indexes: [
       {
         name: "CertificationResource_pkey",
@@ -87,6 +106,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   CertificationResource.addHook("afterFind", findResult => {
+    console.log('** in afterFind hook');
+
     if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {

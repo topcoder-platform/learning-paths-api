@@ -7,7 +7,6 @@ const { CertificationProgress } = require('../models')
 const errors = require('../common/errors')
 const helper = require('../common/helper')
 const Joi = require('joi')
-const logger = require('../common/logger')
 const models = require('../models')
 const { v4: uuidv4 } = require('uuid')
 const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
@@ -573,8 +572,6 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
     // in the freeCodeCamp source that have not been propagated to the DynamoDB course 
     // data yet.
 
-    // await validateCourseLesson(progress, module, lesson)
-
     // create a composite id key for the update
     const idObj = {
         id: certificationProgressId,
@@ -602,38 +599,6 @@ updateCurrentLesson.schema = {
         module: Joi.string().required(),
         lesson: Joi.string().required()
     }).required()
-}
-
-/**
- * Validates that the given module/lesson exist in the course 
- * 
- * @param {Object} progress the CertificationProgress object 
- * @param {String} moduleName the module name (key) to validate
- * @param {String} lessonName the lesson name to validate
- * @returns {Promise<void>} 
- */
-async function validateCourseLesson(progress, moduleName, lessonName) {
-    const provider = progress.provider;
-
-    let course = helper.getFromInternalCache(progress.courseId)
-    if (!course) {
-        course = await helper.getById('Course', progress.courseId);
-        helper.setToInternalCache(progress.courseId, course);
-    }
-
-    return new Promise((resolve, reject) => {
-        const module = course.modules.find(mod => mod.key == moduleName)
-        if (!module) {
-            reject(new errors.NotFoundError(`Module '${moduleName}' not found in ${provider} course '${course.key}'`))
-        }
-
-        const lesson = module.lessons.find(less => less.dashedName == lessonName)
-        if (!lesson) {
-            reject(new errors.NotFoundError(`Lesson '${lessonName}' not found in ${provider} course '${course.key}' module '${moduleName}'`))
-        }
-
-        resolve(true)
-    })
 }
 
 /**

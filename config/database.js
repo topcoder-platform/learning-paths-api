@@ -5,13 +5,18 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
+    logging: false,
     pool: {
       max: 2,
       min: 0,
       idle: 0,
       acquire: 3000,
       evict: 5000
-    }
+    },
+    define: {
+      freezeTableName: true
+    },
+    minifyAliases: true,
   },
   // test: {
   //   username: process.env.CI_DB_USERNAME,
@@ -26,5 +31,10 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
+    logging: false,
+    define: {
+      freezeTableName: true
+    },
+    minifyAliases: true,
   }
 }

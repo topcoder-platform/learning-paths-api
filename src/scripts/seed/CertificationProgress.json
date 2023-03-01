@@ -8,7 +8,7 @@
         "certificationTitle": "Responsive Web Design Certification",
         "certificationTrackType": "DEV",
         "courseKey": "2022/responsive-web-design",
-        "courseId": "927abff4-7af9-4145-8ba1-577c16e64e2e",
+        "courseId": "6e37d979-00aa-4553-8a32-687e0bd2f3b5",
         "certType": "certification",
         "status": "in-progress",
         "startDate": 1655956900000,
@@ -22,14 +22,17 @@
                 "lessonCount": 67,
                 "completedLessons": [
                     {
+                        "id": "5dc174fcf86c76b9248c6eb2",
                         "dashedName": "step-1",
                         "completedDate": 1655956900000
                     },
                     {
+                        "id": "5dc1798ff86c76b9248c6eb3",
                         "dashedName": "step-2",
                         "completedDate": 1655956900000
                     },
                     {
+                        "id": "5dc17d3bf86c76b9248c6eb4",
                         "dashedName": "step-3",
                         "completedDate": 1656043300000
                     }

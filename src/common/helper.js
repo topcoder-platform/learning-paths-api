@@ -6,7 +6,6 @@ const {
   DynamoDBClient,
   TransactWriteItemsCommand } = require("@aws-sdk/client-dynamodb");
 
-const axios = require('axios')
 const constants = require('../../app-constants')
 const crypto = require('crypto')
 const Joi = require('joi')
@@ -23,6 +22,7 @@ const NodeCache = require('node-cache')
 const xss = require('xss')
 const { CertificationProgress } = require('../models')
 const { performance } = require('perf_hooks');
+const axios = require('axios');
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -704,6 +704,27 @@ function parseQueryParam(param) {
     : param
 }
 
+function featureFlagSet(flag, setValue) {
+  const flagValue = config.FEATURE_FLAG[flag];
+  return flagValue == setValue ? true : false
+}
+
+/**
+ * Get private data for members by handle via M2M
+ * @param {String} handle The member handle
+ * @returns 
+ */
+async function getMemberDataM2M(handle) {
+  const m2m = await getM2MToken();
+
+  return axios(`${config.API_BASE_URL}/v5/members/${handle}`, {
+    headers: {
+      Authorization: `Bearer ${m2m}`
+    }
+  })
+  .then(rsp => rsp.data)
+}
+
 module.exports = {
   addCompletedLessonNative,
   autoWrapExpress,
@@ -712,12 +733,14 @@ module.exports = {
   ensureNoDuplicateOrNullElements,
   ensureRequestForCurrentUser,
   ensureUserCanViewProgress,
+  featureFlagSet,
   fullyMatch,
   getById,
   getByIdAndUser,
   getByIds,
   getByTableKeys,
   getFromInternalCache,
+  getMemberDataM2M,
   hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,

@@ -3,9 +3,13 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class TopcoderUdemyCourse extends Model {
     static associate(models) {
-      this.belongsTo(models.CertificationResource, {
-        foreignKey: 'resourceableId',
-        constraints: false
+      this.hasOne(models.CertificationResource, {
+        as: 'TopcoderUdemyCourse',
+        foreignKey: 'id',
+        constraints: false,
+        scope: {
+          resourceableType: 'TopcoderUdemyCourse',
+        }
       });
     }
   }
@@ -34,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'TopcoderUdemyCourse',
     modelName: 'TopcoderUdemyCourse',
     schema: 'public',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "TopcoderUdemyCourse_pkey",

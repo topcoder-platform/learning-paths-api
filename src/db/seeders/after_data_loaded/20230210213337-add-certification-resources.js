@@ -10,7 +10,7 @@ module.exports = {
 
     // create resources for Web Development Fundamentals certification
     const tcWebDev = await db.TopcoderCertification.findOne({
-      where: { dashedName: 'web-development-certification' }
+      where: { dashedName: 'web-development-fundamentals' }
     });
 
     let fccCertNames = [
@@ -44,7 +44,7 @@ module.exports = {
 
     // create resources for Data Science Fundamentals certification
     const tcDataSci = await await db.TopcoderCertification.findOne({
-      where: { dashedName: 'data-science-certification' }
+      where: { dashedName: 'data-science-fundamentals' }
     });
 
     fccCertNames = [

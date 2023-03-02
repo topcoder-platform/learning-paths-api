@@ -294,7 +294,7 @@ module.exports = (sequelize, DataTypes) => {
           dashedName: lessonDashedName
         }
       });
-      if (lessonCount == 1) return this;
+      if (lessonCount > 0) return this;
 
       // add the completed lesson
       const lessonAttrs = {

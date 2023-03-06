@@ -22,8 +22,17 @@ const resourceProviders = {
     freeCodeCamp: PROVIDER_FREECODECAMP,
 }
 
+const LESSON_PREVIOUSLY_COMPLETED = "lesson_previously_completed";
+const LESSON_COMPLETED_SUCCESSFULLY = "lesson_successfully_completed";
+
+const lessonCompletionStatuses = {
+    previouslyCompleted: LESSON_PREVIOUSLY_COMPLETED,
+    completedSuccessfully: LESSON_COMPLETED_SUCCESSFULLY
+}
+
 module.exports = {
     enrollmentStatuses,
+    lessonCompletionStatuses,
     progressStatuses,
     resourceProviders,
 }

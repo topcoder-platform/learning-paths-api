@@ -378,11 +378,14 @@ async function completeLesson(currentUser, certificationProgressId, query) {
  */
 async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
+    // TODO: adding verbose logging to troubleshoot production issue
+    console.log(`completeLessonViaMongoTrigger: looking for user ${userId} lesson ${lessonId}`)
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     const fccModule = await fccLesson.getFccModule();
     const fccCourse = await fccModule.getFccCourse();
     const fccCertification = await fccCourse.getFreeCodeCampCertification();
+    const fccCertificationKey = fccCertification.key;
 
     // where clause to find the matching Fcc Cert Progress record
     const where = {
@@ -410,7 +413,7 @@ async function completeLessonViaMongoTrigger(query) {
             }
         }
     } else {
-        console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
+        console.error(`completeLessonViaMongoTrigger: could not find FCC cert progress for user ${userId} certification ${fccCertificationKey} lesson ${lessonId}`)
     }
 }
 

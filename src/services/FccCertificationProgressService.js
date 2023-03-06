@@ -366,17 +366,26 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
 /**
  * Marks a lesson as complete in the FCC Certification Progress using data 
- * provided by a freeCodeCamp MongoDB update trigger.
+ * provided by a freeCodeCamp MongoDB update trigger. Since there is latency
+ * in how this is triggered (MongoDB update > trigger > AWS Lambda call > API call)
+ * it's likely that the update triggered directly from the front-end to the
+ * API has already added this completed lesson. When the SQL INSERT occurs in 
+ * this case, a duplicate key violation will be detected and thrown. We handle
+ * this by looking for this specific error and ignoring it. If a different 
+ * error occurs, we throw so it is returned to the front-end.
  * 
  * @param {Object} query the input query describing the user and lesson
  */
 async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
+    // TODO: adding verbose logging to troubleshoot production issue
+    console.log(`completeLessonViaMongoTrigger: looking for user ${userId} lesson ${lessonId}`)
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     const fccModule = await fccLesson.getFccModule();
     const fccCourse = await fccModule.getFccCourse();
     const fccCertification = await fccCourse.getFreeCodeCampCertification();
+    const fccCertificationKey = fccCertification.key;
 
     // where clause to find the matching Fcc Cert Progress record
     const where = {
@@ -392,11 +401,19 @@ async function completeLessonViaMongoTrigger(query) {
         const certification = certProgress.certification;
         const module = fccModule.key;
         const lesson = fccLesson.dashedName;
-        await certProgress.completeLesson(module, lesson, lessonId);
-
-        console.log(`User ${userId} completed ${certification}/${module}/${lesson} (id: ${lessonId}) (via MongoDB trigger)`);
+        try {
+            await certProgress.completeLesson(module, lesson, lessonId);
+            console.log(`User ${userId} completed ${certification}/${module}/${lesson} (id: ${lessonId}) (via MongoDB trigger)`);
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                // do nothing
+            } else {
+                console.log("MongoDB trigger error:", error)
+                throw error;
+            }
+        }
     } else {
-        console.error(`completeLessonViaMongoTrigger: could not find certification progress for user ${userId} for freeCodeCamp ${certification}`)
+        console.error(`completeLessonViaMongoTrigger: could not find FCC cert progress for user ${userId} certification ${fccCertificationKey} lesson ${lessonId}`)
     }
 }
 

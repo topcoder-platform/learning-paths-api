@@ -7,7 +7,9 @@ const db = require('../db/models');
 const errors = require('../common/errors')
 const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
 
-const { progressStatuses } = require('../common/constants');
+const {
+    lessonCompletionStatuses,
+    progressStatuses } = require('../common/constants');
 
 const helper = require('../common/helper');
 
@@ -378,8 +380,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
  */
 async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
-    // TODO: adding verbose logging to troubleshoot production issue
-    console.log(`completeLessonViaMongoTrigger: looking for user ${userId} lesson ${lessonId}`)
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     const fccModule = await fccLesson.getFccModule();
@@ -402,8 +402,10 @@ async function completeLessonViaMongoTrigger(query) {
         const module = fccModule.key;
         const lesson = fccLesson.dashedName;
         try {
-            await certProgress.completeLesson(module, lesson, lessonId);
-            console.log(`User ${userId} completed ${certification}/${module}/${lesson} (id: ${lessonId}) (via MongoDB trigger)`);
+            const completionRequest = await certProgress.completeLesson(module, lesson, lessonId);
+            if (completionRequest?.result == lessonCompletionStatuses.completedSuccessfully) {
+                console.log(`User ${userId} completed ${certification}/${module}/${lesson} (id: ${lessonId}) (via MongoDB trigger)`);
+            }
         } catch (error) {
             if (error.name == 'SequelizeUniqueConstraintError') {
                 // do nothing

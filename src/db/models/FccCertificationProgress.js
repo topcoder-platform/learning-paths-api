@@ -1,7 +1,9 @@
 'use strict';
 
 const errors = require('../../common/errors');
-const { progressStatuses } = require('../../common/constants');
+const {
+  lessonCompletionStatuses,
+  progressStatuses } = require('../../common/constants');
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
@@ -275,6 +277,15 @@ module.exports = (sequelize, DataTypes) => {
       return moduleProgresses[0]
     }
 
+    /**
+     * Completes a lesson by adding an FccCompletedLesson object for the given
+     * module and lesson.
+     * 
+     * @param {String} moduleKey the key of the module containing the lesson
+     * @param {String} lessonDashedName the name of the lesson being completed
+     * @param {String} lessonId the ID of the lesson being completed
+     * @returns Object containing the resulf of the update request
+     */
     async completeLesson(moduleKey, lessonDashedName, lessonId) {
       const lesson = await this.validateLesson(moduleKey, lessonDashedName, lessonId)
 
@@ -294,7 +305,9 @@ module.exports = (sequelize, DataTypes) => {
           dashedName: lessonDashedName
         }
       });
-      if (lessonCount > 0) return this;
+      if (lessonCount > 0) {
+        return { result: lessonCompletionStatuses.previouslyCompleted };
+      }
 
       // add the completed lesson
       const lessonAttrs = {
@@ -306,9 +319,16 @@ module.exports = (sequelize, DataTypes) => {
       // update the module progress with the completed lesson,
       // update the last interacted date, and check if the module
       // itself has been completed.
-      await moduleProgress.createCompletedLesson(lessonAttrs);
-      await moduleProgress.touchModule();
-      await moduleProgress.checkAndSetModuleStatus();
+      try {
+        await moduleProgress.createCompletedLesson(lessonAttrs);
+        await moduleProgress.touchModule();
+        await moduleProgress.checkAndSetModuleStatus();
+
+        return { result: lessonCompletionStatuses.completedSuccessfully }
+      } catch (error) {
+        console.error(`Error completing lesson: ${error}`)
+        throw error;
+      }
     }
 
     /**

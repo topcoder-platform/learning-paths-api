@@ -380,8 +380,6 @@ async function completeLesson(currentUser, certificationProgressId, query) {
  */
 async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
-    // TODO: adding verbose logging to troubleshoot production issue
-    console.log(`completeLessonViaMongoTrigger: looking for user ${userId} lesson ${lessonId}`)
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     const fccModule = await fccLesson.getFccModule();

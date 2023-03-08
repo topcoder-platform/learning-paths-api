@@ -415,6 +415,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    email: {
+      type: DataTypes.STRING,
+    },
     certification: DataTypes.STRING,
     certificationId: DataTypes.STRING,
     certificationTitle: DataTypes.STRING,

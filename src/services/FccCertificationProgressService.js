@@ -6,6 +6,7 @@
 const db = require('../db/models');
 const errors = require('../common/errors')
 const imageGenerator = require('../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService')
+const { Op } = require("sequelize");
 
 const {
     lessonCompletionStatuses,
@@ -351,6 +352,14 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
     const userId = currentUser.userId;
+    // TODO: debug logging for Wipro SAML SSO users
+    const logUserAttrs = {
+        email: currentUser.email,
+        sub: currentUser.sub,
+    }
+    console.log(`completeLesson: userID ${userId}`)
+    console.table(logUserAttrs)
+
     const module = query.module;
     const lesson = query.lesson;
     const lessonId = query.uuid;
@@ -379,8 +388,8 @@ async function completeLesson(currentUser, certificationProgressId, query) {
  * @param {Object} query the input query describing the user and lesson
  */
 async function completeLessonViaMongoTrigger(query) {
-    const { userId, lessonId } = query;
-    console.log(`mongoTrigger: user ${userId} lesson ${lessonId}`);
+    const { userId, email, lessonId } = query;
+    console.log(`mongoTrigger: user ${userId} (email: ${email}) lesson ${lessonId}`);
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
     if (!fccLesson) {
@@ -393,11 +402,32 @@ async function completeLessonViaMongoTrigger(query) {
     const fccCertification = await fccCourse.getFreeCodeCampCertification();
     const fccCertificationKey = fccCertification.key;
 
-    // where clause to find the matching Fcc Cert Progress record
+    // where clause to find the matching FCC Cert Progress record
     const where = {
-        userId: userId,
-        fccCertificationId: fccCertification.id
+        fccCertificationId: fccCertification.id,
     }
+    // Users who authenticate to TCA via Wipro SSO will not have their 
+    // Topcoder user ID in the user data that's stored in FCC's MongoDB
+    // instance, and therefore the Mongo trigger won't contain the same 
+    // user ID that we store in TCA (the provided user ID is their Wipro 
+    // AD ID). But the MongoDB user record will contain their email, so if 
+    // an email address is included in the query, use that in an OR clause 
+    // to try to find their progress record.
+    //
+    // Sequelize will throw an error if the value of a WHERE clause operand 
+    // is undefined, so only add the email attribute if we got it from the 
+    // initial query.
+    if (email) {
+        where[Op.and] = {
+            [Op.or]: [
+                { userId: userId },
+                { email: email }
+            ]
+        }
+    } else {
+        where['userId'] = userId
+    }
+
     const certProgress = await db.FccCertificationProgress.findOne({
         where: where,
         include: certProgressIncludes()

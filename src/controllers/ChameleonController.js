@@ -2,7 +2,6 @@
  * Controller for certification endpoints
  */
 const service = require('../services/ChameleonService')
-// const helper = require('../common/helper')
 
 /**
  * Get user hash data for the chameleon service

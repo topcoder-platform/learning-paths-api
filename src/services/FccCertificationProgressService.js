@@ -380,8 +380,14 @@ async function completeLesson(currentUser, certificationProgressId, query) {
  */
 async function completeLessonViaMongoTrigger(query) {
     const { userId, lessonId } = query;
+    console.log(`mongoTrigger: user ${userId} lesson ${lessonId}`);
 
     const fccLesson = await db.FccLesson.findByPk(lessonId);
+    if (!fccLesson) {
+        console.error(`mongoTrigger: Did not find FCC lesson with id ${lessonId}!`);
+        return
+    }
+
     const fccModule = await fccLesson.getFccModule();
     const fccCourse = await fccModule.getFccCourse();
     const fccCertification = await fccCourse.getFreeCodeCampCertification();

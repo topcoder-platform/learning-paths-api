@@ -13,8 +13,8 @@ module.exports.handle = async (event) => {
   // get the last section of the user ID string, which could be:
   //    auth0|98765432 -- topcoder.com users
   //    samlp|wipro-azuread|KO20257051@wipro.com -- wipro SSO users
-  const externalId = event.detail.fullDocument.externalId.split("|");
-  const userId = externalId.slice(-1);
+  const externalIdAttrs = event.detail.fullDocument.externalId.split("|");
+  const userId = externalIdAttrs.pop();
   const email = event.detail.fullDocument.email;
   const updatedFields = event.detail.updateDescription.updatedFields;
 

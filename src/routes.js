@@ -282,7 +282,7 @@ module.exports = {
   //     auth: 'jwt',
   //   },
   // },
-  '/learning-paths/chameleon/hash_uuid': {
+  '/learning-paths/chameleon/hash-uuid': {
     get: {
       controller: 'ChameleonController',
       method: 'getHashedUid',

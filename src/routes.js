@@ -282,4 +282,11 @@ module.exports = {
   //     auth: 'jwt',
   //   },
   // },
+  '/chameleon/hash_uuid': {
+    get: {
+      controller: 'ChameleonController',
+      method: 'getHashedUid',
+      auth: 'jwt',
+    },
+  },
 }

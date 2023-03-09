@@ -10,7 +10,12 @@ const completeChallengeEndpoint = config.LEARNING_PATHS_API_ENDPOINT;
 module.exports.handle = async (event) => {
   console.log("event", JSON.stringify(event, null, 2));
 
-  const userId = event.detail.fullDocument.externalId.split("|")[1];
+  // get the last section of the user ID string, which could be:
+  //    auth0|98765432 -- topcoder.com users
+  //    samlp|wipro-azuread|KO20257051@wipro.com -- wipro SSO users
+  const externalIdAttrs = event.detail.fullDocument.externalId.split("|");
+  const userId = externalIdAttrs.pop();
+  const email = event.detail.fullDocument.email;
   const updatedFields = event.detail.updateDescription.updatedFields;
 
   const challengeKeys = Object.keys(updatedFields).filter(key => key.match(challengeKeyRegEx));
@@ -27,6 +32,7 @@ module.exports.handle = async (event) => {
 
     const params = {
       userId: userId,
+      email: email,
       lessonId: challengeId
     }
 

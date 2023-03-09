@@ -302,7 +302,7 @@ module.exports = (sequelize, DataTypes) => {
       // just return this cert progress
       const lessonCount = await moduleProgress.countCompletedLessons({
         where: {
-          dashedName: lessonDashedName
+          id: lessonId
         }
       });
       if (lessonCount > 0) {

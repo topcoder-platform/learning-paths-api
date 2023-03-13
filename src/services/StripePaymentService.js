@@ -66,10 +66,11 @@ async function getPriceById(priceId) {
 }
 
 /**
- * Create cert invoice
+ * Create invoice
  * @param {String} customerId The id of the customer paying
+ * @param {String[]} price IDs that should be invoice items
  */
-async function createCertificationInvoice(customerId, priceIDs) {
+async function createInvoice(customerId, priceIDs) {
     // create items for cert invoice
     for (const priceId of priceIDs) {
         await stripe.invoiceItems.create({
@@ -89,7 +90,7 @@ async function createCertificationInvoice(customerId, priceIDs) {
     const clientSecret = await stripe.paymentIntents.retrieve(finalInvoice.payment_intent)
 
     return {
-        invoice: finalInvoice.id,
+        invoiceId: finalInvoice.id,
         clientSecret: clientSecret.client_secret
     }
 }
@@ -122,7 +123,7 @@ module.exports = {
     createCustomer,
     searchPrices,
     searchProducts,
-    createCertificationInvoice,
+    createInvoice,
     getPriceById,
     getProductById,
 }

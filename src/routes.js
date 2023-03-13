@@ -239,7 +239,20 @@ module.exports = {
   /**
    * Stripe related endpoints
    */
-  // TODO: Activate this endpoint for TCA Premium
+  '/learning-paths/payments/stripe': {
+    post: {
+      controller: 'StripePaymentsController',
+      method: 'cretatePaymentHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/products/:id': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'getProductHandler',
+      auth: 'jwt',
+    },
+  },
   // '/learning-paths/payments/stripe/subscribe': {
   //   post: {
   //     controller: 'StripePaymentsController',
@@ -265,20 +278,6 @@ module.exports = {
   //   get: {
   //     controller: 'StripePaymentsController',
   //     method: 'searchProductsHandler',
-  //     auth: 'jwt',
-  //   },
-  // },
-  // '/learning-paths/payments/stripe/products/:id': {
-  //   get: {
-  //     controller: 'StripePaymentsController',
-  //     method: 'getProductHandler',
-  //     auth: 'jwt',
-  //   },
-  // },
-  // '/learning-paths/payments/stripe/purchase-certifications': {
-  //   post: {
-  //     controller: 'StripePaymentsController',
-  //     method: 'purchaseCertificationsHandler',
   //     auth: 'jwt',
   //   },
   // },

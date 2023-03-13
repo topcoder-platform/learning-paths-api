@@ -54,7 +54,7 @@ async function getPriceHandler(req, res) {
 }
 
 /**
- * Create payment with invoince in Stripe
+ * Create payment with invoice in Stripe
  * 
  * Payment is prepared for confirmation on the front-end and client secret is returned.
  * Invoice is created from array of price IDs from the body payload.

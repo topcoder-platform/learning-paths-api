@@ -756,6 +756,48 @@ async function getMultiMemberDataFromIdM2M(userIds) {
   return results
 }
 
+/**
+ * Queries the v3 Users API for user profile information given the 
+ * user's email address.
+ * 
+ * @param {String} email user's email address
+ * @param {String} m2mToken m2m token to use for API call
+ * @param {String} fields comma-separated list of fields to return
+ * @returns API response as JSON
+ */
+async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
+  if (!fields) {
+    fields = 'id, handle, email'
+  }
+
+  if (!m2mToken) {
+    m2mToken = await getM2MToken();
+  }
+
+  const filter = `email=${email}`
+
+  return axios(`${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`, {
+    headers: {
+      Authorization: `Bearer ${m2mToken}`
+    }
+  }).then(rsp => rsp.data)
+}
+
+async function getMultiUserDataFromEmails(emails) {
+  if (!emails || emails.length == 0) {
+    throw errors.BadRequestError("Must supply at least one email to search for")
+  }
+
+  const promises = [];
+  const m2mToken = await getM2MToken();
+  for (let email of emails) {
+    console.log(`Getting: ${email}`)
+    promises.push(getUserDataFromEmail(email, m2mToken));
+  }
+
+  return await Promise.allSettled(promises);
+}
+
 module.exports = {
   addCompletedLessonNative,
   autoWrapExpress,
@@ -774,6 +816,8 @@ module.exports = {
   getMemberDataM2M,
   getMemberDataFromIdM2M,
   getMultiMemberDataFromIdM2M,
+  getMultiUserDataFromEmails,
+  getUserDataFromEmail,
   hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,

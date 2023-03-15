@@ -53,6 +53,7 @@
     "body-parser": "^1.20.0",
     "config": "^3.3.7",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "dd-trace": "^2.12.1",
     "dotenv": "^16.0.1",
     "dynamoose": "^2.8.5",

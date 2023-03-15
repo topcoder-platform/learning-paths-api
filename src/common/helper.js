@@ -767,7 +767,7 @@ async function getMultiMemberDataFromIdM2M(userIds) {
  */
 async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
   if (!fields) {
-    fields = 'id, handle, email'
+    fields = 'id,handle,email'
   }
 
   if (!m2mToken) {
@@ -795,7 +795,17 @@ async function getMultiUserDataFromEmails(emails) {
     promises.push(getUserDataFromEmail(email, m2mToken));
   }
 
-  return await Promise.allSettled(promises);
+  const users = await Promise.allSettled(promises);
+  const results = users.map(u => {
+    if (u.status == "fulfilled") {
+      const content = u.value.result.content;
+      return content[0]
+    } else {
+      return null
+    }
+  })
+
+  return results;
 }
 
 module.exports = {

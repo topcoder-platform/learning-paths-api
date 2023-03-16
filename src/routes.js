@@ -288,4 +288,15 @@ module.exports = {
       auth: 'jwt',
     },
   },
+  /**
+   * Admin utils
+   */
+  '/learning-paths/admin/tc-bus/event': {
+    post: {
+      controller: 'AdminUtilsController',
+      method: 'postTCBusMessageHandler',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
+  },
 }

@@ -11,7 +11,7 @@
 const fs = require("fs");
 const csvParser = require("csv-parser");
 
-const db = require('../../db/models')
+// const db = require('../../db/models')
 const helper = require('../../common/helper');
 const path = require('path');
 
@@ -36,42 +36,24 @@ function getCsvData() {
     });
 }
 
-async function getUserProfiles(emailData) {
+async function getUserProfiles(emailData, resolveCallback) {
     const emails = emailData.map(user => user.email);
-    const userData = await helper.getMultiUserDataFromEmails(emails);
+    try {
+        await helper.getMultiUserDataFromEmails(emails.slice(0, 3), resolveCallback);
+    } catch (error) {
+        console.log('Error getting user profile');
+    }
+}
 
-    return userData;
+function updateUser(response) {
+    if (response === null) return;
+
+    const content = response.result.content;
+    const user = content[0];
+    console.log('Update user: ', user);
 }
 
 (async () => {
     const emails = await getCsvData();
-    const userData = await getUserProfiles(emails);
-    console.log(userData);
-
-    // const userMap = new Map();
-
-    // userData.forEach(user => {
-    //     userMap.set(user.email, user);
-    // });
-
-    // const updateData = csvData.map(user => {
-    //     const profile = userMap.get(user.email);
-    //     return {
-    //         email: user.email,
-    //         externalId: profile.externalId
-    //     }
-    // });
-
-    // if (LIVE_RUN) {
-    //     await db.CertificationProgress.bulkWrite(updateData.map(user => {
-    //         return {
-    //             updateOne: {
-    //                 filter: { email: user.email },
-    //                 update: { $set: { externalId: user.externalId } }
-    //             }
-    //         }
-    //     }));
-    // }
-
-    // console.log(updateData);
+    const userData = await getUserProfiles(emails, updateUser);
 })();

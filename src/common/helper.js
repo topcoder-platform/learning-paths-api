@@ -780,32 +780,43 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
     headers: {
       Authorization: `Bearer ${m2mToken}`
     }
-  }).then(rsp => rsp.data)
+  })
+    .then(rsp => rsp.data)
+    .catch(err => {
+      console.log(err.message, email)
+      return null
+    })
 }
 
-async function getMultiUserDataFromEmails(emails) {
+async function getMultiUserDataFromEmails(emails, resolveCallback = null) {
   if (!emails || emails.length == 0) {
     throw errors.BadRequestError("Must supply at least one email to search for")
   }
 
-  const promises = [];
-  const m2mToken = await getM2MToken();
-  for (let email of emails) {
-    console.log(`Getting: ${email}`)
-    promises.push(getUserDataFromEmail(email, m2mToken));
+  if (!resolveCallback) {
+    resolveCallback = (data) => console.log(data)
   }
 
-  const users = await Promise.allSettled(promises);
-  const results = users.map(u => {
-    if (u.status == "fulfilled") {
-      const content = u.value.result.content;
-      return content[0]
-    } else {
-      return null
-    }
-  })
+  const m2mToken = await getM2MToken();
 
-  return results;
+  for (let email of emails) {
+    console.log(`Getting: ${email}`)
+    getUserDataFromEmail(email, m2mToken)
+      .then(resolveCallback)
+      .catch(err => console.log(err))
+  }
+
+  // const users = await Promise.allSettled(promises);
+  // const results = users.map(u => {
+  //   if (u.status == "fulfilled") {
+  //     const content = u.value.result.content;
+  //     return content[0]
+  //   } else {
+  //     return null
+  //   }
+  // })
+
+  // return results;
 }
 
 module.exports = {

@@ -68,4 +68,8 @@ module.exports = {
   CERT_ADDITIONAL_PARAMS: {
     'view-style': 'large-container',
   },
+
+  // TC BUS Kafka
+  BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
+  KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'common.error.reporting'
 }

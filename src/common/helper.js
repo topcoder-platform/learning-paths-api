@@ -775,9 +775,7 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
   }
 
   const filter = `email=${email}`
-  const v3Url = `${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`
-  const v5Url = `${config.API_BASE_URL}/v5/members?${filter}`
-  const url = v5Url;
+  const url = `${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`
 
   return axios(url, {
     headers: {
@@ -789,30 +787,6 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
       console.log(err.message, email)
       return null
     })
-}
-
-async function getMultiUserDataFromEmails(emails, resolveCallback = null, m2mToken = null) {
-  if (!emails || emails.length == 0) {
-    throw errors.BadRequestError("Must supply at least one email to search for")
-  }
-
-  const userCount = emails.length;
-  console.log(`Getting data for ${userCount} users...`);
-
-  if (!resolveCallback) {
-    resolveCallback = (data) => console.log(data)
-  }
-
-  if (!m2mToken) {
-    m2mToken = await getM2MToken();
-  }
-
-  for (let email of emails) {
-    // console.log(`Getting: ${email}`)
-    getUserDataFromEmail(email, m2mToken)
-      .then(resolveCallback)
-      .catch(err => console.log(err))
-  }
 }
 
 module.exports = {
@@ -833,7 +807,6 @@ module.exports = {
   getMemberDataM2M,
   getMemberDataFromIdM2M,
   getMultiMemberDataFromIdM2M,
-  getMultiUserDataFromEmails,
   getUserDataFromEmail,
   hasTCAAdminRole,
   logExecutionTime,

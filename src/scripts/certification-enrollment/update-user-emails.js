@@ -38,8 +38,12 @@ function getCsvData() {
 
 async function getUserProfiles(emailData, resolveCallback) {
     const emails = emailData.map(user => user.email);
+
+    const m2mTokenPath = path.join(__dirname, 'm2m-token.txt');
+    const m2mToken = fs.readFileSync(m2mTokenPath, 'utf8');
+
     try {
-        await helper.getMultiUserDataFromEmails(emails.slice(0, 3), resolveCallback);
+        await helper.getMultiUserDataFromEmails(emails, resolveCallback, m2mToken);
     } catch (error) {
         console.log('Error getting user profile');
     }
@@ -48,9 +52,12 @@ async function getUserProfiles(emailData, resolveCallback) {
 function updateUser(response) {
     if (response === null) return;
 
-    const content = response.result.content;
-    const user = content[0];
-    console.log('Update user: ', user);
+    try {
+        const { userId, email } = response[0];
+        // console.log(`User ${userId}: ${email}`);
+    } catch (error) {
+        console.error('Error getting user data', response);
+    }
 }
 
 (async () => {

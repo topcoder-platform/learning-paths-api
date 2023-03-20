@@ -253,6 +253,7 @@ async function getCertificationProgress(userId, progressId) {
  */
 async function startCertification(currentUser, userId, certificationId, courseId, query) {
     helper.ensureRequestForCurrentUser(currentUser, userId)
+    const email = currentUser.email;
 
     let existingProgress = await getExistingProgress(userId, certificationId);
 
@@ -281,7 +282,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
         let options = query;
         options.status = progressStatuses.inProgress;
 
-        return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification, options);
+        return await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
     }
 }
 

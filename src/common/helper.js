@@ -726,7 +726,38 @@ async function getMemberDataM2M(handle) {
       Authorization: `Bearer ${m2m}`
     }
   })
-  .then(rsp => rsp.data)
+    .then(rsp => rsp.data)
+}
+
+async function getMemberDataFromIdM2M(userId) {
+  const m2m = await getM2MToken();
+
+  return axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+    headers: {
+      Authorization: `Bearer ${m2m}`
+    }
+  })
+    .then(rsp => rsp.data)
+}
+
+async function getMultiMemberDataFromIdM2M(userIds) {
+  const m2m = await getM2MToken();
+
+  let promises = [];
+
+  for (let userId of userIds) {
+    const promise = axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+      headers: {
+        Authorization: `Bearer ${m2m}`
+      }
+    })
+    promises.push(promise)
+  }
+
+  const rawResults = await Promise.all(promises);
+  const results = rawResults.map(rr => rr.data);
+
+  return results
 }
 
 /**
@@ -778,6 +809,8 @@ module.exports = {
   getByTableKeys,
   getFromInternalCache,
   getMemberDataM2M,
+  getMemberDataFromIdM2M,
+  getMultiMemberDataFromIdM2M,
   hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,

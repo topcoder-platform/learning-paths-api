@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {Object} certification a FreeCodeCampCertification object
      */
-    static async buildFromCertification(userId, fccCertification, options = {}) {
+    static async buildFromCertification(userId, email, fccCertification, options = {}) {
       const certCategory = await fccCertification.getCertificationCategory();
       const course = await fccCertification.getCourse();
 
@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       let progressAttrs = {
         fccCertificationId: fccCertification.id,
         userId: userId,
+        email: email,
         fccCourseId: course.id,
         courseKey: course.key,
         certification: fccCertification.certification,

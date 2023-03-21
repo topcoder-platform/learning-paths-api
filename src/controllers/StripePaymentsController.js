@@ -54,15 +54,21 @@ async function getPriceHandler(req, res) {
 }
 
 /**
- * Member purchase ertification
+ * Create payment with invoice in Stripe
+ * 
+ * Payment is prepared for confirmation on the front-end and client secret is returned.
+ * Invoice is created from array of price IDs from the body payload.
+ * 
+ * used for:
+ * - member purchase TCA certification, aka Enroll Payment
  */
-async function purchaseCertificationsHandler(req, res) {
+async function cretatePaymentHandler(req, res) {
     // get or create the customer per email from stripe
     const customer = await stripeService.getOrCreateCustomerPerEmail(req.authUser)
-    // prepare invoice for this purchase
-    const certPayment = await stripeService.createCertificationInvoice(customer.id, req.body.priceIDs)
+    // prepare invoice from price IDs
+    const paymentSheet = await stripeService.createInvoice(customer.id, req.body.priceIDs)
 
-    res.json(certPayment)
+    res.json(paymentSheet)
 }
 
 /**
@@ -78,7 +84,7 @@ module.exports = {
     searchPricesHandler,
     searchProductsHandler,
     createSubscriptionHandler,
-    purchaseCertificationsHandler,
+    cretatePaymentHandler,
     getPriceHandler,
     getProductHandler,
 }

@@ -239,7 +239,20 @@ module.exports = {
   /**
    * Stripe related endpoints
    */
-  // TODO: Activate this endpoint for TCA Premium
+  '/learning-paths/payments/stripe': {
+    post: {
+      controller: 'StripePaymentsController',
+      method: 'cretatePaymentHandler',
+      auth: 'jwt',
+    },
+  },
+  '/learning-paths/payments/stripe/products/:id': {
+    get: {
+      controller: 'StripePaymentsController',
+      method: 'getProductHandler',
+      auth: 'jwt',
+    },
+  },
   // '/learning-paths/payments/stripe/subscribe': {
   //   post: {
   //     controller: 'StripePaymentsController',
@@ -268,18 +281,22 @@ module.exports = {
   //     auth: 'jwt',
   //   },
   // },
-  // '/learning-paths/payments/stripe/products/:id': {
-  //   get: {
-  //     controller: 'StripePaymentsController',
-  //     method: 'getProductHandler',
-  //     auth: 'jwt',
-  //   },
-  // },
-  // '/learning-paths/payments/stripe/purchase-certifications': {
-  //   post: {
-  //     controller: 'StripePaymentsController',
-  //     method: 'purchaseCertificationsHandler',
-  //     auth: 'jwt',
-  //   },
-  // },
+  '/learning-paths/chameleon/hash-uuid': {
+    get: {
+      controller: 'ChameleonController',
+      method: 'getHashedUid',
+      auth: 'jwt',
+    },
+  },
+  /**
+   * Admin utils
+   */
+  '/learning-paths/admin/tc-bus/event': {
+    post: {
+      controller: 'AdminUtilsController',
+      method: 'postTCBusMessageHandler',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
+  },
 }

@@ -353,13 +353,7 @@ async function updateCurrentLesson(currentUser, certificationProgressId, query) 
  */
 async function completeLesson(currentUser, certificationProgressId, query) {
     const userId = currentUser.userId;
-    // TODO: debug logging for Wipro SAML SSO users
-    const logUserAttrs = {
-        email: currentUser.email,
-        sub: currentUser.sub,
-    }
-    console.log(`completeLesson: userID ${userId}`)
-    console.table(logUserAttrs)
+    const email = currentUser.email;
 
     const module = query.module;
     const lesson = query.lesson;
@@ -367,6 +361,15 @@ async function completeLesson(currentUser, certificationProgressId, query) {
 
     const certProgress = await getCertificationProgress(userId, certificationProgressId);
     await certProgress.completeLesson(module, lesson, lessonId);
+
+    // Ensure the user's email address is set on the progress record.
+    // This is being done to ensure that the MongoDB trigger handler works 
+    // non-Topcoder.com users.
+    const emailUpdated = await certProgress.ensureEmailSet(email);
+    if (emailUpdated) {
+        console.log(`User ${userId} email address set to ${email} on FCC Certification Progress record`)
+    }
+
     // fetch the full cert progress again to pickup all of the included assocations
     let updatedProgress = await getCertificationProgress(userId, certificationProgressId);
     decorateProgressCompletion(updatedProgress);

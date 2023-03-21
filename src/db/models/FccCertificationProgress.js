@@ -352,6 +352,19 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     /**
+     * Updates the user's email address if it's not already set
+     * 
+     * @param {String} email the user's email address
+     * @returns true if it's updated, false otherwise
+     */
+    async ensureEmailSet(email) {
+      if (!!this.email) return false;
+
+      await this.update({ email: email });
+      return true;
+    }
+
+    /**
      * An implementation of hasMany :through that Sequelize 
      * seems to lack, for no apparent reason.
      * 

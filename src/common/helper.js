@@ -761,10 +761,43 @@ async function getMultiMemberDataFromIdM2M(userIds) {
 }
 
 /**
+ * Queries the v3 Users API for user profile information given the 
+ * user's email address.
+ * 
+ * @param {String} email user's email address
+ * @param {String} m2mToken m2m token to use for API call
+ * @param {String} fields comma-separated list of fields to return
+ * @returns API response as JSON
+ */
+async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
+  if (!fields) {
+    fields = 'id,handle,email'
+  }
+
+  if (!m2mToken) {
+    m2mToken = await getM2MToken();
+  }
+
+  const filter = `email=${email}`
+  const url = `${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`
+
+  return axios(url, {
+    headers: {
+      Authorization: `Bearer ${m2mToken}`
+    }
+  })
+    .then(rsp => rsp.data)
+    .catch(err => {
+      console.log(err.message, email)
+      return null
+    })
+}
+
+/**    
  * Get Bus API Client
  * @return {Object} Bus API Client Instance
  */
-function getBusApiClient () {
+function getBusApiClient() {
   // if there is no bus API client instance, then create a new instance
   if (!busApiClient) {
     busApiClient = busApi(_.pick(config,
@@ -781,7 +814,7 @@ function getBusApiClient () {
  * @param {String} topic the event topic
  * @param {Object} payload the event payload
  */
-async function postBusEvent (topic, payload) {
+async function postBusEvent(topic, payload) {
   const client = getBusApiClient()
 
   return client.postEvent({
@@ -811,6 +844,7 @@ module.exports = {
   getMemberDataM2M,
   getMemberDataFromIdM2M,
   getMultiMemberDataFromIdM2M,
+  getUserDataFromEmail,
   hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,

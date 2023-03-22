@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {Object} certification a FreeCodeCampCertification object
      */
-    static async buildFromCertification(userId, fccCertification, options = {}) {
+    static async buildFromCertification(userId, email, fccCertification, options = {}) {
       const certCategory = await fccCertification.getCertificationCategory();
       const course = await fccCertification.getCourse();
 
@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       let progressAttrs = {
         fccCertificationId: fccCertification.id,
         userId: userId,
+        email: email,
         fccCourseId: course.id,
         courseKey: course.key,
         certification: fccCertification.certification,
@@ -348,6 +349,19 @@ module.exports = (sequelize, DataTypes) => {
       }
 
       return lesson;
+    }
+
+    /**
+     * Updates the user's email address if it's not already set
+     * 
+     * @param {String} email the user's email address
+     * @returns true if it's updated, false otherwise
+     */
+    async ensureEmailSet(email) {
+      if (!!this.email) return false;
+
+      await this.update({ email: email });
+      return true;
     }
 
     /**

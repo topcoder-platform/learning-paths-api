@@ -8,6 +8,12 @@ const UserRoles = {
   User: 'Topcoder User',
 }
 
+const EVENT_ORIGINATOR = 'topcoder-learning-paths-api'
+
+const EVENT_MIME_TYPE = 'application/json'
+
 module.exports = {
-  UserRoles
+  EVENT_ORIGINATOR,
+  EVENT_MIME_TYPE,
+  UserRoles,
 }

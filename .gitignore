@@ -86,3 +86,9 @@ set_prod.sh
 
 # udemy course fetcher
 udemy-courses*.json
+
+# token files for testing
+m2m-token.txt
+
+# FCC user data
+*data.csv

@@ -23,6 +23,7 @@ const xss = require('xss')
 const { CertificationProgress } = require('../models')
 const { performance } = require('perf_hooks');
 const axios = require('axios');
+const busApi = require('topcoder-bus-api-wrapper');
 
 AWS.config.update({
   s3: config.AMAZON.S3_API_VERSION,
@@ -30,6 +31,9 @@ AWS.config.update({
   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
   region: config.AMAZON.AWS_REGION
 })
+
+// Bus API Client
+let busApiClient;
 
 const ddbClient = new DynamoDBClient({
   region: config.AMAZON.AWS_REGION,
@@ -722,7 +726,104 @@ async function getMemberDataM2M(handle) {
       Authorization: `Bearer ${m2m}`
     }
   })
-  .then(rsp => rsp.data)
+    .then(rsp => rsp.data)
+}
+
+async function getMemberDataFromIdM2M(userId) {
+  const m2m = await getM2MToken();
+
+  return axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+    headers: {
+      Authorization: `Bearer ${m2m}`
+    }
+  })
+    .then(rsp => rsp.data)
+}
+
+async function getMultiMemberDataFromIdM2M(userIds) {
+  const m2m = await getM2MToken();
+
+  let promises = [];
+
+  for (let userId of userIds) {
+    const promise = axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+      headers: {
+        Authorization: `Bearer ${m2m}`
+      }
+    })
+    promises.push(promise)
+  }
+
+  const rawResults = await Promise.all(promises);
+  const results = rawResults.map(rr => rr.data);
+
+  return results
+}
+
+/**
+ * Queries the v3 Users API for user profile information given the 
+ * user's email address.
+ * 
+ * @param {String} email user's email address
+ * @param {String} m2mToken m2m token to use for API call
+ * @param {String} fields comma-separated list of fields to return
+ * @returns API response as JSON
+ */
+async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
+  if (!fields) {
+    fields = 'id,handle,email'
+  }
+
+  if (!m2mToken) {
+    m2mToken = await getM2MToken();
+  }
+
+  const filter = `email=${email}`
+  const url = `${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`
+
+  return axios(url, {
+    headers: {
+      Authorization: `Bearer ${m2mToken}`
+    }
+  })
+    .then(rsp => rsp.data)
+    .catch(err => {
+      console.log(err.message, email)
+      return null
+    })
+}
+
+/**    
+ * Get Bus API Client
+ * @return {Object} Bus API Client Instance
+ */
+function getBusApiClient() {
+  // if there is no bus API client instance, then create a new instance
+  if (!busApiClient) {
+    busApiClient = busApi(_.pick(config,
+      ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
+        'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
+        'KAFKA_ERROR_TOPIC', 'AUTH0_PROXY_SERVER_URL']))
+  }
+
+  return busApiClient
+}
+
+/**
+ * Post bus event.
+ * @param {String} topic the event topic
+ * @param {Object} payload the event payload
+ */
+async function postBusEvent(topic, payload) {
+  const client = getBusApiClient()
+
+  return client.postEvent({
+    topic,
+    originator: constants.EVENT_ORIGINATOR,
+    timestamp: new Date().toISOString(),
+    'mime-type': constants.EVENT_MIME_TYPE,
+    payload
+  })
 }
 
 module.exports = {
@@ -741,12 +842,16 @@ module.exports = {
   getByTableKeys,
   getFromInternalCache,
   getMemberDataM2M,
+  getMemberDataFromIdM2M,
+  getMultiMemberDataFromIdM2M,
+  getUserDataFromEmail,
   hasTCAAdminRole,
   logExecutionTime,
   logExecutionTime2,
   parseQueryParam,
   partialMatch,
   pluralize,
+  postBusEvent,
   queryCompletedCertifications,
   scan,
   scanAll,

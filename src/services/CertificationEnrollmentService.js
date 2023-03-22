@@ -121,11 +121,14 @@ async function getEnrollmentById(id) {
  */
 async function createCertificationEnrollment(authUser, certificationId) {
     const userHandle = authUser.handle;
+    const userId = authUser.userId;
+    const email = authUser.email;
+
     // try to get user's first and last name via the API using an m2m token.
     // if we can't, just use the user's handle.
     let userFullName = userHandle;
     try {
-        const memberData = await helper.getMemberDataM2M(authUser.handle);
+        const memberData = await helper.getMemberDataM2M(userHandle);
         userFullName = `${memberData.firstName} ${memberData.lastName}`
     } catch (error) {
         console.error('Error getting user name via m2m token', error);
@@ -134,11 +137,11 @@ async function createCertificationEnrollment(authUser, certificationId) {
     // build the collection of certification resource progress records to 
     // track the user's completion of the courses (resource) contained in 
     // this Topcoder Certification
-    const resourceProgresses = await buildEnrollmentProgressAttrs(authUser.userId, certificationId);
+    const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId);
 
     const enrollmentAttrs = {
         topcoderCertificationId: certificationId,
-        userId: authUser.userId,
+        userId: userId,
         userHandle: userHandle,
         userName: userFullName,
         resourceProgresses: resourceProgresses,
@@ -172,10 +175,10 @@ async function createCertificationEnrollment(authUser, certificationId) {
  * @param {String} userId the ID of the user who's enrolling in the certification
  * @param {Integer} certificationId the ID of the certification in which they're enrolling
  */
-async function buildEnrollmentProgressAttrs(userId, certificationId) {
+async function buildEnrollmentProgressAttrs(userId, email, certificationId) {
     const certification = await getCertificationEnrollmentDetails(userId, certificationId);
 
-    const resourceProgresses = await buildCertResourceProgressAttrs(userId, certification);
+    const resourceProgresses = await buildCertResourceProgressAttrs(userId, email, certification);
 
     return resourceProgresses;
 }
@@ -223,11 +226,13 @@ async function getCertificationEnrollmentDetails(userId, certificationId) {
  *  create new progress records for any resources the user hasn't already 
  *  started or completed.
  * 
+ * @param {String} userId the ID of the user whose progress is being created
+ * @param {String} email the email of the user whose progress is being created
  * @param {Object} certification the Topcoder Certification for which progress
  *      records are being constructed.
  * @returns {Object} an object containing all the CertificationReourceProgress attributes
  */
-async function buildCertResourceProgressAttrs(userId, certification) {
+async function buildCertResourceProgressAttrs(userId, email, certification) {
     let resourceProgresses = [];
 
     for (const resource of certification.certificationResources) {
@@ -238,7 +243,7 @@ async function buildCertResourceProgressAttrs(userId, certification) {
         // started this course yet, so enroll them in it by creating a
         // freeCodeCamp progress record.
         if (!fccProgress) {
-            fccProgress = await createFccProgressRecord(userId, fccCert)
+            fccProgress = await createFccProgressRecord(userId, email, fccCert)
         }
 
         // set the attributes for creation of the Topcoder
@@ -257,8 +262,8 @@ async function buildCertResourceProgressAttrs(userId, certification) {
     return resourceProgresses;
 }
 
-async function createFccProgressRecord(userId, fccCertification) {
-    return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
+async function createFccProgressRecord(userId, email, fccCertification) {
+    return await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification);
 }
 
 /**

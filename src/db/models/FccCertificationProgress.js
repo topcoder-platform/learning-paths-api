@@ -327,8 +327,16 @@ module.exports = (sequelize, DataTypes) => {
 
         return { result: lessonCompletionStatuses.completedSuccessfully }
       } catch (error) {
-        console.error(`Error completing lesson: ${error}`)
-        throw error;
+        // it's possible that the MongoDB trigger could have already 
+        // added this completed lesson, so if we encounter a unique 
+        // constraint violation, ignore the error and indicate it was 
+        // completed successfully.
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          console.log(`Lesson ${lessonId} already completed for module ${moduleKey} (squelched SequelizeUniqueConstraintError)`)
+          return { result: lessonCompletionStatuses.completedSuccessfully }
+        } else {
+          throw error;
+        }
       }
     }
 

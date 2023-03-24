@@ -3,10 +3,8 @@ const _ = require('lodash');
 const db = require('../db/models');
 const errors = require('../common/errors');
 const helper = require('../common/helper');
-const config = require('config');
 const certificationService = require('./TopcoderCertificationService');
 const {
-    enrollmentStatuses,
     progressStatuses
 } = require('../common/constants');
 
@@ -18,16 +16,17 @@ const {
  * @returns {Object} the newly created CertificationEnrollment object
  */
 async function enrollUser(authUser, certificationId) {
-
-    const existingEnrollment = await getExistingEnrollment(authUser.userId, certificationId);
+    const userId = authUser.userId;
+    const existingEnrollment = await getExistingEnrollment(userId, certificationId);
 
     if (existingEnrollment != null) {
         const certification = existingEnrollment.topcoderCertification;
-        console.log(`User ${authUser.userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
+        console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
 
         return existingEnrollment;
     }
 
+    console.log(`Enrolling user ${userId} in certification ID ${certificationId}`);
     const newEnrollment = await createCertificationEnrollment(authUser, certificationId)
 
     return newEnrollment;
@@ -131,23 +130,23 @@ async function createCertificationEnrollment(authUser, certificationId) {
         const memberData = await helper.getMemberDataM2M(userHandle);
         userFullName = `${memberData.firstName} ${memberData.lastName}`
     } catch (error) {
-        console.error('Error getting user name via m2m token', error);
-    }
-
-    // build the collection of certification resource progress records to 
-    // track the user's completion of the courses (resource) contained in 
-    // this Topcoder Certification
-    const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId);
-
-    const enrollmentAttrs = {
-        topcoderCertificationId: certificationId,
-        userId: userId,
-        userHandle: userHandle,
-        userName: userFullName,
-        resourceProgresses: resourceProgresses,
+        console.error('Error getting user name via m2m token, using handle', error);
     }
 
     try {
+        // build the collection of certification resource progress records to 
+        // track the user's completion of the courses (resource) contained in 
+        // this Topcoder Certification
+        const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId);
+
+        const enrollmentAttrs = {
+            topcoderCertificationId: certificationId,
+            userId: userId,
+            userHandle: userHandle,
+            userName: userFullName,
+            resourceProgresses: resourceProgresses,
+        }
+
         const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs,
             {
                 include: [{
@@ -163,8 +162,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
 
         return enrollment;
     } catch (error) {
-        console.error("Error creating certification enrollment", error);
-        return null;
+        throw errors.BadRequestError('Error enrolling user in certification', error);
     }
 }
 

@@ -370,7 +370,7 @@ async function completeLesson(currentUser, certificationProgressId, query) {
         console.log(`User ${userId} email address set to ${email} on FCC Certification Progress record`)
     }
 
-    // fetch the full cert progress again to pickup all of the included assocations
+    // fetch the full cert progress again to pickup all of the included associations
     let updatedProgress = await getCertificationProgress(userId, certificationProgressId);
     decorateProgressCompletion(updatedProgress);
 

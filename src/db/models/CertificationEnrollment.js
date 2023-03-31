@@ -37,6 +37,8 @@ module.exports = (sequelize, DataTypes) => {
       const certDashedName = certification.dashedName;
       const certificateUrl = await this.certificateUrl();
 
+      console.log(`Checking ${this.userId}|${this.userHandle} for completion of TCA certification: ${certification.title}?`);
+
       // if the certification has been fully completed, return cert info
       if (this.status == enrollmentStatuses.completed) {
         return {
@@ -60,6 +62,8 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
 
+      console.log(`Member ${this.userId}|${this.userHandle} statisfy all TCA cert completion criteria.`);
+
       // all requirements have been satisfied, so mark this as completed
       const completedAttrs = {
         completedAt: new Date(),
@@ -70,6 +74,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // generate the TCA digital certificate image
       await this.generateCertificate();
+
+      console.log(`Certificate image generation in progress.`);
 
       // send congrats email to the member
       try {

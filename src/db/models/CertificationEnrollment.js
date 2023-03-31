@@ -75,6 +75,9 @@ module.exports = (sequelize, DataTypes) => {
       try {
         // we need member's email and first name
         const memberData = await getMemberDataM2M(userHandle);
+        
+        console.log(`Sending TCA cert completion email to ${memberData.email}...`);
+        
         // send the email
         await sendEmail({
           recipients: [memberData.email],

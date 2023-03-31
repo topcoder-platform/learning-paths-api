@@ -9,10 +9,15 @@
     <meta name='twitter:site' content='@Topcoder' />
     <meta name='twitter:card' content='summary_large_image' />
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
         body {
             display: flex;
             justify-content: center;
-            height: 95%;
             background: linear-gradient(84.45deg, #05456d 2.12%, #0a7ac0 97.43%);
         }
 
@@ -20,6 +25,13 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+        }
+
+        body > div > img {
+            object-fit: contain;
+            max-width: 95%;
+            max-height: 95%;
         }
     </style>
 </head>

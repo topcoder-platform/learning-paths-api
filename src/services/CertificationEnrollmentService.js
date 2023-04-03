@@ -1,5 +1,6 @@
 
 const _ = require('lodash');
+const config = require('config');
 const db = require('../db/models');
 const errors = require('../common/errors');
 const helper = require('../common/helper');
@@ -154,6 +155,26 @@ async function createCertificationEnrollment(authUser, certificationId) {
                     as: 'resourceProgresses'
                 }]
             });
+
+        // notify the member per email about sucessful enrollment
+        try {
+            const certification = await certificationService.getCertification(certificationId);
+
+            console.log(`Sending TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email}...`);
+
+            // send the email
+            await helper.sendEmail({
+                recipients: [email],
+                data: {
+                    first_name: userFullName,
+                    cert_name: certification.title,
+                    URL_to_tca_cert: `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}`
+                },
+                sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_CERT_ENROLLMENT
+            });
+        } catch (e) {
+            console.error(`Sending enrollment congrats email for TCA cert "${certification.title}" to ${email}<${userHandle}> failed.`, e);
+        }
 
         // it's possible the user completed all of the requirements to earn the 
         // certification before enrolling, so check that now

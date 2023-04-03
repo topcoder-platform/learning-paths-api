@@ -75,6 +75,7 @@ module.exports = {
 
   // Email templates in SendGrid
   EMAIL_TEMPLATES: {
-    TCA_CERT_COMPLETE: process.env.TCA_CERT_COMPLETE || 'd-d7aebc425c7448d696e9085cb4fb767f'
+    TCA_CERT_COMPLETE: process.env.TCA_CERT_COMPLETE || 'd-d7aebc425c7448d696e9085cb4fb767f',
+    TCA_CERT_ENROLLMENT: process.env.TCA_CERT_ENROLLMENT || 'd-0c8094df72c84760b63ef8e390383bc7'
   }
 }

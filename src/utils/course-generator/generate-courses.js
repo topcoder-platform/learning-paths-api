@@ -17,7 +17,7 @@ const fs = require('fs');
 const { get } = require('lodash')
 const logger = require('../../common/logger')
 const helper = require('../../common/helper');
-const models = require('../../models');
+const db = require('../src/db/models');
 const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
@@ -130,7 +130,7 @@ function getCourseGenerator(provider) {
 }
 
 async function writeCoursesToDB(courseFile) {
-    console.log("\n** Writing course data to DynamoDB...");
+    console.log("\n** Writing course data to Postgres...");
     const promises = []
 
     try {
@@ -155,17 +155,17 @@ async function writeCoursesToDB(courseFile) {
 
 /**
  * Synchronizes the local IDs of courses with existing course data 
- * stored in DynamoDB. This allows updating existing courses and preserves 
+ * stored in the database. This allows updating existing courses and preserves 
  * the course IDs, which are referenced in Certification Progress records.
  * 
  * @param {String} courseFile file path to generated course file
  * @param {Object} generatedCourses generated course data
  */
 async function synchronizeCourseIds(courseFile, generatedCourses) {
-    console.log("\n** Synchronizing course IDs with DynamoDB data");
+    console.log("\n** Synchronizing course IDs with Postgres data");
 
     let saveCourseFile = false;
-    const courses = await helper.scanAll('Course')
+    const courses = await db.FccCourse.findAll();
 
     for (var course of generatedCourses) {
         const existingCourse = courses.find(existingCourse => existingCourse.key === course.key);
@@ -185,7 +185,7 @@ async function synchronizeCourseIds(courseFile, generatedCourses) {
 }
 
 async function writeCertificationsToDB(certificationsFile) {
-    console.log("\n** Writing certification data to DynamoDB...");
+    console.log("\n** Writing certification data to Postgres...");
     const promises = []
 
     try {
@@ -210,7 +210,7 @@ async function writeCertificationsToDB(certificationsFile) {
 
 /**
  * Converts Certification date attributes given in human-readable format to Unix 
- * timestamp with milliseconds for compatibility with DynamoDB date type.
+ * timestamp with milliseconds for compatibility with Postgres date type.
  * 
  * @param {Object} certData certification data
  */
@@ -242,12 +242,12 @@ function convertCertAttrDatesToTimestamps(certData) {
 }
 
 /**
- * Updates lesson IDs in a course in DynamoDB with the corresponding 
+ * Updates lesson IDs in a course in Postgres with the corresponding 
  * IDs in the JSON course data, which are taken from the freeCodeCamp
  * curriculum source data.
  * 
  * @param {Object} course JSON course data
- * @param {Object} dbCourse DynamoDB course data
+ * @param {Object} dbCourse Postgres course data
  */
 function updateLessonIds(course, dbCourse) {
     console.log(`\nupdating dbCourse: ${dbCourse.key} (id: ${dbCourse.id})`);
@@ -345,18 +345,13 @@ let provider;
 // Parse CLI flags
 const writeToDB = (args.indexOf('-d') > -1 ? true : false);
 const writeOnlyCertsToDB = (args.indexOf('-r') > -1 ? true : false);
-const updateDBLessonIds = (args.indexOf('-u') > -1 ? true : false);
-const updateDBProgressIds = (args.indexOf('-p') > -1 ? true : false);
-const updateDBModuleAssessments = (args.indexOf('-m') > -1 ? true : false);
-const reconcileCourseCompletion = (args.indexOf('-c') > -1 ? true : false);
 const dryRun = (args.indexOf('-y') > -1 ? true : false);
 
 // Parse the CLI args for the provider name, if given
 if (args.length == 2 ||
     (args.length == 3 &&
-        (writeToDB || writeOnlyCertsToDB || updateDBLessonIds || updateDBProgressIds ||
-            updateDBModuleAssessments || reconcileCourseCompletion)) ||
-    (args.length == 4 && dryRun)) {
+        (writeToDB || writeOnlyCertsToDB) ||
+        (args.length == 4 && dryRun))) {
     provider = loadDefaultProvider(providers);
 } else if ((args.length == 3 && !(writeToDB || writeOnlyCertsToDB)) || args.length == 4) {
     const givenProvider = args[2]
@@ -365,9 +360,6 @@ if (args.length == 2 ||
     console.log("Use the default provider or provide one provider name")
     showAvailableProviders(providers);
 }
-
-// TODO - need to write the updated providers and/or certifications 
-// data to the DB, too.
 
 // Generate the course data for the given provider and
 // write it to the database if the -d flag is provided.

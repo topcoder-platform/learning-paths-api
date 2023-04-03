@@ -2,19 +2,8 @@
  * Controller for certification progress endpoints
  */
 
-const progressService = require('../services/CertificationProgressService')
-const fccService = require('../services/FccCertificationProgressService')
-
-const helper = require('../common/helper')
-const dbHelper = require('../common/dbHelper')
-
-// Switch between DynamoDB and PostgreSQL-based services
-let service;
-if (dbHelper.featureFlagUsePostgres()) {
-    service = fccService;
-} else {
-    service = progressService;
-}
+const helper = require('../common/helper');
+const service = require('../services/FccCertificationProgressService')
 
 /**
  * Search certification progress

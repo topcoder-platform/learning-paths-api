@@ -566,6 +566,9 @@ async function completeCertification(
     const userId = progress.userId;
     const providerName = progress.resourceProvider.name;
     const certification = progress.certification;
+    const email = currentUser.email;
+    const handle = currentUser.handle;
+    const courseTitle = progress.certificationTitle;
 
     const completedProgress = await progress.completeFccCertification();
 
@@ -587,6 +590,34 @@ async function completeCertification(
 
     } else {
         console.log(`Certificate Image for ${userId} for ${certification} NOT being generated b/c no cert URL was provided.`)
+    }
+
+    // notify the member via email
+    try {
+        // try to get user's first via the API using an m2m token.
+        // if we can't, just use the user's handle.
+        let userFirstName = handle;
+        try {
+            const memberData = await helper.getMemberDataM2M(handle);
+            userFirstName = memberData.firstName;
+        } catch (error) {
+            console.error('Error getting user name via m2m token, using handle', error);
+        }
+
+        console.log(`Sending TCA course completed email to ${email}...`);
+
+        // send the email
+        await helper.sendEmail({
+            recipients: [email],
+            data: {
+                first_name: userFirstName,
+                course_name: courseTitle,
+                URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${providerName}/${certification}`
+            },
+            sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_COMPLETE
+        });
+    } catch (e) {
+        console.error(`Sending TCA course completed email for "${certification.title}" to ${email}<${handle}> failed.`, e);
     }
 
     return completedProgress

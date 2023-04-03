@@ -306,7 +306,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
                 data: {
                     first_name: userFirstName,
                     course_name: fccCertification.title,
-                    URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/freeCodeCamp/${fccCertification.certification}`
+                    URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${fccCertProgress.resourceProvider?.name || 'freeCodeCamp'}/${fccCertification.certification}`
                 },
                 sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_START
             });
@@ -612,7 +612,7 @@ async function completeCertification(
             data: {
                 first_name: userFirstName,
                 course_name: courseTitle,
-                URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${providerName}/${certification}`
+                URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${providerName || 'freeCodeCamp'}/${certification}`
             },
             sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_COMPLETE
         });

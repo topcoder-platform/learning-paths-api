@@ -14,8 +14,6 @@
     "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
     "services:down": "docker-compose -f ./local/docker-compose.yml down",
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
-    "local:init": "npm run local:reset && npm run seed-tables",
-    "local:reset": "npm run init-db force",
     "cert-gen:deploy-stack": "cd src/utils/certificate-sharing/generate-certificate-image && sh generate-certificate-image-deploy.sh",
     "cert-gen:regenerate": "node src/utils/certificate-sharing/regenerate-certificate-images/RegenerateCertificateImagesService.js",
     "cert-gen:validate": "d src/utils/certificate-sharing/generate-certificate-image && aws cloudformation validate-template --template-body file://certificate-image-generator-stack.yml"

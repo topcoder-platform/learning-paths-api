@@ -22,7 +22,6 @@ const path = require('path');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 const FreeCodeCampGenerator = require('./freeCodeCamp/parserGenerator');
-const reconciliationService = require('../../services/CourseCompletionReconciliationService');
 
 const PROVIDERS_FILE = 'providers.json';
 const STATUS_IN_PROGRESS = "in-progress";
@@ -191,7 +190,7 @@ async function writeCertificationsToDB(certificationsFile) {
 
     try {
         let data = require(certificationsFile)
-        convertCertAttrDatesToTimestamps(data)
+        // convertCertAttrDatesToTimestamps(data)
         const numCerts = get(data, 'length');
         logger.info(`Inserting ${helper.pluralize(numCerts, 'certification')}`)
         promises.push(models.Certification.batchPut(data))
@@ -243,41 +242,6 @@ function convertCertAttrDatesToTimestamps(certData) {
 }
 
 /**
- * Adds an ID attribute to all of the database copy of all of the 
- * lessons in all of the modules in all of the courses listed in the 
- * generated courses file. 
- * 
- * It preserves the existing course IDs in the database course data so 
- * as not to break the link to any existing certification progress 
- * records.
- * 
- * The database this targets is dependent on the DYNAMODB_URL env var!
- * 
- * @param {String} courseFile the path to the local generated courses file
- */
-async function updateCourseLessonIds(courseFile) {
-    console.log("Updating Course IDs from", courseFile);
-
-    // get the course data from the generated local file and 
-    // the DynamoDB
-    const courseData = require(courseFile)
-    const courses = await helper.scanAll('Course');
-
-    courseData.forEach(async course => {
-        const courseKey = course.key;
-        const dbCourse = courses.find(course => course.key == courseKey);
-        if (dbCourse) {
-            updateLessonIds(course, dbCourse);
-            await dbCourse.save();
-            console.log(`\nsaved dbCourse ${dbCourse.key}`);
-        } else {
-            console.error(`Could not find DB course with key ${courseKey} -- quitting`);
-            process.exit(1);
-        }
-    })
-}
-
-/**
  * Updates lesson IDs in a course in DynamoDB with the corresponding 
  * IDs in the JSON course data, which are taken from the freeCodeCamp
  * curriculum source data.
@@ -303,43 +267,6 @@ function updateLessonIds(course, dbCourse) {
             console.log(dbModule.lessons);
         } else {
             console.error(`could not find dbModule ${module.key} -- quitting`);
-            process.exit(1);
-        }
-    })
-}
-
-/**
- * Updates DynamoDB CertificationProgress completed lesson IDs with the corresponding
- * IDs stored in the Course table.
- */
-async function updateCertProgressLessonIds(dryRun = false) {
-    const msg = "Updating CertificationProgress lesson IDs in DynamoDB"
-    const dryRunMsg = dryRun ? " -- DRY RUN (no data updates will be made)" : ""
-
-    console.log(`\n${msg}${dryRunMsg}`)
-
-    const courses = await helper.scanAll('Course');
-    const progresses = await helper.scanAll('CertificationProgress');
-
-    console.log(`Found ${progresses.length} CertificationProgress records to check`);
-
-    progresses.forEach(async progress => {
-        console.log(`\nchecking progress for user ${progress.userId} certification ${progress.certification}`)
-        const course = courses.find(crs => crs.id === progress.courseId)
-        if (course) {
-            const didUpdate = updateProgressWithCourseLessonIds(progress, course);
-            if (didUpdate) {
-                if (!dryRun) {
-                    await progress.save();
-                    console.log(`...updated progress ${progress.id}`)
-                } else {
-                    console.log(`...DRY RUN -- would have updated ${progress.id}`)
-                }
-            } else {
-                console.log("...no updates needed")
-            }
-        } else {
-            console.error(`...could not find course matching ID ${progress.courseId} -- quitting`);
             process.exit(1);
         }
     })
@@ -387,32 +314,6 @@ function updateProgressWithCourseLessonIds(progress, course) {
 }
 
 /**
- * Updates DynamoDB CertificationProgress modules with explicit +isAssessment+ 
- * attribute from updated course data.
- */
-async function updateCertProgressAssessmentModules() {
-    console.log("\nUpdating CertificationProgress assessment modules in DynamoDB")
-
-    const courses = await helper.scanAll('Course');
-    const progresses = await helper.scanAll('CertificationProgress');
-
-    console.log(`Found ${progresses.length} CertificationProgress records to update`);
-
-    progresses.forEach(async progress => {
-        console.log(`\nupdating progress for user ${progress.userId} certification ${progress.certification}`)
-        const course = courses.find(crs => crs.id === progress.courseId)
-        if (course) {
-            updateProgressModulesWithAssessmentAttr(progress, course);
-            await progress.save();
-            console.log(`...updated progress ${progress.id}`)
-        } else {
-            console.error(`could not find course matching ID ${progress.courseId} -- quitting`);
-            process.exit(1);
-        }
-    })
-}
-
-/**
  * Updates course progress modules with an explicit +isAssessment+
  * attribute to simplify certification completion verification.
  * 
@@ -431,11 +332,6 @@ function updateProgressModulesWithAssessmentAttr(progress, course) {
         // Set the isAssessment attribute to match what's in the course data
         progressModule.isAssessment = courseModule.meta.isAssessment;
     })
-}
-
-async function runCourseCompletionReconciliationService() {
-    const { reconcileCourseCompletion } = reconciliationService;
-    await reconcileCourseCompletion();
 }
 
 // ----------------- start of CLI -----------------
@@ -479,17 +375,6 @@ if (args.length == 2 ||
 // Also allows just updating the Certification data if the 
 // -r flag is provided.
 //
-// Additional tools added:
-// =======================
-// - updateCourseLessonIds: update course lessons stored in DynamoDB 
-//   with the corresponding freeCodeCamp ID (designed to be used once, leaving in for posterity)
-//
-// - updateCertProgressLessonIds: update certification progress completed 
-//   lessons with IDs in the course lessons (designed to be used once, leaving in for posterity)
-//
-// - updateDBModuleAssessment: updates course modules to explicitly indicate 
-//   which modules are assessments (designed to be used once, leaving in for posterity)
-//
 if (provider) {
     const generator = getCourseGenerator(provider);
     const generatedCourseFilePath = generator.generateCourseData();
@@ -502,13 +387,5 @@ if (provider) {
     } else if (writeOnlyCertsToDB) {
         console.log("\nWriting only certification data to the database")
         writeCertificationsToDB(generator.certificationsFilePath)
-    } else if (updateDBLessonIds) {
-        updateCourseLessonIds(generatedCourseFilePath);
-    } else if (updateDBProgressIds) {
-        updateCertProgressLessonIds(dryRun)
-    } else if (updateDBModuleAssessments) {
-        updateCertProgressAssessmentModules()
-    } else if (reconcileCourseCompletion) {
-        runCourseCompletionReconciliationService()
     }
 }

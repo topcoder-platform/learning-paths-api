@@ -9,7 +9,7 @@ const {
   progressStatuses
 } = require('../../common/constants');
 const imageGenerator = require('../../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService');
-const { completeCertificationEmailNotification, getMemberDataM2M } = require('../../common/helper');
+const { completeCertificationEmailNotification } = require('../../common/emailHelper');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {

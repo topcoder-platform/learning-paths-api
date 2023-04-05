@@ -13,6 +13,7 @@ const {
     progressStatuses } = require('../common/constants');
 
 const helper = require('../common/helper');
+const { completeFccCourseEmailNotification, startFccCourseEmailNotification } = require('../common/emailHelper');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -286,7 +287,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
         const fccCertProgress = await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
 
         // notify the member via email
-        await helper.startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+        await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
 
         return fccCertProgress;
     }
@@ -567,7 +568,7 @@ async function completeCertification(
     }
 
     // notify the member via email
-    await helper.completeFccCourseEmailNotification(
+    await completeFccCourseEmailNotification(
         handle, email,
         {
             title: courseTitle,

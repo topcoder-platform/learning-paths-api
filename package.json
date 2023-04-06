@@ -19,7 +19,7 @@
     "cert-gen:validate": "d src/utils/certificate-sharing/generate-certificate-image && aws cloudformation validate-template --template-body file://certificate-image-generator-stack.yml"
   },
   "author": "Topcoder.com",
-  "license": "none",
+  "license": "UNLICENSED",
   "repository": "https://github.com/topcoder-platform/learning-paths-api",
   "devDependencies": {
     "@babel/core": "^7.18.5",
@@ -31,7 +31,6 @@
     "mocha-prepare": "^0.1.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
-    "prisma": "^4.5.0",
     "sequelize-cli": "^6.5.2"
   },
   "dependencies": {

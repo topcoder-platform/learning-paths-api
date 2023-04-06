@@ -9,7 +9,7 @@ const {
   progressStatuses
 } = require('../../common/constants');
 const imageGenerator = require('../../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService');
-const { sendEmail, getMemberDataM2M } = require('../../common/helper');
+const { completeCertificationEmailNotification } = require('../../common/emailHelper');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {
@@ -78,25 +78,7 @@ module.exports = (sequelize, DataTypes) => {
       console.log(`Certificate image generation in progress.`);
 
       // send congrats email to the member
-      try {
-        // we need member's email and first name
-        const memberData = await getMemberDataM2M(this.userHandle);
-        
-        console.log(`Sending TCA cert completion email to ${memberData.email}...`);
-        
-        // send the email
-        await sendEmail({
-          recipients: [memberData.email],
-          data: {
-            first_name: memberData.firstName,
-            cert_name: certification.title,
-            URL_to_tca_cert: `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certDashedName}`
-          },
-          sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_CERT_COMPLETE
-        });
-      } catch(e) {
-        console.error(`Sending congrats email for TCA cert completion of "${certification.title}" to ${memberData.email}<${this.userHandle}> failed.`, e);
-      }
+      await completeCertificationEmailNotification(this.userHandle, certification);
 
       return {
         certification: certDashedName,

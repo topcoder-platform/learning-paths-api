@@ -2,6 +2,11 @@
 
 'use strict';
 
+// TODO: this tool is currently deprecated as we are not updating 
+// the FreeCodeCamp course content currently.
+console.error("** This tool is deprecated pending the next FreeCodeCamp curriculum update **");
+return;
+
 /**
  * freeCodeCamp course metadata parser and course generator - generates a freecodecamp_courses.json  
  * file with all of the metadata needed to drive the Topcoder Academy API and wrapper around the 
@@ -13,105 +18,30 @@
  */
 
 const { Console } = require('console');
+const {
+    learnerLevels,
+    PROVIDER_FREECODECAMP
+} = require('../../common/constants');
 const fs = require('fs');
 const { get } = require('lodash')
 const logger = require('../../common/logger')
 const helper = require('../../common/helper');
-const db = require('../src/db/models');
-const path = require('path');
-const { v4: uuidv4, validate: uuidValidate } = require('uuid');
+const db = require('../../../src/db/models');
+const fccCourseSkills = require('../../../src/db/models/fcc_course_skills.json');
 
 const FreeCodeCampGenerator = require('./freeCodeCamp/parserGenerator');
 
-const PROVIDERS_FILE = 'providers.json';
-const STATUS_IN_PROGRESS = "in-progress";
+let certCategories, fccCerts;
 
 const args = process.argv
 
-function providersPath() {
-    return path.join(__dirname, PROVIDERS_FILE);
-}
-
-function loadProviders() {
-    let providers = JSON.parse(fs.readFileSync(providersPath()));
-    validateProviders(providers);
-
-    return providers;
-}
-
-function validateProviders(providers) {
-    const providerNames = providers.map(provider => provider.name);
-    const uniqueProviders = new Set(providerNames);
-    const filteredProviders = providerNames.filter(provider => {
-        if (uniqueProviders.has(provider)) {
-            uniqueProviders.delete(provider);
-        } else {
-            return provider;
-        }
-    });
-
-    const duplicateProviders = [...new Set(filteredProviders)]
-    if (duplicateProviders.length > 0) {
-        throw `Duplicate provider name(s) found: ${duplicateProviders.join(', ')}`;
-    }
-}
-
-function loadAndIdentifyProviders() {
-    let providers = loadProviders();
-
-    // bail if we have no providers (error handling TBD)
-    if (!providers || providers.length == 0) {
-        return [];
+async function getFccResourceProvider() {
+    const provider = await db.ResourceProvider.findOne({ where: { name: PROVIDER_FREECODECAMP } })
+    if (!provider) {
+        throw "Could not find FCC ResourceProvider"
     }
 
-    let dirty = false;
-
-    // check to be sure each provider has a UUID and
-    // set it if not.
-    providers.forEach(provider => {
-        if (!uuidValidate(provider.id)) {
-            provider.id = uuidv4();
-            dirty = true;
-        }
-    })
-
-    if (dirty) {
-        // if the providers were updated, write the data back to JSON
-        fs.writeFileSync(providersPath(), JSON.stringify(providers, null, 2));
-    }
-
-    return providers;
-}
-
-function loadDefaultProvider(providers) {
-    if (!providers || providers.length == 0) {
-        throw "Cannot load a default learning resource provider"
-    } else {
-        return providers[0]
-    }
-}
-
-function loadSelectedProvider(providers, givenProvider) {
-    if (!providers || providers.length == 0) {
-        throw `Cannot load given provider '${givenProvider}'`
-    } else {
-        const provider = providers.find(provider => provider.name == givenProvider);
-        if (provider) {
-            return provider
-        } else {
-            console.log(`Could not load provider '${givenProvider}'`)
-            showAvailableProviders(providers);
-            return null;
-        }
-    }
-}
-
-function showAvailableProviders(providers) {
-    console.log("\nAvailable learning resource providers:");
-    providers.forEach(provider => {
-        console.log(`  - ${provider.name}`)
-    })
-    console.log('\n')
+    return provider;
 }
 
 function getCourseGenerator(provider) {
@@ -131,26 +61,122 @@ function getCourseGenerator(provider) {
 
 async function writeCoursesToDB(courseFile) {
     console.log("\n** Writing course data to Postgres...");
-    const promises = []
+    fccCerts = await db.FreeCodeCampCertification.findAll();
+
+    let courses = [];
 
     try {
         const generatedCourses = require(courseFile)
         await synchronizeCourseIds(courseFile, generatedCourses);
         const numCourses = get(generatedCourses, 'length');
         logger.info(`Inserting ${helper.pluralize(numCourses, 'course')}`)
-        promises.push(models.Course.batchPut(generatedCourses))
+
+        for (let fccCourse of generatedCourses) {
+            console.log('** migrating course', fccCourse.key)
+            const course = buildCourseAttrs(fccCourse);
+            if (course) {
+                courses.push(course);
+            }
+        }
+        console.log(`** Bulk inserting ${courses.length} courses`)
+        newCourses = await createCourses(courses);
     } catch (e) {
         logger.warn(`An error occurred. No courses will be inserted.`)
         logger.logFullError(e)
     }
+}
 
-    Promise.all(promises)
-        .then(() => {
-            logger.info('All course data has been inserted. The processes is run asynchronously')
-        })
-        .catch((err) => {
-            logger.logFullError(err)
-        })
+async function createCourses(courses) {
+    const newCourses = await db.FccCourse.bulkCreate(courses, {
+        include: [{
+            model: db.FccModule,
+            as: 'modules',
+            include: [{
+                model: db.FccLesson,
+                as: 'lessons'
+            }]
+        }]
+    });
+
+    return newCourses;
+}
+
+function buildCourseAttrs(fccCourse) {
+    const cert = fccCerts.find(fccCert => fccCert.fccId == fccCourse.certificationId)
+    if (!cert) {
+        console.error(`Could not find certification with fccId ${fccCourse.certificationId} for course '${fccCourse.title}'`)
+        return undefined
+    }
+
+    const courseSkills = fccCourseSkills[fccCourse.key]
+    if (!courseSkills) {
+        console.error(`Could not find skills for course key '${fccCourse.key}'`)
+    }
+
+    const courseAttrs = {
+        fccCourseUuid: fccCourse.id,
+        providerId: fccResourceProvider.id,
+        key: fccCourse.key,
+        title: fccCourse.title,
+        certificationId: cert.id,
+        modules: buildModulesAttrs(fccCourse.modules),
+        estimatedCompletionTimeValue: fccCourse.estimatedCompletionTime.value,
+        estimatedCompletionTimeUnits: fccCourse.estimatedCompletionTime.units,
+        introCopy: fccCourse.introCopy,
+        note: fccCourse.note,
+        keyPoints: fccCourse.keyPoints,
+        completionSuggestions: fccCourse.completionSuggestions,
+        learnerLevel: learnerLevels.BEGINNER,
+        skills: courseSkills,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    }
+
+    return courseAttrs;
+}
+
+function buildModulesAttrs(tcaModules) {
+    let module;
+    let modules = [];
+
+    let order = 0;
+    for (const tcaModule of tcaModules) {
+        const meta = tcaModule.meta;
+
+        module = {
+            key: tcaModule.key,
+            name: meta.name,
+            dashedName: meta.dashedName,
+            estimatedCompletionTimeValue: meta.estimatedCompletionTime.value,
+            estimatedCompletionTimeUnits: meta.estimatedCompletionTime.units,
+            introCopy: meta.introCopy,
+            isAssessment: meta.isAssessment,
+            order: order++,
+            lessons: buildLessonsAttrs(tcaModule.lessons)
+        }
+        modules.push(module);
+    }
+
+    return modules;
+}
+
+function buildLessonsAttrs(tcaLessons) {
+    let lesson;
+    let lessons = [];
+    let order = 0;
+
+    for (const tcaLesson of tcaLessons) {
+        lesson = {
+            id: tcaLesson.id,
+            title: tcaLesson.title,
+            dashedName: tcaLesson.dashedName,
+            isAssessment: tcaLesson.isAssessment,
+            order: order++
+        };
+        lessons.push(lesson);
+    }
+
+    return lessons;
 }
 
 /**
@@ -186,26 +212,47 @@ async function synchronizeCourseIds(courseFile, generatedCourses) {
 
 async function writeCertificationsToDB(certificationsFile) {
     console.log("\n** Writing certification data to Postgres...");
-    const promises = []
+    const certifications = [];
 
     try {
-        let data = require(certificationsFile)
-        // convertCertAttrDatesToTimestamps(data)
+        let fccCerts = require(certificationsFile)
         const numCerts = get(data, 'length');
         logger.info(`Inserting ${helper.pluralize(numCerts, 'certification')}`)
-        promises.push(models.Certification.batchPut(data))
+
+        for (let cert of fccCerts) {
+            certifications.push(buildCertificationAttrs(cert))
+        }
+        console.log(`Bulk inserting ${certifications.length} certifications`)
+        await db.FreeCodeCampCertification.bulkCreate(certifications);
     } catch (e) {
         logger.warn(`An error occurred. No certifications will be inserted.`)
         logger.logFullError(e)
     }
+}
 
-    Promise.all(promises)
-        .then(() => {
-            logger.info('All certification data has been inserted. The processes is run asynchronously')
-        })
-        .catch((err) => {
-            logger.logFullError(err)
-        })
+function buildCertificationAttrs(fccCert) {
+    const certCategory = certCategories.find(certCat => certCat.category == fccCert.category)
+    if (!certCategory) {
+        throw `Could not find certification category ${fccCert.category} -- exiting`
+    }
+
+    const certAttrs = {
+        fccId: fccCert.id,
+        resourceProviderId: fccResourceProvider.id,
+        key: fccCert.key,
+        providerCertificationId: fccCert.providerCertificationId,
+        title: fccCert.title,
+        certification: fccCert.certification,
+        completionHours: fccCert.completionHours,
+        state: fccCert.state,
+        certificationCategoryId: certCategory.id,
+        certType: fccCert.certType,
+        publishedAt: fccCert.publishedAt,
+        createdAt: fccCert.createdAt,
+        updatedAt: fccCert.updatedAt
+    }
+
+    return certAttrs;
 }
 
 /**
@@ -272,96 +319,15 @@ function updateLessonIds(course, dbCourse) {
     })
 }
 
-/**
- * Updates course progress completed lesson IDs to their corresponding ID
- * in the course data.
- * 
- * @param {Object} progress A Dynamoose CertificationProgress object
- * @param {Object} course A Dynamoose Course object
- */
-function updateProgressWithCourseLessonIds(progress, course) {
-    let didUpdateLesson = false;
-
-    progress.modules.forEach(progressModule => {
-        const progressModuleName = progressModule.module;
-        const courseModule = course.modules.find(module => module.key === progressModuleName)
-        if (!courseModule) {
-            console.error(`could not find course module ${progressModuleName} -- quitting`);
-            process.exit(1);
-        }
-
-        if (progressModule.moduleStatus == STATUS_IN_PROGRESS) {
-            progressModule.completedLessons.forEach(completedLesson => {
-                const completedLessonName = completedLesson.dashedName;
-                const courseLesson = courseModule.lessons.find(lesson => lesson.dashedName === completedLessonName)
-
-                if (!courseLesson) {
-                    console.error(`could not find course lesson ${completedLessonName} -- quitting`);
-                    process.exit(1);
-                }
-
-                // Set the completed lesson ID in the certification progress 
-                // to match the course lesson ID
-                if (completedLesson.id != courseLesson.id) {
-                    completedLesson.id = courseLesson.id;
-                    didUpdateLesson = true;
-                }
-            })
-        }
-    })
-
-    return didUpdateLesson;
-}
-
-/**
- * Updates course progress modules with an explicit +isAssessment+
- * attribute to simplify certification completion verification.
- * 
- * @param {Object} progress A Dynamoose CertificationProgress object
- * @param {Object} course A Dynamoose Course object
- */
-function updateProgressModulesWithAssessmentAttr(progress, course) {
-    progress.modules.forEach(progressModule => {
-        const progressModuleName = progressModule.module;
-        const courseModule = course.modules.find(module => module.key === progressModuleName)
-        if (!courseModule) {
-            console.error(`could not find course module ${progressModuleName} -- quitting`);
-            process.exit(1);
-        }
-
-        // Set the isAssessment attribute to match what's in the course data
-        progressModule.isAssessment = courseModule.meta.isAssessment;
-    })
-}
-
 // ----------------- start of CLI -----------------
-
-// Start with the learning resource providers whose certifications 
-// and curriculum we want to make available.
-const providers = loadAndIdentifyProviders();
-
-let provider;
 
 // Parse CLI flags
 const writeToDB = (args.indexOf('-d') > -1 ? true : false);
 const writeOnlyCertsToDB = (args.indexOf('-r') > -1 ? true : false);
-const dryRun = (args.indexOf('-y') > -1 ? true : false);
 
-// Parse the CLI args for the provider name, if given
-if (args.length == 2 ||
-    (args.length == 3 &&
-        (writeToDB || writeOnlyCertsToDB) ||
-        (args.length == 4 && dryRun))) {
-    provider = loadDefaultProvider(providers);
-} else if ((args.length == 3 && !(writeToDB || writeOnlyCertsToDB)) || args.length == 4) {
-    const givenProvider = args[2]
-    provider = loadSelectedProvider(providers, givenProvider)
-} else {
-    console.log("Use the default provider or provide one provider name")
-    showAvailableProviders(providers);
-}
+const provider = getFccResourceProvider();
 
-// Generate the course data for the given provider and
+// Generate the course data for the provider and
 // write it to the database if the -d flag is provided.
 //
 // Also allows just updating the Certification data if the 

@@ -353,7 +353,7 @@ module.exports = (sequelize, DataTypes) => {
       const lesson = await this.freeCodeCampCertification.getLesson(moduleKey, lessonId);
       if (!lesson) {
         throw new errors.BadRequestError(
-          `No lesson '${moduleKey}/${lessonDashedName}' exists in certification '${this.certification}'`)
+          `No lesson id: ${lessonId} (${moduleKey}/${lessonDashedName}) found in FCC cert '${this.certification}' for user ${this.userId}`)
       }
 
       return lesson;

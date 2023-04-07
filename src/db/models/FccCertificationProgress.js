@@ -352,8 +352,16 @@ module.exports = (sequelize, DataTypes) => {
     async validateLesson(moduleKey, lessonDashedName, lessonId) {
       const lesson = await this.freeCodeCampCertification.getLesson(moduleKey, lessonId);
       if (!lesson) {
-        throw new errors.BadRequestError(
-          `No lesson '${moduleKey}/${lessonDashedName}' exists in certification '${this.certification}'`)
+        const data = {
+          userId: this.userId,
+          certification: this.certification,
+          moduleKey: moduleKey,
+          lessonDashedName: lessonDashedName,
+          lessonId: lessonId,
+        }
+        console.error('Error: validateLesson failed');
+        console.table(data);
+        throw new errors.BadRequestError('Lesson not found', data);
       }
 
       return lesson;

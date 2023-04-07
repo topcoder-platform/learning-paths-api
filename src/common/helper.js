@@ -385,26 +385,6 @@ async function postBusEvent(topic, payload) {
   })
 }
 
-/**
- * Send emails via TC-BUS and SendGrid
- * @param {object} payload the email payload to send
- */
-async function sendEmail(payload) {
-  const defaultPayload = {
-    from: {
-      email: 'noreply@topcoder.com',
-      name: 'Topcoder Academy'
-    },
-    cc: [],
-    version: 'v3'
-  }
-
-  return postBusEvent('external.action.email', {
-    ...defaultPayload,
-    ...payload
-  });
-}
-
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -423,7 +403,6 @@ module.exports = {
   parseQueryParam,
   pluralize,
   postBusEvent,
-  sendEmail,
   setResHeaders,
   setToInternalCache,
   toString,

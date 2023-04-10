@@ -18,6 +18,13 @@ const enrollmentStatuses = {
     disenrolled: STATUS_DISENROLLED
 }
 
+const learnerLevels = {
+    BEGINNER: 'Beginner',
+    INTERMEDIATE: 'Intermediate',
+    EXPERT: 'Expert',
+    ALL_LEVELS: 'All Levels'
+}
+
 const resourceProviders = {
     freeCodeCamp: PROVIDER_FREECODECAMP,
 }
@@ -32,6 +39,7 @@ const lessonCompletionStatuses = {
 
 module.exports = {
     enrollmentStatuses,
+    learnerLevels,
     lessonCompletionStatuses,
     progressStatuses,
     resourceProviders,

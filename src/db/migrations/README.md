@@ -41,29 +41,7 @@ npx sequelize-cli db:seed:all
 
 ## Load dev data
 
-The data required to run the application needs to be loaded from an existing copy of the freeCodeCamp data that exists in the development environment or in your local DynamoDB instance if you've loaded it with data. Two utilities, exposed as npm scripts, assist with this.
-
-### Migrate data from DynamoDB to Postgres
-
-To migrate data from DynamoDB into Postgres you have to supply the DYNAMODB_URL env var. 
-
-- For a local instance of DynamoDB: `export DYNAMODB_URL=http://localhost:8000`
-- For an AWS instance of DynamoDB: `export DYNAMODB_URL=https://dynamodb.us-east-1.amazonaws.com`
-
-When connecting to an AWS DynamoDB instance you will also need to supply your AWS credentials as env vars in the terminal from which you run the migration scripts. Copy them from the AWS account selection page and paste them into your terminal, for example:
-```
-export AWS_ACCESS_KEY_ID="ASIA3Z6ZVO4YGAEVZXXX"
-export AWS_SECRET_ACCESS_KEY="t/NVVXpPzJmc0KgxNgVbLIItsV/HnZJ8SEnAdxxxx"
-export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjECMaCXVzLWVhc3QtMSJIMEYCIQDgNIT71UtV9+XiLHIdPa9Hw4rM09aj+V9ugWPcH6eZ/gIhAOwq7Du2OlN9R2CaOpj8g+JEmytSThrROM63Js8Miq6PKqQDCKz//////////wEQABoMODExNjY4NDM2Nzg0IgyRGN7hPY8VZx9DWV4q+AKd7ebDDzO1ydpaeNe6PMrADhuaqYCrw7uzKDnxdIKJXh+ufSMppmV+Urso/uncRzrgZ3eRPEULyk6Aj0kl2VCi5248alMay1kpxr5k/INilfq7KbaWdO/JfclD1fJhdVmgV+7ki6QbznAWDCVEcSfg5dAikjnYflEtlxGiAyq2WsTI05z24MV6R8dRRWBsOkOMOulULDbe2LzcfvDggM+Yu+57+A2gIqQebk2lrLwoT671bszJ8HOVMwkHvvlcih788/2zjsX7yXmYpmrpdj2LCbi7zEE2Wv/tCHhbCkbhujbG62zUOHO7M8Ex5hTN9+w6kjSSaqSvEV0BD1+fiOkd5cwz9M5szskrJ7MIDQsQgqaUGvq3C7gB861JCS7IIbY7U9z8/7O7yFL4/QsxSDO7P5y7Ejnajw0+SDutx+8foolzBAsn3K9HRMZU4cqDTB0AguYggcdSLZOUTFr2L5IpZFmLH0g3t5bdeTMu58qJiF/sssss/abdMpAi1NH0OEe9VFqgyuwUUWrl0v6wdUhD3XMPwNEZXJQEQlBin4HKX1z+xI9ebL1ky2hj/A4eiL1XfTs7xIEFjCfSLWAaq3avRVG0uP0vsEIn6Gf6cMQVdVtL99rkeKS"
-```
-
-With that setup complete you can run the two scripts, in the order shown:
-```
-npm run migrate-tca-courses 
-npm run migrate-tca-progress
-```
-
-There will be a fair amount of output to the console as the SQL queries are executed. You may notice that after the first script seems to complete that it hangs (doesn't exit). I'm not sure what causes this, but once the output has stopped scrolling the script is complete, and you can just exit it via `Ctrl-C`.
+The data required to run the application needs to be loaded from an existing copy of the freeCodeCamp data that exists in the development environment.
 
 ## Using the data
 

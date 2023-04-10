@@ -106,8 +106,6 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   CertificationResource.addHook("afterFind", findResult => {
-    console.log('** in afterFind hook');
-
     if (!Array.isArray(findResult)) findResult = [findResult];
 
     for (const instance of findResult) {

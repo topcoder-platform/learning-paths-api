@@ -26,12 +26,6 @@ module.exports = {
       method: 'searchLearningResourceProviders'
     },
   },
-  '/learning-paths/providers/:providerId': {
-    get: {
-      controller: 'LearningResourceProviderController',
-      method: 'getLearningResourceProvider'
-    },
-  },
   '/learning-paths/certifications': {
     get: {
       controller: 'CertificationController',

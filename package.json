@@ -85,8 +85,5 @@
   },
   "volta": {
     "node": "16.15.0"
-  },
-  "prisma": {
-    "schema": "src/prisma/schema.prisma"
   }
 }

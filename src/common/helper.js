@@ -3,6 +3,7 @@
  */
 
 const _ = require('lodash')
+const AWS = require('aws-sdk');
 const axios = require('axios');
 const busApi = require('topcoder-bus-api-wrapper');
 const config = require('config')
@@ -15,6 +16,14 @@ const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
 const querystring = require('querystring')
 const util = require('util')
+
+// configure the AWS SDK for global use
+AWS.config.update({
+  s3: config.AMAZON.S3_API_VERSION,
+  accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
+  secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
+  region: config.AMAZON.AWS_REGION
+})
 
 // Bus API Client
 let busApiClient;

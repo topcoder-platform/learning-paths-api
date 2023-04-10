@@ -2,12 +2,10 @@
  * This service provides operations on Learning Path certifications.
  */
 
-const _ = require('lodash')
-const Joi = require('joi')
 const { Op } = require("sequelize");
 
 const db = require('../db/models');
-const helper = require('../common/helper')
+const dbHelper = require('../common/dbHelper')
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 

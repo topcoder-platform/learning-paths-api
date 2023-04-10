@@ -1,20 +1,13 @@
-const AWS = require('aws-sdk');
 const {
     DynamoDBClient,
     TransactWriteItemsCommand
 } = require("@aws-sdk/client-dynamodb");
+
 const config = require('config');
 const crypto = require('crypto');
 const errors = require('./errors');
 const models = require('../models');
 const xss = require('xss');
-
-AWS.config.update({
-    s3: config.AMAZON.S3_API_VERSION,
-    accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
-    secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
-    region: config.AMAZON.AWS_REGION
-})
 
 const ddbClient = new DynamoDBClient({
     region: config.AMAZON.AWS_REGION,

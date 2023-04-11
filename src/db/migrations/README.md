@@ -1,4 +1,4 @@
-# Initilizing the Topcoder Academy database
+# Initializing the Topcoder Academy database
 
 The Topcoder Academy PostgreSQL database must be initialized, migrated, seeded, and loaded with data to be used with the API. This document explains the steps that must be taken to properly setup the database.
 

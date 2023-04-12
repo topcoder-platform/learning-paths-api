@@ -4,17 +4,20 @@
 // OAuth 2.0 JWT Bearer Flow for Server-to-Server Integration
 // https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_jwt_flow.htm&type=5
 
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
 const axios = require('axios');
+const fs = require('fs');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 const url = require('url');
 
-const privateKey = fs.readFileSync('./privatekey.pem');
+const privateKey = fs.readFileSync(path.join(__dirname, 'privatekey.pem'));
+const expiry = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 const payload = {
     iss: process.env.JWT_ISS_TOKEN,
     sub: "vasavi.kuchimanchi@topcoder.com.opty",
     aud: "test.salesforce.com",
-    exp: new Date().getTime() + 2629800000 // 1 month exp time
+    exp: new Date().getTime() + expiry
 };
 const oauthTokenAPI = process.env.OAUTH_TOKEN_API || 'https://test.salesforce.com/services/oauth2/token';
 

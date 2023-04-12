@@ -13,6 +13,7 @@ const {
     progressStatuses } = require('../common/constants');
 
 const helper = require('../common/helper');
+const { completeFccCourseEmailNotification, startFccCourseEmailNotification } = require('../common/emailHelper');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -254,6 +255,7 @@ async function getCertificationProgress(userId, progressId) {
 async function startCertification(currentUser, userId, certificationId, courseId, query) {
     helper.ensureRequestForCurrentUser(currentUser, userId)
     const email = currentUser.email;
+    const handle = currentUser.handle;
 
     let existingProgress = await getExistingProgress(userId, certificationId);
 
@@ -282,7 +284,12 @@ async function startCertification(currentUser, userId, certificationId, courseId
         let options = query;
         options.status = progressStatuses.inProgress;
 
-        return await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
+        const fccCertProgress = await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
+
+        // notify the member via email
+        await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+
+        return fccCertProgress;
     }
 }
 
@@ -534,6 +541,9 @@ async function completeCertification(
     const userId = progress.userId;
     const providerName = progress.resourceProvider.name;
     const certification = progress.certification;
+    const email = currentUser.email;
+    const handle = currentUser.handle;
+    const courseTitle = progress.certificationTitle;
 
     const completedProgress = await progress.completeFccCertification();
 
@@ -556,6 +566,16 @@ async function completeCertification(
     } else {
         console.log(`Certificate Image for ${userId} for ${certification} NOT being generated b/c no cert URL was provided.`)
     }
+
+    // notify the member via email
+    await completeFccCourseEmailNotification(
+        handle, email,
+        {
+            title: courseTitle,
+            certification
+        },
+        providerName || 'freeCodeCamp'
+    );
 
     return completedProgress
 }

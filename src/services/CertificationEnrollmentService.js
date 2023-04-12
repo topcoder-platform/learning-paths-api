@@ -7,6 +7,7 @@ const certificationService = require('./TopcoderCertificationService');
 const {
     progressStatuses
 } = require('../common/constants');
+const { enrollCertificationEmailNotification } = require('../common/emailHelper');
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -154,6 +155,11 @@ async function createCertificationEnrollment(authUser, certificationId) {
                     as: 'resourceProgresses'
                 }]
             });
+
+        const certification = await certificationService.getCertification(certificationId);
+
+        // notify the member per email about sucessful enrollment
+        await enrollCertificationEmailNotification(email, userFullName, certification);
 
         // it's possible the user completed all of the requirements to earn the 
         // certification before enrolling, so check that now

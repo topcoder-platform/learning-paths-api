@@ -14,6 +14,10 @@
  * so it doesn't end up in source control.
  */
 
+// This tool has been deprecated and is no longer used. It is left here for reference.
+console.error("** This tool has been deprecated and is no longer used. **");
+return;
+
 const fs = require("fs");
 const csvParser = require("csv-parser");
 const { Op } = require("sequelize");

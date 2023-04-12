@@ -5,6 +5,10 @@
  * token necessary to connect to the member API in production.
  */
 
+// This tool has been deprecated and is no longer used. It is left here for reference.
+console.error("** This tool has been deprecated and is no longer used. **");
+return;
+
 const db = require('../../db/models')
 const helper = require('../../common/helper');
 const { Op } = require("sequelize");

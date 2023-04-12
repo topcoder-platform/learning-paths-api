@@ -92,3 +92,5 @@ m2m-token.txt
 
 # FCC user data
 *data.csv
+
+*.pem

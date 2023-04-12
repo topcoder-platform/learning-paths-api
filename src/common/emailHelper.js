@@ -6,6 +6,10 @@ const { getMemberDataM2M, postBusEvent } = require('./helper')
  * @param {object} payload the email payload to send
  */
 async function sendEmail(payload) {
+  if (!config.SEND_EMAIL_NOTIFICATIONS) {
+    return Promise.resolve();
+  }
+
   const defaultPayload = {
     from: {
       email: 'noreply@topcoder.com',

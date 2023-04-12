@@ -82,5 +82,5 @@ module.exports = {
   },
 
   // https://topcoder.atlassian.net/wiki/spaces/PROD/pages/3265462312/TCA+-+Email+Notifications
-  SEND_EMAIL_NOTIFICATIONS: process.env.SEND_EMAIL_NOTIFICATIONS
+  SEND_EMAIL_NOTIFICATIONS: process.env.SEND_EMAIL_NOTIFICATIONS === 'true'
 }

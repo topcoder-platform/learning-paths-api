@@ -1,4 +1,4 @@
-const dbHelper = require('../../../common/dbHelper')
+const db = require('../../../db/models')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
 const paramHelper = require('../env-param-helper')
 const queueHelper = require('../../../common/queue-helper')
@@ -64,7 +64,7 @@ function generateCertificateImage(
         .then(async (imageUrl) => {
             console.info('Successfully queued generation of', imageUrl)
             if (progress) {
-                const progressIns = await dbHelper.findOne('FccCertificationProgress', {
+                const progressIns = await db.FccCertificationProgress.findOne('FccCertificationProgress', {
                     where: {
                         id: progress.id
                     }

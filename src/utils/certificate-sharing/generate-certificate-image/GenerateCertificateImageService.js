@@ -64,16 +64,8 @@ function generateCertificateImage(
         .then(async (imageUrl) => {
             console.info('Successfully queued generation of', imageUrl)
             if (progress) {
-                const progressIns = await dbHelper.findOne('FccCertificationProgress', {
-                    where: {
-                        id: progress.id
-                    }
-                });
-
-                if (progressIns) {
-                    progressIns.certificationImageUrl = imageUrl;
-                    await progressIns.save();
-                }
+                progress.certificationImageUrl = imageUrl;
+                await progress.save();
 
                 console.info('Successfully set progress.certificationImageUrl to', imageUrl)
             }

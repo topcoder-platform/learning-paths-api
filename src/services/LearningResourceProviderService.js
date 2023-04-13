@@ -2,10 +2,8 @@
  * This service provides operations on Learning Path resource providers.
  */
 
-const _ = require('lodash')
-const Joi = require('joi')
+const db = require('../db/models');
 const dbHelper = require('../common/dbHelper')
-const helper = require('../common/helper')
 
 /**
  * Search Learning Resource Providers
@@ -25,7 +23,8 @@ async function searchLearningResourceProviders(criteria) {
         options.where = { name: criteria.name }
     }
 
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('ResourceProvider', page, perPage, options));
+    const model = db['ResourceProvider'];
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(model, page, perPage, options));
 
     return { total, page, perPage, result }
 }

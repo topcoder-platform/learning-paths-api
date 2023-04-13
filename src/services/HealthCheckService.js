@@ -1,11 +1,8 @@
 /**
  * This service provides access to the HealthCheck table
  */
-const config = require('config')
-const Joi = require('joi')
 
-const dbHelper = require('../common/dbHelper')
-const helper = require('../common/helper')
+const db = require('../db/models');
 
 /**
  * Get HealthCheck by ID.
@@ -14,19 +11,18 @@ const helper = require('../common/helper')
  * @returns {Object} the health check with given ID
  */
 async function getHealthCheck(id) {
-    let result;
-    if (dbHelper.featureFlagUsePostgres()) {
-        result = await dbHelper.dbHealthCheck()
-    } else {
-        const healthCheckId = config.HEALTH_CHECK_ID || 'health-check'
-        result = await helper.getById('TopcoderAcademyHealthCheck', healthCheckId)
-    }
+    const result = await healthCheck();
 
     return result
 }
 
-getHealthCheck.schema = {
-    id: Joi.id()
+async function healthCheck() {
+    const provider = await db.ResourceProvider.findOne()
+    if (!provider) {
+        throw "Postgres error: No ResourceProviders found";
+    }
+
+    return provider;
 }
 
 module.exports = {

@@ -1,13 +1,4 @@
 const db = require('../db/models');
-const helper = require('../common/helper');
-const { query } = require('express');
-
-async function dbHealthCheck() {
-    const provider = await db.ResourceProvider.findOne()
-    if (!provider) {
-        throw "Postgres error: No ResourceProviders found";
-    }
-}
 
 async function findAndCountAllPages(model, page, perPage, options = {}) {
     let params = {
@@ -30,7 +21,7 @@ async function findAndCountAllPages(model, page, perPage, options = {}) {
         params.attributes = options.attributes
     }
 
-    const { count, rows } = await db[model].findAndCountAll(params)
+    const { count, rows } = await model.findAndCountAll(params)
 
     return { count, rows }
 }
@@ -43,13 +34,7 @@ async function findOne(model, where, includeAssociations = null) {
     return db[model].findOne(query);
 }
 
-function featureFlagUsePostgres() {
-    return helper.featureFlagSet('TCA_DATASTORE', 'postgres')
-}
-
 module.exports = {
-    dbHealthCheck,
     findAndCountAllPages,
     findOne,
-    featureFlagUsePostgres
 }

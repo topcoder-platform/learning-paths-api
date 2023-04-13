@@ -2,7 +2,6 @@
  * This service provides operations on Learning Path courses.
  */
 
-const _ = require('lodash')
 const db = require('../db/models')
 const dbHelper = require('../common/dbHelper')
 
@@ -26,9 +25,10 @@ async function searchCourses(criteria) {
     options.include = courseIncludes(criteria)
     options.attributes = courseIncludeAttributes();
 
+    const model = db['FccCourse'];
     // transforming the returned data to not require a change in the front-end
     ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
-        'FccCourse',
+        model,
         page,
         perPage,
         options));

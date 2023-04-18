@@ -1,7 +1,5 @@
-const AWS = require('aws-sdk');
+const { SendMessageCommand, SQSClient } = require ("@aws-sdk/client-sqs");
 
-// create an SQS service object
-const sqs = new AWS.SQS()
 
 /**
  * Sends a message to a queue async
@@ -12,6 +10,9 @@ const sqs = new AWS.SQS()
  * @returns {Promise<void>}
  */
 async function sendMessageAsync(queueUrl, body, title, author) {
+
+    const REGION = config.AMAZON.AWS_REGION;
+    const sqsClient = new SQSClient({ region: REGION });
 
     const params = {
         DelaySeconds: 10,
@@ -29,8 +30,16 @@ async function sendMessageAsync(queueUrl, body, title, author) {
         QueueUrl: queueUrl,
     };
 
-    return sqs.sendMessage(params)
-        .promise()
+    //return sqs.sendMessage(params);
+    const run = async () => {
+        try {
+          const data = await sqsClient.send(new SendMessageCommand(params));
+          return data; // For unit tests.
+        } catch (err) {
+          console.log("Error sending message to sqs", err);
+        }
+      };
+      run();
 }
 
 module.exports = {

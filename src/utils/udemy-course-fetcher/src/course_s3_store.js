@@ -1,8 +1,14 @@
 // reads and writes Udemy course JSON files to/from AWS S3
 
-var AWS = require('aws-sdk');
+var AWS = 
+    ({
+        Upload
+    } = require("@aws-sdk/lib-storage")),
+    {
+        S3
+    } = require("@aws-sdk/client-s3");
 AWS.config.update({ region: 'us-east-1' });
-var s3 = new AWS.S3();
+var s3 = new S3();
 
 const UDEMY_COURSE_DATA_BUCKET = process.env.UDEMY_COURSE_DATA_BUCKET || 'tca-udemy-course-data'
 const COURSES_FILE = 'udemy-courses';
@@ -30,7 +36,10 @@ async function writeToS3(courseJson) {
     };
 
     try {
-        const data = await s3.upload(params).promise();
+        const data = await new Upload({
+            client: s3,
+            params
+        }).done();
         console.log(`Course file successfully uploaded to S3 ${data.Location}`);
 
         return filename;
@@ -52,7 +61,7 @@ async function readFromS3(filename) {
             Key: filename
         };
 
-        const response = await s3.getObject(params).promise();
+        const response = await s3.getObject(params);
         const courseJson = JSON.parse(response.Body.toString());
 
         return courseJson

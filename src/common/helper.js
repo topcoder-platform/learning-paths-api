@@ -14,7 +14,6 @@ const querystring = require('querystring')
 const models = require('../models')
 const errors = require('./errors')
 const util = require('util')
-const AWS = require('aws-sdk')
 const config = require('config')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
@@ -25,12 +24,6 @@ const { performance } = require('perf_hooks');
 const axios = require('axios');
 const busApi = require('topcoder-bus-api-wrapper');
 
-AWS.config.update({
-  s3: config.AMAZON.S3_API_VERSION,
-  accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
-  secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
-  region: config.AMAZON.AWS_REGION
-})
 
 // Bus API Client
 let busApiClient;

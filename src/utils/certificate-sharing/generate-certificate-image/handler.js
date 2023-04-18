@@ -1,5 +1,7 @@
 const chromium = require('@sparticuz/chrome-aws-lambda')
-const AWS = require('aws-sdk')
+const {
+    S3
+} = require("@aws-sdk/client-s3")
 
 exports.index = async (event) => {
 
@@ -100,7 +102,7 @@ async function putObjectToS3Async(bucket, key, image) {
         Body: image
     }
 
-    await new AWS.S3().putObject(params)
+    await new S3().putObject(params)
         .promise()
 }
 

@@ -1,4 +1,6 @@
-const AWS = require('aws-sdk')
+const {
+    S3
+} = require("@aws-sdk/client-s3")
 const urlExists = require('url-exists')
 
 const imageGenerator = require('../generate-certificate-image/GenerateCertificateImageService')
@@ -33,7 +35,7 @@ const {
  */
 async function deleteAltImagesAsync(completedCerts) {
 
-    const s3 = await new AWS.S3()
+    const s3 = await new S3()
     const params = {
         Bucket: bucket,
     }

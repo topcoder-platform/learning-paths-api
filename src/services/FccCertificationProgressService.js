@@ -13,7 +13,8 @@ const {
     progressStatuses } = require('../common/constants');
 
 const helper = require('../common/helper');
-const { completeFccCourseEmailNotification, startFccCourseEmailNotification } = require('../common/emailHelper');
+const { completeFccCourseEmailNotification, startFccCourseEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
+const { isTCAFirstTimer } = require('./CertificationEnrollmentService');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -284,10 +285,17 @@ async function startCertification(currentUser, userId, certificationId, courseId
         let options = query;
         options.status = progressStatuses.inProgress;
 
+        // check before creating the progress so it is accurate
+        const isNewTCALearner = await isTCAFirstTimer(userId);
+
         const fccCertProgress = await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
 
         // notify the member via email
-        await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+        if (isNewTCALearner) {
+            await firstTimerEmailNotification(email, handle);
+        } else {
+            await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+        }
 
         return fccCertProgress;
     }

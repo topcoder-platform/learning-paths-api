@@ -202,7 +202,7 @@ async function firstTimerEmailNotification(email, handle) {
 
     console.log(`TCA welcome email sent to ${email}.`);
   } catch (e) {
-    console.error(`Sending welcome email to ${email}<${handle}> failed.`, e);
+    console.error(`Sending welcome email to ${email} <${handle}> failed.`, e);
   }
 }
 

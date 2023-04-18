@@ -286,12 +286,12 @@ async function startCertification(currentUser, userId, certificationId, courseId
         options.status = progressStatuses.inProgress;
 
         // check before creating the progress so it is accurate
-        const isTCANewbie = await isTCAFirstTimer(userId);
+        const isNewTCALearner = await isTCAFirstTimer(userId);
 
         const fccCertProgress = await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
 
         // notify the member via email
-        if (isTCANewbie) {
+        if (isNewTCALearner) {
             await firstTimerEmailNotification(email, handle);
         } else {
             await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');

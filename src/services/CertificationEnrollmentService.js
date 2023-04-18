@@ -159,9 +159,9 @@ async function createCertificationEnrollment(authUser, certificationId) {
         const certification = await certificationService.getCertification(certificationId);
 
         // notify the member per email about sucessful enrollment
-        const isTCANewbie = await isTCAFirstTimer(userId);
+        const isNewTCALearner = await isTCAFirstTimer(userId);
 
-        if (isTCANewbie) {
+        if (isNewTCALearner) {
             await firstTimerEmailNotification(email, userHandle);
         } else {
             await enrollCertificationEmailNotification(email, userFullName, certification);
@@ -179,7 +179,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
 }
 
 /**
- * Helper checker if member has already progress
+ * Helper checker if member already has progress
  * in TCA certification or course
  * 
  * @param {string} userId The user id to check

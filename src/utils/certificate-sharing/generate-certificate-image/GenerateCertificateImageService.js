@@ -1,4 +1,4 @@
-const helper = require('../../../common/helper')
+const dbHelper = require('../../../common/dbHelper')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
 const paramHelper = require('../env-param-helper')
 const queueHelper = require('../../../common/queue-helper')
@@ -64,9 +64,9 @@ function generateCertificateImage(
         .then(async (imageUrl) => {
             console.info('Successfully queued generation of', imageUrl)
             if (progress) {
-                await helper.update(progress, {
-                    certificationImageUrl: imageUrl
-                })
+                progress.certificationImageUrl = imageUrl;
+                await progress.save();
+
                 console.info('Successfully set progress.certificationImageUrl to', imageUrl)
             }
         })

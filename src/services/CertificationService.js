@@ -70,7 +70,12 @@ async function searchPGCertifications(criteria) {
         ]
     };
 
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages('FreeCodeCampCertification', page, perPage, options));
+    const model = db['FreeCodeCampCertification'];
+    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+        model,
+        page,
+        perPage,
+        options));
 
     return { total, result }
 }

@@ -1,7 +1,7 @@
 const helper = require('../../../common/helper')
 const imageHelper = require('../certificate-ssr/cert-image-url-helper')
 const paramHelper = require('../env-param-helper')
-const queueHelper = require('../../../common/queue-helper').default
+const queueHelper = require('../../../common/queue-helper')
 
 // Initialize the environment params on startup
 const {

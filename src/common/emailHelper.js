@@ -6,10 +6,6 @@ const { getMemberDataM2M, postBusEvent } = require('./helper')
  * @param {object} payload the email payload to send
  */
 async function sendEmail(payload) {
-  if (!config.SEND_EMAIL_NOTIFICATIONS) {
-    return Promise.resolve();
-  }
-
   const defaultPayload = {
     from: {
       email: 'noreply@topcoder.com',
@@ -35,6 +31,10 @@ async function sendEmail(payload) {
  */
 async function startFccCourseEmailNotification(handle, email, fccCertification, providerName) {
   try {
+    if (!config.SEND_EMAIL_NOTIFICATIONS) {
+      return Promise.resolve();
+    }
+
     // try to get user's first via the API using an m2m token.
     // if we can't, just use the user's handle.
     let userFirstName = handle;
@@ -74,6 +74,10 @@ async function startFccCourseEmailNotification(handle, email, fccCertification, 
  */
 async function completeFccCourseEmailNotification(handle, email, fccCertification, providerName) {
   try {
+    if (!config.SEND_EMAIL_NOTIFICATIONS) {
+      return Promise.resolve();
+    }
+
     // try to get user's first via the API using an m2m token.
     // if we can't, just use the user's handle.
     let userFirstName = handle;
@@ -112,6 +116,10 @@ async function completeFccCourseEmailNotification(handle, email, fccCertificatio
  */
 async function enrollCertificationEmailNotification(email, userFullName, certification) {
   try {
+    if (!config.SEND_EMAIL_NOTIFICATIONS) {
+      return Promise.resolve();
+    }
+
     console.log(`Sending TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email}...`);
 
     // send the email
@@ -139,6 +147,10 @@ async function enrollCertificationEmailNotification(email, userFullName, certifi
  */
 async function completeCertificationEmailNotification(handle, certification) {
   try {
+    if (!config.SEND_EMAIL_NOTIFICATIONS) {
+      return Promise.resolve();
+    }
+
     // we need member's email and first name
     const memberData = await getMemberDataM2M(handle);
 

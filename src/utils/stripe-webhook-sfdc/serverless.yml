@@ -1,0 +1,26 @@
+service: stripe-webhook-sfdc
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: ${opt:stage,'dev'}
+  runtime: nodejs18.x
+
+functions:
+  webhookHandler:
+    handler: webhook.handler
+    events:
+      - httpApi:
+          path: /stripe_webhook
+          method: post
+  sfdcHandler:
+    handler: sfdc.handler
+    events:
+      - eventBridge:
+          pattern: 
+            source: 
+              - stripe-webhook-lambda
+            detail-type: 
+              - stripe-webhook-detail-type
+

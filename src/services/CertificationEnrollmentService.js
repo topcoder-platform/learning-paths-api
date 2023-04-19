@@ -7,7 +7,7 @@ const certificationService = require('./TopcoderCertificationService');
 const {
     progressStatuses
 } = require('../common/constants');
-const { enrollCertificationEmailNotification } = require('../common/emailHelper');
+const { enrollCertificationEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -159,7 +159,13 @@ async function createCertificationEnrollment(authUser, certificationId) {
         const certification = await certificationService.getCertification(certificationId);
 
         // notify the member per email about sucessful enrollment
-        await enrollCertificationEmailNotification(email, userFullName, certification);
+        const isNewTCALearner = await isTCAFirstTimer(userId);
+
+        if (isNewTCALearner) {
+            await firstTimerEmailNotification(email, userHandle);
+        } else {
+            await enrollCertificationEmailNotification(email, userFullName, certification);
+        }
 
         // it's possible the user completed all of the requirements to earn the 
         // certification before enrolling, so check that now
@@ -170,6 +176,29 @@ async function createCertificationEnrollment(authUser, certificationId) {
     } catch (error) {
         throw errors.BadRequestError('Error enrolling user in certification', error);
     }
+}
+
+/**
+ * Helper checker if member already has progress
+ * in TCA certification or course
+ * 
+ * @param {string} userId The user id to check
+ * @returns boolean
+ */
+async function isTCAFirstTimer(userId) {
+    const enrollmentsCount = await db.CertificationEnrollment.count({
+        where: {
+            userId
+        }
+    });
+
+    const coursesCount = await db.FccCertificationProgress.count({
+        where: {
+            userId
+        }
+    });
+
+    return !enrollmentsCount && !coursesCount;
 }
 
 /**
@@ -404,5 +433,6 @@ module.exports = {
     getEnrollmentProgress,
     getEnrollments,
     getUserEnrollmentProgresses,
+    isTCAFirstTimer,
     unEnrollUser
 }

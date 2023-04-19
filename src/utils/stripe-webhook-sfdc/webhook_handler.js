@@ -1,3 +1,8 @@
+const {
+  EventBridgeClient,
+  PutEventsCommand
+} = require("@aws-sdk/client-eventbridge");
+
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecretKey);
 
@@ -16,7 +21,7 @@ async function handle(event) {
     }
 
     stripeEvent = verifySignature(event);
-    handleEvent(stripeEvent);
+    await handleEvent(stripeEvent);
 
   } catch (error) {
     console.log(`⚠️  Webhook signature verification failed.`, error.message);
@@ -32,18 +37,20 @@ async function handle(event) {
   return response;
 };
 
-function handleEvent(stripeEvent) {
+async function handleEvent(stripeEvent) {
   switch (stripeEvent.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = stripeEvent.data.object;
       // console.dir(paymentIntent);
-      console.log(`PaymentIntent ${paymentIntent.id} for $${paymentIntent.amount / 100} was successful!`);
+      console.log(`PaymentIntent ${paymentIntent.id} for $${paymentIntent.amount / 100} was successful`);
+      sendToEventBridge(stripeEvent);
 
       break;
     case 'charge.refunded':
       const refundedCharge = stripeEvent.data.object;
       // console.dir(refundedCharge);
-      console.log(`Charge ${refundedCharge.id} for $${refundedCharge.amount / 100} was refunded!`);
+      console.log(`Charge ${refundedCharge.id} for $${refundedCharge.amount / 100} was refunded`);
+      sendToEventBridge(stripeEvent);
 
       break;
     default:
@@ -67,6 +74,29 @@ function verifySignature(event) {
   );
 
   return stripeEvent;
+}
+
+async function sendToEventBridge(event) {
+  const client = new EventBridgeClient({ region: 'us-east-1' });
+
+  const params = {
+    Entries: [
+      {
+        Source: 'stripe-webhook-lambda',   // the source must match the event source in the rule in EventBridge
+        Detail: JSON.stringify(event),
+        DetailType: 'stripe-webhook-detail-type',
+        EventBusName: 'default',
+        Time: new Date(),
+      },
+    ],
+  };
+
+  try {
+    const data = await client.send(new PutEventsCommand(params));
+    console.log(data);
+  } catch (err) {
+    console.log("Error", err);
+  }
 }
 
 module.exports = {

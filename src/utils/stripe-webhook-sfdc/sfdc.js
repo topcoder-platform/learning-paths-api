@@ -1,4 +1,6 @@
 module.exports.handler = async (event) => {
+  console.log('SFDC handler', event);
+
   return {
     statusCode: 200,
     body: JSON.stringify(

@@ -10,6 +10,7 @@
   "author": "chris.mccann@topcoder.com",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.316.0",
     "stripe": "^12.1.1"
   }
 }

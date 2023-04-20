@@ -4,21 +4,17 @@
 
 const _ = require('lodash')
 const querystring = require('querystring')
-const models = require('../models')
 const errors = require('./errors')
 const util = require('util')
 const axios = require('axios');
 const busApi = require('topcoder-bus-api-wrapper');
 const config = require('config')
 const constants = require('../../app-constants')
-const errors = require('./errors')
 const Joi = require('joi')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
-const querystring = require('querystring')
-const util = require('util')
 
 // configure the AWS SDK for global use << keeping till we figure out if we need this
 // AWS.config.update({

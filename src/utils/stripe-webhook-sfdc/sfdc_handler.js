@@ -1,4 +1,4 @@
-module.exports.handler = async (event) => {
+module.exports.handle = async (event) => {
   console.log('SFDC handler', event);
 
   return {

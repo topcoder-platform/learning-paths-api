@@ -9,13 +9,16 @@ provider:
 
 functions:
   webhookHandler:
-    handler: webhook.handler
+    handler: webhook_handler.handle
+    memorySize: 128
     events:
       - httpApi:
           path: /stripe_webhook
           method: post
+  
   sfdcHandler:
-    handler: sfdc.handler
+    handler: sfdc_handler.handle
+    memorySize: 128
     events:
       - eventBridge:
           pattern: 

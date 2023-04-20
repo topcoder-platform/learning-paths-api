@@ -3,10 +3,12 @@ const {
   PutEventsCommand
 } = require("@aws-sdk/client-eventbridge");
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const stripe = require('stripe')(stripeSecretKey);
+const {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
 
-const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+const STRIPE_SECRETS_NAME = process.env.STRIPE_SECRETS_NAME;
 
 async function handle(event) {
   const { headers, body } = event;
@@ -20,7 +22,7 @@ async function handle(event) {
       throw new Error('Missing headers or body in request');
     }
 
-    stripeEvent = verifySignature(event);
+    stripeEvent = await verifySignature(event);
     await handleEvent(stripeEvent);
 
   } catch (error) {
@@ -59,8 +61,15 @@ async function handleEvent(stripeEvent) {
   }
 }
 
-function verifySignature(event) {
+async function verifySignature(event) {
   let stripeEvent = event.body;
+
+  const stripeSecrets = await getStripeSecrets();
+
+  const endpointSecret = stripeSecrets['ENDPOINT_SECRET'];
+  const stripeSecretKey = stripeSecrets['STRIPE_SECRET_KEY'];
+
+  const stripe = require('stripe')(stripeSecretKey);
 
   const signature = event.headers['stripe-signature'];
   if (!signature) {
@@ -74,6 +83,29 @@ function verifySignature(event) {
   );
 
   return stripeEvent;
+}
+
+async function getStripeSecrets() {
+  const client = new SecretsManagerClient({
+    region: "us-east-1",
+  });
+
+  let response, secrets;
+
+  try {
+    response = await client.send(
+      new GetSecretValueCommand({
+        SecretId: STRIPE_SECRETS_NAME,
+        VersionStage: "AWSCURRENT",
+      })
+    );
+
+    secrets = JSON.parse(response.SecretString);
+  } catch (error) {
+    throw error;
+  }
+
+  return secrets;
 }
 
 async function sendToEventBridge(event) {

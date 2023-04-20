@@ -6,6 +6,17 @@ provider:
   region: us-east-1
   stage: ${opt:stage,'dev'}
   runtime: nodejs18.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 'secretsmanager:GetSecretValue'
+          Resource:
+            - 'arn:aws:secretsmanager:us-east-1:*:secret:${self:custom.stripeSecretsName}-*'
+
+custom:
+  stripeSecretsName: ${self:provider.stage}/tca-stripe-secrets
 
 functions:
   webhookHandler:
@@ -15,6 +26,8 @@ functions:
       - httpApi:
           path: /stripe_webhook
           method: post
+    environment:
+      STRIPE_SECRETS_NAME: ${self:custom.stripeSecretsName}
   
   sfdcHandler:
     handler: sfdc_handler.handle

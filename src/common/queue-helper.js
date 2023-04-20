@@ -1,5 +1,5 @@
-const { SendMessageCommand, SQSClient } = require ("@aws-sdk/client-sqs");
-
+const config = require('config');
+const { SendMessageCommand, SQSClient } = require("@aws-sdk/client-sqs");
 
 /**
  * Sends a message to a queue async
@@ -33,13 +33,13 @@ async function sendMessageAsync(queueUrl, body, title, author) {
     //return sqs.sendMessage(params);
     const run = async () => {
         try {
-          const data = await sqsClient.send(new SendMessageCommand(params));
-          return data; // For unit tests.
+            const data = await sqsClient.send(new SendMessageCommand(params));
+            return data; // For unit tests.
         } catch (err) {
-          console.log("Error sending message to sqs", err);
+            console.log("Error sending message to sqs", err);
         }
-      };
-      run();
+    };
+    run();
 }
 
 module.exports = {

@@ -270,6 +270,9 @@ async function startCertification(currentUser, userId, certificationId, courseId
         if (existingProgress.isNotStarted()) {
             existingProgress = await existingProgress.start(query)
             console.log(`User ${userId} starting the ${provider} ${certification} certification now!`)
+
+            // notify the member via email
+            await startFccCourseEmailNotification(handle, email, existingProgress.certification, existingProgress.resourceProvider?.name || 'freeCodeCamp');
         } else {
             const startDate = existingProgress.startDate;
             console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
@@ -543,6 +546,11 @@ async function completeCertification(
     certificateAlternateParams,
 ) {
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
+
+    if (progress.isCompleted()) {
+        // avoid doing anything as course is already completed
+        return progress;
+    }
 
     await checkCertificateCompletion(progress)
 

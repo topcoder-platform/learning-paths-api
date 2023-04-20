@@ -66,6 +66,8 @@ async function verifySignature(event) {
 
   const stripeSecrets = await getStripeSecrets();
 
+  // NOTE: the endpoint secret used in local Stripe CLI testing
+  // is different than the one used in AWS dev and prod.
   const endpointSecret = stripeSecrets['ENDPOINT_SECRET'];
   const stripeSecretKey = stripeSecrets['STRIPE_SECRET_KEY'];
 

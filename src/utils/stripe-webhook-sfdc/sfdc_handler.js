@@ -1,4 +1,4 @@
-module.exports.handle = async (event) => {
+async function handle(event) {
   console.log('SFDC handler', event);
 
   return {
@@ -13,3 +13,7 @@ module.exports.handle = async (event) => {
     ),
   };
 };
+
+module.exports = {
+  handle,
+}

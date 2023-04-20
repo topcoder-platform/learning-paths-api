@@ -14,9 +14,27 @@ provider:
             - 'secretsmanager:GetSecretValue'
           Resource:
             - 'arn:aws:secretsmanager:us-east-1:*:secret:${self:custom.stripeSecretsName}-*'
+            - 'arn:aws:secretsmanager:us-east-1:*:secret:${self:custom.jwtPrivateKeySecretName}-*'
 
 custom:
   stripeSecretsName: ${self:provider.stage}/tca-stripe-secrets
+  jwtPrivateKeySecretName: ${self:provider.stage}/tca-sfdc-jwt-private-key
+  jwt:
+    dev:
+      tokenIssuer: '3MVG9sLbBxQYwWqs8Q.metI_AkUVRzTe7KBAKzuxlue0g2_GCBwLEc5NE49ixlS4haZwp.A8LoL9wyWgGjcvb'
+      tokenSubject: 'vasavi.kuchimanchi@topcoder.com.opty'
+      tokenAudience: 'test.salesforce.com'
+    prod:
+      tokenIssuer: 'tbd'
+      tokenSubject: 'tbd'
+      tokenAudience: 'tbd'
+  sfdc:
+    dev:
+      oAuthUrl: 'https://test.salesforce.com/services/oauth2/token'
+      tokenExpiry: 30
+    prod:
+      oAuthUrl: 'tbd'
+      tokenExpiry: 30
 
 functions:
   webhookHandler:
@@ -39,4 +57,26 @@ functions:
               - stripe-webhook-lambda
             detail-type: 
               - stripe-webhook-detail-type
-
+  
+  sfdcTokenRefresher:
+    handler: sfdc_token_refresher.handle
+    memorySize: 256
+    events:
+      - eventBridge:
+          pattern: 
+            source:
+              - aws.ssm
+            detail-type: 
+              - 'Parameter Store Policy Action'
+            detail:
+              - parameter-name:
+                - tca-sfdc-access-token
+              - policy-type:
+                - Expiration
+                - ExpirationNotification
+    environment:
+      JWT_TOKEN_ISSUER: ${self:custom.jwt.${self:provider.stage}.tokenIssuer}
+      JWT_TOKEN_SUBJECT: ${self:custom.jwt.${self:provider.stage}.tokenSubject}
+      JWT_TOKEN_AUDIENCE: ${self:custom.jwt.${self:provider.stage}.tokenAudience}
+      OAUTH_TOKEN_URL: ${self:custom.sfdc.${self:provider.stage}.oAuthUrl}
+      SFDC_TOKEN_EXPIRY: ${self:custom.sfdc.${self:provider.stage}.tokenExpiry}

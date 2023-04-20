@@ -75,6 +75,7 @@ functions:
                 - Expiration
                 - ExpirationNotification
     environment:
+      JWT_PRIVATE_KEY_SECRET_NAME: ${self:custom.jwtPrivateKeySecretName}
       JWT_TOKEN_ISSUER: ${self:custom.jwt.${self:provider.stage}.tokenIssuer}
       JWT_TOKEN_SUBJECT: ${self:custom.jwt.${self:provider.stage}.tokenSubject}
       JWT_TOKEN_AUDIENCE: ${self:custom.jwt.${self:provider.stage}.tokenAudience}

@@ -8,6 +8,7 @@ const {
     progressStatuses
 } = require('../common/constants');
 const { enrollCertificationEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
+const { Op } = require("sequelize");
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -127,9 +128,11 @@ async function createCertificationEnrollment(authUser, certificationId) {
     // try to get user's first and last name via the API using an m2m token.
     // if we can't, just use the user's handle.
     let userFullName = userHandle;
+    let userFirstName = userHandle;
     try {
         const memberData = await helper.getMemberDataM2M(userHandle);
-        userFullName = `${memberData.firstName} ${memberData.lastName}`
+        userFullName = `${memberData.firstName} ${memberData.lastName}`;
+        userFirstName = memberData.firstName;
     } catch (error) {
         console.error('Error getting user name via m2m token, using handle', error);
     }
@@ -148,6 +151,10 @@ async function createCertificationEnrollment(authUser, certificationId) {
             resourceProgresses: resourceProgresses,
         }
 
+        // check if user is new learner before we create the enrollment
+        // used to decide what type of email notification to send out.
+        const isNewTCALearner = await isTCAFirstTimer(userId);
+
         const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs,
             {
                 include: [{
@@ -159,12 +166,10 @@ async function createCertificationEnrollment(authUser, certificationId) {
         const certification = await certificationService.getCertification(certificationId);
 
         // notify the member per email about sucessful enrollment
-        const isNewTCALearner = await isTCAFirstTimer(userId);
-
         if (isNewTCALearner) {
             await firstTimerEmailNotification(email, userHandle);
         } else {
-            await enrollCertificationEmailNotification(email, userFullName, certification);
+            await enrollCertificationEmailNotification(email, userFirstName, certification);
         }
 
         // it's possible the user completed all of the requirements to earn the 
@@ -194,7 +199,12 @@ async function isTCAFirstTimer(userId) {
 
     const coursesCount = await db.FccCertificationProgress.count({
         where: {
-            userId
+            userId,
+            status: {
+                [Op.in]: [
+                    progressStatuses.inProgress, progressStatuses.completed
+                ]
+            }
         }
     });
 

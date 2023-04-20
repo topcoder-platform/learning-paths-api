@@ -110,10 +110,10 @@ async function completeFccCourseEmailNotification(handle, email, fccCertificatio
  * Send email notification when member enroll into TCA cert
  * 
  * @param {string} email 
- * @param {string} userFullName 
+ * @param {string} userFirstName 
  * @param {object} certification 
  */
-async function enrollCertificationEmailNotification(email, userFullName, certification) {
+async function enrollCertificationEmailNotification(email, userFirstName, certification) {
   try {
     if (!config.SEND_EMAIL_NOTIFICATIONS) {
       return Promise.resolve();
@@ -125,7 +125,7 @@ async function enrollCertificationEmailNotification(email, userFullName, certifi
     await sendEmail({
       recipients: [email],
       data: {
-        first_name: userFullName,
+        first_name: userFirstName,
         URL_to_tca_cert: `${config.TCA_WEBSITE_URL}/learn/tca-certifications/${certification.dashedName}`
       },
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_CERT_ENROLLMENT
@@ -133,7 +133,7 @@ async function enrollCertificationEmailNotification(email, userFullName, certifi
 
     console.log(`TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email} sent.`);
   } catch (e) {
-    console.error(`Sending enrollment congrats email for TCA cert "${certification.title}" to ${email}<${userFullName}> failed.`, e);
+    console.error(`Sending enrollment congrats email for TCA cert "${certification.title}" to ${email}<${userFirstName}> failed.`, e);
   }
 }
 

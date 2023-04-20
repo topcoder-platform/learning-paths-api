@@ -69,9 +69,9 @@ functions:
             detail-type: 
               - 'Parameter Store Policy Action'
             detail:
-              - parameter-name:
+              parameter-name:
                 - tca-sfdc-access-token
-              - policy-type:
+              policy-type:
                 - Expiration
                 - ExpirationNotification
     environment:

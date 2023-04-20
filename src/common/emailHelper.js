@@ -48,7 +48,7 @@ async function startFccCourseEmailNotification(handle, email, fccCertification, 
     console.log(`Sending TCA course welcome email to ${email}...`);
 
     // send the email
-    const busRsp = await sendEmail({
+    await sendEmail({
       recipients: [email],
       data: {
         first_name: userFirstName,
@@ -57,7 +57,7 @@ async function startFccCourseEmailNotification(handle, email, fccCertification, 
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_START
     });
 
-    console.log(`Sending TCA course welcome email to ${email} success.`, busRsp);
+    console.log(`Sending TCA course welcome email to ${email} success.`);
   } catch (e) {
     console.error(`Sending TCA course welcome email for "${fccCertification.title}" to ${email}<${handle}> failed.`, e);
   }
@@ -90,7 +90,7 @@ async function completeFccCourseEmailNotification(handle, email, fccCertificatio
     console.log(`Sending TCA course completed email to ${email}...`);
 
     // send the email
-    const busRsp = await sendEmail({
+    await sendEmail({
       recipients: [email],
       data: {
         first_name: userFirstName,
@@ -100,7 +100,7 @@ async function completeFccCourseEmailNotification(handle, email, fccCertificatio
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_COMPLETE
     });
 
-    console.log(`Sending TCA course complete email to ${email} success.`, busRsp);
+    console.log(`Sending TCA course complete email to ${email} success.`);
   } catch (e) {
     console.error(`Sending TCA course complete email for "${fccCertification.title}" to ${email}<${handle}> failed.`, e);
   }
@@ -122,7 +122,7 @@ async function enrollCertificationEmailNotification(email, userFullName, certifi
     console.log(`Sending TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email}...`);
 
     // send the email
-    const busRsp = await sendEmail({
+    await sendEmail({
       recipients: [email],
       data: {
         first_name: userFullName,
@@ -131,7 +131,7 @@ async function enrollCertificationEmailNotification(email, userFullName, certifi
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_CERT_ENROLLMENT
     });
 
-    console.log(`TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email} sent.`, busRsp);
+    console.log(`TCA cert enrollment congrats email for TCA cert "${certification.title}" to ${email} sent.`);
   } catch (e) {
     console.error(`Sending enrollment congrats email for TCA cert "${certification.title}" to ${email}<${userFullName}> failed.`, e);
   }
@@ -155,7 +155,7 @@ async function completeCertificationEmailNotification(handle, certification) {
     console.log(`Sending TCA cert completion email to ${memberData.email}...`);
 
     // send the email
-    const busRsp = await sendEmail({
+    await sendEmail({
       recipients: [memberData.email],
       data: {
         first_name: memberData.firstName,
@@ -165,7 +165,7 @@ async function completeCertificationEmailNotification(handle, certification) {
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_CERT_COMPLETE
     });
 
-    console.log(`TCA cert completion email sent to ${memberData.email}.`, busRsp);
+    console.log(`TCA cert completion email sent to ${memberData.email}.`);
   } catch (e) {
     console.error(`Sending congrats email for TCA cert completion of "${certification.title}" to ${memberData.email}<${handle}> failed.`, e);
   }
@@ -191,7 +191,7 @@ async function firstTimerEmailNotification(email, handle) {
     console.log(`Sending TCA welcome email to ${email}...`);
 
     // send the email
-    const busRsp = await sendEmail({
+    await sendEmail({
       recipients: [email],
       data: {
         first_name: memberData.firstName,
@@ -200,7 +200,7 @@ async function firstTimerEmailNotification(email, handle) {
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_FIRST_COURSE_OR_CERT
     });
 
-    console.log(`TCA welcome email sent to ${email}.`, busRsp);
+    console.log(`TCA welcome email sent to ${email}.`);
   } catch (e) {
     console.error(`Sending welcome email to ${email} <${handle}> failed.`, e);
   }

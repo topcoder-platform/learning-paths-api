@@ -60,7 +60,7 @@ functions:
   
   sfdcTokenRefresher:
     handler: sfdc_token_refresher.handle
-    memorySize: 256
+    memorySize: 128
     events:
       - eventBridge:
           pattern: 

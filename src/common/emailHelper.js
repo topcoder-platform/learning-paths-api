@@ -52,14 +52,14 @@ async function startFccCourseEmailNotification(handle, email, fccCertification, 
       recipients: [email],
       data: {
         first_name: userFirstName,
-        URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${providerName}/${fccCertification.certification}`
+        URL_to_tca_course: `${config.TCA_WEBSITE_URL}/learn/${providerName}/${fccCertification.certification || fccCertification}`
       },
       sendgrid_template_id: config.EMAIL_TEMPLATES.TCA_COURSE_START
     });
 
     console.log(`Sending TCA course welcome email to ${email} success.`);
   } catch (e) {
-    console.error(`Sending TCA course welcome email for "${fccCertification.title}" to ${email}<${handle}> failed.`, e);
+    console.error(`Sending TCA course welcome email for "${fccCertification.title || fccCertification}" to ${email}<${handle}> failed.`, e);
   }
 }
 

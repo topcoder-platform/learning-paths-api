@@ -272,7 +272,7 @@ async function startCertification(currentUser, userId, certificationId, courseId
             console.log(`User ${userId} starting the ${provider} ${certification} certification now!`)
 
             // notify the member via email
-            await startFccCourseEmailNotification(handle, email, existingProgress.certification, existingProgress.resourceProvider?.name || 'freeCodeCamp');
+            await startFccCourseEmailNotification(handle, email, certification, provider || 'freeCodeCamp');
         } else {
             const startDate = existingProgress.startDate;
             console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)

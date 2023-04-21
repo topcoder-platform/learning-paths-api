@@ -31,10 +31,14 @@ custom:
   sfdc:
     dev:
       oAuthUrl: 'https://test.salesforce.com/services/oauth2/token'
-      tokenDuration: 30
+      tokenDuration: 0.09
+      notificationValue: 2
+      notificationUnits: 'hours'
     prod:
       oAuthUrl: 'tbd'
       tokenDuration: 30
+      notificationValue: 2
+      notificationUnits: 'days'
 
 functions:
   webhookHandler:
@@ -81,3 +85,5 @@ functions:
       JWT_TOKEN_AUDIENCE: ${self:custom.jwt.${self:provider.stage}.tokenAudience}
       OAUTH_TOKEN_URL: ${self:custom.sfdc.${self:provider.stage}.oAuthUrl}
       SFDC_TOKEN_DURATION: ${self:custom.sfdc.${self:provider.stage}.tokenDuration}
+      SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE: ${self:custom.sfdc.${self:provider.stage}.notificationValue}
+      SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS: ${self:custom.sfdc.${self:provider.stage}.notificationUnits}

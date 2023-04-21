@@ -1,9 +1,11 @@
 const helper = require('../../common/helper');
 
 (async () => {
-    const handle = "glenny"
-    // const handle = 'chris.mccann@topcoder.com';
+    const handle = 'testflyjets';
+    const userId = '88778750'
+    const userIds = ['88778750', '40158994', '40152855'];
 
-    const memberdata = await helper.getMemberDataM2M(handle);
-    console.log(memberdata);
+    // const memberdata = await helper.getMemberDataFromIdM2M(userId);
+    const memberData = await helper.getMultiMemberDataFromIdM2M(userIds);
+    console.log(memberData);
 })();

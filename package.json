@@ -8,27 +8,18 @@
     "start:debug": "DEBUG=express:* node app.js",
     "dev": "nodemon app.js",
     "generate-courses": "node src/utils/course-generator/generate-courses.js",
-    "migrate-tca-courses": "node src/utils/tca-data-migrator/migrate_courses.js",
-    "migrate-tca-progress": "node src/utils/tca-data-migrator/migrate_progress.js",
     "lint": "eslint src --ext js,jsx",
     "lint:fix": "eslint src --ext js,jsx --fix",
-    "init-db": "node src/init-db.js",
     "rebuild-tables": "npm run drop-tables && npm run create-tables && npm run seed-tables",
-    "drop-tables": "node src/scripts/drop-tables.js",
-    "create-tables": "node src/scripts/create-tables.js",
-    "seed-tables": "node src/scripts/seed-tables.js",
-    "view-data": "node src/scripts/view-data.js",
     "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
     "services:down": "docker-compose -f ./local/docker-compose.yml down",
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
-    "local:init": "npm run local:reset && npm run seed-tables",
-    "local:reset": "npm run init-db force",
     "cert-gen:deploy-stack": "cd src/utils/certificate-sharing/generate-certificate-image && sh generate-certificate-image-deploy.sh",
     "cert-gen:regenerate": "node src/utils/certificate-sharing/regenerate-certificate-images/RegenerateCertificateImagesService.js",
     "cert-gen:validate": "d src/utils/certificate-sharing/generate-certificate-image && aws cloudformation validate-template --template-body file://certificate-image-generator-stack.yml"
   },
   "author": "Topcoder.com",
-  "license": "none",
+  "license": "UNLICENSED",
   "repository": "https://github.com/topcoder-platform/learning-paths-api",
   "devDependencies": {
     "@babel/core": "^7.18.5",
@@ -40,19 +31,19 @@
     "mocha-prepare": "^0.1.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
-    "prisma": "^4.5.0",
     "sequelize-cli": "^6.5.2"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.208.0",
+    "@aws-sdk/client-dynamodb": "^3.315.0",
+    "@aws-sdk/client-sqs": "^3.315.0",
     "@paralleldrive/cuid2": "^2.0.1",
     "@prisma/client": "^4.5.0",
-    "aws-sdk": "^2.1148.0",
     "axios": "^0.27.2",
     "bluebird": "^3.7.2",
     "body-parser": "^1.20.0",
     "config": "^3.3.7",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "dd-trace": "^2.12.1",
     "dotenv": "^16.0.1",
     "dynamoose": "^2.8.5",
@@ -93,8 +84,5 @@
   },
   "volta": {
     "node": "16.15.0"
-  },
-  "prisma": {
-    "schema": "src/prisma/schema.prisma"
   }
 }

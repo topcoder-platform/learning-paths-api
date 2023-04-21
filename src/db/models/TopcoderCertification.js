@@ -3,7 +3,8 @@ const { Model } = require('sequelize');
 const DEFAULT_COMPLETION_TIME_LOW = DEFAULT_COMPLETION_TIME_HIGH = 0;
 const COMPLETION_TIME_UNITS = "hours";
 
-const COMPLETION_LOW_RANGE_DIVISOR = 3;
+const COMPLETION_LOW_RANGE_DIVISOR = 2;
+const COMPLETION_RANGE_MODULO = 10;
 
 module.exports = (sequelize, DataTypes) => {
   class TopcoderCertification extends Model {
@@ -133,7 +134,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // add computed (virtual) attributes
-  TopcoderCertification.addHook("afterFind", findResult => {
+  TopcoderCertification.addHook("afterFind", async (findResult) => {
     if (findResult === null) return;
 
     if (!Array.isArray(findResult)) findResult = [findResult];
@@ -157,12 +158,16 @@ module.exports = (sequelize, DataTypes) => {
         let highRange = 0;
         for (const resource of instance.certificationResources) {
           if (resource.freeCodeCampCertification) {
-            const courseCompletionHours = resource.freeCodeCampCertification.completionHours || 0;
-            highRange += courseCompletionHours
+            const certHours = await resource.freeCodeCampCertification.getComputedCompletionHours();
+            highRange += certHours;
           }
         }
 
-        const lowRange = Math.floor(highRange / COMPLETION_LOW_RANGE_DIVISOR);
+        // Round the high range up to the nearest 10, and then compute the low range
+        highRange = Math.ceil(highRange / COMPLETION_RANGE_MODULO) * COMPLETION_RANGE_MODULO;
+        let lowRange = Math.floor(highRange / COMPLETION_LOW_RANGE_DIVISOR);
+        lowRange = Math.ceil(lowRange / COMPLETION_RANGE_MODULO) * COMPLETION_RANGE_MODULO;
+
         instance.completionTimeRange.lowRangeValue = lowRange;
         instance.completionTimeRange.highRangeValue = highRange;
 

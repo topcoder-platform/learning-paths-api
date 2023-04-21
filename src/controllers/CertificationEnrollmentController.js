@@ -30,6 +30,8 @@ async function getEnrollment(req, res) {
  */
 async function enrollUser(req, res) {
     const { userId, certificationId } = req.params;
+    console.log(`CertificationEnrollmentController.enrollUser: userId: ${userId}, certificationId: ${certificationId}, authUser: ${req.authUser.userId}`)
+
     // check if auth user is enrolling himself
     // or an admin is enrolling someone
     if (userId !== req.authUser.userId && !hasTCAAdminRole(req.authUser)) {

@@ -7,11 +7,11 @@ module.exports = {
     dialect: 'postgres',
     logging: false,
     pool: {
-      max: 2,
+      max: 5,
       min: 0,
-      idle: 0,
-      acquire: 3000,
-      evict: 5000
+      idle: 10000,
+      acquire: 5000,
+      evict: 1000
     },
     define: {
       freezeTableName: true
@@ -32,6 +32,13 @@ module.exports = {
     host: process.env.TCA_PG_HOST,
     dialect: 'postgres',
     logging: false,
+    pool: {
+      max: 100,
+      min: 0,
+      idle: 10000,
+      acquire: 5000,
+      evict: 1000
+    },
     define: {
       freezeTableName: true
     },

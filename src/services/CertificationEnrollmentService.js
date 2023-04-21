@@ -3,12 +3,12 @@ const _ = require('lodash');
 const db = require('../db/models');
 const errors = require('../common/errors');
 const helper = require('../common/helper');
-const config = require('config');
 const certificationService = require('./TopcoderCertificationService');
 const {
-    enrollmentStatuses,
     progressStatuses
 } = require('../common/constants');
+const { enrollCertificationEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
+const { Op } = require("sequelize");
 
 /**
  * Enrolls a user in a Topcoder Certification 
@@ -18,16 +18,17 @@ const {
  * @returns {Object} the newly created CertificationEnrollment object
  */
 async function enrollUser(authUser, certificationId) {
-
-    const existingEnrollment = await getExistingEnrollment(authUser.userId, certificationId);
+    const userId = authUser.userId;
+    const existingEnrollment = await getExistingEnrollment(userId, certificationId);
 
     if (existingEnrollment != null) {
         const certification = existingEnrollment.topcoderCertification;
-        console.log(`User ${authUser.userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
+        console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
 
         return existingEnrollment;
     }
 
+    console.log(`Enrolling user ${userId} in certification ID ${certificationId}`);
     const newEnrollment = await createCertificationEnrollment(authUser, certificationId)
 
     return newEnrollment;
@@ -121,30 +122,39 @@ async function getEnrollmentById(id) {
  */
 async function createCertificationEnrollment(authUser, certificationId) {
     const userHandle = authUser.handle;
+    const userId = authUser.userId;
+    const email = authUser.email;
+
     // try to get user's first and last name via the API using an m2m token.
     // if we can't, just use the user's handle.
     let userFullName = userHandle;
+    let userFirstName = userHandle;
     try {
-        const memberData = await helper.getMemberDataM2M(authUser.handle);
-        userFullName = `${memberData.firstName} ${memberData.lastName}`
+        const memberData = await helper.getMemberDataM2M(userHandle);
+        userFullName = `${memberData.firstName} ${memberData.lastName}`;
+        userFirstName = memberData.firstName;
     } catch (error) {
-        console.error('Error getting user name via m2m token', error);
-    }
-
-    // build the collection of certification resource progress records to 
-    // track the user's completion of the courses (resource) contained in 
-    // this Topcoder Certification
-    const resourceProgresses = await buildEnrollmentProgressAttrs(authUser.userId, certificationId);
-
-    const enrollmentAttrs = {
-        topcoderCertificationId: certificationId,
-        userId: authUser.userId,
-        userHandle: userHandle,
-        userName: userFullName,
-        resourceProgresses: resourceProgresses,
+        console.error('Error getting user name via m2m token, using handle', error);
     }
 
     try {
+        // build the collection of certification resource progress records to 
+        // track the user's completion of the courses (resource) contained in 
+        // this Topcoder Certification
+        const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId);
+
+        const enrollmentAttrs = {
+            topcoderCertificationId: certificationId,
+            userId: userId,
+            userHandle: userHandle,
+            userName: userFullName,
+            resourceProgresses: resourceProgresses,
+        }
+
+        // check if user is new learner before we create the enrollment
+        // used to decide what type of email notification to send out.
+        const isNewTCALearner = await isTCAFirstTimer(userId);
+
         const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs,
             {
                 include: [{
@@ -153,6 +163,15 @@ async function createCertificationEnrollment(authUser, certificationId) {
                 }]
             });
 
+        const certification = await certificationService.getCertification(certificationId);
+
+        // notify the member per email about sucessful enrollment
+        if (isNewTCALearner) {
+            await firstTimerEmailNotification(email, userHandle);
+        } else {
+            await enrollCertificationEmailNotification(email, userFirstName, certification);
+        }
+
         // it's possible the user completed all of the requirements to earn the 
         // certification before enrolling, so check that now
         await enrollment.checkAndSetCertCompletion();
@@ -160,9 +179,36 @@ async function createCertificationEnrollment(authUser, certificationId) {
 
         return enrollment;
     } catch (error) {
-        console.error("Error creating certification enrollment", error);
-        return null;
+        throw errors.BadRequestError('Error enrolling user in certification', error);
     }
+}
+
+/**
+ * Helper checker if member already has progress
+ * in TCA certification or course
+ * 
+ * @param {string} userId The user id to check
+ * @returns boolean
+ */
+async function isTCAFirstTimer(userId) {
+    const enrollmentsCount = await db.CertificationEnrollment.count({
+        where: {
+            userId
+        }
+    });
+
+    const coursesCount = await db.FccCertificationProgress.count({
+        where: {
+            userId,
+            status: {
+                [Op.in]: [
+                    progressStatuses.inProgress, progressStatuses.completed
+                ]
+            }
+        }
+    });
+
+    return !enrollmentsCount && !coursesCount;
 }
 
 /**
@@ -172,10 +218,10 @@ async function createCertificationEnrollment(authUser, certificationId) {
  * @param {String} userId the ID of the user who's enrolling in the certification
  * @param {Integer} certificationId the ID of the certification in which they're enrolling
  */
-async function buildEnrollmentProgressAttrs(userId, certificationId) {
+async function buildEnrollmentProgressAttrs(userId, email, certificationId) {
     const certification = await getCertificationEnrollmentDetails(userId, certificationId);
 
-    const resourceProgresses = await buildCertResourceProgressAttrs(userId, certification);
+    const resourceProgresses = await buildCertResourceProgressAttrs(userId, email, certification);
 
     return resourceProgresses;
 }
@@ -223,11 +269,13 @@ async function getCertificationEnrollmentDetails(userId, certificationId) {
  *  create new progress records for any resources the user hasn't already 
  *  started or completed.
  * 
+ * @param {String} userId the ID of the user whose progress is being created
+ * @param {String} email the email of the user whose progress is being created
  * @param {Object} certification the Topcoder Certification for which progress
  *      records are being constructed.
  * @returns {Object} an object containing all the CertificationReourceProgress attributes
  */
-async function buildCertResourceProgressAttrs(userId, certification) {
+async function buildCertResourceProgressAttrs(userId, email, certification) {
     let resourceProgresses = [];
 
     for (const resource of certification.certificationResources) {
@@ -238,7 +286,7 @@ async function buildCertResourceProgressAttrs(userId, certification) {
         // started this course yet, so enroll them in it by creating a
         // freeCodeCamp progress record.
         if (!fccProgress) {
-            fccProgress = await createFccProgressRecord(userId, fccCert)
+            fccProgress = await createFccProgressRecord(userId, email, fccCert)
         }
 
         // set the attributes for creation of the Topcoder
@@ -257,8 +305,8 @@ async function buildCertResourceProgressAttrs(userId, certification) {
     return resourceProgresses;
 }
 
-async function createFccProgressRecord(userId, fccCertification) {
-    return await db.FccCertificationProgress.buildFromCertification(userId, fccCertification);
+async function createFccProgressRecord(userId, email, fccCertification) {
+    return await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification);
 }
 
 /**
@@ -395,5 +443,6 @@ module.exports = {
     getEnrollmentProgress,
     getEnrollments,
     getUserEnrollmentProgresses,
+    isTCAFirstTimer,
     unEnrollUser
 }

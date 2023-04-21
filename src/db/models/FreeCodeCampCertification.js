@@ -57,6 +57,19 @@ module.exports = (sequelize, DataTypes) => {
 
       return lessons[0];
     }
+
+    /**
+     * Computes the estimated completion time for the certification
+     * by returning the estimated completion time of the associated
+     * course.
+     * 
+     * @returns number of hours to complete the certification
+     */
+    async getComputedCompletionHours() {
+      const course = await this.getCourse();
+      return course ? course.estimatedCompletionTimeValue : 0;
+    }
+
   }
 
   FreeCodeCampCertification.init({

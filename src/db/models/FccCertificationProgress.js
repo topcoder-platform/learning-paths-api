@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
      * 
      * @param {Object} certification a FreeCodeCampCertification object
      */
-    static async buildFromCertification(userId, fccCertification, options = {}) {
+    static async buildFromCertification(userId, email, fccCertification, options = {}) {
       const certCategory = await fccCertification.getCertificationCategory();
       const course = await fccCertification.getCourse();
 
@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       let progressAttrs = {
         fccCertificationId: fccCertification.id,
         userId: userId,
+        email: email,
         fccCourseId: course.id,
         courseKey: course.key,
         certification: fccCertification.certification,
@@ -326,8 +327,16 @@ module.exports = (sequelize, DataTypes) => {
 
         return { result: lessonCompletionStatuses.completedSuccessfully }
       } catch (error) {
-        console.error(`Error completing lesson: ${error}`)
-        throw error;
+        // it's possible that the MongoDB trigger could have already 
+        // added this completed lesson, so if we encounter a unique 
+        // constraint violation, ignore the error and indicate it was 
+        // completed successfully.
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          console.log(`Lesson ${lessonId} already completed for module ${moduleKey} (squelched SequelizeUniqueConstraintError)`)
+          return { result: lessonCompletionStatuses.completedSuccessfully }
+        } else {
+          throw error;
+        }
       }
     }
 
@@ -343,11 +352,32 @@ module.exports = (sequelize, DataTypes) => {
     async validateLesson(moduleKey, lessonDashedName, lessonId) {
       const lesson = await this.freeCodeCampCertification.getLesson(moduleKey, lessonId);
       if (!lesson) {
-        throw new errors.BadRequestError(
-          `No lesson '${moduleKey}/${lessonDashedName}' exists in certification '${this.certification}'`)
+        const data = {
+          userId: this.userId,
+          certification: this.certification,
+          moduleKey: moduleKey,
+          lessonDashedName: lessonDashedName,
+          lessonId: lessonId,
+        }
+        console.error('Error: validateLesson failed');
+        console.table(data);
+        throw new errors.BadRequestError('Lesson not found', data);
       }
 
       return lesson;
+    }
+
+    /**
+     * Updates the user's email address if it's not already set
+     * 
+     * @param {String} email the user's email address
+     * @returns true if it's updated, false otherwise
+     */
+    async ensureEmailSet(email) {
+      if (!!this.email) return false;
+
+      await this.update({ email: email });
+      return true;
     }
 
     /**

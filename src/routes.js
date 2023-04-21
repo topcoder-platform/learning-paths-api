@@ -26,12 +26,6 @@ module.exports = {
       method: 'searchLearningResourceProviders'
     },
   },
-  '/learning-paths/providers/:providerId': {
-    get: {
-      controller: 'LearningResourceProviderController',
-      method: 'getLearningResourceProvider'
-    },
-  },
   '/learning-paths/certifications': {
     get: {
       controller: 'CertificationController',
@@ -286,6 +280,17 @@ module.exports = {
       controller: 'ChameleonController',
       method: 'getHashedUid',
       auth: 'jwt',
+    },
+  },
+  /**
+   * Admin utils
+   */
+  '/learning-paths/admin/tc-bus/event': {
+    post: {
+      controller: 'AdminUtilsController',
+      method: 'postTCBusMessageHandler',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
     },
   },
 }

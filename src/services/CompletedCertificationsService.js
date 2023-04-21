@@ -3,8 +3,6 @@
  */
 
 const db = require('../db/models');
-const dbHelper = require('../common/dbHelper')
-const helper = require('../common/helper')
 const { progressStatuses } = require('../common/constants');
 const enrollmentService = require('./CertificationEnrollmentService');
 
@@ -15,10 +13,6 @@ const enrollmentService = require('./CertificationEnrollmentService');
  * @returns {Object} the certifications they have completed
  */
 async function getCompletedCertifications(userId) {
-    if (!dbHelper.featureFlagUsePostgres()) {
-        return await helper.queryCompletedCertifications(userId);
-    }
-
     let options = {
         where: {
             userId,

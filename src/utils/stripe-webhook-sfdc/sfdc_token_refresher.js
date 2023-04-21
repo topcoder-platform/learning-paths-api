@@ -13,7 +13,7 @@ const JWT_TOKEN_AUDIENCE = process.env.JWT_TOKEN_AUDIENCE || 'test.salesforce.co
 
 const OAUTH_TOKEN_URL = process.env.OAUTH_TOKEN_URL;
 const SFDC_TOKEN_DURATION = process.env.SFDC_TOKEN_DURATION || 30; // 30 days
-const SFDC_TOKEN_PARAM_NAME = '/stripe-webhook-sfdc/sfdc-token';
+const SFDC_TOKEN_PARAM_NAME = process.env.SFDC_TOKEN_PARAM_NAME || '/stripe-webhook-sfdc/sfdc-token';
 const SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE || 2;
 const SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS || 'days'; // days or hours
 

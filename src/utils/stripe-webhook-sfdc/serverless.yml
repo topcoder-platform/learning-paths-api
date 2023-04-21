@@ -29,6 +29,7 @@ custom:
       tokenSubject: 'tbd'
       tokenAudience: 'tbd'
   sfdc:
+    tokenParamName: '/stripe-webhook-sfdc/sfdc-token'
     dev:
       oAuthUrl: 'https://test.salesforce.com/services/oauth2/token'
       tokenDuration: 0.09
@@ -74,7 +75,7 @@ functions:
               - 'Parameter Store Policy Action'
             detail:
               parameter-name:
-                - tca-sfdc-access-token
+                - ${self:custom.sfdc.tokenParamName}
               policy-type:
                 - Expiration
                 - ExpirationNotification
@@ -84,6 +85,7 @@ functions:
       JWT_TOKEN_SUBJECT: ${self:custom.jwt.${self:provider.stage}.tokenSubject}
       JWT_TOKEN_AUDIENCE: ${self:custom.jwt.${self:provider.stage}.tokenAudience}
       OAUTH_TOKEN_URL: ${self:custom.sfdc.${self:provider.stage}.oAuthUrl}
+      SFDC_TOKEN_PARAM_NAME: ${self:custom.sfdc.tokenParamName}
       SFDC_TOKEN_DURATION: ${self:custom.sfdc.${self:provider.stage}.tokenDuration}
       SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE: ${self:custom.sfdc.${self:provider.stage}.notificationValue}
       SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS: ${self:custom.sfdc.${self:provider.stage}.notificationUnits}

@@ -1,0 +1,90 @@
+{
+    "version": "0",
+    "id": "fd5fdc0b-c5f5-4fa4-eb77-8b8ecaceb36b",
+    "detail-type": "stripe-webhook-detail-type",
+    "source": "stripe-webhook-lambda",
+    "account": "811668436784",
+    "time": "2023-04-21T18:08:02Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+        "id": "evt_3MzONFIxp8SyEX2K27vGLtQQ",
+        "object": "event",
+        "api_version": "2022-11-15",
+        "created": 1682100478,
+        "data": {
+            "object": {
+                "id": "pi_3MzONFIxp8SyEX2K2HvGAf6U",
+                "object": "payment_intent",
+                "amount": 2000,
+                "amount_capturable": 0,
+                "amount_details": {
+                    "tip": {}
+                },
+                "amount_received": 2000,
+                "application": null,
+                "application_fee_amount": null,
+                "automatic_payment_methods": null,
+                "canceled_at": null,
+                "cancellation_reason": null,
+                "capture_method": "automatic",
+                "client_secret": "pi_3MzONFIxp8SyEX2K2HvGAf6U_secret_r7S7bwQ8YHATDhHTAk2GzF6zx",
+                "confirmation_method": "automatic",
+                "created": 1682100477,
+                "currency": "usd",
+                "customer": null,
+                "description": "(created by Stripe CLI)",
+                "invoice": null,
+                "last_payment_error": null,
+                "latest_charge": "ch_3MzONFIxp8SyEX2K243P4Be2",
+                "livemode": false,
+                "metadata": {},
+                "next_action": null,
+                "on_behalf_of": null,
+                "payment_method": "pm_1MzONFIxp8SyEX2KIPJNUOEY",
+                "payment_method_options": {
+                    "card": {
+                        "installments": null,
+                        "mandate_options": null,
+                        "network": null,
+                        "request_three_d_secure": "automatic"
+                    }
+                },
+                "payment_method_types": [
+                    "card"
+                ],
+                "processing": null,
+                "receipt_email": null,
+                "review": null,
+                "setup_future_usage": null,
+                "shipping": {
+                    "address": {
+                        "city": "San Francisco",
+                        "country": "US",
+                        "line1": "510 Townsend St",
+                        "line2": null,
+                        "postal_code": "94103",
+                        "state": "CA"
+                    },
+                    "carrier": null,
+                    "name": "Jenny Rosen",
+                    "phone": null,
+                    "tracking_number": null
+                },
+                "source": null,
+                "statement_descriptor": null,
+                "statement_descriptor_suffix": null,
+                "status": "succeeded",
+                "transfer_data": null,
+                "transfer_group": null
+            }
+        },
+        "livemode": false,
+        "pending_webhooks": 4,
+        "request": {
+            "id": "req_5DVrU0hQMgHjwB",
+            "idempotency_key": "c137da49-981f-4d2d-a02a-3e11c5decbd6"
+        },
+        "type": "payment_intent.succeeded"
+    }
+}

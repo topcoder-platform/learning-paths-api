@@ -1,14 +1,22 @@
 service: stripe-webhook-sfdc
 frameworkVersion: '3'
 
+plugins:
+  - serverless-domain-manager 
+
 provider:
   name: aws
   region: us-east-1
-  stage: ${opt:stage,'dev'}
+  stage: ${opt:stage, 'dev'}
   runtime: nodejs18.x
   iam:
     role:
       statements:
+        - Effect: Allow 
+          Action:
+            - 'events:PutEvents'
+          Resource:
+            - 'arn:aws:events:us-east-1:*:event-bus/default'
         - Effect: Allow
           Action:
             - 'secretsmanager:GetSecretValue'
@@ -22,6 +30,9 @@ provider:
             - 'arn:aws:ssm:us-east-1:*:parameter/stripe-webhook-sfdc/sfdc-token'
 
 custom:
+  domain:
+    dev: topcoder-dev.com
+    prod: topcoder.com
   stripeSecretsName: ${self:provider.stage}/tca-stripe-secrets
   jwtPrivateKeySecretName: ${self:provider.stage}/tca-sfdc-jwt-private-key
   jwt:
@@ -45,6 +56,12 @@ custom:
       tokenDuration: 30
       notificationValue: 2
       notificationUnits: 'days'
+  customDomain:
+    domainName: stripe-webhook.${self:custom.domain.${self:provider.stage}}
+    stage: ${self:provider.stage}
+    basePath: ''
+    certificateName: '*.${self:custom.domain.${self:provider.stage}}'
+    createRoute53Record: true 
 
 functions:
   webhookHandler:

@@ -45,14 +45,14 @@ async function handleEvent(stripeEvent) {
       const paymentIntent = stripeEvent.data.object;
       // console.dir(paymentIntent);
       console.log(`PaymentIntent ${paymentIntent.id} for $${paymentIntent.amount / 100} was successful`);
-      sendToEventBridge(stripeEvent);
+      await sendToEventBridge(stripeEvent);
 
       break;
     case 'charge.refunded':
       const refundedCharge = stripeEvent.data.object;
       // console.dir(refundedCharge);
       console.log(`Charge ${refundedCharge.id} for $${refundedCharge.amount / 100} was refunded`);
-      sendToEventBridge(stripeEvent);
+      await sendToEventBridge(stripeEvent);
 
       break;
     default:
@@ -116,7 +116,7 @@ async function sendToEventBridge(event) {
   const params = {
     Entries: [
       {
-        Source: 'stripe-webhook-lambda',   // the source must match the event source in the rule in EventBridge
+        Source: 'stripe-webhook-lambda',
         Detail: JSON.stringify(event),
         DetailType: 'stripe-webhook-detail-type',
         EventBusName: 'default',
@@ -127,7 +127,7 @@ async function sendToEventBridge(event) {
 
   try {
     const data = await client.send(new PutEventsCommand(params));
-    console.log(data);
+    console.log('EventBridge response', data);
   } catch (err) {
     console.log("Error", err);
   }

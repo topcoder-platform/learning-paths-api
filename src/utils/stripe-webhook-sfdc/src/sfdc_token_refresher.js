@@ -3,8 +3,20 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const url = require('url');
-const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
-const { SSMClient, PutParameterCommand } = require("@aws-sdk/client-ssm");
+const {
+    SecretsManagerClient,
+    GetSecretValueCommand
+} = require("@aws-sdk/client-secrets-manager");
+
+const {
+    SSMClient,
+    PutParameterCommand
+} = require("@aws-sdk/client-ssm");
+
+const {
+    RUNNING_IN_AWS,
+    SFDC_TOKEN_PARAM_NAME
+} = require('./constants');
 
 const JWT_PRIVATE_KEY_SECRET_NAME = process.env.JWT_PRIVATE_KEY_SECRET_NAME;
 const JWT_TOKEN_ISSUER = process.env.JWT_TOKEN_ISSUER;
@@ -12,12 +24,9 @@ const JWT_TOKEN_SUBJECT = process.env.JWT_TOKEN_SUBJECT || 'vasavi.kuchimanchi@t
 const JWT_TOKEN_AUDIENCE = process.env.JWT_TOKEN_AUDIENCE || 'test.salesforce.com';
 
 const OAUTH_TOKEN_URL = process.env.OAUTH_TOKEN_URL;
-const SFDC_TOKEN_DURATION = process.env.SFDC_TOKEN_DURATION || 30; // 30 days
-const SFDC_TOKEN_PARAM_NAME = process.env.SFDC_TOKEN_PARAM_NAME || '/stripe-webhook-sfdc/sfdc-token';
+const SFDC_TOKEN_DURATION = process.env.SFDC_TOKEN_DURATION || 30; // days
 const SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE || 2;
 const SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS || 'days'; // days or hours
-
-const RUNNING_IN_AWS = !!process.env.LAMBDA_TASK_ROOT;
 
 async function handle(event) {
     console.log('SFDC handler', event);

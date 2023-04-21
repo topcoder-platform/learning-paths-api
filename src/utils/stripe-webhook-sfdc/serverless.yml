@@ -1,14 +1,15 @@
 service: stripe-webhook-sfdc
 frameworkVersion: '3'
 
-plugins:
-  - serverless-domain-manager 
-
 provider:
   name: aws
   region: us-east-1
   stage: ${opt:stage, 'dev'}
   runtime: nodejs18.x
+  memorySize: 128
+  timeout: 10
+  environment:
+    NODE_PATH: "./:/opt/node_modules"
   iam:
     role:
       statements:
@@ -28,6 +29,20 @@ provider:
             - 'ssm:PutParameter'
           Resource:
             - 'arn:aws:ssm:us-east-1:*:parameter/stripe-webhook-sfdc/sfdc-token'
+
+package: 
+  patterns:
+    - '!*/**'
+    - '!package*'
+    - '!*.sh'
+    - '!*.pem'
+    - '!*.md'
+    - src/**
+
+layers:
+  nodeModules:
+    path: node_modules
+    description: 'Common nodejs modules'
 
 custom:
   domain:
@@ -56,17 +71,12 @@ custom:
       tokenDuration: 30
       notificationValue: 2
       notificationUnits: 'days'
-  customDomain:
-    domainName: stripe-webhook.${self:custom.domain.${self:provider.stage}}
-    stage: ${self:provider.stage}
-    basePath: ''
-    certificateName: '*.${self:custom.domain.${self:provider.stage}}'
-    createRoute53Record: true 
 
 functions:
   webhookHandler:
-    handler: webhook_handler.handle
-    memorySize: 128
+    handler: src/webhook_handler.handle
+    layers:
+      - !Ref NodeModulesLambdaLayer
     events:
       - httpApi:
           path: /stripe_webhook
@@ -75,8 +85,9 @@ functions:
       STRIPE_SECRETS_NAME: ${self:custom.stripeSecretsName}
   
   sfdcHandler:
-    handler: sfdc_handler.handle
-    memorySize: 128
+    handler: src/sfdc_handler.handle
+    layers:
+      - !Ref NodeModulesLambdaLayer
     events:
       - eventBridge:
           pattern: 
@@ -86,8 +97,9 @@ functions:
               - stripe-webhook-detail-type
   
   sfdcTokenRefresher:
-    handler: sfdc_token_refresher.handle
-    memorySize: 128
+    handler: src/sfdc_token_refresher.handle
+    layers:
+      - !Ref NodeModulesLambdaLayer
     events:
       - eventBridge:
           pattern: 

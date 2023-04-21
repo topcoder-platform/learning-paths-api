@@ -37,9 +37,9 @@ custom:
     tokenParamName: '/stripe-webhook-sfdc/sfdc-token'
     dev:
       oAuthUrl: 'https://test.salesforce.com/services/oauth2/token'
-      tokenDuration: 0.09
+      tokenDuration: 30
       notificationValue: 2
-      notificationUnits: 'hours'
+      notificationUnits: 'days'
     prod:
       oAuthUrl: 'tbd'
       tokenDuration: 30

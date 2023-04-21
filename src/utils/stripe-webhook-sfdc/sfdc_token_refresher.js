@@ -124,7 +124,10 @@ async function getPrivateKeyFromAWS() {
 }
 
 async function storeToken(sfdcToken, expiry) {
-    console.log('Storing token with expiry:', expiry);
+    const expiryTimestamp = new Date(expiry).toISOString();
+    console.log(
+        `Storing SFDC access token that expires at ${expiryTimestamp} `,
+        `with notification ${SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE} ${SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS} before`);
 
     const client = new SSMClient({
         region: "us-east-1",
@@ -136,18 +139,16 @@ async function storeToken(sfdcToken, expiry) {
         Type: "SecureString",
         Tier: "Advanced",
         Overwrite: true,
-        Policies: paramStorePolicies(expiry)
+        Policies: paramStorePolicies(expiryTimestamp)
     };
 
     const command = new PutParameterCommand(input);
     const response = await client.send(command);
 
-    console.log('Token stored:', response);
+    console.log('Token stored response:', response['$metadata']['httpStatusCode']);
 }
 
-function paramStorePolicies(expiry) {
-    const expiryTimestamp = new Date(expiry).toISOString();
-
+function paramStorePolicies(expiryTimestamp) {
     const paramPolicies = [
         {
             "Type": "Expiration",

@@ -124,7 +124,7 @@ async function getPrivateKeyFromAWS() {
 }
 
 async function storeToken(sfdcToken, expiry) {
-    console.log('Storing token:', sfdcToken, 'expiry:', expiry);
+    console.log('Storing token with expiry:', expiry);
 
     const client = new SSMClient({
         region: "us-east-1",

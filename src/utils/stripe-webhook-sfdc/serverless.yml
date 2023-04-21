@@ -15,6 +15,11 @@ provider:
           Resource:
             - 'arn:aws:secretsmanager:us-east-1:*:secret:${self:custom.stripeSecretsName}-*'
             - 'arn:aws:secretsmanager:us-east-1:*:secret:${self:custom.jwtPrivateKeySecretName}-*'
+        - Effect: Allow
+          Action:
+            - 'ssm:PutParameter'
+          Resource:
+            - 'arn:aws:ssm:us-east-1:*:parameter/stripe-webhook-sfdc/sfdc-token'
 
 custom:
   stripeSecretsName: ${self:provider.stage}/tca-stripe-secrets

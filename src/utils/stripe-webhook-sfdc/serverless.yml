@@ -8,8 +8,6 @@ provider:
   runtime: nodejs18.x
   memorySize: 128
   timeout: 10
-  environment:
-    NODE_PATH: "./:/opt/node_modules"
   iam:
     role:
       statements:
@@ -27,6 +25,7 @@ provider:
         - Effect: Allow
           Action:
             - 'ssm:PutParameter'
+            - 'ssm:GetParameter'
           Resource:
             - 'arn:aws:ssm:us-east-1:*:parameter/stripe-webhook-sfdc/sfdc-token'
 
@@ -38,11 +37,7 @@ package:
     - '!*.pem'
     - '!*.md'
     - src/**
-
-layers:
-  nodeModules:
-    path: node_modules
-    description: 'Common nodejs modules'
+    - node_modules/**
 
 custom:
   domain:
@@ -62,11 +57,13 @@ custom:
   sfdc:
     tokenParamName: '/stripe-webhook-sfdc/sfdc-token'
     dev:
+      applicationEndpoint: 'https://topcoder--opty.sandbox.my.salesforce.com/services/apexrest/SfdcStripe/'
       oAuthUrl: 'https://test.salesforce.com/services/oauth2/token'
       tokenDuration: 30
       notificationValue: 2
       notificationUnits: 'days'
     prod:
+      applicationEndpoint: 'tbd'
       oAuthUrl: 'tbd'
       tokenDuration: 30
       notificationValue: 2
@@ -75,8 +72,6 @@ custom:
 functions:
   webhookHandler:
     handler: src/webhook_handler.handle
-    layers:
-      - !Ref NodeModulesLambdaLayer
     events:
       - httpApi:
           path: /stripe_webhook
@@ -86,8 +81,6 @@ functions:
   
   sfdcHandler:
     handler: src/sfdc_handler.handle
-    layers:
-      - !Ref NodeModulesLambdaLayer
     events:
       - eventBridge:
           pattern: 
@@ -95,11 +88,11 @@ functions:
               - stripe-webhook-lambda
             detail-type: 
               - stripe-webhook-detail-type
+    environment:
+      SFDC_ENDPOINT: ${self:custom.sfdc.${self:provider.stage}.applicationEndpoint}
   
   sfdcTokenRefresher:
     handler: src/sfdc_token_refresher.handle
-    layers:
-      - !Ref NodeModulesLambdaLayer
     events:
       - eventBridge:
           pattern: 

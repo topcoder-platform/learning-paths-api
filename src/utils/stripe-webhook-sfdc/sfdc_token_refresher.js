@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const url = require('url');
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
+const { SSMClient, PutParameterCommand } = require("@aws-sdk/client-ssm");
 
 const JWT_PRIVATE_KEY_SECRET_NAME = process.env.JWT_PRIVATE_KEY_SECRET_NAME;
 const JWT_TOKEN_ISSUER = process.env.JWT_TOKEN_ISSUER;
@@ -11,7 +12,10 @@ const JWT_TOKEN_SUBJECT = process.env.JWT_TOKEN_SUBJECT || 'vasavi.kuchimanchi@t
 const JWT_TOKEN_AUDIENCE = process.env.JWT_TOKEN_AUDIENCE || 'test.salesforce.com';
 
 const OAUTH_TOKEN_URL = process.env.OAUTH_TOKEN_URL;
-const SFDC_TOKEN_EXPIRY = process.env.SFDC_TOKEN_EXPIRY || 30; // 30 days
+const SFDC_TOKEN_DURATION = process.env.SFDC_TOKEN_DURATION || 30; // 30 days
+const SFDC_TOKEN_PARAM_NAME = '/stripe-webhook-sfdc/sfdc-token';
+const SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE || 2;
+const SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS = process.env.SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS || 'days'; // days or hours
 
 const RUNNING_IN_AWS = !!process.env.LAMBDA_TASK_ROOT;
 
@@ -19,12 +23,14 @@ async function handle(event) {
     console.log('SFDC handler', event);
 
     let sfdcToken;
+    const tokenExpiry = computeTokenExpiry();
 
     try {
-        sfdcToken = await getSFDCAccessToken();
-        console.log('SFDC token:', sfdcToken);
+        sfdcToken = await getSFDCAccessToken(tokenExpiry);
+        // console.log('SFDC token:', sfdcToken);
+        await storeToken(sfdcToken, tokenExpiry);
     } catch (error) {
-        console.error('Error getting SFDC token:', error);
+        console.error('Error refreshing SFDC token:', error);
         throw error;
     }
 
@@ -41,8 +47,8 @@ async function handle(event) {
     };
 }
 
-async function getSFDCAccessToken() {
-    const webToken = await getJWT();
+async function getSFDCAccessToken(tokenExpiry) {
+    const webToken = await getJWT(tokenExpiry);
 
     const params = new url.URLSearchParams({
         grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
@@ -53,7 +59,7 @@ async function getSFDCAccessToken() {
 
     try {
         const response = await axios.post(OAUTH_TOKEN_URL, params.toString())
-        sfdcToken = response.data;
+        sfdcToken = response.data.access_token;
     } catch (error) {
         console.error(error.message, error.response.status, error.response.data);
         throw error;
@@ -62,21 +68,28 @@ async function getSFDCAccessToken() {
     return sfdcToken;
 }
 
-async function getJWT() {
+async function getJWT(tokenExpiry) {
     const privateKey = await getPrivateKey();
-    const expiry = SFDC_TOKEN_EXPIRY * 24 * 60 * 60 * 1000;
 
     const payload = {
         iss: JWT_TOKEN_ISSUER,
         sub: JWT_TOKEN_SUBJECT,
         aud: JWT_TOKEN_AUDIENCE,
-        exp: new Date().getTime() + expiry
+        exp: tokenExpiry
     };
 
     const webToken = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
+    // TODO: keep this for debugging
     // console.log('JWT created with payload:', payload, 'JWT dump:', webToken);
 
     return webToken;
+}
+
+function computeTokenExpiry() {
+    const tokenDuration = SFDC_TOKEN_DURATION * 24 * 60 * 60 * 1000; // days to milliseconds
+    const expiry = new Date().getTime() + tokenDuration;
+
+    return expiry;
 }
 
 async function getPrivateKey() {
@@ -108,6 +121,52 @@ async function getPrivateKeyFromAWS() {
     }
 
     return privateKey;
+}
+
+async function storeToken(sfdcToken, expiry) {
+    console.log('Storing token:', sfdcToken, 'expiry:', expiry);
+
+    const client = new SSMClient({
+        region: "us-east-1",
+    });
+
+    const input = {
+        Name: SFDC_TOKEN_PARAM_NAME,
+        Value: sfdcToken,
+        Type: "SecureString",
+        Tier: "Advanced",
+        Overwrite: true,
+        Policies: paramStorePolicies(expiry)
+    };
+
+    const command = new PutParameterCommand(input);
+    const response = await client.send(command);
+
+    console.log('Token stored:', response);
+}
+
+function paramStorePolicies(expiry) {
+    const expiryTimestamp = new Date(expiry).toISOString();
+
+    const paramPolicies = [
+        {
+            "Type": "Expiration",
+            "Version": "1.0",
+            "Attributes": {
+                "Timestamp": expiryTimestamp
+            }
+        },
+        {
+            "Type": "ExpirationNotification",
+            "Version": "1.0",
+            "Attributes": {
+                "Before": SFDC_TOKEN_EXPIRY_NOTIFICATION_VALUE,
+                "Unit": SFDC_TOKEN_EXPIRY_NOTIFICATION_UNITS
+            }
+        }
+    ];
+
+    return JSON.stringify(paramPolicies);
 }
 
 module.exports = {

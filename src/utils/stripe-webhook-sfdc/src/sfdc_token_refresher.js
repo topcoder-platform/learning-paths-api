@@ -105,7 +105,7 @@ async function getPrivateKey() {
     if (RUNNING_IN_AWS) {
         return await getPrivateKeyFromAWS();
     } else {
-        return fs.readFileSync(path.join(__dirname, 'privatekey.pem'));
+        return fs.readFileSync(path.join(__dirname, '..', 'privatekey.pem'));
     }
 }
 

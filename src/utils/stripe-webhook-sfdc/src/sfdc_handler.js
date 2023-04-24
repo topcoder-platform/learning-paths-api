@@ -1,27 +1,26 @@
 const axios = require('axios');
 const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
 const { SFDC_TOKEN_PARAM_NAME } = require('./constants');
-const { Scheduler } = require('aws-sdk');
 
 const SFDC_ENDPOINT = process.env.SFDC_ENDPOINT;
+const LOG_EVENT = process.env.LOG_EVENT === 'true' || false;
+
 const ACCOUNT_NAME = 'Stripe.com';
 
 async function handle(event) {
-  console.log('SFDC handler', JSON.stringify(event, null, 2));
-
-  const stripeEvent = event.detail;
+  if (LOG_EVENT) console.log('SFDC handler', JSON.stringify(event, null, 2));
 
   const token = await getSFDCAccessToken();
   if (!token) {
     throw new Error('No SFDC token!');
   }
 
+  const stripeEvent = event.detail;
   const sfdcData = transformStripeEvent(stripeEvent);
-  const response = await postDataToSFDC(token, sfdcData);
-  console.log(response);
+  const statusCode = await postDataToSFDC(token, sfdcData);
 
   return {
-    statusCode: 200,
+    statusCode: statusCode,
   };
 };
 
@@ -31,8 +30,8 @@ function transformStripeEvent(event) {
   let sfdcData = {
     id: data.id,
     account_name: ACCOUNT_NAME,
-    customer_name: '',
-    member_handle: '',
+    customer_name: 'TEST USER',
+    member_handle: 'TestHandle',
     amount_refunded: data.amount_refunded / 100 || 0,
     metadata: data.metadata,
     status: data.status,
@@ -43,10 +42,14 @@ function transformStripeEvent(event) {
     case 'payment_intent':
       sfdcData.amount_due = data.amount_capturable / 100;
       sfdcData.amount_captured = data.amount_received / 100;
+      sfdcData.amount_paid = data.amount_received / 100;
+
       break;
     case 'charge':
       sfdcData.amount_due = data.amount / 100;
       sfdcData.amount_captured = data.amount_captured / 100;
+      sfdcData.amount_paid = data.amount_captured / 100;
+
       break;
     default:
       break;
@@ -62,16 +65,24 @@ function transformStripeEvent(event) {
  * @param {Object} event JSON Stripe event object
  */
 async function postDataToSFDC(token, event) {
-  const options = {
+  const data = JSON.stringify(event);
+  const config = {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify(event),
   };
 
-  const response = await axios.post(SFDC_ENDPOINT, options)
-  return response;
+  let response, statusCode;
+  try {
+    response = await axios.post(SFDC_ENDPOINT, data, config)
+    statusCode = response.status;
+  } catch (error) {
+    console.error(error.message);
+    statusCode = error.response.status;
+  }
+
+  return statusCode;
 }
 
 async function getSFDCAccessToken() {

@@ -4,7 +4,7 @@
   "description": "Stripe webhook handler using AWS serverless",
   "main": "index.js",
   "scripts": {
-    "start": "node test_server.js",
+    "start": "node src/test_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "chris.mccann@topcoder.com",

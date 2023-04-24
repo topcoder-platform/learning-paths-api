@@ -1,8 +1,14 @@
 const axios = require('axios');
 const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
+const { getStripeSecrets } = require('./common');
+
 const { SFDC_TOKEN_PARAM_NAME } = require('./constants');
 
 const SFDC_ENDPOINT = process.env.SFDC_ENDPOINT;
+if (!SFDC_ENDPOINT) {
+  throw new Error('Missing SFDC_ENDPOINT environment variable');
+}
+
 const LOG_EVENT = process.env.LOG_EVENT === 'true' || false;
 
 const ACCOUNT_NAME = 'Stripe.com';
@@ -16,7 +22,9 @@ async function handle(event) {
   }
 
   const stripeEvent = event.detail;
-  const sfdcData = transformStripeEvent(stripeEvent);
+  const sfdcData = await transformStripeEvent(stripeEvent);
+  console.log('SFDC data', JSON.stringify(sfdcData, null, 2));
+
   const statusCode = await postDataToSFDC(token, sfdcData);
 
   return {
@@ -24,14 +32,17 @@ async function handle(event) {
   };
 };
 
-function transformStripeEvent(event) {
+async function transformStripeEvent(event) {
   const data = event.data.object;
+  const customerId = data.customer;
+
+  const { customer_name, member_handle } = await getCustomerInfo(customerId);
 
   let sfdcData = {
     id: data.id,
     account_name: ACCOUNT_NAME,
-    customer_name: 'TEST USER',
-    member_handle: 'TestHandle',
+    customer_name: customer_name,
+    member_handle: member_handle,
     amount_refunded: data.amount_refunded / 100 || 0,
     metadata: data.metadata,
     status: data.status,
@@ -58,6 +69,31 @@ function transformStripeEvent(event) {
   return sfdcData;
 }
 
+async function getCustomerInfo(customerId) {
+  let customer_name = 'NOT FOUND';
+  let member_handle = 'NOT FOUND';
+
+  if (!customerId) {
+    return { customer_name, member_handle }
+  }
+
+  const stripeSecrets = await getStripeSecrets();
+  const stripeSecretKey = stripeSecrets['STRIPE_SECRET_KEY'];
+  if (!stripeSecretKey) {
+    throw new Error('No Stripe secret key!');
+  }
+
+  const stripe = require('stripe')(stripeSecretKey);
+  const customer = await stripe.customers.retrieve(customerId);
+
+  if (customer) {
+    customer_name = customer.name;
+    member_handle = customer.metadata.member_handle;
+  }
+
+  return { customer_name, member_handle }
+}
+
 /**
  * Posts the Stripe event to SFDC
  * 
@@ -79,7 +115,7 @@ async function postDataToSFDC(token, event) {
     statusCode = response.status;
   } catch (error) {
     console.error(error.message);
-    statusCode = error.response.status;
+    statusCode = error?.response.status;
   }
 
   return statusCode;

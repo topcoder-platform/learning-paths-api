@@ -80,6 +80,8 @@
     ]
   },
   "engines": {
+    "npm": ">= 8.5.5",
+    "yarn": "please-use-npm",
     "node": "16.x"
   },
   "volta": {

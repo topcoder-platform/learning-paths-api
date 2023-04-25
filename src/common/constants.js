@@ -37,10 +37,16 @@ const lessonCompletionStatuses = {
     completedSuccessfully: LESSON_COMPLETED_SUCCESSFULLY
 }
 
+const TCApaymentIdentity = {
+    sourceApplicationId: 'TCA',
+    sourceApplicationName: 'Topcoder Academy'
+}
+
 module.exports = {
     enrollmentStatuses,
     learnerLevels,
     lessonCompletionStatuses,
     progressStatuses,
     resourceProviders,
+    TCApaymentIdentity,
 }

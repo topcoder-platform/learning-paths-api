@@ -230,12 +230,20 @@ module.exports = (sequelize, DataTypes) => {
      * Marks an FCC Certificationa as completed
      */
     async completeFccCertification(completedDate = new Date()) {
-      this.set({
-        completedDate: completedDate,
-        status: progressStatuses.completed,
-      })
+      async function saveCompletion(transaction) {
+        this.set({
+          completedDate: completedDate,
+          status: progressStatuses.completed,
+        });
 
-      return await this.save();
+        return await this.save({ transaction });
+      }
+
+      return sequelize.transaction({
+        isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE
+      },
+        saveCompletion.bind(this)
+      );
     }
 
     /**

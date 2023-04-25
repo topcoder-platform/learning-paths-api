@@ -78,6 +78,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
+    emsiSkills: {
+      type: DataTypes.JSONB
+    }
   }, {
     sequelize,
     modelName: 'FccCourse',

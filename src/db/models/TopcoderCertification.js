@@ -110,6 +110,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
     },
+    emsiSkills: {
+      type: DataTypes.JSONB
+    }
   }, {
     sequelize,
     tableName: 'TopcoderCertification',

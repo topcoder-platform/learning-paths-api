@@ -3,27 +3,26 @@
  */
 
 const _ = require('lodash')
-const AWS = require('aws-sdk');
+const querystring = require('querystring')
+const errors = require('./errors')
+const util = require('util')
 const axios = require('axios');
 const busApi = require('topcoder-bus-api-wrapper');
 const config = require('config')
 const constants = require('../../app-constants')
-const errors = require('./errors')
 const Joi = require('joi')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
-const querystring = require('querystring')
-const util = require('util')
 
-// configure the AWS SDK for global use
-AWS.config.update({
-  s3: config.AMAZON.S3_API_VERSION,
-  accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
-  secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
-  region: config.AMAZON.AWS_REGION
-})
+// configure the AWS SDK for global use << keeping till we figure out if we need this
+// AWS.config.update({
+//   s3: config.AMAZON.S3_API_VERSION,
+//   accessKeyId: config.AMAZON.AWS_ACCESS_KEY_ID,
+//   secretAccessKey: config.AMAZON.AWS_SECRET_ACCESS_KEY,
+//   region: config.AMAZON.AWS_REGION
+// })
 
 // Bus API Client
 let busApiClient;

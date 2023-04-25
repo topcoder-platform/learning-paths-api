@@ -566,5 +566,232 @@ module.exports = {
             learned: true,
             assessed: false
         },
+    ],
+    // Just duplicates the above for the QA course, update if need be.
+    "2022/responsive-web-design-qa": [
+        {
+            name: "HTML Components",
+            emsiId: "KSD9Z9YAZHT0I55COV7R",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+
+        {
+            name: "CSS Animations",
+            emsiId: "KS122KM662BPX3KW64L9",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            name: "Flexbox",
+            emsiId: "KSG8V19PB8K7PM95X4HW",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            name: "CSS Grid",
+            emsiId: "BGSA9EF681216841CAE2",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            name: "Cascading Style Sheets (CSS)",
+            emsiId: "KS121F45VPV8C9W3QFYH",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            name: "Responsive Web Design",
+            emsiId: "KS4401Q6TM90DBQSF645",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            name: "HyperText Markup Language (HTML)",
+            emsiId: "KS1200578T5QCYT0Z98G",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+    ],
+    "coding-interview-prep": [
+        {
+            emsiId: "KS120D96FHL88PZDKZKH",
+            name: "Algorithms",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS122HN63RD7JX5WNCJ8",
+            name: "Creative Problem-Solving",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS126706DPFD3354M7YK",
+            name: "Mathematics",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS122Q26BWQ1PK3Y74C0",
+            name: "Data Structures",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        }
+    ],
+    "quality-assurance": [
+        {
+            emsiId: "KS1208P6ZMZ4N872Y7X5",
+            name: "Application Programming Interface (API)",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "ESAD92AA2437BEF8C136",
+            name: "Express.js",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS122556LMQ829GZCCRV",
+            name: "Communications",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "ESCD9B9471970FC22131",
+            name: "Chai (Software)",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS127296VDYS7ZFWVC46",
+            name: "Node.js",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS128866SHL94J005TTG",
+            name: "Quality Assurance",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS120S165SXK6CKVK77P",
+            name: "Authentications",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS4420J76GFLNLCJYPH9",
+            name: "WebSocket",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS7PA2Y7XV0K6ZKY7GWW",
+            name: "Template Engine",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS1200771D9CR9LB4MWW",
+            name: "JavaScript (Programming Language)",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KSZQKPCDDFY3G7VW78AI",
+            name: "Socket.io",
+            confidence: 0.9916311502456665,
+            learned: true,
+            assessed: false
+        }
+    ],
+    "information-security": [
+        {
+            emsiId: "KS125LS6N7WP4S6SFTCK",
+            name: "Python (Programming Language)",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS1271Z73BM33LDBJSLW",
+            name: "Nmap",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS120L66RV21DTVBSWX3",
+            name: "Penetration Testing",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS6XJ6DIKLVWRE3RL5K7",
+            name: "Http Headers",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS440DS63MQMXYLJ74JW",
+            name: "Web Application Security",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS123GK5WYFRJ4L20YK2",
+            name: "Middleware",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS7G2QW6V7WX8QR8MTCT",
+            name: "Transmission Control Protocol (TCP)",
+            confidence: 1,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS441XY6MSD48HBJTM78",
+            name: "Vulnerability",
+            confidence: 0.9998406171798706,
+            learned: true,
+            assessed: false
+        },
+        {
+            emsiId: "KS121Z46KCZJ3YXNKC60",
+            name: "Network Sockets",
+            confidence: 0.981657087802887,
+            learned: true,
+            assessed: false
+        }
     ]
 };

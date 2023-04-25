@@ -21,7 +21,7 @@ async function handle(event) {
     await handleEvent(stripeEvent);
 
   } catch (error) {
-    console.log(`⚠️  Webhook signature verification failed.`, error.message);
+    console.log(`Webhook signature verification failed.`, error.message);
     statusCode = 400;
     message = error.message;
   }

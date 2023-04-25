@@ -3,7 +3,7 @@ const {
     GetSecretValueCommand,
 } = require("@aws-sdk/client-secrets-manager");
 
-const { IS_RUNNING_IN_AWS } = require('./constants');
+const { RUNNING_IN_AWS } = require('./constants');
 
 const STRIPE_SECRETS_NAME = process.env.STRIPE_SECRETS_NAME;
 
@@ -38,7 +38,8 @@ async function verifySignature(event) {
     // NOTE: the endpoint secret used in local Stripe CLI testing
     // is different than the one used in AWS dev and prod.
     let endpointSecret;
-    if (IS_RUNNING_IN_AWS) {
+
+    if (RUNNING_IN_AWS) {
         endpointSecret = stripeSecrets['ENDPOINT_SECRET'];
     } else {
         endpointSecret = stripeSecrets['CLI_ENDPOINT_SECRET'];

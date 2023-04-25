@@ -4,7 +4,7 @@ const errors = require('../../common/errors');
 const {
   lessonCompletionStatuses,
   progressStatuses } = require('../../common/constants');
-const { Model, Transaction } = require('sequelize');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
@@ -230,22 +230,12 @@ module.exports = (sequelize, DataTypes) => {
      * Marks an FCC Certificationa as completed
      */
     async completeFccCertification(completedDate = new Date()) {
-      async function saveCompletion(transaction) {
-        this.set({
-          completedDate: completedDate,
-          status: progressStatuses.completed,
-        });
+      this.set({
+        completedDate: completedDate,
+        status: progressStatuses.completed,
+      })
 
-        return await this.save({ transaction });
-      }
-
-      saveCompletion.bind(this);
-
-      return sequelize.transaction({
-        isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE
-      },
-        saveCompletion
-      );
+      return await this.save();
     }
 
     /**

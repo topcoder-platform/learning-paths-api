@@ -48,6 +48,7 @@ async function handle(event) {
  * @returns an object to post to SFDC
  */
 async function transformStripeEvent(event) {
+  const eventType = event.type;
   const data = event.data.object;
   const customerId = data.customer;
 
@@ -64,21 +65,21 @@ async function transformStripeEvent(event) {
   }
 
   // Normalize the data for SFDC
-  switch (data.object) {
-    case 'payment_intent':
+  switch (eventType) {
+    case 'payment_intent.succeeded':
       sfdcData.amount_due = centsToDollars(data.amount_capturable);
       sfdcData.amount_captured = centsToDollars(data.amount_received);
       sfdcData.amount_paid = centsToDollars(data.amount_received);
 
       break;
-    case 'charge':
+    case 'charge.refunded':
       sfdcData.amount_due = centsToDollars(data.amount);
       sfdcData.amount_captured = centsToDollars(data.amount_captured);
       sfdcData.amount_paid = centsToDollars(data.amount_captured);
 
       break;
     default:
-      console.error(`Unhandled Stripe object type: ${data.object}`);
+      console.error(`Unhandled Stripe event type: ${eventType}`);
 
       break;
   }

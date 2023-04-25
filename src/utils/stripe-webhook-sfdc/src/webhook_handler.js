@@ -23,7 +23,7 @@ async function handle(event) {
 
   let stripeEvent;
   let statusCode = 200;
-  let message = '';
+  let message = 'success';
 
   try {
     if (!headers || !body) {

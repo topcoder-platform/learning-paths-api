@@ -58,7 +58,7 @@ async function transformStripeEvent(event) {
     account_name: ACCOUNT_NAME,
     customer_name: customer_name,
     member_handle: member_handle,
-    amount_refunded: data.amount_refunded / 100 || 0,
+    amount_refunded: centsToDollars(data.amount_refunded) || 0,
     metadata: data.metadata,
     status: data.status,
   }
@@ -66,15 +66,15 @@ async function transformStripeEvent(event) {
   // Normalize the data for SFDC
   switch (data.object) {
     case 'payment_intent':
-      sfdcData.amount_due = data.amount_capturable / 100;
-      sfdcData.amount_captured = data.amount_received / 100;
-      sfdcData.amount_paid = data.amount_received / 100;
+      sfdcData.amount_due = centsToDollars(data.amount_capturable);
+      sfdcData.amount_captured = centsToDollars(data.amount_received);
+      sfdcData.amount_paid = centsToDollars(data.amount_received);
 
       break;
     case 'charge':
-      sfdcData.amount_due = data.amount / 100;
-      sfdcData.amount_captured = data.amount_captured / 100;
-      sfdcData.amount_paid = data.amount_captured / 100;
+      sfdcData.amount_due = centsToDollars(data.amount);
+      sfdcData.amount_captured = centsToDollars(data.amount_captured);
+      sfdcData.amount_paid = centsToDollars(data.amount_captured);
 
       break;
     default:
@@ -168,6 +168,16 @@ async function getSFDCAccessToken() {
   }
 
   return token;
+}
+
+/**
+ * Converts cents to dollars.
+ * 
+ * @param {Integer} cents value in cents
+ * @returns value in decimal dollars
+ */
+function centsToDollars(cents) {
+  return (cents / 100).toFixed(2);
 }
 
 module.exports = {

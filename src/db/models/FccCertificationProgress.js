@@ -4,7 +4,7 @@ const errors = require('../../common/errors');
 const {
   lessonCompletionStatuses,
   progressStatuses } = require('../../common/constants');
-const { Model } = require('sequelize');
+const { Model, Transaction } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {

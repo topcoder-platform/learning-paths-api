@@ -5,8 +5,14 @@ const {
 
 const { RUNNING_IN_AWS } = require('./constants');
 
+// The name of the secret in AWS Secrets Manager
 const STRIPE_SECRETS_NAME = process.env.STRIPE_SECRETS_NAME;
 
+/**
+ * Retrieves the Stripe secrets from AWS Secrets Manager.
+ * 
+ * @returns {Object} the Stripe secrets from AWS Secrets Manager
+ */
 async function getStripeSecrets() {
     const client = new SecretsManagerClient({
         region: "us-east-1",
@@ -30,6 +36,12 @@ async function getStripeSecrets() {
     return secrets;
 }
 
+/**
+ * Verifies the signature of the Stripe event and returns the event.
+ * 
+ * @param {Object} event the raw Stripe event
+ * @returns the verified Stripe event 
+ */
 async function verifySignature(event) {
     let stripeEvent = event.body;
 

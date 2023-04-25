@@ -44,6 +44,8 @@ custom:
     dev: topcoder-dev.com
     prod: topcoder.com
   stripeSecretsName: ${self:provider.stage}/tca-stripe-secrets
+  webhookEventSource: ${env:WEBHOOK_EVENT_SOURCE, 'stripe-webhook-lambda'}
+  webhookEventDetailType: ${env:WEBHOOK_EVENT_DETAIL_TYPE, 'stripe-webhook-detail-type'}
   jwtPrivateKeySecretName: ${self:provider.stage}/tca-sfdc-jwt-private-key
   jwt:
     dev:
@@ -78,6 +80,8 @@ functions:
           method: post
     environment:
       STRIPE_SECRETS_NAME: ${self:custom.stripeSecretsName}
+      WEBHOOK_EVENT_SOURCE: ${self:custom.webhookEventSource}
+      WEBHOOK_EVENT_DETAIL_TYPE: ${self:custom.webhookEventDetailType}
   
   sfdcHandler:
     handler: src/sfdc_handler.handle

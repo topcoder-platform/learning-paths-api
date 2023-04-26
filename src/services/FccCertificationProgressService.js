@@ -13,7 +13,8 @@ const {
     progressStatuses } = require('../common/constants');
 
 const helper = require('../common/helper');
-const { completeFccCourseEmailNotification, startFccCourseEmailNotification } = require('../common/emailHelper');
+const { completeFccCourseEmailNotification, startFccCourseEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
+const { isTCAFirstTimer } = require('./CertificationEnrollmentService');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -269,6 +270,9 @@ async function startCertification(currentUser, userId, certificationId, courseId
         if (existingProgress.isNotStarted()) {
             existingProgress = await existingProgress.start(query)
             console.log(`User ${userId} starting the ${provider} ${certification} certification now!`)
+
+            // notify the member via email
+            await startFccCourseEmailNotification(handle, email, certification, provider || 'freeCodeCamp');
         } else {
             const startDate = existingProgress.startDate;
             console.log(`User ${userId} already started the ${provider} ${certification} certification on ${startDate}`)
@@ -284,10 +288,17 @@ async function startCertification(currentUser, userId, certificationId, courseId
         let options = query;
         options.status = progressStatuses.inProgress;
 
+        // check before creating the progress so it is accurate
+        const isNewTCALearner = await isTCAFirstTimer(userId);
+
         const fccCertProgress = await db.FccCertificationProgress.buildFromCertification(userId, email, fccCertification, options);
 
         // notify the member via email
-        await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+        if (isNewTCALearner) {
+            await firstTimerEmailNotification(email, handle);
+        } else {
+            await startFccCourseEmailNotification(handle, email, fccCertification, fccCertProgress.resourceProvider?.name || 'freeCodeCamp');
+        }
 
         return fccCertProgress;
     }
@@ -535,6 +546,11 @@ async function completeCertification(
     certificateAlternateParams,
 ) {
     const progress = await getCertificationProgress(currentUser.userId, certificationProgressId);
+
+    if (progress.isCompleted()) {
+        // avoid doing anything as course is already completed
+        return progress;
+    }
 
     await checkCertificateCompletion(progress)
 

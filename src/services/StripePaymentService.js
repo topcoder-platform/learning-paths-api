@@ -1,4 +1,5 @@
 const config = require('config');
+const { TCApaymentIdentity } = require('../common/constants');
 
 const stripe = require('stripe')(config.STRIPE.SECRET_KEY, {
     apiVersion: config.STRIPE.API_VERSION
@@ -83,15 +84,20 @@ async function createInvoice(customerId, priceIDs) {
         auto_advance: false,
         customer: customerId,
         expand: ['payment_intent']
-    })
+    });
     // finalize the invoice
-    const finalInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
+    const finalInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
     // get the client secret from the payment intent
-    const clientSecret = await stripe.paymentIntents.retrieve(finalInvoice.payment_intent)
+    const paymentIntent = await stripe.paymentIntents.retrieve(finalInvoice.payment_intent);
+    // tag payment with TCA identity
+    const paymentIntentTCA = await stripe.paymentIntents.update(
+        paymentIntent.id,
+        { metadata: TCApaymentIdentity  }
+    );
 
     return {
         invoiceId: finalInvoice.id,
-        clientSecret: clientSecret.client_secret
+        clientSecret: paymentIntentTCA.client_secret
     }
 }
 

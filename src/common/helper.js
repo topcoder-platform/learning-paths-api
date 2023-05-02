@@ -237,7 +237,7 @@ function ensureUserCanViewProgress(currentUser, progress) {
  * @param {Object} reqUserId the user ID of the requested data
  */
 function ensureRequestForCurrentUser(currentUser, reqUserId) {
-  if (currentUser.userId != reqUserId) {
+  if (!currentUser.userId || !reqUserId || currentUser.userId !== reqUserId) {
     throw new errors.ForbiddenError(`You don't have access to this data`)
   } else {
     return true
@@ -277,7 +277,7 @@ function parseQueryParam(param) {
 
 function featureFlagSet(flag, setValue) {
   const flagValue = config.FEATURE_FLAG[flag];
-  return flagValue == setValue ? true : false
+  return flagValue === setValue ? true : false
 }
 
 /**

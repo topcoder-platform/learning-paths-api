@@ -12,7 +12,7 @@ const {
     setToInternalCache,
     toString,
     validateRequestPayload,
-} = require('./helper');
+} = require('../../src/common/helper');
 
 // use Jest to unit test hasTCAAdminRole function
 describe('hasTCAAdminRole', () => {

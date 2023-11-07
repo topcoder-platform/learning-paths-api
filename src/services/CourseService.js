@@ -149,7 +149,7 @@ async function updateCourse(course, data) {
  * @param {*} payload Any
  */
 function validateCourseUpdate(payload) {
-    const schema = Joi.object().keys({
+    const schema = Joi.object({
         // TODO: only skills are currently supported for updates. Add more fields here as needed.
         skills: Joi.array().items(Joi.string().guid().required()).required(),
     })

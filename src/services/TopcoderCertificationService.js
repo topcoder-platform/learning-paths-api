@@ -171,7 +171,7 @@ async function updateCertification(cert, data) {
  * @param {*} payload Any
  */
 function validateCertificationUpdate(payload) {
-    const schema = Joi.object().keys({
+    const schema = Joi.object({
         // TODO: only skills are currently supported for updates. Add more fields here as needed.
         skills: Joi.array().items(Joi.string().guid().required()).required(),
     })

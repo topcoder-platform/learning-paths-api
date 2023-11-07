@@ -27,8 +27,30 @@ async function getCertification(req, res) {
     const result = await service.getCertificationByDashedName(req.params.dashedName)
 
     if (!result) {
-        throw new errors.NotFoundError(`Topcoder Certification id '${req.params.dashedName}' does not exist.`)
+        throw new errors.NotFoundError(`Topcoder Certification '${req.params.dashedName}' does not exist.`)
     }
+
+    res.send(result)
+}
+
+/**
+ * Update certification
+ * 
+ * @param {Object} req the request
+ * @param {Object} res the response
+ */
+async function updateCertification(req, res) {
+    const cert = await service.getCertificationByDashedName(req.params.dashedName)
+
+    if (!cert) {
+        throw new errors.NotFoundError(`Topcoder Certification '${req.params.dashedName}' does not exist.`)
+    }
+
+    // validate the request body with Joi schema
+    const validatedUpdate = service.validateCertificationUpdate(req.body)
+
+    // update the certification
+    const result = await service.updateCertification(cert, validatedUpdate)
 
     res.send(result)
 }
@@ -59,4 +81,5 @@ module.exports = {
     searchCertifications,
     getCertification,
     validateCertOwnership,
+    updateCertification,
 }

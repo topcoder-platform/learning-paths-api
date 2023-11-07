@@ -49,6 +49,12 @@ module.exports = {
       controller: 'CourseController',
       method: 'getCourse'
     },
+    patch: {
+      controller: 'CourseController',
+      method: 'updateCourse',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
   },
   '/learning-paths/courses/:courseId/modules': {
     get: {
@@ -153,7 +159,13 @@ module.exports = {
     get: {
       controller: 'TopcoderCertificationController',
       method: 'getCertification'
-    }
+    },
+    patch: {
+      controller: 'TopcoderCertificationController',
+      method: 'updateCertification',
+      auth: 'jwt',
+      access: [constants.UserRoles.TCAAdmin],
+    },
   },
   '/learning-paths/topcoder-certifications/:userId/progresses': {
     get: {

@@ -4,6 +4,7 @@
 
 const db = require('../db/models')
 const dbHelper = require('../common/dbHelper')
+const Joi = require('joi')
 
 /**
  * Search Courses - search for FCC courses
@@ -131,8 +132,41 @@ async function getPostgresCourseModules(id) {
     })
 }
 
+/**
+ * Update existing Fcc Course
+ * 
+ * @param {*} cert FccCourse instance
+ * @param {*} data Data to update the model with
+ * @returns 
+ */
+async function updateCourse(course, data) {
+    return course.update(data)
+}
+
+/**
+ * Validate update course payload with Joi schema
+ * 
+ * @param {*} payload Any
+ */
+function validateCourseUpdate(payload) {
+    const schema = Joi.object().keys({
+        // TODO: only skills are currently supported for updates. Add more fields here as needed.
+        skills: Joi.array().items(Joi.string().guid().required()).required(),
+    })
+
+    const { error, value } = schema.validate({ payload })
+    
+    if (error) {
+      throw error
+    }
+
+    return value
+}
+
 module.exports = {
     getCourse,
     getCourseModules,
-    searchCourses
+    searchCourses,
+    validateCourseUpdate,
+    updateCourse
 }

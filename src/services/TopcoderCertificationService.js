@@ -4,6 +4,8 @@
 
 const db = require('../db/models')
 const errors = require('../common/errors')
+const Joi = require('joi')
+
 const DEFAULT_PAGE_LIMIT = 10
 
 /**
@@ -152,10 +154,43 @@ async function validateCertOwnership(topcoderCertificationId, userHandle) {
     return enrollment
 }
 
+/**
+ * Update existing TopcoderCertification
+ * 
+ * @param {*} cert TopcoderCertification instance
+ * @param {*} data Data to update the model with
+ * @returns 
+ */
+async function updateCertification(cert, data) {
+    return cert.update(data)
+}
+
+/**
+ * Validate update cert payload with Joi schema
+ * 
+ * @param {*} payload Any
+ */
+function validateCertificationUpdate(payload) {
+    const schema = Joi.object().keys({
+        // TODO: only skills are currently supported for updates. Add more fields here as needed.
+        skills: Joi.array().items(Joi.string().guid().required()).required(),
+    })
+
+    const { error, value } = schema.validate({ payload })
+    
+    if (error) {
+      throw error
+    }
+
+    return value
+}
+
 module.exports = {
     searchCertifications,
     getCertification,
     getCertificationByDashedName,
     validateCertOwnership,
     certificationIncludes,
+    updateCertification,
+    validateCertificationUpdate,
 }

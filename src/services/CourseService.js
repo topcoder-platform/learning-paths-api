@@ -154,7 +154,7 @@ function validateCourseUpdate(payload) {
         skills: Joi.array().items(Joi.string().guid().required()).required(),
     })
 
-    const { error, value } = schema.validate({ payload })
+    const { error, value } = schema.validate(payload)
     
     if (error) {
       throw error

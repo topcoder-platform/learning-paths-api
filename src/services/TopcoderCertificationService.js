@@ -177,6 +177,8 @@ function validateCertificationUpdate(payload) {
     })
 
     const { error, value } = schema.validate({ payload })
+
+    console.log('validateCertificationUpdate', payload, schema, error, value)
     
     if (error) {
       throw error

@@ -5,7 +5,10 @@
 const { Op } = require("sequelize");
 
 const db = require('../db/models');
-const dbHelper = require('../common/dbHelper')
+const dbHelper = require('../common/dbHelper');
+const { result } = require("lodash");
+const c = require("config");
+const { expandSkillsM2M } = require("../common/helper");
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 
@@ -77,6 +80,20 @@ async function searchPGCertifications(criteria) {
         perPage,
         options));
 
+    if (result) {
+        const expandedSkills = []
+
+        for (const fccCert of result) {
+            if (fccCert.course && fccCert.course.skills) {
+                fccCert.course.skills = await expandSkillsM2M(fccCert.course.skills)
+            }
+
+            expandedSkills.push(fccCert)
+        }
+
+        return { total, result: expandedSkills }
+    }
+
     return { total, result }
 }
 
@@ -106,6 +123,10 @@ async function getCertification(id) {
         where: where,
         include: includeAssociations
     })
+
+    if (certification && certification.course && certification.course.skills) {
+        certification.course.skills = await expandSkillsM2M(certification.course.skills)
+    }
 
     return certification
 }

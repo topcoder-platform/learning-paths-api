@@ -410,7 +410,7 @@ async function getSkillM2M(skillId) {
   // add it to the internal cache
   const m2m = await getM2MToken();
 
-  return axios(`${config.API_BASE_URL}/v5/standardized-skills/${skillId}`, {
+  return axios(`${config.API_BASE_URL}/v5/standardized-skills/skills/${skillId}`, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }

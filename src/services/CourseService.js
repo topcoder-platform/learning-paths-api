@@ -44,7 +44,7 @@ function courseIncludes(criteria) {
         {
             model: db.FreeCodeCampCertification,
             as: 'freeCodeCampCertification',
-            ...(criteria.certification ? { where: { certification: criteria.certification } } : {}),
+            ...((criteria && criteria.certification) ? { where: { certification: criteria.certification } } : {}),
         },
         {
             model: db.ResourceProvider,

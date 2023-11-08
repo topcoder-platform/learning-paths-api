@@ -422,6 +422,26 @@ async function getSkillM2M(skillId) {
     })
 }
 
+/**
+ * Expands skill UUIDs into full skill objects
+ * by checking cache or calling the skills API via M2M
+ * 
+ * @param {string[]} skills Array of skill UUIDs
+ * @returns 
+ */
+async function expandSkillsM2M(skills) {
+  const expandedSkills = []
+
+  for (let skillId of skills) {
+    // this will throw if skill cannot be found/verified
+    const skill = await getSkillM2M(skillId)
+    
+    expandedSkills.push(skill)
+  }
+
+  return expandedSkills
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -446,4 +466,5 @@ module.exports = {
   validateRequestPayload,
   wrapExpress,
   getSkillM2M,
+  expandSkillsM2M,
 }

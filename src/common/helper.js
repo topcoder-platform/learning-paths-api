@@ -393,6 +393,35 @@ async function postBusEvent(topic, payload) {
   })
 }
 
+/**
+ * Get TC skill object from skills API via M2M
+ * Note: skills verification is cached in the internal cache to save ion API calls
+ * @param {String} skillId UUID of the skill
+ * @returns 
+ */
+async function getSkillM2M(skillId) {
+  let skill = getFromInternalCache(skillId);
+
+  if (skill) {
+    return Promise.resolve(skill);
+  }
+
+  // get the skill data from the skills API,
+  // add it to the internal cache
+  const m2m = await getM2MToken();
+
+  return axios(`${config.API_BASE_URL}/v5/standardized-skills/${skillId}`, {
+    headers: {
+      Authorization: `Bearer ${m2m}`
+    }
+  })
+    .then(rsp => {
+      setToInternalCache(skillId, rsp.data);
+
+      return rsp.data
+    })
+}
+
 module.exports = {
   autoWrapExpress,
   checkIfExists,
@@ -416,4 +445,5 @@ module.exports = {
   toString,
   validateRequestPayload,
   wrapExpress,
+  getSkillM2M,
 }

@@ -53,6 +53,15 @@ async function updateCourse(req, res) {
     // validate the request body with Joi schema
     const validatedUpdate = service.validateCourseUpdate(req.body)
 
+    // remove duplicated skill ids if any
+    validatedUpdate.skills = [...new Set(validatedUpdate.skills)]
+
+    // verify if each skill id exists as a active skill
+    for (let skillId of validatedUpdate.skills) {
+        // this will throw if skill cannot be found/verified
+        const skill = await getSkillM2M(skillId)
+    }
+
     // update the course
     const result = await service.updateCourse(course, validatedUpdate)
 

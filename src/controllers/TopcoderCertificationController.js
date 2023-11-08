@@ -4,6 +4,7 @@
 
 const service = require('../services/TopcoderCertificationService')
 const errors = require('../common/errors')
+const { getSkillM2M } = require('../common/helper')
 
 /**
  * Search certifications
@@ -48,6 +49,15 @@ async function updateCertification(req, res) {
 
     // validate the request body with Joi schema
     const validatedUpdate = service.validateCertificationUpdate(req.body)
+
+    // remove duplicated skill ids if any
+    validatedUpdate.skills = [...new Set(validatedUpdate.skills)]
+
+    // verify if each skill id exists as a active skill
+    for (let skillId of validatedUpdate.skills) {
+        // this will throw if skill cannot be found/verified
+        const skill = await getSkillM2M(skillId)
+    }
 
     // update the certification
     const result = await service.updateCertification(cert, validatedUpdate)

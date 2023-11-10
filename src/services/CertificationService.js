@@ -91,7 +91,7 @@ async function searchPGCertifications(criteria) {
             expandedSkills.push(fccCert)
         }
 
-        return { total, result: expandedSkills }
+        return { total: count, result: expandedSkills }
     }
 
     return { total: count, result: rows }

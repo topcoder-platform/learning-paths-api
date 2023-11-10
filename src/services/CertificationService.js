@@ -74,16 +74,16 @@ async function searchPGCertifications(criteria) {
     };
 
     const model = db['FreeCodeCampCertification'];
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+    ({ count, rows } = await dbHelper.findAndCountAllPages(
         model,
         page,
         perPage,
         options));
 
-    if (result) {
+    if (rows) {
         const expandedSkills = []
 
-        for (const fccCert of result) {
+        for (const fccCert of rows) {
             if (fccCert.course && fccCert.course.skills) {
                 fccCert.course.skills = await expandSkillsM2M(fccCert.course.skills)
             }
@@ -94,7 +94,7 @@ async function searchPGCertifications(criteria) {
         return { total, result: expandedSkills }
     }
 
-    return { total, result }
+    return { total: count, result: rows }
 }
 
 /**

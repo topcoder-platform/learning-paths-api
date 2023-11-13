@@ -5,7 +5,8 @@
 const { Op } = require("sequelize");
 
 const db = require('../db/models');
-const dbHelper = require('../common/dbHelper')
+const dbHelper = require('../common/dbHelper');
+const { expandSkills } = require("../common/helper");
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 
@@ -71,13 +72,27 @@ async function searchPGCertifications(criteria) {
     };
 
     const model = db['FreeCodeCampCertification'];
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+    ({ count, rows } = await dbHelper.findAndCountAllPages(
         model,
         page,
         perPage,
         options));
 
-    return { total, result }
+    if (rows) {
+        const expandedSkills = []
+
+        for (const fccCert of rows) {
+            if (fccCert.course && fccCert.course.skills) {
+                fccCert.course.skills = await expandSkills(fccCert.course.skills)
+            }
+
+            expandedSkills.push(fccCert)
+        }
+
+        return { total: count, result: expandedSkills }
+    }
+
+    return { total: count, result: rows }
 }
 
 /**
@@ -106,6 +121,10 @@ async function getCertification(id) {
         where: where,
         include: includeAssociations
     })
+
+    if (certification && certification.course && certification.course.skills) {
+        certification.course.skills = await expandSkills(certification.course.skills)
+    }
 
     return certification
 }

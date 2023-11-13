@@ -38,8 +38,39 @@ async function getCourseModules(req, res) {
     res.send(result)
 }
 
+/**
+ * Update a course
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function updateCourse(req, res) {
+    const course = await service.getCourse(req.params.courseId)
+
+    if (!course) {
+        throw new errors.NotFoundError(`Course '${req.params.courseId}' does not exist.`)
+    }
+
+    // validate the request body with Joi schema
+    const validatedUpdate = service.validateCourseUpdate(req.body)
+
+    // remove duplicated skill ids if any
+    validatedUpdate.skills = [...new Set(validatedUpdate.skills)]
+
+    // verify if each skill id exists as a active skill
+    for (let skillId of validatedUpdate.skills) {
+        // this will throw if skill cannot be found/verified
+        const skill = await helper.getSkill(skillId)
+    }
+
+    // update the course
+    const result = await service.updateCourse(course, validatedUpdate)
+
+    res.send(result)
+}
+
 module.exports = {
     searchCourses,
     getCourse,
     getCourseModules,
+    updateCourse,
 }

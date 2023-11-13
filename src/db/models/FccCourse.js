@@ -75,11 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: "Beginner",
     },
     skills: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false,
-    },
-    emsiSkills: {
-      type: DataTypes.JSONB
+      type: DataTypes.ARRAY(DataTypes.UUID)
     }
   }, {
     sequelize,

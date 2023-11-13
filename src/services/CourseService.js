@@ -4,6 +4,8 @@
 
 const db = require('../db/models')
 const dbHelper = require('../common/dbHelper')
+const Joi = require('joi')
+const { expandSkills } = require('../common/helper')
 
 /**
  * Search Courses - search for FCC courses
@@ -14,7 +16,6 @@ const dbHelper = require('../common/dbHelper')
 async function searchCourses(criteria) {
     let page = criteria.page || 1
     let perPage = criteria.perPage || 50
-    let total, result;
 
     let options = {};
 
@@ -27,13 +28,27 @@ async function searchCourses(criteria) {
 
     const model = db['FccCourse'];
     // transforming the returned data to not require a change in the front-end
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+    ({ count, rows } = await dbHelper.findAndCountAllPages(
         model,
         page,
         perPage,
         options));
 
-    return { total, page, perPage, result }
+    if (rows) {
+        const expandedSkills = []
+
+        for (const fccCourse of rows) {
+            if (fccCourse.skills) {
+                fccCourse.skills = await expandSkills(fccCourse.skills)
+            }
+
+            expandedSkills.push(fccCourse)
+        }
+
+        return { total: count, result: expandedSkills }
+    }
+
+    return { total: count, page, perPage, result: rows }
 }
 
 // include associated models to provide the
@@ -43,7 +58,7 @@ function courseIncludes(criteria) {
         {
             model: db.FreeCodeCampCertification,
             as: 'freeCodeCampCertification',
-            ...(criteria.certification ? { where: { certification: criteria.certification } } : {}),
+            ...((criteria && criteria.certification) ? { where: { certification: criteria.certification } } : {}),
         },
         {
             model: db.ResourceProvider,
@@ -95,6 +110,10 @@ async function getCourse(id) {
         attributes: courseIncludeAttributes()
     });
 
+    if (course && course.skills) {
+        course.skills = await expandSkills(course.skills)
+    }
+
     return course
 }
 
@@ -131,8 +150,41 @@ async function getPostgresCourseModules(id) {
     })
 }
 
+/**
+ * Update existing Fcc Course
+ * 
+ * @param {*} cert FccCourse instance
+ * @param {*} data Data to update the model with
+ * @returns 
+ */
+async function updateCourse(course, data) {
+    return course.update(data)
+}
+
+/**
+ * Validate update course payload with Joi schema
+ * 
+ * @param {*} payload Any
+ */
+function validateCourseUpdate(payload) {
+    const schema = Joi.object({
+        // TODO: only skills are currently supported for updates. Add more fields here as needed.
+        skills: Joi.array().items(Joi.string().guid().required()).required(),
+    })
+
+    const { error, value } = schema.validate(payload)
+
+    if (error) {
+        throw error
+    }
+
+    return value
+}
+
 module.exports = {
     getCourse,
     getCourseModules,
-    searchCourses
+    searchCourses,
+    validateCourseUpdate,
+    updateCourse
 }

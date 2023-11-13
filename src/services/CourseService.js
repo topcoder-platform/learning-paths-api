@@ -16,7 +16,6 @@ const { expandSkillsM2M } = require('../common/helper')
 async function searchCourses(criteria) {
     let page = criteria.page || 1
     let perPage = criteria.perPage || 50
-    let total, result;
 
     let options = {};
 
@@ -29,13 +28,27 @@ async function searchCourses(criteria) {
 
     const model = db['FccCourse'];
     // transforming the returned data to not require a change in the front-end
-    ({ count: total, rows: result } = await dbHelper.findAndCountAllPages(
+    ({ count, rows } = await dbHelper.findAndCountAllPages(
         model,
         page,
         perPage,
         options));
 
-    return { total, page, perPage, result }
+    if (rows) {
+        const expandedSkills = []
+
+        for (const fccCourse of rows) {
+            if (fccCourse.skills) {
+                fccCourse.skills = await expandSkillsM2M(fccCourse.skills)
+            }
+
+            expandedSkills.push(fccCourse)
+        }
+
+        return { total: count, result: expandedSkills }
+    }
+
+    return { total: count, page, perPage, result: rows }
 }
 
 // include associated models to provide the
@@ -160,9 +173,9 @@ function validateCourseUpdate(payload) {
     })
 
     const { error, value } = schema.validate(payload)
-    
+
     if (error) {
-      throw error
+        throw error
     }
 
     return value

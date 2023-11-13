@@ -4,7 +4,7 @@
 
 const service = require('../services/TopcoderCertificationService')
 const errors = require('../common/errors')
-const { getSkillM2M } = require('../common/helper')
+const { getSkill } = require('../common/helper')
 
 /**
  * Search certifications
@@ -56,7 +56,7 @@ async function updateCertification(req, res) {
     // verify if each skill id exists as a active skill
     for (let skillId of validatedUpdate.skills) {
         // this will throw if skill cannot be found/verified
-        const skill = await getSkillM2M(skillId)
+        const skill = await getSkill(skillId)
     }
 
     // update the certification

@@ -59,7 +59,7 @@ async function updateCourse(req, res) {
     // verify if each skill id exists as a active skill
     for (let skillId of validatedUpdate.skills) {
         // this will throw if skill cannot be found/verified
-        const skill = await helper.getSkillM2M(skillId)
+        const skill = await helper.getSkill(skillId)
     }
 
     // update the course

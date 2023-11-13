@@ -6,9 +6,7 @@ const { Op } = require("sequelize");
 
 const db = require('../db/models');
 const dbHelper = require('../common/dbHelper');
-const { result } = require("lodash");
-const c = require("config");
-const { expandSkillsM2M } = require("../common/helper");
+const { expandSkills } = require("../common/helper");
 
 const ACTIVE_STATES = ['active', 'coming-soon'];
 
@@ -85,7 +83,7 @@ async function searchPGCertifications(criteria) {
 
         for (const fccCert of rows) {
             if (fccCert.course && fccCert.course.skills) {
-                fccCert.course.skills = await expandSkillsM2M(fccCert.course.skills)
+                fccCert.course.skills = await expandSkills(fccCert.course.skills)
             }
 
             expandedSkills.push(fccCert)
@@ -125,7 +123,7 @@ async function getCertification(id) {
     })
 
     if (certification && certification.course && certification.course.skills) {
-        certification.course.skills = await expandSkillsM2M(certification.course.skills)
+        certification.course.skills = await expandSkills(certification.course.skills)
     }
 
     return certification

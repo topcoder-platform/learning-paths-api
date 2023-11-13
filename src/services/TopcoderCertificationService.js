@@ -4,9 +4,8 @@
 
 const db = require('../db/models')
 const errors = require('../common/errors')
-const { expandSkillsM2M } = require('../common/helper')
+const { expandSkills } = require('../common/helper')
 const Joi = require('joi')
-const c = require('config')
 
 const DEFAULT_PAGE_LIMIT = 10
 
@@ -37,7 +36,7 @@ async function searchCertifications(query = {}) {
 
         for (const cert of certs) {
             if (cert.skills) {
-                cert.skills = await expandSkillsM2M(cert.skills)
+                cert.skills = await expandSkills(cert.skills)
             }
 
             certsWithSkills.push(cert)
@@ -63,7 +62,7 @@ async function getCertification(id) {
     const cert = await db.TopcoderCertification.findByPk(id, options)
 
     if (cert && cert.skills) {
-        cert.skills = await expandSkillsM2M(cert.skills)
+        cert.skills = await expandSkills(cert.skills)
     }
 
     return cert
@@ -86,7 +85,7 @@ async function getCertificationByDashedName(dashedName) {
     const cert = await db.TopcoderCertification.findOne(options)
 
     if (cert && cert.skills) {
-        cert.skills = await expandSkillsM2M(cert.skills)
+        cert.skills = await expandSkills(cert.skills)
     }
 
     return cert

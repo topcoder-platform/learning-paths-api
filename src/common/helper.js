@@ -395,11 +395,11 @@ async function postBusEvent(topic, payload) {
 
 /**
  * Get TC skill object from skills API via M2M
- * Note: skills verification is cached in the internal cache to save ion API calls
+ * Note: skills verification is cached in the internal cache to save on API calls
  * @param {String} skillId UUID of the skill
  * @returns 
  */
-async function getSkillM2M(skillId) {
+async function getSkill(skillId) {
   let skill = getFromInternalCache(skillId);
 
   if (skill) {
@@ -429,12 +429,12 @@ async function getSkillM2M(skillId) {
  * @param {string[]} skills Array of skill UUIDs
  * @returns 
  */
-async function expandSkillsM2M(skills) {
+async function expandSkills(skills) {
   const expandedSkills = []
 
   for (let skillId of skills) {
     // this will throw if skill cannot be found/verified
-    const skill = await getSkillM2M(skillId)
+    const skill = await getSkill(skillId)
     
     expandedSkills.push(skill)
   }
@@ -465,6 +465,6 @@ module.exports = {
   toString,
   validateRequestPayload,
   wrapExpress,
-  getSkillM2M,
-  expandSkillsM2M,
+  getSkill,
+  expandSkills,
 }

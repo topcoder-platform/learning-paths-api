@@ -5,7 +5,7 @@
 const db = require('../db/models')
 const dbHelper = require('../common/dbHelper')
 const Joi = require('joi')
-const { expandSkillsM2M } = require('../common/helper')
+const { expandSkills } = require('../common/helper')
 
 /**
  * Search Courses - search for FCC courses
@@ -39,7 +39,7 @@ async function searchCourses(criteria) {
 
         for (const fccCourse of rows) {
             if (fccCourse.skills) {
-                fccCourse.skills = await expandSkillsM2M(fccCourse.skills)
+                fccCourse.skills = await expandSkills(fccCourse.skills)
             }
 
             expandedSkills.push(fccCourse)
@@ -111,7 +111,7 @@ async function getCourse(id) {
     });
 
     if (course && course.skills) {
-        course.skills = await expandSkillsM2M(course.skills)
+        course.skills = await expandSkills(course.skills)
     }
 
     return course

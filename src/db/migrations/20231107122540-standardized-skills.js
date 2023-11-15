@@ -18,6 +18,15 @@ module.exports = {
     await queryInterface.addColumn('FccCourses', 'skills', {
       type: Sequelize.DataTypes.ARRAY(Sequelize.DataTypes.UUID)
     });
+
+    // add completion eventId column to certs & courses
+    // used for tracking completion events in skills API
+    await queryInterface.addColumn('CertificationEnrollments', 'completionEventId', {
+      type: Sequelize.DataTypes.UUID
+    });
+    await queryInterface.addColumn('FccCertificationProgresses', 'completionEventId', {
+      type: Sequelize.DataTypes.UUID
+    });
   },
 
   async down(queryInterface, Sequelize) {
@@ -35,5 +44,8 @@ module.exports = {
     await queryInterface.addColumn('FccCourses', 'skills', {
       type: Sequelize.DataTypes.ARRAY(Sequelize.DataTypes.STRING)
     });
+    // remove completion eventId column
+    await queryInterface.removeColumn('CertificationEnrollments', 'completionEventId');
+    await queryInterface.removeColumn('FccCertificationProgresses', 'completionEventId');
   }
 };

@@ -5,6 +5,7 @@ const {
   lessonCompletionStatuses,
   progressStatuses } = require('../../common/constants');
 const { Model, Transaction } = require('sequelize');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
   class FccCertificationProgress extends Model {
@@ -234,6 +235,7 @@ module.exports = (sequelize, DataTypes) => {
         this.set({
           completedDate: completedDate,
           status: progressStatuses.completed,
+          completionEventId: uuidv4(),
         });
 
         return await this.save({ transaction });
@@ -480,6 +482,9 @@ module.exports = (sequelize, DataTypes) => {
     certificationImageUrl: DataTypes.STRING,
     courseProgressPercentage: DataTypes.VIRTUAL,
     certificationProgressPercentage: DataTypes.VIRTUAL,
+    completionEventId: {
+      type: DataTypes.UUID,
+    },
   }, {
     sequelize,
     modelName: 'FccCertificationProgress',

@@ -72,6 +72,7 @@ module.exports = {
   // TC BUS Kafka
   BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
   KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'common.error.reporting',
+  KAFKA_TCA_COMPLETION_TOPIC: process.env.KAFKA_TCA_COMPLETION_TOPIC || 'tca.notification.update',
 
   // Email templates in SendGrid
   EMAIL_TEMPLATES: {

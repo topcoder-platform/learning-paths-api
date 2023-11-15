@@ -102,15 +102,16 @@ function courseIncludeAttributes() {
  * Get Course by ID
  * 
  * @param {String} id the Course ID
+ * @param {Boolean} preventSkillsExpansion if true, do not expand the skills
  * @returns {Object} the Course with given ID
  */
-async function getCourse(id) {
+async function getCourse(id, preventSkillsExpansion = false) {
     const course = await db.FccCourse.findByPk(id, {
         include: courseIncludes(),
         attributes: courseIncludeAttributes()
     });
 
-    if (course && course.skills) {
+    if (!preventSkillsExpansion && course && course.skills) {
         course.skills = await expandSkills(course.skills)
     }
 

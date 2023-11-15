@@ -82,7 +82,7 @@ workflows:
             branches:
               only:
               - develop
-              - TSJR-218
+              - TSJR-100
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.

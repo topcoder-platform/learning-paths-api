@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
         config.KAFKA_TCA_COMPLETION_TOPIC,
         {
           id: completedCert.completionEventId,
-          skills: certification.skills || [],
+          skills: (certification.skills || []).map(skill => ({ id: skill })),
           type: 'certification',
           graduate: {
             userId: this.userId,

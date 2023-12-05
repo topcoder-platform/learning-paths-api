@@ -15,6 +15,8 @@ const {
 const helper = require('../common/helper');
 const { completeFccCourseEmailNotification, startFccCourseEmailNotification, firstTimerEmailNotification } = require('../common/emailHelper');
 const { isTCAFirstTimer } = require('./CertificationEnrollmentService');
+const config = require('config');
+const { getCourse } = require('./CourseService');
 
 async function searchCertificationProgresses(query) {
     let options = {
@@ -564,6 +566,22 @@ async function completeCertification(
     const completedProgress = await progress.completeFccCertification();
 
     console.log(`User ${userId} has completed ${providerName} certification '${certification}'`);
+
+    // broadcast TCA certification completion event to Kafka
+    const course = await getCourse(progress.fccCourseId);
+
+    await helper.postBusEvent(
+        config.KAFKA_TCA_COMPLETION_TOPIC,
+        {
+            id: completedProgress.completionEventId,
+            skills: course.skills || [],
+            type: 'course',
+            graduate: {
+                userId: userId,
+            }
+        }
+    );
+
     decorateProgressCompletion(completedProgress);
 
     // if we have the cert URL, generate the image

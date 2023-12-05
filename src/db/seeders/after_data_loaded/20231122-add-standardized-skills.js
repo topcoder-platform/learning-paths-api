@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 
 const db = require('../../models');
-const CertsEMSIdata = require('./tca-certs-emsi-data');
-const CoursesEMSIdata = require('./tca-courses-emsi-data');
+const CertsSkillsData = require('./tca-certs-skills-data');
+const CoursesSkillsData = require('./tca-courses-skills-data');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -15,7 +15,7 @@ module.exports = {
     });
 
     await tcWebDev.update({
-      emsiSkills: CertsEMSIdata.tcWebDev
+      skills: CertsSkillsData.tcWebDev
     });
 
 
@@ -25,16 +25,16 @@ module.exports = {
     });
 
     await tcDataSci.update({
-      emsiSkills: CertsEMSIdata.tcDataSci
+      skills: CertsSkillsData.tcDataSci
     });
 
     // COURSES
     const courses = await db.FccCourse.findAll();
     for (const course of courses) {
       // if we have data - update
-      if (CoursesEMSIdata[course.key]) {
+      if (CoursesSkillsData[course.key]) {
         await course.update({
-          emsiSkills: CoursesEMSIdata[course.key]
+          skills: CoursesSkillsData[course.key]
         });
       }
     }
@@ -47,7 +47,7 @@ module.exports = {
     });
 
     await tcWebDev.update({
-      emsiSkills: null
+      skills: null
     });
 
 
@@ -57,14 +57,14 @@ module.exports = {
     });
 
     await tcDataSci.update({
-      emsiSkills: null
+      skills: null
     });
 
     // COURSES
     const courses = await db.FccCourse.findAll();
     for (const course of courses) {
       await course.update({
-        emsiSkills: null
+        skills: null
       });
     }
   }

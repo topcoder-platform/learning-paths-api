@@ -86,8 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     skills: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false,
+      type: DataTypes.ARRAY(DataTypes.UUID)
     },
     learningOutcomes: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
@@ -109,9 +108,6 @@ module.exports = (sequelize, DataTypes) => {
     learnedOutcomes: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
-    },
-    emsiSkills: {
-      type: DataTypes.JSONB
     }
   }, {
     sequelize,

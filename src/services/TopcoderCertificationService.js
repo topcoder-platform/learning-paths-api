@@ -4,6 +4,9 @@
 
 const db = require('../db/models')
 const errors = require('../common/errors')
+const { expandSkills } = require('../common/helper')
+const Joi = require('joi')
+
 const DEFAULT_PAGE_LIMIT = 10
 
 /**
@@ -26,7 +29,23 @@ async function searchCertifications(query = {}) {
         dbQuery.order = [[query.order_by || 'title', query.order_type || 'ASC']]
     }
 
-    return await db.TopcoderCertification.findAll(dbQuery)
+    const certs = await db.TopcoderCertification.findAll(dbQuery)
+
+    if (certs) {
+        const certsWithSkills = []
+
+        for (const cert of certs) {
+            if (cert.skills) {
+                cert.skills = await expandSkills(cert.skills)
+            }
+
+            certsWithSkills.push(cert)
+        }
+
+        return certsWithSkills
+    }
+
+    return certs
 }
 
 /**
@@ -40,7 +59,13 @@ async function getCertification(id) {
         include: certificationIncludes()
     }
 
-    return await db.TopcoderCertification.findByPk(id, options)
+    const cert = await db.TopcoderCertification.findByPk(id, options)
+
+    if (cert && cert.skills) {
+        cert.skills = await expandSkills(cert.skills)
+    }
+
+    return cert
 }
 
 /**
@@ -57,7 +82,13 @@ async function getCertificationByDashedName(dashedName) {
         include: certificationIncludes()
     }
 
-    return await db.TopcoderCertification.findOne(options)
+    const cert = await db.TopcoderCertification.findOne(options)
+
+    if (cert && cert.skills) {
+        cert.skills = await expandSkills(cert.skills)
+    }
+
+    return cert
 }
 
 /**
@@ -152,10 +183,43 @@ async function validateCertOwnership(topcoderCertificationId, userHandle) {
     return enrollment
 }
 
+/**
+ * Update existing TopcoderCertification
+ * 
+ * @param {*} cert TopcoderCertification instance
+ * @param {*} data Data to update the model with
+ * @returns 
+ */
+async function updateCertification(cert, data) {
+    return cert.update(data)
+}
+
+/**
+ * Validate update cert payload with Joi schema
+ * 
+ * @param {*} payload Any
+ */
+function validateCertificationUpdate(payload) {
+    const schema = Joi.object({
+        // TODO: only skills are currently supported for updates. Add more fields here as needed.
+        skills: Joi.array().items(Joi.string().guid().required()).required(),
+    })
+
+    const { error, value } = schema.validate(payload)
+    
+    if (error) {
+      throw error
+    }
+
+    return value
+}
+
 module.exports = {
     searchCertifications,
     getCertification,
     getCertificationByDashedName,
     validateCertOwnership,
     certificationIncludes,
+    updateCertification,
+    validateCertificationUpdate,
 }

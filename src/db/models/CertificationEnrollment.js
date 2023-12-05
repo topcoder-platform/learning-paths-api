@@ -3,6 +3,7 @@
 const { Model } = require('sequelize');
 const config = require('config');
 const { createId } = require('@paralleldrive/cuid2');
+const { v4: uuidv4 } = require('uuid');
 
 const {
   enrollmentStatuses,
@@ -10,6 +11,7 @@ const {
 } = require('../../common/constants');
 const imageGenerator = require('../../utils/certificate-sharing/generate-certificate-image/GenerateCertificateImageService');
 const { completeCertificationEmailNotification } = require('../../common/emailHelper');
+const { postBusEvent } = require('../../common/helper');
 
 module.exports = (sequelize, DataTypes) => {
   class CertificationEnrollment extends Model {
@@ -68,9 +70,24 @@ module.exports = (sequelize, DataTypes) => {
       const completedAttrs = {
         completedAt: new Date(),
         completionUuid: createId(),
+        completionEventId: uuidv4(),
         status: enrollmentStatuses.completed,
       }
-      const completedCert = await this.update(completedAttrs)
+      const completedCert = await this.update(completedAttrs);
+
+      // broadcast TCA certification completion event to Kafka
+      await postBusEvent(
+        config.KAFKA_TCA_COMPLETION_TOPIC,
+        {
+          id: completedCert.completionEventId,
+          skills: (certification.skills || []).map(skill => ({ id: skill })),
+          type: 'certification',
+          graduate: {
+            userId: this.userId,
+          }
+        }
+      );
+
 
       // generate the TCA digital certificate image
       await this.generateCertificate();
@@ -172,6 +189,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     certificationProgress: {
       type: DataTypes.VIRTUAL,
+    },
+    completionEventId: {
+      type: DataTypes.UUID,
     },
   }, {
     sequelize,

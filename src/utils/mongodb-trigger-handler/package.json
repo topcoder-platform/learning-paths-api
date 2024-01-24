@@ -16,6 +16,6 @@
     "config": "^3.3.7",
     "dotenv": "^16.0.2",
     "lodash": "^4.17.21",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.7"
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v3.0.1"
   }
 }

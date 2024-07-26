@@ -1,7 +1,7 @@
 version: 2
 defaults: &defaults
     docker:
-      - image: circleci/node:18.20.4
+      - image: cimg/node:18.20.4
 install_dependency: &install_dependency
   name: Installation of build and deployment dependencies.
   command: |

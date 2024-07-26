@@ -5,7 +5,7 @@ defaults: &defaults
 install_dependency: &install_dependency
   name: Installation of build and deployment dependencies.
   command: |
-    sudo apt-get update -y && sudo apt-get install -qq -y python-pip libpython-dev
+    sudo apt-get update -y && sudo apt-get install -qq -y python-pip
     curl -O https://bootstrap.pypa.io/pip/2.7/get-pip.py && sudo python get-pip.py
     #installing awscli
     sudo pip install awscli --upgrade

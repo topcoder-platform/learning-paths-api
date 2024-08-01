@@ -73,7 +73,12 @@ aws cloudformation package \
 
 echo "Packaging the lambda code..."
 
-zip -r $deployZip handler.js
+cd ./lambda
+nvm use
+npm i
+cd ..
+
+zip -r $deployZip ./lambda
 
 echo "Deploying the lambda..."
 

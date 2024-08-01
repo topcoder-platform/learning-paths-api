@@ -3,12 +3,15 @@
     "version": "1.0.0",
     "module": "true",
     "devDependencies": {
-      "@sparticuz/chromium-min": "^119.0.2",
       "puppeteer": "^21.5.0",
       "typescript": "^5.2.2",
-      "@aws-sdk/client-s3": "^3.621.0"
+      "@sparticuz/chromium-min": "^119.0.2"
     },
     "dependencies": {
-      "puppeteer-core": "^21.5.0"
+      "puppeteer-core": "^21.5.0",
+      "@aws-sdk/client-s3": "^3.621.0"
+    },
+    "engines": {
+      "node": "20"
     }
-  }
+}

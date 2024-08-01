@@ -6,7 +6,7 @@ const {
 const config = require('config');
 const crypto = require('crypto');
 const errors = require('./errors');
-const models = require('../models');
+const models = require('../db/models');
 const xss = require('xss');
 
 const ddbClient = new DynamoDBClient({
@@ -384,6 +384,7 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
+    console.log(`${models.keys()}`)
     let results = await models[modelName].scan(scanParams).consistent().exec()
     let lastKey = results.lastKey
 

@@ -181,7 +181,7 @@ async function regenerateImagesAsync() {
 
     // sort the certs so they're easier to read in the logs
     const completedCertifications = (await certProgressStore.getAllCompleted())
-        .sort((a, b) => a.certificationImageUrl.localeCompare(b.certificationImageUrl))
+        .sort((a, b) => (a.certificationImageUrl || '').localeCompare(b.certificationImageUrl || ''))
 
     // deleteAltImagesAsync(completedCertifications)
 

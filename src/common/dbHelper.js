@@ -34,7 +34,15 @@ async function findOne(model, where, includeAssociations = null) {
     return db[model].findOne(query);
 }
 
+async function findAll(model, includeAssociations = null) {
+    if (includeAssociations) {
+        return db[model].findAll({include:includeAssociations})
+    } else {
+        return db[model].findAll()
+    }
+}
 module.exports = {
     findAndCountAllPages,
     findOne,
+    findAll
 }

@@ -1,20 +1,20 @@
 {
-    "Records": [
-        {
-            "body": {
-                "bucket": "tca-certificate-generator-s3-dev",
-                "files": [
-                    {
-                        "path": "certificate/jcori/freeCodeCamp/responsive-web-design.jpg",
-                        "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate"
-                    },
-                    {
-                        "path": "certificate/jcori/freeCodeCamp/responsive-web-design-large-container.jpg",
-                        "url": "https://platform-ui.topcoder-dev.com/learn/freeCodeCamp/responsive-web-design/jcori/certificate?view-style=large-container"
-                    }
-                ],
-                "screenshotSelector": "[data-id=certificate-container]"
-            }
-        }
-    ]
+  "Records": [
+    {
+      "body": {
+        "bucket": "tca-certificate-generator-s3-dev",
+        "files": [
+          {
+            "path": "certificate/jcori/freeCodeCamp/responsive-web-design.jpg",
+            "url": "https://academy.topcoder-dev.com/freeCodeCamp/responsive-web-design/jcori/certificate"
+          },
+          {
+            "path": "certificate/jcori/freeCodeCamp/responsive-web-design-large-container.jpg",
+            "url": "https://academy.topcoder-dev.com/freeCodeCamp/responsive-web-design/jcori/certificate?view-style=large-container"
+          }
+        ],
+        "screenshotSelector": "[data-id=certificate-container]"
+      }
+    }
+  ]
 }

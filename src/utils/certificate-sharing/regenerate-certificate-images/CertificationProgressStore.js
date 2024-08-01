@@ -1,11 +1,11 @@
-const dbHelper = require('../../../common/helper')
+const dbHelper = require('../../../common/dbHelper')
 
 /**
  * Gets all the Certification Progress records that are completed
  */
 async function getAllCompleted() {
 
-    const certificationProgresses = await dbHelper.scanAll('CertificationProgress')
+    const certificationProgresses = await dbHelper.findAll('FccCertificationProgress', ['resourceProvider'])
 
     console.log(`Found ${certificationProgresses.length} certification progress records.`)
 

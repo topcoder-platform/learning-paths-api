@@ -384,7 +384,6 @@ async function scan(modelName, scanParams) {
  * @returns {Array}
  */
 async function scanAll(modelName, scanParams) {
-    console.log(`${models.keys()}`)
     let results = await models[modelName].scan(scanParams).consistent().exec()
     let lastKey = results.lastKey
 

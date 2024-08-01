@@ -97,7 +97,7 @@ async function putObjectToS3Async(bucket, key, image) {
     Body: image,
   };
 
-  await new S3().putObject(params).promise();
+  await new S3().putObject(params);
 }
 
 function validateParams(params) {

@@ -9,7 +9,6 @@ const fetchUrl = require('node-fetch-commonjs')
 async function getHandleFromId(userId, domain) {
 
     const url = `https://api.${domain}/v5/members?userId=${userId}`
-    console.log(url)
     const response = await fetchUrl(url, {
         method: 'GET',
     })

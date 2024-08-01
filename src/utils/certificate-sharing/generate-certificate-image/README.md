@@ -6,6 +6,9 @@ Instructions below pertain to creating and deploying the serverless function tha
 
 - [Deploying the Serverless Function](#deploying-the-serveless-function)
 - [Configuring the API](#configuring-the-api)
+# NOTE
+
+The lambda relies on a layer that contains Chromium.  Make sure that is in place so that the lambda can function properly with Puppeteer.
 
 ## Deploying the Serveless Function
 

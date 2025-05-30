@@ -15,6 +15,7 @@ if (config.use_env_variable) {
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
+sequelize.query(`SET SESSION search_path to ${process.env.TCA_PG_SCHEMA}`);
 
 fs
   .readdirSync(__dirname)

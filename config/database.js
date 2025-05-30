@@ -5,6 +5,10 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     schema: process.env.TCA_PG_SCHEMA,
     host: process.env.TCA_PG_HOST,
+    dialectOptions: {
+      prependSearchPath: true
+    },
+    searchPath: process.env.TCA_PG_SCHEMA,
     dialect: 'postgres',
     logging: false,
     pool: {
@@ -32,6 +36,10 @@ module.exports = {
     database: process.env.TCA_PG_DATABASE,
     schema: process.env.TCA_PG_SCHEMA,
     host: process.env.TCA_PG_HOST,
+    dialectOptions: {
+      prependSearchPath: true
+    },
+    searchPath: process.env.TCA_PG_SCHEMA,
     dialect: 'postgres',
     logging: false,
     pool: {

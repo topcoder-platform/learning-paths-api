@@ -113,7 +113,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     tableName: 'TopcoderCertification',
     modelName: 'TopcoderCertification',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     indexes: [
       {
         name: "TopcoderCertification_pkey",

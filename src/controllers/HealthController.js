@@ -23,6 +23,7 @@ async function checkHealth(req, res) {
   try {
     await service.getHealthCheck()
   } catch (e) {
+    console.log(JSON.stringify(e, null, 5))
     throw new errors.ServiceUnavailableError(`An error occurred checking the database, ${e.message}`)
   }
 

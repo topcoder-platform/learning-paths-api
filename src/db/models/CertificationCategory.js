@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     tableName: 'CertificationCategory',
     modelName: 'CertificationCategory',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     indexes: [
       {
         name: "CertificationCategory_category_key",

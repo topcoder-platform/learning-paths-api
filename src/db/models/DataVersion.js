@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'DataVersion',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     timestamps: false,
     indexes: [
       {

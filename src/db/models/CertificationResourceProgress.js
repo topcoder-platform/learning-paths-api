@@ -97,7 +97,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: {
           tableName: 'CertificationEnrollments',
-          schema: 'public'
+          schema: process.env.TCA_PG_SCHEMA,
         },
         key: 'id'
       },
@@ -108,7 +108,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: {
           tableName: 'CertificationResource',
-          schema: 'public'
+          schema: process.env.TCA_PG_SCHEMA,
         },
         key: 'id'
       },
@@ -123,7 +123,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'CertificationResourceProgress',
     tableName: 'CertificationResourceProgresses',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     indexes: [
       {
         name: "CertificationResourceProgress_pkey",

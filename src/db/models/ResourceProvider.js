@@ -28,7 +28,7 @@ module.exports = function (sequelize, DataTypes) {
     sequelize,
     tableName: 'ResourceProvider',
     modelName: 'ResourceProvider',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     indexes: [
       {
         name: "ResourceProvider_name_key",

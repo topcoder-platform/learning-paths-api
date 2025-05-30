@@ -96,7 +96,7 @@ module.exports = function (sequelize, DataTypes) {
     sequelize,
     tableName: 'UdemyCourse',
     modelName: 'UdemyCourse',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     timestamps: false,
     indexes: [
       {

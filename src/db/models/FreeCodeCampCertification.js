@@ -136,7 +136,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     tableName: 'FreeCodeCampCertification',
     modelName: 'FreeCodeCampCertification',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     indexes: [
       {
         name: "FreeCodeCampCertification_fccId_key",

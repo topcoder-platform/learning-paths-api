@@ -9,6 +9,7 @@ const urlHelper = require('../certificate-ssr/cert-image-url-helper')
 
 const certProgressStore = require('./CertificationProgressStore')
 const userStore = require('./UserStore')
+const config = require('config');
 
 // init the env vars on load
 const {
@@ -186,8 +187,29 @@ async function regenerateImagesAsync() {
     // deleteAltImagesAsync(completedCertifications)
 
     processCompletedWithNoImageUrl(completedCertifications)
-
     processCompletedWithMissingImage(completedCertifications)
+
+    const completedTCAs=await certProgressStore.getAllCompletedTCA()
+
+    completedTCAs.forEach(async cert => {
+        const certification = await cert.getTopcoderCertification();
+        const certDashedName = certification.dashedName;
+        const certificateUrl = `https://academy.topcoder.com/tca-certifications/${certDashedName}/${cert.userHandle}/certification?view-style=large-container`
+        const certificateElement = `[${config.CERT_ELEMENT_SELECTOR.attribute}=${config.CERT_ELEMENT_SELECTOR.value}]`;
+
+        imageGenerator.generateCertificateImage(
+          undefined,
+          cert.userHandle,
+          certDashedName,
+          'tca',
+          certificateUrl,
+          certificateElement,
+          config.CERT_ADDITIONAL_PARAMS,
+        )
+    
+      }
+    );
+    
 }
 
 // run the regeneration on load

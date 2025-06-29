@@ -39,7 +39,7 @@ async function getCourseIdsToRemove() {
     // courses list.
     const coursesRemoved = await prisma.$queryRaw`
         SELECT tc.id as course_id
-        FROM public."TopcoderUdemyCourse" tc
+        FROM ${process.env.TCA_PG_SCHEMA}."TopcoderUdemyCourse" tc
         left outer join "UdemyCourse" uc on uc.id = tc.id
         where tc.status = 'available'
             and uc.id is null

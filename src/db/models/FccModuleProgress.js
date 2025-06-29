@@ -108,7 +108,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: {
           tableName: 'FccCertificationProgresses',
-          schema: 'public'
+          schema: process.env.TCA_PG_SCHEMA,
         },
         key: 'id'
       },

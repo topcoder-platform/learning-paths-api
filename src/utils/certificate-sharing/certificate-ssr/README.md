@@ -9,7 +9,7 @@ This serverless function takes in a URL for a certificate image, verifies the im
 Install packages w/in this directory:
 
 ```bash
-$ cd src/utils/certificate-sharing/regenerate-certificate-images
+$ cd src/utils/certificate-sharing/certificate-ssr
 $ npm i
 ```
 

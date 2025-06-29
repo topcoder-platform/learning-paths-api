@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     tableName: 'TopcoderUdemyCourse',
     modelName: 'TopcoderUdemyCourse',
-    schema: 'public',
+    schema: process.env.TCA_PG_SCHEMA,
     timestamps: false,
     indexes: [
       {

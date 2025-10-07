@@ -288,7 +288,7 @@ function featureFlagSet(flag, setValue) {
 async function getMemberDataM2M(handle) {
   const m2m = await getM2MToken();
 
-  return axios(`${config.API_BASE_URL}/v5/members/${handle}`, {
+  return axios(`${config.API_BASE_URL}/v6/members/${handle}`, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }
@@ -299,7 +299,7 @@ async function getMemberDataM2M(handle) {
 async function getMemberDataFromIdM2M(userId) {
   const m2m = await getM2MToken();
 
-  return axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+  return axios(`${config.API_BASE_URL}/v6/members?userId=${userId}`, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }
@@ -313,7 +313,7 @@ async function getMultiMemberDataFromIdM2M(userIds) {
   let promises = [];
 
   for (let userId of userIds) {
-    const promise = axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+    const promise = axios(`${config.API_BASE_URL}/v6/members?userId=${userId}`, {
       headers: {
         Authorization: `Bearer ${m2m}`
       }

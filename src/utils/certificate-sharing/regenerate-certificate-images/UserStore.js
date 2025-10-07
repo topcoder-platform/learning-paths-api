@@ -8,7 +8,7 @@ const fetchUrl = require('node-fetch-commonjs')
  */
 async function getHandleFromId(userId, domain) {
 
-    const url = `https://api.${domain}/v5/members?userId=${userId}`
+    const url = `https://api.${domain}/v6/members?userId=${userId}`
     const response = await fetchUrl(url, {
         method: 'GET',
     })

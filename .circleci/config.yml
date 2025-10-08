@@ -48,7 +48,7 @@ builddeploy_steps: &builddeploy_steps
             ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
             source buildenvvar
             cd src/utils/mongodb-trigger-handler/
-            npm i
+            sudo npm i
             sls deploy --stage ${LOGICAL_ENV}
 
 

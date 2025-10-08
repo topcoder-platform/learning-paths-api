@@ -11,7 +11,7 @@ install_dependency: &install_dependency
     sudo pip install awscli --upgrade
     #install serverless
     sudo npm install -g try-thread-sleep
-    sudo npm install -g serverless --ignore-scripts spawn-sync
+    sudo npm install -g serverless
 
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
@@ -48,8 +48,8 @@ builddeploy_steps: &builddeploy_steps
             ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
             source buildenvvar
             cd src/utils/mongodb-trigger-handler/
-            sudo npm i
-            sudo sls deploy --stage ${LOGICAL_ENV}
+            npm i
+            sls deploy --stage ${LOGICAL_ENV}
 
 
 

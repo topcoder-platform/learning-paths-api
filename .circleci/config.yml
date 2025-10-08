@@ -11,7 +11,7 @@ install_dependency: &install_dependency
     sudo pip install awscli --upgrade
     #install serverless
     sudo npm install -g try-thread-sleep
-    sudo npm install -g serverless
+    sudo npm install -g serverless@3.40.0
 
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.

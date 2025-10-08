@@ -49,7 +49,7 @@ builddeploy_steps: &builddeploy_steps
             source buildenvvar
             cd src/utils/mongodb-trigger-handler/
             sudo npm i
-            sls deploy --stage ${LOGICAL_ENV}
+            sudo sls deploy --stage ${LOGICAL_ENV}
 
 
 

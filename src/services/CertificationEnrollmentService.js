@@ -143,20 +143,12 @@ async function createCertificationEnrollment(authUser, certificationId) {
     }
 
     try {
-        // build the collection of certification resource progress records to 
-        // track the user's completion of the courses (resource) contained in 
-        // this Topcoder Certification
-        const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId);
-
         const enrollmentAttrs = {
             topcoderCertificationId: certificationId,
             userId: userId,
             userHandle: userHandle,
             userName: userFullName,
-            resourceProgresses: resourceProgresses,
         }
-
-        console.log(JSON.stringify(resourceProgresses), 'resourceProgresses raw')
 
         // check if user is new learner before we create the enrollment
         // used to decide what type of email notification to send out.
@@ -164,6 +156,10 @@ async function createCertificationEnrollment(authUser, certificationId) {
 
         const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs);
         console.log(JSON.stringify(enrollment), 'enrollment json');
+        // build the collection of certification resource progress records to 
+        // track the user's completion of the courses (resource) contained in 
+        // this Topcoder Certification
+        const resourceProgresses = await buildEnrollmentProgressAttrs(userId, email, certificationId, enrollment.id);
         const createdResourceProgresses = await db.CertificationResourceProgress.bulkCreate(resourceProgresses);
         console.log(JSON.stringify(createdResourceProgresses), 'createdResourceProgresses');
 
@@ -224,10 +220,10 @@ async function isTCAFirstTimer(userId) {
  * @param {String} userId the ID of the user who's enrolling in the certification
  * @param {Integer} certificationId the ID of the certification in which they're enrolling
  */
-async function buildEnrollmentProgressAttrs(userId, email, certificationId) {
+async function buildEnrollmentProgressAttrs(userId, email, certificationId, enrollmentId) {
     const certification = await getCertificationEnrollmentDetails(userId, certificationId);
 
-    const resourceProgresses = await buildCertResourceProgressAttrs(userId, email, certification);
+    const resourceProgresses = await buildCertResourceProgressAttrs(userId, email, certification, enrollmentId);
 
     return resourceProgresses;
 }
@@ -281,7 +277,7 @@ async function getCertificationEnrollmentDetails(userId, certificationId) {
  *      records are being constructed.
  * @returns {Object} an object containing all the CertificationReourceProgress attributes
  */
-async function buildCertResourceProgressAttrs(userId, email, certification) {
+async function buildCertResourceProgressAttrs(userId, email, certification, enrollmentId) {
     let resourceProgresses = [];
 
     for (const resource of certification.certificationResources) {
@@ -303,6 +299,7 @@ async function buildCertResourceProgressAttrs(userId, email, certification) {
             resourceProgressId: fccProgress.id,
             resourceProgressType: fccProgress.constructor.name,
             status: fccProgress.status,
+            certificationEnrollmentId: enrollmentId,
         }
 
         resourceProgresses.push(resourceProgress);

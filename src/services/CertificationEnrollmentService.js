@@ -156,6 +156,8 @@ async function createCertificationEnrollment(authUser, certificationId) {
             resourceProgresses: resourceProgresses,
         }
 
+        console.log(resourceProgresses, 'resourceProgresses raw')
+
         // check if user is new learner before we create the enrollment
         // used to decide what type of email notification to send out.
         const isNewTCALearner = await isTCAFirstTimer(userId);

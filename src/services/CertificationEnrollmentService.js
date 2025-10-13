@@ -184,6 +184,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
 
         return enrollment;
     } catch (error) {
+        console.error('Error enrolling user in certification', error);
         throw errors.BadRequestError('Error enrolling user in certification', error);
     }
 }

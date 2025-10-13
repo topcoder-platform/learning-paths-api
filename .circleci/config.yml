@@ -84,6 +84,7 @@ workflows:
               - develop
               - TSJR-100
               - feat/v6
+              - pm-2191_1
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.

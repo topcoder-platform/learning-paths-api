@@ -18,20 +18,25 @@ const { Op } = require("sequelize");
  * @returns {Object} the newly created CertificationEnrollment object
  */
 async function enrollUser(authUser, certificationId) {
-    const userId = authUser.userId;
-    const existingEnrollment = await getExistingEnrollment(userId, certificationId);
-
-    if (existingEnrollment != null) {
-        const certification = existingEnrollment.topcoderCertification;
-        console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
-
-        return existingEnrollment;
+    try {
+        const userId = authUser.userId;
+        const existingEnrollment = await getExistingEnrollment(userId, certificationId);
+    
+        if (existingEnrollment != null) {
+            const certification = existingEnrollment.topcoderCertification;
+            console.log(`User ${userId} is already enrolled in certification ID ${certificationId}: ${certification.title}`);
+    
+            return existingEnrollment;
+        }
+    
+        console.log(`Enrolling user ${userId} in certification ID ${certificationId}`);
+        const newEnrollment = await createCertificationEnrollment(authUser, certificationId)
+    
+        return newEnrollment;
+    } catch (error) {
+        console.error('Error creating certification enrollment', error);
     }
-
-    console.log(`Enrolling user ${userId} in certification ID ${certificationId}`);
-    const newEnrollment = await createCertificationEnrollment(authUser, certificationId)
-
-    return newEnrollment;
+    
 }
 
 async function getExistingEnrollment(userId, certificationId) {

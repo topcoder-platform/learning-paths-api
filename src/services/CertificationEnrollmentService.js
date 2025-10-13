@@ -156,19 +156,16 @@ async function createCertificationEnrollment(authUser, certificationId) {
             resourceProgresses: resourceProgresses,
         }
 
-        console.log(resourceProgresses, 'resourceProgresses raw')
+        console.log(JSON.stringify(resourceProgresses), 'resourceProgresses raw')
 
         // check if user is new learner before we create the enrollment
         // used to decide what type of email notification to send out.
         const isNewTCALearner = await isTCAFirstTimer(userId);
 
-        const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs,
-            {
-                include: [{
-                    model: db.CertificationResourceProgress,
-                    as: 'resourceProgresses'
-                }]
-            });
+        const enrollment = await db.CertificationEnrollment.create(enrollmentAttrs);
+        console.log(JSON.stringify(enrollment), 'enrollment json');
+        const createdResourceProgresses = await db.CertificationResourceProgress.bulkCreate(resourceProgresses);
+        console.log(JSON.stringify(createdResourceProgresses), 'createdResourceProgresses');
 
         const certification = await certificationService.getCertification(certificationId);
 
@@ -183,6 +180,7 @@ async function createCertificationEnrollment(authUser, certificationId) {
         // certification before enrolling, so check that now
         await enrollment.checkAndSetCertCompletion();
         await enrollment.reload();
+        enrollment.resourceProgresses = createdResourceProgresses;
 
         return enrollment;
     } catch (error) {

@@ -13,7 +13,6 @@ const db = {};
 const connectionString = config.use_env_variable
   ? process.env[config.use_env_variable]
   : `postgres://${config.username}:${config.password}@${config.host}/${config.database}`;
-logger.info(`Database connection string: ${connectionString}`);
 
 let sequelize;
 if (config.use_env_variable) {

@@ -4,10 +4,16 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
+const logger = require('../../common/logger');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../../../config/database.js')[env];
 const db = {};
+
+const connectionString = config.use_env_variable
+  ? process.env[config.use_env_variable]
+  : `postgres://${config.username}:${config.password}@${config.host}/${config.database}`;
+logger.info(`Database connection string: ${connectionString}`);
 
 let sequelize;
 if (config.use_env_variable) {
@@ -15,6 +21,18 @@ if (config.use_env_variable) {
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
+logger.info('Database connection attempt initiated');
+sequelize.authenticate()
+  .then(() => {
+    logger.info('Database connection attempt succeeded');
+  })
+  .catch((err) => {
+    const message = err && err.message ? err.message : String(err);
+    logger.error(`Database connection attempt failed: ${message}`);
+    if (err && err.stack) {
+      logger.error(err.stack);
+    }
+  });
 sequelize.query(`SET SESSION search_path to ${process.env.TCA_PG_SCHEMA}`);
 
 fs

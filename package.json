@@ -64,7 +64,7 @@
     "sequelize-auto": "^0.8.8",
     "stripe": "^11.3.0",
     "swagger-ui-express": "^4.4.0",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.7",
+    "tc-core-library-js": "topcoder-platform/tc-core-library-js.git#master",
     "topcoder-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git",
     "uuid": "^8.3.2",
     "winston": "^3.7.2",
@@ -82,9 +82,9 @@
   "engines": {
     "npm": ">= 8.5.5",
     "yarn": "please-use-npm",
-    "node": "16.x"
+    "node": "22.x"
   },
   "volta": {
-    "node": "16.15.0"
+    "node": "22.21.1"
   }
 }

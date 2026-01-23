@@ -1,0 +1,405 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator externalClient {
+  provider      = "prisma-client-js"
+  output        = "../packages/academy-prisma-client"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CertificationCategory {
+  id                        Int                         @id @default(autoincrement())
+  category                  String                      @unique
+  track                     String
+  createdAt                 DateTime?                   @db.Timestamptz(6)
+  updatedAt                 DateTime?                   @db.Timestamptz(6)
+  FreeCodeCampCertification FreeCodeCampCertification[]
+  TopcoderCertification     TopcoderCertification[]
+}
+
+model CertificationEnrollments {
+  id                              Int                                   @id @default(autoincrement())
+  topcoderCertificationId         Int?
+  userId                          String?                               @db.VarChar(255)
+  userHandle                      String?                               @db.VarChar(255)
+  status                          enum_CertificationEnrollments_status? @default(enrolled)
+  createdAt                       DateTime                              @db.Timestamptz(6)
+  updatedAt                       DateTime                              @db.Timestamptz(6)
+  completedAt                     DateTime?                             @db.Timestamptz(6)
+  userName                        String?                               @db.VarChar(255)
+  completionUuid                  String?                               @unique(map: "CertificationEnrollments_completionUuid") @db.VarChar(255)
+  completionEventId               String?                               @db.Uuid
+  TopcoderCertification           TopcoderCertification?                @relation(fields: [topcoderCertificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  CertificationResourceProgresses CertificationResourceProgresses[]
+
+  @@unique([topcoderCertificationId, userId], map: "certification_enrollments_topcoder_certification_id_user_id")
+}
+
+model CertificationResource {
+  id                              Int                               @id @default(autoincrement())
+  resourceProviderId              Int
+  resourceableId                  Int
+  resourceableType                ResourceableType
+  displayOrder                    Int?
+  completionOrder                 Int?
+  resourceDescription             String?
+  resourceTitle                   String?
+  topcoderCertificationId         Int?
+  createdAt                       DateTime?                         @db.Timestamptz(6)
+  updatedAt                       DateTime?                         @db.Timestamptz(6)
+  ResourceProvider                ResourceProvider                  @relation(fields: [resourceProviderId], references: [id])
+  CertificationResourceProgresses CertificationResourceProgresses[]
+}
+
+model CertificationResourceProgresses {
+  id                        Int                                          @id @default(autoincrement())
+  certificationEnrollmentId Int?
+  certificationResourceId   Int?
+  status                    enum_CertificationResourceProgresses_status? @default(not_started)
+  resourceProgressId        Int?
+  resourceProgressType      String?                                      @db.VarChar(255)
+  createdAt                 DateTime                                     @db.Timestamptz(6)
+  updatedAt                 DateTime                                     @db.Timestamptz(6)
+  CertificationEnrollments  CertificationEnrollments?                    @relation(fields: [certificationEnrollmentId], references: [id], onDelete: Cascade)
+  CertificationResource     CertificationResource?                       @relation(fields: [certificationResourceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model DataVersion {
+  version DateTime @id
+}
+
+model FccCertificationProgresses {
+  id                              Int                                    @id @default(autoincrement())
+  fccCertificationId              Int?
+  certProgressDynamoUuid          String?                                @db.Uuid
+  fccCourseId                     Int?
+  userId                          String                                 @db.VarChar(255)
+  certification                   String?                                @db.VarChar(255)
+  certificationId                 String?                                @db.VarChar(255)
+  certificationTitle              String?                                @db.VarChar(255)
+  certificationTrackType          String?                                @db.VarChar(255)
+  certType                        String?                                @db.VarChar(255)
+  courseKey                       String                                 @db.VarChar(255)
+  status                          enum_FccCertificationProgresses_status
+  startDate                       DateTime?                              @db.Timestamptz(6)
+  lastInteractionDate             DateTime?                              @db.Timestamptz(6)
+  completedDate                   DateTime?                              @db.Timestamptz(6)
+  academicHonestyPolicyAcceptedAt DateTime?                              @db.Timestamptz(6)
+  currentLesson                   String?                                @db.VarChar(255)
+  certificationImageUrl           String?                                @db.VarChar(255)
+  createdAt                       DateTime                               @db.Timestamptz(6)
+  updatedAt                       DateTime                               @db.Timestamptz(6)
+  email                           String?                                @db.VarChar(255)
+  completionEventId               String?                                @db.Uuid
+  FreeCodeCampCertification       FreeCodeCampCertification?             @relation(fields: [fccCertificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  FccCourses                      FccCourses?                            @relation(fields: [fccCourseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  FccModuleProgresses             FccModuleProgresses[]
+
+  @@unique([fccCertificationId, userId], map: "fcc_certification_progresses_fcc_certification_id_user_id")
+}
+
+model FccCompletedLessons {
+  id                  String              @db.VarChar(255)
+  fccModuleProgressId Int
+  dashedName          String              @db.VarChar(255)
+  completedDate       DateTime?           @db.Timestamptz(6)
+  FccModuleProgresses FccModuleProgresses @relation(fields: [fccModuleProgressId], references: [id], onDelete: Cascade)
+
+  @@id([id, fccModuleProgressId])
+}
+
+model FccCourses {
+  id                           Int                           @id @default(autoincrement())
+  fccCourseUuid                String                        @db.Uuid
+  providerId                   Int?
+  key                          String?                       @db.VarChar(255)
+  title                        String?                       @db.VarChar(255)
+  certificationId              Int?
+  estimatedCompletionTimeValue Int?
+  estimatedCompletionTimeUnits String?                       @db.VarChar(255)
+  introCopy                    String[]
+  keyPoints                    String[]
+  completionSuggestions        String[]
+  note                         String?                       @db.VarChar(255)
+  createdAt                    DateTime                      @db.Timestamptz(6)
+  updatedAt                    DateTime                      @db.Timestamptz(6)
+  learnerLevel                 enum_FccCourses_learnerLevel? @default(Beginner)
+  skills                       String[]                      @db.Uuid
+  FccCertificationProgresses   FccCertificationProgresses[]
+  FreeCodeCampCertification    FreeCodeCampCertification?    @relation(fields: [certificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ResourceProvider             ResourceProvider?             @relation(fields: [providerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  FccModules                   FccModules[]
+}
+
+model FccLessons {
+  id           String      @id @db.VarChar(255)
+  fccModuleId  Int?
+  title        String      @db.VarChar(255)
+  dashedName   String      @db.VarChar(255)
+  isAssessment Boolean     @default(false)
+  order        Int
+  createdAt    DateTime    @db.Timestamptz(6)
+  updatedAt    DateTime    @db.Timestamptz(6)
+  FccModules   FccModules? @relation(fields: [fccModuleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model FccModuleProgresses {
+  id                         Int                                    @id @default(autoincrement())
+  module                     String                                 @db.VarChar(255)
+  moduleStatus               enum_FccModuleProgresses_moduleStatus? @default(not_started)
+  lessonCount                Int?
+  isAssessment               Boolean?
+  startDate                  DateTime?                              @db.Timestamptz(6)
+  lastInteractionDate        DateTime?                              @db.Timestamptz(6)
+  completedDate              DateTime?                              @db.Timestamptz(6)
+  createdAt                  DateTime                               @db.Timestamptz(6)
+  updatedAt                  DateTime                               @db.Timestamptz(6)
+  fccCertificationProgressId Int?
+  FccCompletedLessons        FccCompletedLessons[]
+  FccCertificationProgresses FccCertificationProgresses?            @relation(fields: [fccCertificationProgressId], references: [id], onDelete: Cascade)
+}
+
+model FccModules {
+  id                           Int          @id @default(autoincrement())
+  fccCourseId                  Int?
+  key                          String       @unique(map: "fcc_modules_key") @db.VarChar(255)
+  name                         String       @db.VarChar(255)
+  dashedName                   String       @db.VarChar(255)
+  estimatedCompletionTimeValue Int?
+  estimatedCompletionTimeUnits String?      @db.VarChar(255)
+  introCopy                    String[]
+  isAssessment                 Boolean      @default(false)
+  createdAt                    DateTime     @db.Timestamptz(6)
+  updatedAt                    DateTime     @db.Timestamptz(6)
+  order                        Int?
+  FccLessons                   FccLessons[]
+  FccCourses                   FccCourses?  @relation(fields: [fccCourseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model FreeCodeCampCertification {
+  id                         Int                                          @id @default(autoincrement())
+  fccId                      String                                       @unique @db.Uuid
+  key                        String
+  providerCertificationId    String
+  title                      String                                       @unique
+  certification              String
+  completionHours            Int
+  state                      CertificationStatus                          @default(active)
+  certificationCategoryId    Int
+  certType                   FccCertificationType                         @default(certification)
+  publishedAt                DateTime
+  createdAt                  DateTime?                                    @db.Timestamptz(6)
+  updatedAt                  DateTime?                                    @db.Timestamptz(6)
+  learnerLevel               enum_FreeCodeCampCertification_learnerLevel? @default(Beginner)
+  description                String?
+  resourceProviderId         Int?
+  FccCertificationProgresses FccCertificationProgresses[]
+  FccCourses                 FccCourses[]
+  CertificationCategory      CertificationCategory                        @relation(fields: [certificationCategoryId], references: [id])
+  ResourceProvider           ResourceProvider?                            @relation(fields: [resourceProviderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ResourceProvider {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @unique
+  description               String?
+  attributionStatement      String?
+  url                       String?
+  createdAt                 DateTime?                   @db.Timestamptz(6)
+  updatedAt                 DateTime?                   @db.Timestamptz(6)
+  CertificationResource     CertificationResource[]
+  FccCourses                FccCourses[]
+  FreeCodeCampCertification FreeCodeCampCertification[]
+}
+
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
+}
+
+model TopcoderCertification {
+  id                       Int                        @id @default(autoincrement())
+  title                    String                     @unique @db.VarChar(200)
+  description              String
+  status                   CertificationStatus        @default(active)
+  sequentialCourses        Boolean                    @default(false)
+  learnerLevel             LearnerLevel
+  version                  DateTime
+  certificationCategoryId  Int
+  stripeProductId          String?
+  createdAt                DateTime?                  @db.Timestamptz(6)
+  updatedAt                DateTime?                  @db.Timestamptz(6)
+  learningOutcomes         String[]
+  prerequisites            String[]
+  dashedName               String?                    @db.VarChar(255)
+  introText                String?
+  learnedOutcomes          String[]
+  skills                   String[]                   @db.Uuid
+  CertificationEnrollments CertificationEnrollments[]
+  CertificationCategory    CertificationCategory      @relation(fields: [certificationCategoryId], references: [id])
+}
+
+model TopcoderUdemyCourse {
+  id        Int          @id
+  title     String
+  status    CourseStatus @default(available)
+  updatedAt DateTime
+  removedAt DateTime?
+}
+
+model UdemyCourse {
+  id                             Int
+  title                          String
+  description                    String
+  headline                       String
+  url                            String
+  categories                     String[]
+  topics                         String[]
+  promo_video_url                Json
+  instructors                    String[]
+  requirements                   String[]
+  what_you_will_learn            String[]
+  level                          LearnerLevel
+  images                         Json
+  locale                         String       @db.VarChar(6)
+  primary_category               String?      @db.VarChar(100)
+  primary_subcategory            String?      @db.VarChar(100)
+  estimated_content_length       Int
+  estimated_content_length_video Int
+  num_lectures                   Int
+  num_videos                     Int
+  last_update_date               DateTime
+  data_version                   DateTime
+
+  @@id([id, data_version])
+}
+
+enum CertificationStatus {
+  active
+  inactive
+  deprecated
+  coming_soon @map("coming-soon")
+}
+
+enum CourseStatus {
+  available
+  coming_soon
+  not_available
+  removed
+}
+
+enum FccCertificationType {
+  certification
+  course_completion @map("course-completion")
+}
+
+enum LearnerLevel {
+  Beginner
+  Intermediate
+  Expert
+  All_Levels   @map("All Levels")
+}
+
+enum ResourceableType {
+  FreeCodeCampCertification
+  TopcoderUdemyCourse
+}
+
+enum enum_CertificationEnrollment_status {
+  enrolled
+  disenrolled
+  completed
+}
+
+enum enum_CertificationEnrollments_status {
+  enrolled
+  disenrolled
+  completed
+}
+
+enum enum_CertificationResourceProgresses_status {
+  not_started @map("not-started")
+  in_progress @map("in-progress")
+  completed
+}
+
+enum enum_CertificationResource_resourceableType {
+  FreeCodeCampCertification
+  TopcoderUdemyCourse
+}
+
+enum enum_FccCertificationProgresses_status {
+  in_progress @map("in-progress")
+  completed
+  not_started @map("not-started")
+}
+
+enum enum_FccCourseProgresses_status {
+  in_progress @map("in-progress")
+  completed
+}
+
+enum enum_FccCourses_learnerLevel {
+  Beginner
+  Intermediate
+  Expert
+  All_Levels   @map("All Levels")
+}
+
+enum enum_FccModuleProgresses_moduleStatus {
+  not_started @map("not-started")
+  in_progress @map("in-progress")
+  completed
+}
+
+enum enum_FreeCodeCampCertification_certType {
+  certification
+  course_completion @map("course-completion")
+}
+
+enum enum_FreeCodeCampCertification_learnerLevel {
+  Beginner
+  Intermediate
+  Expert
+  All_Levels   @map("All Levels")
+}
+
+enum enum_FreeCodeCampCertification_state {
+  active
+  inactive
+  coming_soon @map("coming-soon")
+  deprecated
+}
+
+enum enum_TopcoderCertification_learnerLevel {
+  Beginner
+  Intermediate
+  Expert
+  All_Levels   @map("All Levels")
+}
+
+enum enum_TopcoderCertification_status {
+  active
+  inactive
+  coming_soon
+  deprecated
+}
+
+enum enum_TopcoderUdemyCourse_status {
+  available
+  coming_soon
+  not_available
+  removed
+}
+
+enum enum_UdemyCourse_level {
+  Beginner
+  Intermediate
+  Expert
+  All_Levels   @map("All Levels")
+}

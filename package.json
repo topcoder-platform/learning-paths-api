@@ -60,6 +60,7 @@
     "node-cache": "^5.1.2",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
+    "prisma": "^6.19.1",
     "sequelize": "^6.27.0",
     "sequelize-auto": "^0.8.8",
     "stripe": "^11.3.0",

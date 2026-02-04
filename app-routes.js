@@ -71,9 +71,12 @@ module.exports = (app) => {
       } else {
         // public API, but still try to authenticate token if provided, but allow missing/invalid token
         actions.push((req, res, next) => {
+          if (!req.headers.authorization && !req.query.token) {
+            return next()
+          }
           const interceptRes = {}
           interceptRes.status = () => interceptRes
-          interceptRes.json = () => interceptRes
+          interceptRes.json = () => next()
           interceptRes.send = () => next()
           authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, interceptRes, next)
         })

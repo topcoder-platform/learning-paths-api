@@ -18,6 +18,16 @@ const { isTCAFirstTimer } = require('./CertificationEnrollmentService');
 const config = require('config');
 const { getCourse } = require('./CourseService');
 
+function buildSkillEventSkills(skills) {
+    if (!Array.isArray(skills)) {
+        return [];
+    }
+
+    return skills.map(skill => ({
+        id: typeof skill === 'string' ? skill : skill && skill.id
+    }));
+}
+
 async function searchCertificationProgresses(query) {
     let options = {
         where: buildSearchWhere(query),
@@ -574,7 +584,7 @@ async function completeCertification(
         config.KAFKA_TCA_COMPLETION_TOPIC,
         {
             id: completedProgress.completionEventId,
-            skills: course.skills || [],
+            skills: buildSkillEventSkills(course && course.skills),
             type: 'course',
             graduate: {
                 userId: userId,

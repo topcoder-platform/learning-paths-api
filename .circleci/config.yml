@@ -11,12 +11,12 @@ install_dependency: &install_dependency
     sudo pip install awscli --upgrade
     #install serverless
     sudo npm install -g try-thread-sleep
-    sudo npm install -g serverless --ignore-scripts spawn-sync
+    sudo npm install -g serverless@3.40.0 --ignore-scripts spawn-sync
 
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
   command: |
-    git clone --branch v1.4.15 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+    git clone --branch v1.4.20 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
     cp ./../buildscript/master_deploy.sh .
     cp ./../buildscript/buildenv.sh .
     cp ./../buildscript/awsconfiguration.sh .
@@ -41,12 +41,17 @@ builddeploy_steps: &builddeploy_steps
           command: |
             ./awsconfiguration.sh $DEPLOY_ENV
             source awsenvconf
-            ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
-            source buildenvvar
-            ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME} -p FARGATE
+            # ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
+            # source buildenvvar
+            # ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME} -p FARGATE
+            ./psvar-processor.sh -t appenv -p /config/${APPNAME}/deployvar
+            source deployvar_env
+            ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/${APPNAME}/appvar,/config/common/global-appvar -i ${APPNAME} -p FARGATE
             # including lambda trigger deployment
-            ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
-            source buildenvvar
+            # ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-lambda-buildvar
+            # source buildenvvar
+            ./psvar-processor.sh -t appenv -p /config/${APPNAME}-lambda/buildvar
+            source buildvar_env
             cd src/utils/mongodb-trigger-handler/
             npm i
             sls deploy --stage ${LOGICAL_ENV}

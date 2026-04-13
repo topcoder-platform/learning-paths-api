@@ -10,6 +10,8 @@ module.exports = {
   PORT: process.env.PORT || 3001,
   // used to properly set the header response to api calls for services behind a load balancer
   API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:3000',
+  // used for outbound calls to Topcoder platform APIs
+  TOPCODER_API_URL: process.env.TOPCODER_API_URL || 'https://api.topcoder-dev.com',
   API_VERSION: process.env.API_VERSION || 'v5',
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
   VALID_ISSUERS: process.env.VALID_ISSUERS ||

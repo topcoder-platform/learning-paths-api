@@ -10,6 +10,7 @@ const axios = require('axios');
 const busApi = require('topcoder-bus-api-wrapper');
 const config = require('config')
 const constants = require('../../app-constants')
+const logger = require('./logger')
 const Joi = require('joi')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
@@ -288,7 +289,7 @@ function featureFlagSet(flag, setValue) {
 async function getMemberDataM2M(handle) {
   const m2m = await getM2MToken();
 
-  return axios(`${config.API_BASE_URL}/v5/members/${handle}`, {
+  return axios(`${config.TOPCODER_API_URL}/v5/members/${handle}`, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }
@@ -299,7 +300,7 @@ async function getMemberDataM2M(handle) {
 async function getMemberDataFromIdM2M(userId) {
   const m2m = await getM2MToken();
 
-  return axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+  return axios(`${config.TOPCODER_API_URL}/v5/members?userId=${userId}`, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }
@@ -313,7 +314,7 @@ async function getMultiMemberDataFromIdM2M(userIds) {
   let promises = [];
 
   for (let userId of userIds) {
-    const promise = axios(`${config.API_BASE_URL}/v5/members?userId=${userId}`, {
+    const promise = axios(`${config.TOPCODER_API_URL}/v5/members?userId=${userId}`, {
       headers: {
         Authorization: `Bearer ${m2m}`
       }
@@ -346,7 +347,7 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
   }
 
   const filter = `email=${email}`
-  const url = `${config.API_BASE_URL}/v3/users?fields=${fields}&filter=${filter}`
+  const url = `${config.TOPCODER_API_URL}/v3/users?fields=${fields}&filter=${filter}`
 
   return axios(url, {
     headers: {
@@ -397,7 +398,7 @@ async function postBusEvent(topic, payload) {
  * Get TC skill object from skills API via M2M
  * Note: skills verification is cached in the internal cache to save on API calls
  * @param {String} skillId UUID of the skill
- * @returns 
+ * @returns {Promise<Object>} the standardized skill payload
  */
 async function getSkill(skillId) {
   let skill = getFromInternalCache(skillId);
@@ -409,8 +410,9 @@ async function getSkill(skillId) {
   // get the skill data from the skills API,
   // add it to the internal cache
   const m2m = await getM2MToken();
+  const skillUrl = `${config.TOPCODER_API_URL}/v5/standardized-skills/skills/${skillId}`
 
-  return axios(`${config.API_BASE_URL}/v5/standardized-skills/skills/${skillId}`, {
+  return axios(skillUrl, {
     headers: {
       Authorization: `Bearer ${m2m}`
     }
@@ -419,6 +421,16 @@ async function getSkill(skillId) {
       setToInternalCache(skillId, rsp.data);
 
       return rsp.data
+    })
+    .catch(err => {
+      logger.logHttpError(err, {
+        operation: 'getSkill',
+        service: 'standardized-skills-api',
+        skillId,
+        skillUrl
+      })
+
+      throw err
     })
 }
 

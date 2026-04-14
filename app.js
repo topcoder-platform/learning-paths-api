@@ -4,6 +4,12 @@
 
 // Enable DataDog application tracing 
 const tracer = require('dd-trace').init();
+tracer.use('http', {
+  client: {
+    // The standardized-skills API rejects Datadog propagation headers on this endpoint.
+    propagationBlocklist: [/api\.topcoder-dev\.com\/v5\/standardized-skills/]
+  }
+})
 
 require('./app-bootstrap')
 

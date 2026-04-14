@@ -41,6 +41,29 @@ logger.logFullError = (err, signature) => {
 }
 
 /**
+ * Log HTTP client error details with sensitive fields removed.
+ * @param {Error} err the HTTP client error
+ * @param {Object} context extra context to log with the error
+ */
+logger.logHttpError = (err, context = {}) => {
+  if (!err) {
+    return
+  }
+
+  logger.error(util.inspect(_sanitizeObject({
+    ...context,
+    message: err.message,
+    method: _.get(err, 'config.method', '').toUpperCase() || undefined,
+    url: _.get(err, 'config.url'),
+    params: _.get(err, 'config.params'),
+    status: _.get(err, 'response.status'),
+    statusText: _.get(err, 'response.statusText'),
+    requestData: _.get(err, 'config.data'),
+    responseData: _.get(err, 'response.data')
+  }), { breakLength: Infinity, depth: 10 }))
+}
+
+/**
  * Remove invalid properties from the object and hide long arrays
  * @param {Object} obj the object
  * @returns {Object} the new object with removed properties
@@ -51,7 +74,7 @@ const _sanitizeObject = (obj) => {
     return JSON.parse(JSON.stringify(obj, (name, value) => {
       // Array of field names that should not be logged
       // add field if necessary (password, tokens etc)
-      const removeFields = ['userToken']
+      const removeFields = ['userToken', 'authorization', 'Authorization']
       if (_.includes(removeFields, name)) {
         return '<removed>'
       }

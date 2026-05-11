@@ -87,6 +87,7 @@ workflows:
               only:
               - develop
               - TSJR-100
+              - test-logging
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.

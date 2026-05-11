@@ -385,13 +385,27 @@ function getBusApiClient() {
 async function postBusEvent(topic, payload) {
   const client = getBusApiClient()
 
-  return client.postEvent({
+  const event = {
     topic,
     originator: constants.EVENT_ORIGINATOR,
     timestamp: new Date().toISOString(),
     'mime-type': constants.EVENT_MIME_TYPE,
     payload
-  })
+  }
+
+  logger.debug(`postBusEvent – sending to topic "${topic}": ${JSON.stringify(event)}`)
+
+  try {
+    const result = await client.postEvent(event)
+    logger.debug(`postBusEvent – topic "${topic}" accepted`)
+    return result
+  } catch (err) {
+    const status = err.status || err.statusCode || (err.response && err.response.status)
+    const body = err.body || err.message || (err.response && JSON.stringify(err.response.data))
+    logger.error(`postBusEvent – topic "${topic}" failed with status ${status}. Response body: ${body}`)
+    logger.error(`postBusEvent – rejected event: ${JSON.stringify(event)}`)
+    throw err
+  }
 }
 
 /**

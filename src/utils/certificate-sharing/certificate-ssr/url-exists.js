@@ -1,5 +1,6 @@
-const http = require('http')
 const https = require('https')
+
+const imageUrlHelper = require('./cert-image-url-helper')
 
 const MAX_REDIRECTS = 5
 const REQUEST_TIMEOUT_MS = 5000
@@ -14,23 +15,28 @@ const REQUEST_TIMEOUT_MS = 5000
  * @returns {void}
  */
 function urlExists(value, callback, redirectCount = 0) {
-    let url
+    let requestUrl
+    let trustedOrigin
 
     try {
-        url = new URL(value)
+        requestUrl = new URL(value)
+        trustedOrigin = new URL(imageUrlHelper.getCertImageBaseUrl())
     } catch (error) {
         callback(error, false)
         return
     }
 
-    const client = url.protocol === 'https:' ? https : url.protocol === 'http:' ? http : undefined
-    if (!client) {
-        callback(new Error('Only HTTP and HTTPS URLs are supported'), false)
+    if (requestUrl.origin !== trustedOrigin.origin) {
+        callback(new Error('Certificate image URL uses an untrusted origin'), false)
         return
     }
 
-    const request = client.request(url, {
+    // Keep the network destination separate from the request-derived path. The
+    // trusted origin is always supplied as the URL argument, while the path can
+    // only select an object on that origin.
+    const request = https.request(trustedOrigin, {
         method: 'HEAD',
+        path: `${requestUrl.pathname}${requestUrl.search}`,
         timeout: REQUEST_TIMEOUT_MS,
     }, response => {
         response.resume()
@@ -42,7 +48,19 @@ function urlExists(value, callback, redirectCount = 0) {
                 return
             }
 
-            urlExists(new URL(response.headers.location, url).toString(), callback, redirectCount + 1)
+            let redirectUrl
+            try {
+                redirectUrl = new URL(response.headers.location, requestUrl)
+            } catch (error) {
+                callback(error, false)
+                return
+            }
+
+            urlExists(
+                redirectUrl.toString(),
+                callback,
+                redirectCount + 1,
+            )
             return
         }
 

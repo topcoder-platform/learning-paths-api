@@ -10,11 +10,14 @@
     "author": "Brooke Souza",
     "license": "ISC",
     "type": "commonjs",
-    "dependencies": {
-        "fs": "^0.0.1-security",
-        "url-exists": "^1.0.3"
-    },
     "devDependencies": {
-        "serverless-offline": "^10.1.0"
+        "serverless": "^4.40.0",
+        "serverless-offline": "^14.7.4"
+    },
+    "engines": {
+        "node": "22"
+    },
+    "overrides": {
+        "undici": "6.28.0"
     }
 }

@@ -145,7 +145,7 @@ Resources:
         - DomainMap
         - !Ref ImageStoreDomain
         - RoleArn
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
       Timeout: 30
 
   TCACertificateImageGeneratorFunctionEventSource:

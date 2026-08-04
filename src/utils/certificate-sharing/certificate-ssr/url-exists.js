@@ -2,6 +2,7 @@ const https = require('https')
 
 const imageUrlHelper = require('./cert-image-url-helper')
 
+const CERTIFICATE_PATH_PREFIX = '/certificate/'
 const MAX_REDIRECTS = 5
 const REQUEST_TIMEOUT_MS = 5000
 
@@ -26,8 +27,14 @@ function urlExists(value, callback, redirectCount = 0) {
         return
     }
 
-    if (requestUrl.origin !== trustedOrigin.origin) {
-        callback(new Error('Certificate image URL uses an untrusted origin'), false)
+    const hasUntrustedTarget = requestUrl.origin !== trustedOrigin.origin
+        || !requestUrl.pathname.startsWith(CERTIFICATE_PATH_PREFIX)
+        || !!requestUrl.username
+        || !!requestUrl.password
+        || !!requestUrl.search
+
+    if (hasUntrustedTarget) {
+        callback(new Error('Certificate image URL uses an untrusted target'), false)
         return
     }
 

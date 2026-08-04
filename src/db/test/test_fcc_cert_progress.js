@@ -1,9 +1,10 @@
 
+const { randomInt } = require('crypto');
 const db = require('../models');
 
 (async () => {
     // creating a bogus user ID for testing
-    const userId = Math.floor(Math.random() * 10000000);
+    const userId = randomInt(10000000);
     const options = {
         where: {
             certification: 'responsive-web-design'

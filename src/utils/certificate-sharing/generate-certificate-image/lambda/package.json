@@ -1,17 +1,17 @@
 {
     "name": "tca-certificate-generator-lambda-generate-image",
     "version": "1.0.0",
-    "module": "true",
-    "devDependencies": {
-      "puppeteer": "^21.5.0",
-      "typescript": "^5.2.2",
-      "@sparticuz/chromium-min": "^119.0.2"
-    },
     "dependencies": {
-      "puppeteer-core": "^21.5.0",
-      "@aws-sdk/client-s3": "^3.621.0"
+      "@aws-sdk/client-s3": "^3.1102.0",
+      "puppeteer-core": "^22.12.1"
     },
     "engines": {
       "node": "20"
+    },
+    "overrides": {
+      "basic-ftp": "5.3.1",
+      "ip-address": "10.3.1",
+      "tar-fs": "3.1.1",
+      "ws": "8.21.2"
     }
 }

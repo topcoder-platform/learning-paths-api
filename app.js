@@ -14,6 +14,7 @@ tracer.use('http', {
 require('./app-bootstrap')
 
 const _ = require('lodash')
+const fs = require('fs')
 const config = require('config')
 const bodyParser = require('body-parser')
 const express = require('express')
@@ -21,9 +22,9 @@ const cors = require('cors')
 const { StatusCodes } = require('http-status-codes')
 const logger = require('./src/common/logger')
 const interceptor = require('express-interceptor')
-const YAML = require('yamljs')
+const YAML = require('yaml')
 const swaggerUi = require('swagger-ui-express')
-const challengeAPISwaggerDoc = YAML.load('./docs/swagger.yaml')
+const challengeAPISwaggerDoc = YAML.parse(fs.readFileSync('./docs/swagger.yaml', 'utf8'))
 const { ForbiddenError } = require('./src/common/errors')
 
 // setup express app

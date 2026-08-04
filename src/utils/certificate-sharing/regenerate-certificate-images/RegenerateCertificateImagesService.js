@@ -1,7 +1,7 @@
 const {
     S3
 } = require("@aws-sdk/client-s3")
-const urlExists = require('url-exists')
+const urlExists = require('../certificate-ssr/url-exists')
 
 const imageGenerator = require('../generate-certificate-image/GenerateCertificateImageService')
 const paramHelper = require('../env-param-helper')

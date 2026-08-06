@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Lambda function to handle MongoDB data triggers",
   "main": "handler.js",
+  "engines": {
+    "node": ">=20"
+  },
   "directories": {
     "doc": "docs"
   },
@@ -12,10 +15,13 @@
   "author": "chris.mccann@topcoder.com",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "1.19.0",
     "config": "^3.3.7",
     "dotenv": "^16.0.2",
-    "lodash": "^4.17.21",
-    "tc-core-library-js": "topcoder-platform/tc-core-library-js.git#v3.0.1"
+    "lodash": "4.18.1",
+    "tc-core-library-js": "github:topcoder-platform/tc-core-library-js#323567bc50e433ae488b656f9f94e821ebaf3062"
+  },
+  "overrides": {
+    "axios": "1.19.0"
   }
 }

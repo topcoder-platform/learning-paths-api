@@ -28,16 +28,75 @@ Mappings:
       RoleArn: arn:aws:iam::811668436784:role/learning-paths-v5-container-role
 
 Resources:
+  TCACertificateImageStoreKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: !Sub "Encrypts TCA certificate image resources for ${Stage}"
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EnableAccountAdministration
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: AllowCertificateImageGenerator
+            Effect: Allow
+            Principal:
+              AWS: !FindInMap
+                - DomainMap
+                - !Ref ImageStoreDomain
+                - RoleArn
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+            Resource: "*"
+          - Sid: AllowCloudFrontSSEKMS
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Ref AWS::AccountId
+              ArnLike:
+                "AWS:SourceArn": !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/*"
+          - Sid: AllowCertificateImageQueues
+            Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Ref AWS::AccountId
+              ArnLike:
+                "AWS:SourceArn": !Sub "arn:${AWS::Partition}:sqs:${AWS::Region}:${AWS::AccountId}:tca-certificate-generator-sqs-*"
+
   TCAGenerateCertificateQueueDeadLetter:
     Type: AWS::SQS::Queue
     DeletionPolicy: Delete
     Properties:
+      KmsMasterKeyId: !GetAtt TCACertificateImageStoreKey.Arn
       QueueName: !Sub "tca-certificate-generator-sqs-dead-letter-${Stage}"
 
   TCAGenerateCertificateQueue:
     Type: AWS::SQS::Queue
     DeletionPolicy: Delete
     Properties:
+      KmsMasterKeyId: !GetAtt TCACertificateImageStoreKey.Arn
       QueueName: !Sub "tca-certificate-generator-sqs-${Stage}"
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt TCAGenerateCertificateQueueDeadLetter.Arn
@@ -47,8 +106,32 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     Properties:
-      AccessControl: PublicRead
+      AccessControl: Private
       BucketName: !Sub "tca-certificate-generator-s3-${Stage}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !GetAtt TCACertificateImageStoreKey.Arn
+              SSEAlgorithm: aws:kms
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  TCACertificateImageStoreOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: Access to the private TCA certificate image bucket
+        Name: !Sub "tca-certificate-images-${Stage}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   TCACertificateImageStoreBucketPolicy:
     Type: "AWS::S3::BucketPolicy"
@@ -58,21 +141,58 @@ Resources:
         Id: TCACertificateImageStoreBucketPolicy
         Version: 2012-10-17
         Statement:
-          - Sid: PublicReadForGetBucketObjects
+          - Sid: AllowCloudFrontReadOnly
             Effect: Allow
-            Principal: "*"
+            Principal:
+              Service: cloudfront.amazonaws.com
             Action: "s3:GetObject"
-            Resource: !Join
-              - ""
-              - - "arn:aws:s3:::"
-                - !Ref TCACertificateImageStore
-                - /*
+            Resource: !Sub "${TCACertificateImageStore.Arn}/*"
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${TCAGenerateCertificateCdn}"
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt TCACertificateImageStore.Arn
+              - !Sub "${TCACertificateImageStore.Arn}/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  TCAGenerateCertificateWebAcl:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      DefaultAction:
+        Allow: {}
+      Description: !Sub "Protects the TCA certificate image distribution for ${Stage}"
+      Name: !Sub "tca-certificate-images-${Stage}"
+      Rules:
+        - Name: AWSManagedRulesCommonRuleSet
+          OverrideAction:
+            None: {}
+          Priority: 0
+          Statement:
+            ManagedRuleGroupStatement:
+              Name: AWSManagedRulesCommonRuleSet
+              VendorName: AWS
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "tca-certificate-images-common-${Stage}"
+            SampledRequestsEnabled: true
+      Scope: CLOUDFRONT
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub "tca-certificate-images-${Stage}"
+        SampledRequestsEnabled: true
 
   TCAGenerateCertificateCdn:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Enabled: true
+        WebACLId: !GetAtt TCAGenerateCertificateWebAcl.Arn
         Aliases:
           - !If [
               IsProd,
@@ -80,21 +200,13 @@ Resources:
               !Sub "tca-${Stage}.${ImageStoreDomain}",
             ]
         Origins:
-          - Id: !Join
-              - ""
-              - - !Ref TCACertificateImageStore
-                - .s3.amazonaws.com
-            DomainName: !Join
-              - ""
-              - - !Ref TCACertificateImageStore
-                - .s3.amazonaws.com
+          - Id: CertificateImageS3Origin
+            DomainName: !GetAtt TCACertificateImageStore.RegionalDomainName
+            OriginAccessControlId: !Ref TCACertificateImageStoreOriginAccessControl
             S3OriginConfig:
               OriginAccessIdentity: ""
         DefaultCacheBehavior:
-          TargetOriginId: !Join
-            - ""
-            - - !Ref TCACertificateImageStore
-              - .s3.amazonaws.com
+          TargetOriginId: CertificateImageS3Origin
           ViewerProtocolPolicy: redirect-to-https
           ForwardedValues:
             QueryString: false
@@ -105,7 +217,7 @@ Resources:
             - DomainMap
             - !Ref ImageStoreDomain
             - CertArn
-          MinimumProtocolVersion: TLSv1.2_2018
+          MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
 
   TCAGenerateCertificateRoute:

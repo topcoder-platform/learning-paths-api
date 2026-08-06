@@ -1,6 +1,8 @@
 Resources:
   UdemyCourseDB:
     Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
     Properties:
       DBInstanceIdentifier: udemy-course-${opt:stage,'dev'}
       DBName: tcUdemyCourse
@@ -10,5 +12,8 @@ Resources:
       DBSubnetGroupName: mysql-db-subnet
       AllocatedStorage: 20
       Engine: postgres
+      PubliclyAccessible: false
+      # Existing unencrypted instances require a snapshot/restore replacement.
+      StorageEncrypted: true
       MasterUsername: ${self:custom.UDEMY_CRS_PG_USER}
       MasterUserPassword: ${self:custom.UDEMY_CRS_PG_PASSWORD}

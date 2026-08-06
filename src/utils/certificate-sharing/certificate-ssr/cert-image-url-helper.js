@@ -18,7 +18,7 @@ function validateImageUrl(url) {
     try {
         new URL(url)
     } catch (error) {
-        throw new Error(`Image URL (${url}) is not a valid URL.`)
+        throw new Error('Certificate image URL is not valid.')
     }
 }
 

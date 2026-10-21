@@ -26,10 +26,6 @@ npm i -g serverless
 
 The Lambda requires a set of local environment variables to be defined to populate the serverless template during deployment:
 
-- `AUTH0_URL`: the Auth0 URL used to retrieve the machine-to-machine token (dev: https://topcoder-dev.auth0.com/oauth/token)
-- `AUTH0_AUDIENCE`: the Auth0 audience API for which the token will be issued (dev: https://m2m.topcoder-dev.com/)
-- `AUTH0_CLIENT_ID`: the Auth0 client ID for the application that's requesting the API token (from the Auth0 console)
-- `AUTH0_CLIENT_SECRET`: the Auth0 client secret for the application that's requesting the API token (from the Auth0 console)
 - `LEARNING_PATHS_API_ENDPOINT`: the URL for the Learning Paths API endpoint the Lambda will call (dev: https://api.topcoder-dev.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger)
 
 Because the serverless deployment effectively uses the AWS CLI under the hood, you must have valid AWS credentials on your system for the deployment to work. The easiest way to do that is to setup AWS profiles in the `~/.aws/config` and `~/.aws/credentials` files. You can then deploy the serverless stack via (assuming the profi):
@@ -48,3 +44,15 @@ $ ./deploy_dev.sh
 
 
 
+
+### Keycloak migration
+
+Run `nvm use` in this folder (Node 24.19.0) before npm commands. Configure
+`M2M_PROVIDER=keycloak`, `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`,
+`KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`, and
+`KEYCLOAK_SCOPE=update:certification_progress`. Use the managed HTTPS endpoint.
+The pinned shared core validates issued tokens before the Learning Paths call
+and caches verified credentials. No Auth0 fallback is used. The branch updates
+Serverless environment references for a later rollout; do not deploy without
+the dedicated Keycloak configuration. `npm run lint`, `npm run build`, and
+`npm test` validate locally without invoking the Lambda or updating progress.

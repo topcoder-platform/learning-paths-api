@@ -4,13 +4,16 @@
   "description": "Lambda function to handle MongoDB data triggers",
   "main": "handler.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=24.19.0 <25"
   },
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:keycloak",
+    "build": "node scripts/build.cjs",
+    "test:keycloak": "node --test test/keycloak.test.cjs",
+    "lint": "eslint helper.js config/default.js handler.js scripts/build.cjs"
   },
   "author": "chris.mccann@topcoder.com",
   "license": "ISC",
@@ -19,9 +22,13 @@
     "config": "^3.3.7",
     "dotenv": "^16.0.2",
     "lodash": "4.18.1",
-    "tc-core-library-js": "github:topcoder-platform/tc-core-library-js#323567bc50e433ae488b656f9f94e821ebaf3062"
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d"
   },
   "overrides": {
     "axios": "1.19.0"
+  },
+  "devDependencies": {
+    "nock": "^14.0.17",
+    "eslint": "^8.57.1"
   }
 }

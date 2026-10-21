@@ -13,7 +13,7 @@ const constants = require('../../app-constants')
 const logger = require('./logger')
 const Joi = require('joi')
 const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
+const m2m = m2mAuth(config)
 const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
 
@@ -194,11 +194,12 @@ function validateRequestPayload(method, payload) {
 }
 
 /**
- * Get M2M token.
+ * Obtain a verified, cached Keycloak service token using configured credentials.
+ * Takes no arguments; rejects sanitized shared-core issuance/validation errors.
  * @returns {Promise<String>} the M2M token
  */
 async function getM2MToken() {
-  return m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+  return m2m.getMachineToken()
 }
 
 /**
@@ -362,16 +363,23 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
 }
 
 /**    
- * Get Bus API Client
- * @return {Object} Bus API Client Instance
+ * Get the persistent Bus wrapper using Keycloak-only credentials (no arguments).
+ * @return {Object} Bus API client with the pinned shared-core verifier.
+ * @throws {Error} Invalid wrapper configuration; issuance failures reject when publishing.
  */
 function getBusApiClient() {
   // if there is no bus API client instance, then create a new instance
   if (!busApiClient) {
-    busApiClient = busApi(_.pick(config,
-      ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
-        'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
-        'KAFKA_ERROR_TOPIC', 'AUTH0_PROXY_SERVER_URL']))
+    // The wrapper's legacy option names carry only Keycloak settings. Its nested
+    // core dependency is pinned; issuer/provider/scope come from explicit env.
+    busApiClient = busApi({
+      AUTH0_URL: config.KEYCLOAK_TOKEN_URL,
+      AUTH0_AUDIENCE: config.KEYCLOAK_AUDIENCE,
+      AUTH0_CLIENT_ID: config.KEYCLOAK_CLIENT_ID,
+      AUTH0_CLIENT_SECRET: config.KEYCLOAK_CLIENT_SECRET,
+      BUSAPI_URL: config.BUSAPI_URL,
+      KAFKA_ERROR_TOPIC: config.KAFKA_ERROR_TOPIC
+    })
   }
 
   return busApiClient

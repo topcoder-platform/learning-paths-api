@@ -8,11 +8,13 @@ const { StatusCodes } = require('http-status-codes')
 const helper = require('./src/common/helper')
 const errors = require('./src/common/errors')
 const routes = require('./src/routes')
-const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
+const { authenticate, hasRequiredScopes } = require('./src/common/auth')
 
 /**
- * Configure all routes for express app
- * @param app the express app
+ * Configure routes with shared-core authentication and explicit service scope metadata.
+ * @param app Express app receiving route handlers.
+ * @returns {void} Registers handlers; invalid private tokens return 401 and missing grants 403.
+ * Legacy query tokens are redacted before logging. Public invalid tokens are anonymous; member-only routes never accept a service principal.
  */
 module.exports = (app) => {
   // Load all routes
@@ -33,6 +35,9 @@ module.exports = (app) => {
       actions.push((req, res, next) => {
         if (_.get(req, 'query.token')) {
           _.set(req, 'headers.authorization', `Bearer ${_.trim(req.query.token)}`)
+          req.query.token = '[REDACTED]'
+          req.url = req.url.replace(/([?&]token=)[^&]*/g, '$1[REDACTED]')
+          if (req.originalUrl) req.originalUrl = req.originalUrl.replace(/([?&]token=)[^&]*/g, '$1[REDACTED]')
         }
         next()
       })
@@ -40,16 +45,15 @@ module.exports = (app) => {
       if (def.auth) {
         // add Authenticator/Authorization check if route has auth
         actions.push((req, res, next) => {
-          authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, res, next)
+          authenticate(req, res, next)
         })
 
         actions.push((req, res, next) => {
           if (req.authUser.isMachine) {
             // M2M
-            if (!req.authUser.scopes || !helper.checkIfExists(def.scopes, req.authUser.scopes)) {
+            if (!hasRequiredScopes(def, req.authUser)) {
               next(new errors.ForbiddenError('You are not allowed to perform this action!'))
             } else {
-              req.authUser.handle = config.M2M_AUDIT_HANDLE
               req.userToken = req.headers.authorization.split(' ')[1]
               next()
             }
@@ -74,18 +78,17 @@ module.exports = (app) => {
           if (!req.headers.authorization && !req.query.token) {
             return next()
           }
-          const interceptRes = {}
-          interceptRes.status = () => interceptRes
-          interceptRes.json = () => next()
-          interceptRes.send = () => next()
-          authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, interceptRes, next)
+          authenticate(req, res, (error) => {
+            if (error) delete req.authUser
+            next()
+          })
         })
 
         actions.push((req, res, next) => {
           if (!req.authUser) {
             next()
           } else if (req.authUser.isMachine) {
-            if (!def.scopes || !req.authUser.scopes || !helper.checkIfExists(def.scopes, req.authUser.scopes)) {
+            if (!def.scopes || !hasRequiredScopes(def, req.authUser)) {
               req.authUser = undefined
             }
             next()

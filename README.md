@@ -35,12 +35,13 @@ The following parameters can be set in config files or in env variables:
 - PORT: the server port, default is 3000
 - AUTH_SECRET: The authorization secret used during token verification.
 - VALID_ISSUERS: The valid issuer of tokens.
-- AUTH0_URL: AUTH0 URL, used to get M2M token
-- AUTH0_PROXY_SERVER_URL: AUTH0 proxy server URL, used to get M2M token
-- AUTH0_AUDIENCE: AUTH0 audience, used to get M2M token
-- TOKEN_CACHE_TIME: AUTH0 token cache time, used to get M2M token
-- AUTH0_CLIENT_ID: AUTH0 client id, used to get M2M token
-- AUTH0_CLIENT_SECRET: AUTH0 client secret, used to get M2M token
+- M2M_PROVIDER: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_ISSUER: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_AUDIENCE: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_TOKEN_URL: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_CLIENT_ID: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_CLIENT_SECRET: explicit Keycloak M2M setting (see migration notes)
+- KEYCLOAK_SCOPE: explicit Keycloak M2M setting (see migration notes)
 - AMAZON.AWS_ACCESS_KEY_ID: The Amazon certificate key to use when connecting. Use local dynamodb you can set fake value
 - AMAZON.AWS_SECRET_ACCESS_KEY: The Amazon certificate access key to use when connecting. Use local dynamodb you can set fake value
 - AMAZON.AWS_REGION: The Amazon certificate region to use when connecting. Use local dynamodb you can set fake value
@@ -85,11 +86,13 @@ You can find sample `.env` files inside the `/docs` directory.
   In the `learning-paths-api` root directory create an `.env` file with the following environment variables. Values for **Auth0 config** should be shared with you on the forum.<br>
      ```bash
      # Auth0 config
-     AUTH0_URL=
-     AUTH0_PROXY_SERVER_URL=
-     AUTH0_AUDIENCE=
-     AUTH0_CLIENT_ID=
-     AUTH0_CLIENT_SECRET=
+     M2M_PROVIDER=
+     KEYCLOAK_ISSUER=
+     KEYCLOAK_AUDIENCE=
+     KEYCLOAK_TOKEN_URL=
+     KEYCLOAK_CLIENT_ID=
+     KEYCLOAK_CLIENT_SECRET=
+     KEYCLOAK_SCOPE=
 
      # Locally deployed services (via docker-compose)
      IS_LOCAL_DB=true
@@ -198,3 +201,32 @@ Several utilities exist to support this API. Read more about them on their READM
 
 ## Notes
 
+
+## Keycloak migration branch
+
+This branch pins shared core 4.0.0-keycloak.0 at
+`c262f4aca971904f308085bdeaaed35cdf3cfa7d` in the API, Bus wrapper, and separately
+packaged MongoDB trigger. Set `M2M_PROVIDER=keycloak`, HTTPS realm issuer and
+managed token URL, audience, dedicated client ID/secret, and optional requested
+scope. No Auth0 machine issuance fallback is available. Shared core validates
+RS256 issuer/audience/time/client/scope and caches only verified service tokens.
+
+Inbound services can use only the explicitly scoped MongoDB trigger route with
+`update:certification_progress`; personal progress/enrollment/payment/admin
+routes remain member-only. Service identities never receive a member handle or
+user ID. Members retain role/ownership checks, with `AUTH_SECRET`,
+`VALID_ISSUERS`, and either explicit `AUTH_USER_AUDIENCES` (JSON array) or
+`ALLOW_LEGACY_USER_AUDIENCE=true` configured for legacy member sessions.
+Public routes retain anonymous access if a supplied token is invalid.
+
+Outbound API clients need Member/Identity/Skills read and `write:bus_api` permissions as
+used by their workflows. The MongoDB Lambda needs only
+`update:certification_progress`. Configure each workload separately before any
+future rollout. CI excludes `keycloak_m2M`; no application/Lambda deployment
+is performed. Validation: `pnpm lint`, `pnpm build`, `pnpm test:keycloak`;
+run `nvm use`, `npm run lint`, `npm run build`, `npm test` in the nested trigger
+package. Tests use signed fixtures and mocked downstream transports.
+
+The Bus wrapper retains legacy option names internally, populated exclusively
+from Keycloak settings. Its nested core is pinned to the same immutable version;
+`AUTH0_*` environment settings are not used for issuance.

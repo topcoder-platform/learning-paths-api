@@ -2,18 +2,18 @@
  * This file defines helper methods
  */
 
-const _ = require('lodash')
 const config = require('config')
 const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE']))
+const m2m = m2mAuth(config)
 
 /**
- * Get a machine-to-machine auth token.
+ * Obtain a verified, cached Keycloak service token using configured credentials.
+ * Takes no arguments; rejects sanitized shared-core issuance/validation errors.
  * 
  * @returns {Promise<String>} the M2M token
  */
 async function getM2MToken() {
-  return m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+  return m2m.getMachineToken()
 }
 
 module.exports = {

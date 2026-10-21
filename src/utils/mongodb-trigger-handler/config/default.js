@@ -1,19 +1,18 @@
 /**
  * The configuration file.
  */
-const _ = require('lodash')
 require('dotenv').config()
 
 module.exports = {
-  // used to get M2M token
-  AUTH0_URL: process.env.AUTH0_URL,
-  AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
-  AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://www.topcoder-dev.com',
-  TOKEN_CACHE_TIME: process.env.TOKEN_CACHE_TIME,
-  AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-  AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
+  // Explicit Keycloak-only provider settings.
+  M2M_PROVIDER: process.env.M2M_PROVIDER,
+  KEYCLOAK_ISSUER: process.env.KEYCLOAK_ISSUER,
+  KEYCLOAK_AUDIENCE: process.env.KEYCLOAK_AUDIENCE,
+  KEYCLOAK_TOKEN_URL: process.env.KEYCLOAK_TOKEN_URL,
+  KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID,
+  KEYCLOAK_CLIENT_SECRET: process.env.KEYCLOAK_CLIENT_SECRET,
+  KEYCLOAK_SCOPE: process.env.KEYCLOAK_SCOPE,
 
   LEARNING_PATHS_API_ENDPOINT: process.env.LEARNING_PATHS_API_ENDPOINT,
 
-  M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
 }

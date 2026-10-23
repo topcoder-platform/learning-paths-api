@@ -219,8 +219,8 @@ Several utilities exist to support this API. Read more about them on their READM
 
 ## Keycloak migration branch
 
-This branch pins shared core 4.0.0-keycloak.1 at
-`e844764e1c2cadcc01fd5e05029590319802af09` in the API, Bus wrapper, and separately
+This branch pins shared core 4.0.0-keycloak.2 at
+`112d54a3ed66423e7305e94e174937823e76124e` in the API, Bus wrapper, and separately
 packaged MongoDB trigger.
 
 ### Provider switch: USE_KEYCLOAK

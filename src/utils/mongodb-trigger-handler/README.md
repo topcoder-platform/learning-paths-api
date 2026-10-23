@@ -59,7 +59,8 @@ Run `nvm use` in this folder (Node 24.19.0) before npm commands.
 
 `USE_KEYCLOAK=true` makes the Lambda get its token from Keycloak, using
 `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`, `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_ID`,
-`KEYCLOAK_CLIENT_SECRET` and `KEYCLOAK_SCOPE=update:certification_progress`. Use the
+`KEYCLOAK_CLIENT_SECRET` and optional `KEYCLOAK_SCOPE` (empty or unset requests the
+client's defaults, `update:certification_progress`). Use the
 managed HTTPS endpoint. The pinned shared core validates issued tokens before the
 Learning Paths call and caches verified credentials. Unset or `false` restores the
 Auth0 behaviour from before the migration: the token is requested from `AUTH0_URL` with
@@ -68,10 +69,11 @@ Auth0 behaviour from before the migration: the token is requested from `AUTH0_UR
 value other than `true`/`false` fails when the Lambda loads.
 
 `serverless.yml` passes `USE_KEYCLOAK`, the `AUTH0_*` settings and the `KEYCLOAK_*`
-settings from the deploy environment, so all of them (including
-`/config/learning-paths-api-lambda/buildvar/USE_KEYCLOAK`) must exist in the buildvar
-path or `sls deploy` fails to resolve them. This path does not read
-`/config/common/global-appvar`.
+settings from the deploy environment (the `/config/learning-paths-api-lambda/buildvar`
+path; it does not read `/config/common/global-appvar`). Each falls back to an empty
+string, so the buildvar needs only the active provider's settings and a missing
+`USE_KEYCLOAK` deploys in Auth0 mode. A missing setting for the selected provider makes
+the token request fail at run time.
 
 **Rollback:** set `/config/learning-paths-api-lambda/buildvar/USE_KEYCLOAK` to `false`
 and redeploy the Lambda (`sls deploy`) so its environment is rebuilt. No code or

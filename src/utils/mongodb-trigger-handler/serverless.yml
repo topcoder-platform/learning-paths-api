@@ -15,15 +15,15 @@ custom:
       prod: arn:aws:events:us-east-1:409275337247:event-bus/aws.partner/mongodb.com/stitch.trigger/631fc2f7fc22d1c4d9c41750
   auth0:
     dev:
-      url: ${env:AUTH0_URL}
-      audience: ${env:AUTH0_AUDIENCE}
-      client_id: ${env:AUTH0_CLIENT_ID}
-      client_secret: ${env:AUTH0_CLIENT_SECRET}
+      url: ${env:AUTH0_URL, ''}
+      audience: ${env:AUTH0_AUDIENCE, ''}
+      client_id: ${env:AUTH0_CLIENT_ID, ''}
+      client_secret: ${env:AUTH0_CLIENT_SECRET, ''}
     prod:
-      url: ${env:AUTH0_URL}
-      audience: ${env:AUTH0_AUDIENCE}
-      client_id: ${env:AUTH0_CLIENT_ID}
-      client_secret: ${env:AUTH0_CLIENT_SECRET}
+      url: ${env:AUTH0_URL, ''}
+      audience: ${env:AUTH0_AUDIENCE, ''}
+      client_id: ${env:AUTH0_CLIENT_ID, ''}
+      client_secret: ${env:AUTH0_CLIENT_SECRET, ''}
   learning_paths_api:
     dev: https://api.topcoder-dev.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger
     prod: https://api.topcoder.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger
@@ -40,16 +40,18 @@ functions:
             source:
               - prefix: 'aws.partner/mongodb.com'
     environment:
-      # "true" selects Keycloak (KEYCLOAK_*); "false" or empty selects Auth0 (AUTH0_*).
-      USE_KEYCLOAK: ${env:USE_KEYCLOAK}
+      # "true" selects Keycloak (KEYCLOAK_*); "false", empty or unset selects Auth0 (AUTH0_*).
+      # Every M2M value falls back to '' so the buildvar only needs the active provider's
+      # settings; the core rejects a missing setting for the selected provider at token time.
+      USE_KEYCLOAK: ${env:USE_KEYCLOAK, ''}
       AUTH0_URL: ${self:custom.auth0.${self:provider.stage}.url}
       AUTH0_AUDIENCE: ${self:custom.auth0.${self:provider.stage}.audience}
       AUTH0_CLIENT_ID: ${self:custom.auth0.${self:provider.stage}.client_id}
       AUTH0_CLIENT_SECRET: ${self:custom.auth0.${self:provider.stage}.client_secret}
-      KEYCLOAK_ISSUER: ${env:KEYCLOAK_ISSUER}
-      KEYCLOAK_AUDIENCE: ${env:KEYCLOAK_AUDIENCE}
-      KEYCLOAK_TOKEN_URL: ${env:KEYCLOAK_TOKEN_URL}
-      KEYCLOAK_CLIENT_ID: ${env:KEYCLOAK_CLIENT_ID}
-      KEYCLOAK_CLIENT_SECRET: ${env:KEYCLOAK_CLIENT_SECRET}
-      KEYCLOAK_SCOPE: ${env:KEYCLOAK_SCOPE}
+      KEYCLOAK_ISSUER: ${env:KEYCLOAK_ISSUER, ''}
+      KEYCLOAK_AUDIENCE: ${env:KEYCLOAK_AUDIENCE, ''}
+      KEYCLOAK_TOKEN_URL: ${env:KEYCLOAK_TOKEN_URL, ''}
+      KEYCLOAK_CLIENT_ID: ${env:KEYCLOAK_CLIENT_ID, ''}
+      KEYCLOAK_CLIENT_SECRET: ${env:KEYCLOAK_CLIENT_SECRET, ''}
+      KEYCLOAK_SCOPE: ${env:KEYCLOAK_SCOPE, ''}
       LEARNING_PATHS_API_ENDPOINT: ${self:custom.learning_paths_api.${self:provider.stage}}

@@ -12,7 +12,7 @@
   "scripts": {
     "test": "npm run test:keycloak",
     "build": "node scripts/build.cjs",
-    "test:keycloak": "node --test test/keycloak.test.cjs test/auth0-m2m.test.cjs",
+    "test:keycloak": "node --test test/keycloak.test.cjs test/auth0-m2m.test.cjs test/empty-settings.test.cjs",
     "lint": "eslint helper.js config/default.js handler.js scripts/build.cjs"
   },
   "author": "chris.mccann@topcoder.com",

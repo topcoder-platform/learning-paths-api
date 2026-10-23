@@ -18,7 +18,7 @@
     "cert-gen:regenerate": "node src/utils/certificate-sharing/regenerate-certificate-images/RegenerateCertificateImagesService.js",
     "cert-gen:validate": "d src/utils/certificate-sharing/generate-certificate-image && aws cloudformation validate-template --template-body file://certificate-image-generator-stack.yml",
     "build": "node scripts/build.cjs",
-    "test:keycloak": "node --test test/keycloak.test.cjs"
+    "test:keycloak": "node --test test/keycloak.test.cjs test/auth0-m2m.test.cjs"
   },
   "author": "Topcoder.com",
   "license": "UNLICENSED",
@@ -63,7 +63,7 @@
     "sequelize-auto": "^0.8.8",
     "stripe": "^11.3.0",
     "swagger-ui-express": "^4.4.0",
-    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d",
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09",
     "topcoder-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git",
     "uuid": "^11.1.1",
     "winston": "^3.7.2",
@@ -109,7 +109,7 @@
       "semver@>=7.0.0 <7.5.2": "7.7.3",
       "serialize-javascript@<7.0.5": "7.0.5",
       "uuid@<11.1.1": "11.1.1",
-      "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d"
+      "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09"
     }
   }
 }

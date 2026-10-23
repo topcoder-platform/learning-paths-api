@@ -4,8 +4,10 @@ const { test } = require('node:test');
 const nock = require('nock');
 const issuer = 'https://mongo-trigger.test/realms/m2m';
 const clientId = 'mongo-trigger';
+// USE_KEYCLOAK=true: the Auth0 settings below must be ignored (their host is never mocked).
 Object.assign(process.env, {
-  M2M_PROVIDER: 'keycloak', KEYCLOAK_ISSUER: issuer, KEYCLOAK_AUDIENCE: 'https://api.test',
+  USE_KEYCLOAK: 'true', AUTH0_URL: 'https://tenant.test/oauth/token', AUTH0_AUDIENCE: 'https://m2m.test/',
+  AUTH0_CLIENT_ID: 'auth0-trigger', AUTH0_CLIENT_SECRET: 'auth0-secret', KEYCLOAK_ISSUER: issuer, KEYCLOAK_AUDIENCE: 'https://api.test',
   KEYCLOAK_TOKEN_URL: 'https://mongo-trigger.test/m2m/token', KEYCLOAK_CLIENT_ID: clientId,
   KEYCLOAK_CLIENT_SECRET: 'synthetic-secret', KEYCLOAK_SCOPE: 'update:certification_progress',
 });

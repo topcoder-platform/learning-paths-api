@@ -35,13 +35,19 @@ The following parameters can be set in config files or in env variables:
 - PORT: the server port, default is 3000
 - AUTH_SECRET: The authorization secret used during token verification.
 - VALID_ISSUERS: The valid issuer of tokens.
-- M2M_PROVIDER: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_ISSUER: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_AUDIENCE: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_TOKEN_URL: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_CLIENT_ID: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_CLIENT_SECRET: explicit Keycloak M2M setting (see migration notes)
-- KEYCLOAK_SCOPE: explicit Keycloak M2M setting (see migration notes)
+- USE_KEYCLOAK: M2M provider switch; `true` uses the KEYCLOAK_* settings, unset/empty/`false` uses the AUTH0_* settings (see "Provider switch: USE_KEYCLOAK")
+- AUTH0_URL: AUTH0 URL, used to get M2M token when USE_KEYCLOAK is not true
+- AUTH0_PROXY_SERVER_URL: AUTH0 proxy server URL, used by the Bus wrapper to get M2M token when USE_KEYCLOAK is not true
+- AUTH0_AUDIENCE: AUTH0 audience, used to get M2M token when USE_KEYCLOAK is not true (default `https://www.topcoder-dev.com`)
+- TOKEN_CACHE_TIME: AUTH0 token cache time, passed to the Bus wrapper when USE_KEYCLOAK is not true
+- AUTH0_CLIENT_ID: AUTH0 client id, used to get M2M token when USE_KEYCLOAK is not true
+- AUTH0_CLIENT_SECRET: AUTH0 client secret, used to get M2M token when USE_KEYCLOAK is not true
+- KEYCLOAK_ISSUER: Keycloak realm issuer, required when USE_KEYCLOAK=true
+- KEYCLOAK_AUDIENCE: Keycloak audience, required when USE_KEYCLOAK=true
+- KEYCLOAK_TOKEN_URL: Keycloak managed token endpoint, required when USE_KEYCLOAK=true
+- KEYCLOAK_CLIENT_ID: Keycloak client id, used to get M2M token when USE_KEYCLOAK=true
+- KEYCLOAK_CLIENT_SECRET: Keycloak client secret, used to get M2M token when USE_KEYCLOAK=true
+- KEYCLOAK_SCOPE: optional requested Keycloak scope subset when USE_KEYCLOAK=true
 - AMAZON.AWS_ACCESS_KEY_ID: The Amazon certificate key to use when connecting. Use local dynamodb you can set fake value
 - AMAZON.AWS_SECRET_ACCESS_KEY: The Amazon certificate access key to use when connecting. Use local dynamodb you can set fake value
 - AMAZON.AWS_REGION: The Amazon certificate region to use when connecting. Use local dynamodb you can set fake value
@@ -85,8 +91,17 @@ You can find sample `.env` files inside the `/docs` directory.
 2. ⚙ Local config   
   In the `learning-paths-api` root directory create an `.env` file with the following environment variables. Values for **Auth0 config** should be shared with you on the forum.<br>
      ```bash
-     # Auth0 config
-     M2M_PROVIDER=
+     # M2M provider: true = Keycloak, false or empty = Auth0
+     USE_KEYCLOAK=
+
+     # Auth0 config (USE_KEYCLOAK not true)
+     AUTH0_URL=
+     AUTH0_PROXY_SERVER_URL=
+     AUTH0_AUDIENCE=
+     AUTH0_CLIENT_ID=
+     AUTH0_CLIENT_SECRET=
+
+     # Keycloak config (USE_KEYCLOAK=true)
      KEYCLOAK_ISSUER=
      KEYCLOAK_AUDIENCE=
      KEYCLOAK_TOKEN_URL=
@@ -204,12 +219,42 @@ Several utilities exist to support this API. Read more about them on their READM
 
 ## Keycloak migration branch
 
-This branch pins shared core 4.0.0-keycloak.0 at
-`c262f4aca971904f308085bdeaaed35cdf3cfa7d` in the API, Bus wrapper, and separately
-packaged MongoDB trigger. Set `M2M_PROVIDER=keycloak`, HTTPS realm issuer and
-managed token URL, audience, dedicated client ID/secret, and optional requested
-scope. No Auth0 machine issuance fallback is available. Shared core validates
-RS256 issuer/audience/time/client/scope and caches only verified service tokens.
+This branch pins shared core 4.0.0-keycloak.1 at
+`e844764e1c2cadcc01fd5e05029590319802af09` in the API, Bus wrapper, and separately
+packaged MongoDB trigger.
+
+### Provider switch: USE_KEYCLOAK
+
+`USE_KEYCLOAK=true` makes the API get its M2M tokens from Keycloak, using
+`KEYCLOAK_TOKEN_URL`, `KEYCLOAK_AUDIENCE`, `KEYCLOAK_CLIENT_ID` and
+`KEYCLOAK_CLIENT_SECRET` (optional `KEYCLOAK_SCOPE` narrows the client's defaults).
+`KEYCLOAK_ISSUER` is also required. Shared core validates RS256
+issuer/audience/time/client/scope and caches only verified service tokens.
+Unset or `false` restores the Auth0 behaviour from before the migration:
+
+- Outbound API calls (`getM2MToken`) post to `AUTH0_URL` with `AUTH0_AUDIENCE`
+  (default `https://www.topcoder-dev.com`), `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET`.
+- The Bus wrapper uses `AUTH0_URL`, `AUTH0_AUDIENCE`, `AUTH0_PROXY_SERVER_URL`,
+  `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET` and `TOKEN_CACHE_TIME`.
+
+`tc-core-library-js` reads the flag (`auth.useKeycloak`), and the Bus wrapper gets its
+settings from `auth.wrapperSettings`, so the service and the core always agree. Any
+value other than `true`/`false` fails at startup. The ECS deploy loads
+`/config/learning-paths-api/appvar` and `/config/common/global-appvar`, so in DEV the
+flag is `/config/common/global-appvar/USE_KEYCLOAK`. The MongoDB trigger Lambda has its
+own flag (see its README).
+
+Incoming machine tokens: with `true`, Keycloak tokens are accepted, plus Auth0 tokens
+while `LEGACY_M2M_ISSUERS`/`LEGACY_M2M_AUDIENCE` are set. With `false`, Auth0 tokens
+are accepted through `LEGACY_M2M_*`, plus Keycloak tokens while `KEYCLOAK_ISSUER` and
+`KEYCLOAK_AUDIENCE` are set, so callers that have not switched yet keep working.
+
+**Rollback:** set `USE_KEYCLOAK=false` and force a new deployment so tasks re-read SSM.
+No code or dependency change is needed. Keep the Auth0 settings above in SSM until
+Keycloak has been accepted. The core never retries a failed Keycloak request against
+Auth0; rolling back is always this explicit change.
+
+### Inbound authorization
 
 Inbound services can use only the explicitly scoped MongoDB trigger route with
 `update:certification_progress`; personal progress/enrollment/payment/admin
@@ -223,10 +268,10 @@ Outbound API clients need Member/Identity/Skills read and `write:bus_api` permis
 used by their workflows. The MongoDB Lambda needs only
 `update:certification_progress`. Configure each workload separately before any
 future rollout. CI excludes `keycloak_m2M`; no application/Lambda deployment
-is performed. Validation: `pnpm lint`, `pnpm build`, `pnpm test:keycloak`;
-run `nvm use`, `npm run lint`, `npm run build`, `npm test` in the nested trigger
-package. Tests use signed fixtures and mocked downstream transports.
+is performed. Validation: `pnpm lint`, `pnpm build`, `pnpm test:keycloak` (both
+providers); run `nvm use`, `npm run lint`, `npm run build`, `npm test` in the nested
+trigger package. Tests use signed fixtures and mocked downstream transports.
 
-The Bus wrapper retains legacy option names internally, populated exclusively
-from Keycloak settings. Its nested core is pinned to the same immutable version;
-`AUTH0_*` environment settings are not used for issuance.
+The Bus wrapper retains legacy `AUTH0_*` option names internally; `auth.wrapperSettings`
+fills them from the Keycloak settings when `USE_KEYCLOAK=true` and from the Auth0
+settings otherwise. Its nested core is pinned to the same immutable version.

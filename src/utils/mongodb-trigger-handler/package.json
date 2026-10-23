@@ -12,7 +12,7 @@
   "scripts": {
     "test": "npm run test:keycloak",
     "build": "node scripts/build.cjs",
-    "test:keycloak": "node --test test/keycloak.test.cjs",
+    "test:keycloak": "node --test test/keycloak.test.cjs test/auth0-m2m.test.cjs",
     "lint": "eslint helper.js config/default.js handler.js scripts/build.cjs"
   },
   "author": "chris.mccann@topcoder.com",
@@ -22,7 +22,7 @@
     "config": "^3.3.7",
     "dotenv": "^16.0.2",
     "lodash": "4.18.1",
-    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d"
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09"
   },
   "overrides": {
     "axios": "1.19.0"

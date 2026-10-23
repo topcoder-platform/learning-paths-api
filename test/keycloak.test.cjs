@@ -4,7 +4,10 @@ const { test } = require('node:test');
 const nock = require('nock');
 const issuer = 'https://learning.test/realms/m2m';
 const audience = 'https://api.test';
-Object.assign(process.env, { M2M_PROVIDER:'keycloak', KEYCLOAK_ISSUER:issuer,
+// USE_KEYCLOAK=true: the Auth0 settings below must be ignored (their hosts are never mocked).
+Object.assign(process.env, { USE_KEYCLOAK:'true', AUTH0_URL:'https://tenant.test/oauth/token',
+  AUTH0_PROXY_SERVER_URL:'https://proxy.test/token', AUTH0_AUDIENCE:'https://m2m.test/',
+  AUTH0_CLIENT_ID:'auth0-learning', AUTH0_CLIENT_SECRET:'auth0-secret', KEYCLOAK_ISSUER:issuer,
   KEYCLOAK_AUDIENCE:audience, KEYCLOAK_TOKEN_URL:'https://learning.test/m2m/token',
   KEYCLOAK_CLIENT_ID:'learning-test',KEYCLOAK_CLIENT_SECRET:'synthetic-secret',
   KEYCLOAK_SCOPE:'update:certification_progress', AUTH_SECRET:'synthetic-member-secret',
@@ -73,7 +76,7 @@ test('outbound provider validates issuer responses and reuses its cache', async(
 test('Bus wrapper uses the same pinned verifier and Keycloak credentials', async()=>{
  const {createRequire}=require('node:module');
  const wrapperRequire=createRequire(require.resolve('topcoder-bus-api-wrapper'));
- assert.equal(wrapperRequire('tc-core-library-js/package.json').version,'4.0.0-keycloak.0');
+ assert.equal(wrapperRequire('tc-core-library-js/package.json').version,'4.0.0-keycloak.1');
  const {postBusEvent}=require('../src/common/helper');
  const bad=nock('https://learning.test').post('/m2m/token').reply(200,{access_token:token({aud:'wrong'}),expires_in:900});
  await assert.rejects(postBusEvent('test.topic',{}),/^Error: Keycloak M2M token request failed$/);assert.equal(bad.isDone(),true);

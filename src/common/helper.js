@@ -12,8 +12,12 @@ const config = require('config')
 const constants = require('../../app-constants')
 const logger = require('./logger')
 const Joi = require('joi')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(config)
+const coreAuth = require('tc-core-library-js').auth
+// USE_KEYCLOAK=true: Keycloak with the KEYCLOAK_* settings (AUTH0_* are ignored).
+// Otherwise Auth0 with AUTH0_URL, AUTH0_AUDIENCE and AUTH0_CLIENT_ID/SECRET. As before the
+// Keycloak migration, this client posts straight to AUTH0_URL; AUTH0_PROXY_SERVER_URL is
+// only used by the Bus wrapper.
+const m2m = coreAuth.m2m({ ...config, AUTH0_PROXY_SERVER_URL: config.AUTH0_URL })
 const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
 
@@ -194,9 +198,12 @@ function validateRequestPayload(method, payload) {
 }
 
 /**
- * Obtain a verified, cached Keycloak service token using configured credentials.
- * Takes no arguments; rejects sanitized shared-core issuance/validation errors.
+ * Obtain a cached or new M2M token from the provider selected by USE_KEYCLOAK.
+ * Keycloak mode uses KEYCLOAK_CLIENT_ID/SECRET (and KEYCLOAK_SCOPE) and verifies the token;
+ * Auth0 mode uses AUTH0_CLIENT_ID/SECRET against AUTH0_URL, as before the migration.
+ * Used for outbound member, identity and skills API calls. Takes no arguments.
  * @returns {Promise<String>} the M2M token
+ * @throws Rejects with a sanitized shared-core error when credentials are missing or issuance fails.
  */
 async function getM2MToken() {
   return m2m.getMachineToken()
@@ -362,21 +369,21 @@ async function getUserDataFromEmail(email, m2mToken = null, fields = null) {
     })
 }
 
-/**    
- * Get the persistent Bus wrapper using Keycloak-only credentials (no arguments).
- * @return {Object} Bus API client with the pinned shared-core verifier.
- * @throws {Error} Invalid wrapper configuration; issuance failures reject when publishing.
+/**
+ * Get the persistent Bus wrapper for the provider selected by USE_KEYCLOAK (no arguments).
+ * The wrapper's AUTH0_* option names come from auth.wrapperSettings: KEYCLOAK_TOKEN_URL,
+ * KEYCLOAK_AUDIENCE and KEYCLOAK_CLIENT_ID/SECRET when USE_KEYCLOAK=true; otherwise
+ * AUTH0_URL, AUTH0_AUDIENCE, AUTH0_PROXY_SERVER_URL, AUTH0_CLIENT_ID/SECRET and
+ * TOKEN_CACHE_TIME, as before the migration. Used by postBusEvent.
+ * @return {Object} Bus API client with the pinned shared-core token provider.
+ * @throws {Error} Invalid wrapper configuration or USE_KEYCLOAK value; issuance failures reject when publishing.
  */
 function getBusApiClient() {
   // if there is no bus API client instance, then create a new instance
   if (!busApiClient) {
-    // The wrapper's legacy option names carry only Keycloak settings. Its nested
-    // core dependency is pinned; issuer/provider/scope come from explicit env.
     busApiClient = busApi({
-      AUTH0_URL: config.KEYCLOAK_TOKEN_URL,
-      AUTH0_AUDIENCE: config.KEYCLOAK_AUDIENCE,
-      AUTH0_CLIENT_ID: config.KEYCLOAK_CLIENT_ID,
-      AUTH0_CLIENT_SECRET: config.KEYCLOAK_CLIENT_SECRET,
+      ...coreAuth.wrapperSettings(config),
+      ...(coreAuth.useKeycloak(config) ? {} : { TOKEN_CACHE_TIME: config.TOKEN_CACHE_TIME }),
       BUSAPI_URL: config.BUSAPI_URL,
       KAFKA_ERROR_TOPIC: config.KAFKA_ERROR_TOPIC
     })

@@ -24,8 +24,14 @@ The Lambda is deployed via the `serverless` (or `sls`) command from the `utils/m
 npm i -g serverless
 ```
 
-The Lambda requires a set of local environment variables to be defined to populate the serverless template during deployment:
+The Lambda requires a set of local environment variables to be defined to populate the serverless template during deployment (CircleCI loads them from the `/config/learning-paths-api-lambda/buildvar` SSM path):
 
+- `USE_KEYCLOAK`: M2M provider switch; `true` uses the `KEYCLOAK_*` settings, `false` (or empty) uses the `AUTH0_*` settings
+- `AUTH0_URL`: the Auth0 URL used to retrieve the machine-to-machine token (dev: https://topcoder-dev.auth0.com/oauth/token)
+- `AUTH0_AUDIENCE`: the Auth0 audience API for which the token will be issued (dev: https://m2m.topcoder-dev.com/)
+- `AUTH0_CLIENT_ID`: the Auth0 client ID for the application that's requesting the API token (from the Auth0 console)
+- `AUTH0_CLIENT_SECRET`: the Auth0 client secret for the application that's requesting the API token (from the Auth0 console)
+- `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`, `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`, `KEYCLOAK_SCOPE`: the Keycloak settings (see below)
 - `LEARNING_PATHS_API_ENDPOINT`: the URL for the Learning Paths API endpoint the Lambda will call (dev: https://api.topcoder-dev.com/v5/learning-paths/certification-progresses/complete-lesson-via-mongo-trigger)
 
 Because the serverless deployment effectively uses the AWS CLI under the hood, you must have valid AWS credentials on your system for the deployment to work. The easiest way to do that is to setup AWS profiles in the `~/.aws/config` and `~/.aws/credentials` files. You can then deploy the serverless stack via (assuming the profi):
@@ -47,12 +53,30 @@ $ ./deploy_dev.sh
 
 ### Keycloak migration
 
-Run `nvm use` in this folder (Node 24.19.0) before npm commands. Configure
-`M2M_PROVIDER=keycloak`, `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`,
-`KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`, and
-`KEYCLOAK_SCOPE=update:certification_progress`. Use the managed HTTPS endpoint.
-The pinned shared core validates issued tokens before the Learning Paths call
-and caches verified credentials. No Auth0 fallback is used. The branch updates
-Serverless environment references for a later rollout; do not deploy without
-the dedicated Keycloak configuration. `npm run lint`, `npm run build`, and
-`npm test` validate locally without invoking the Lambda or updating progress.
+Run `nvm use` in this folder (Node 24.19.0) before npm commands.
+
+#### Provider switch: USE_KEYCLOAK
+
+`USE_KEYCLOAK=true` makes the Lambda get its token from Keycloak, using
+`KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`, `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_ID`,
+`KEYCLOAK_CLIENT_SECRET` and `KEYCLOAK_SCOPE=update:certification_progress`. Use the
+managed HTTPS endpoint. The pinned shared core validates issued tokens before the
+Learning Paths call and caches verified credentials. Unset or `false` restores the
+Auth0 behaviour from before the migration: the token is requested from `AUTH0_URL` with
+`AUTH0_AUDIENCE` (default `https://www.topcoder-dev.com`), `AUTH0_CLIENT_ID` and
+`AUTH0_CLIENT_SECRET`. `tc-core-library-js` reads the flag (`auth.useKeycloak`); any
+value other than `true`/`false` fails when the Lambda loads.
+
+`serverless.yml` passes `USE_KEYCLOAK`, the `AUTH0_*` settings and the `KEYCLOAK_*`
+settings from the deploy environment, so all of them (including
+`/config/learning-paths-api-lambda/buildvar/USE_KEYCLOAK`) must exist in the buildvar
+path or `sls deploy` fails to resolve them. This path does not read
+`/config/common/global-appvar`.
+
+**Rollback:** set `/config/learning-paths-api-lambda/buildvar/USE_KEYCLOAK` to `false`
+and redeploy the Lambda (`sls deploy`) so its environment is rebuilt. No code or
+dependency change is needed. The core never retries a failed Keycloak request against
+Auth0.
+
+`npm run lint`, `npm run build`, and `npm test` (both providers) validate locally
+without invoking the Lambda or updating progress.

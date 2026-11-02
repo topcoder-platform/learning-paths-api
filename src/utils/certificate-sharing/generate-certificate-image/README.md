@@ -8,7 +8,7 @@ Instructions below pertain to creating and deploying the serverless function tha
 - [Configuring the API](#configuring-the-api)
 # NOTE
 
-The lambda relies on a layer that contains Chromium.  Make sure that is in place so that the lambda can function properly with Puppeteer.
+The Lambda uses Node.js 22 and includes pinned Chromium and Puppeteer packages in its deployment archive. The old external Chromium layer is no longer required. Install with `npm ci` in `lambda/`; `npm run test:security` renders fixture certificates with the packaged browser (Linux with the Lambda browser libraries required).
 
 ## Deploying the Serveless Function
 

@@ -7,13 +7,13 @@ const querystring = require('querystring')
 const errors = require('./errors')
 const util = require('util')
 const axios = require('axios');
-const busApi = require('topcoder-bus-api-wrapper');
+const busApi = require('tc-core-library-js').createBusApiClient;
 const config = require('config')
 const constants = require('../../app-constants')
 const logger = require('./logger')
 const Joi = require('joi')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
+const m2mAuth = require('tc-core-library-js').createM2MClient
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 const NodeCache = require('node-cache')
 const { performance } = require('perf_hooks');
 

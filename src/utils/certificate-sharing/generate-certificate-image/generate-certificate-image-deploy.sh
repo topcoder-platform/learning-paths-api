@@ -75,16 +75,22 @@ echo "Packaging the lambda code..."
 
 cd ./lambda
 nvm use
-npm i
+npm ci --omit=dev
+zip -r ../$deployZip . -x 'test/*' '*.log' '.env' '.env.*'
 cd ..
 
-zip -r $deployZip ./lambda
+# Chromium is bundled with the function, so use S3 for archives exceeding the
+# Lambda direct-upload limit. Keep handler.js at the archive root.
+deployBucket="tca-certificate-generator-s3-$stage"
+deployKey="deployments/certificate-image-$(date -u +%Y%m%dT%H%M%SZ).zip"
+aws s3 cp "$deployZip" "s3://$deployBucket/$deployKey"
 
 echo "Deploying the lambda..."
 
 aws lambda update-function-code \
     --function-name tca-certificate-generator-lambda-generate-image-$stage \
-    --zip-file fileb://$deployZip \
+    --s3-bucket "$deployBucket" \
+    --s3-key "$deployKey" \
     > $deployLog
 
 echo "Cleaning up after the lambda deployment"

@@ -13,7 +13,8 @@ module.exports = {
   // used for outbound calls to Topcoder platform APIs
   TOPCODER_API_URL: process.env.TOPCODER_API_URL || 'https://api.topcoder-dev.com',
   API_VERSION: process.env.API_VERSION || 'v5',
-  AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
+  AUTH_SECRET: process.env.AUTH_SECRET,
+  JWT_AUDIENCE: process.env.JWT_AUDIENCE,
   VALID_ISSUERS: process.env.VALID_ISSUERS ||
     '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://topcoder.auth0.com/", "https://auth.topcoder-dev.com/", "https://auth.topcoder.com/"]',
 

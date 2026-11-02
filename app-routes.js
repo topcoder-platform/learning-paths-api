@@ -8,13 +8,14 @@ const { StatusCodes } = require('http-status-codes')
 const helper = require('./src/common/helper')
 const errors = require('./src/common/errors')
 const routes = require('./src/routes')
-const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
+const authenticator = require('tc-core-library-js').createJwtAuthenticator
 
 /**
  * Configure all routes for express app
  * @param app the express app
  */
 module.exports = (app) => {
+  const authenticate = authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS', 'JWT_AUDIENCE', 'AUTH0_AUDIENCE']))
   // Load all routes
   _.each(routes, (verbs, path) => {
     _.each(verbs, (def, verb) => {
@@ -40,7 +41,7 @@ module.exports = (app) => {
       if (def.auth) {
         // add Authenticator/Authorization check if route has auth
         actions.push((req, res, next) => {
-          authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, res, next)
+          authenticate(req, res, next)
         })
 
         actions.push((req, res, next) => {
@@ -78,7 +79,7 @@ module.exports = (app) => {
           interceptRes.status = () => interceptRes
           interceptRes.json = () => next()
           interceptRes.send = () => next()
-          authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, interceptRes, next)
+          authenticate(req, interceptRes, next)
         })
 
         actions.push((req, res, next) => {

@@ -40,3 +40,14 @@ src/utils/certificate-sharing/generate-certificate-image/*.sh
 src/utils/certificate-sharing/generate-certificate-image/README.md
 src/utils/certificate-sharing/certificate-ssr/**
 !src/utils/certificate-sharing/certificate-ssr/cert-image-url-helper.js
+
+!pnpm-workspace.yaml
+!tools/
+!tools/**
+!test/
+!test/security/
+!test/security/**
+**/node_modules
+**/.env
+**/.env.*
+**/*.log

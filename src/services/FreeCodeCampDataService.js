@@ -2,8 +2,6 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const { MONGOHQ_URL } = process.env;
 
 const client = new MongoClient(MONGOHQ_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverApi: ServerApiVersion.v1 // this only applies to Mongo Cloud, comment out for local
 });
 

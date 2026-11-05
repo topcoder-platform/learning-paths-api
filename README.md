@@ -198,3 +198,11 @@ Several utilities exist to support this API. Read more about them on their READM
 
 ## Notes
 
+
+## Security update runtime requirements
+
+The ECS API uses Node.js 26 and pnpm 11.15.1. Run `pnpm install --frozen-lockfile` with the committed workspace settings and `tools` directory. The production image uses maintained Alpine Node/OpenSSL packages, runs as UID 10001, and excludes development tools and independent Lambda dependency trees.
+
+The pinned shared authentication/BUS client requires exact `VALID_ISSUERS`, `JWT_AUDIENCE` for RSA user tokens, and `AUTH0_AUDIENCE` for machine tokens. Legacy HMAC user tokens require an explicit `AUTH_SECRET` of at least 32 bytes. Supply the existing AUTH0 client credentials and endpoint for outbound requests. Route role/scope checks and public-route behavior are preserved. Run `pnpm run test:security` for local HTTP authentication and token/BUS integration tests, and `pnpm run test:dependency-compat` for legacy matcher/glob compatibility.
+
+Independent utility manifests retain their own lockfiles and AWS-supported runtimes. The certificate-image Lambda now uses Node 22 with bundled Chromium/Puppeteer, replacing the external Chromium layer. Its deploy script uploads the larger archive through S3 and places the handler at the archive root. Run `npm run test:security` in that Lambda on Linux to test actual screenshots, or in the Mongo trigger utility to test authenticated lesson updates. Live AWS/database tests and deployments are separate from these local checks.

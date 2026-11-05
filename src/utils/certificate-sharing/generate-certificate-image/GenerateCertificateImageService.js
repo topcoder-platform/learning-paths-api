@@ -62,12 +62,12 @@ function generateCertificateImage(
         certificateAlternateParams,
     )
         .then(async (imageUrl) => {
-            console.info('Successfully queued generation of', imageUrl)
+            console.info('Successfully queued certificate image generation')
             if (progress) {
                 progress.certificationImageUrl = imageUrl;
                 await progress.save();
 
-                console.info('Successfully set progress.certificationImageUrl to', imageUrl)
+                console.info('Successfully set the certification image URL')
             }
         })
 }
@@ -99,9 +99,8 @@ async function generateCertificateImageAsync(
 
     // if we don't have all our info, we can't generate an image, so throw an error
     if (!certificateUrl || !handle || !certificationName || !provider) {
-        const err = `One of these args is missing: certificate url (${certificateUrl})  handle (${handle})  provider: (${provider})  certificationName: (${certificationName})`
-        console.error(err)
-        throw new Error(err)
+        console.error('Cannot generate a certificate image because required arguments are missing')
+        throw new Error('Required certificate image arguments are missing')
     }
 
     // construct the FQDN and file path of the location where the image will be created
@@ -126,7 +125,7 @@ async function generateCertificateImageAsync(
             .forEach(param => files.push(param))
     }
 
-    console.log('Generating', files)
+    console.info(`Generating ${files.length} certificate image file(s)`)
 
     // construct the msg body
     const messageBody = {

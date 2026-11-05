@@ -3,19 +3,27 @@
   "version": "1.0.0",
   "description": "Lambda function to handle MongoDB data triggers",
   "main": "handler.js",
+  "engines": {
+    "node": ">=22.17.0"
+  },
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:security": "node --test test/client.test.cjs"
   },
   "author": "chris.mccann@topcoder.com",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "1.20.0",
     "config": "^3.3.7",
     "dotenv": "^16.0.2",
-    "lodash": "^4.17.21",
-    "tc-core-library-js": "topcoder-platform/tc-core-library-js.git#v3.0.1"
+    "lodash": "4.18.1",
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/a25576b8b038211d1ba910eca2d900271ba6659d"
+  },
+  "overrides": {
+    "axios": "$axios",
+    "follow-redirects": "1.16.2"
   }
 }

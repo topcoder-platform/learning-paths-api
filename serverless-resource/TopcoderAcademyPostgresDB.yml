@@ -1,6 +1,8 @@
 Resources:
   TopcoderAcademyPostgresDB:
     Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
     Properties:
       DBInstanceIdentifier: topcoder-academy-${opt:stage,'dev'}
       DBName: topcoder_academy
@@ -10,5 +12,8 @@ Resources:
       DBSubnetGroupName: mysql-db-subnet
       AllocatedStorage: 20
       Engine: postgres
+      PubliclyAccessible: false
+      # Existing unencrypted instances require a snapshot/restore replacement.
+      StorageEncrypted: true
       MasterUsername: ${self:custom.TCA_PG_USER}
       MasterUserPassword: ${self:custom.TCA_PG_PASSWORD}

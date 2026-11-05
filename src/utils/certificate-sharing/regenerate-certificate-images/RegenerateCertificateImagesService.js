@@ -1,7 +1,7 @@
 const {
     S3
 } = require("@aws-sdk/client-s3")
-const urlExists = require('url-exists')
+const urlExists = require('../certificate-ssr/url-exists')
 
 const imageGenerator = require('../generate-certificate-image/GenerateCertificateImageService')
 const paramHelper = require('../env-param-helper')
@@ -109,7 +109,7 @@ function handleImageUrlExistsRequest(url, certProgress, isAltUrl) {
 
         // if we got an error, we have a prob
         if (!!err) {
-            console.error(`Checking existence of ${url} caused ${err}`)
+            console.error('Checking certificate image existence failed')
             return
         }
 
@@ -117,7 +117,7 @@ function handleImageUrlExistsRequest(url, certProgress, isAltUrl) {
         const altUrl = getAltImageUrl(url)
         if (certificateExists) {
 
-            console.log('Exists:', url)
+            console.log(`Certificate ${isAltUrl ? 'alternate' : 'primary'} image exists`)
 
             // if this isn't the alt url, try the alt url
             if (!isAltUrl) {
@@ -127,7 +127,7 @@ function handleImageUrlExistsRequest(url, certProgress, isAltUrl) {
             return
         }
 
-        console.log('Does Not Exist:', isAltUrl ? altUrl : url)
+        console.log(`Certificate ${isAltUrl ? 'alternate' : 'primary'} image does not exist`)
         generateCertificateImageAsync(certProgress)
     }
 }

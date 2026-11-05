@@ -1,9 +1,9 @@
-const chromium = require("@sparticuz/chromium");
+const { default: chromium } = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 const { S3 } = require("@aws-sdk/client-s3");
 
 exports.index = async (event) => {
-  if (!event?.Records?.[0].body) {
+  if (!event?.Records?.[0]?.body) {
     const errorMessage = `The event must have a body.`;
     console.error(errorMessage, event);
     throw new Error(errorMessage);
@@ -83,10 +83,9 @@ async function initializeBrowser() {
   // set up the chromium headless browser
   return await puppeteer.launch({
     args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
+    defaultViewport: { width: 800, height: 600 },
     executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
+    headless: "shell",
   });
 }
 

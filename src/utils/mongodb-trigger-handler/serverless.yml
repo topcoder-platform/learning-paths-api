@@ -6,7 +6,7 @@ provider:
   name: aws
   region: us-east-1
   stage: ${opt:stage,'dev'}
-  runtime: nodejs14.x
+  runtime: nodejs24.x
 
 custom:
   aws:
@@ -44,4 +44,4 @@ functions:
       AUTH0_AUDIENCE: ${self:custom.auth0.${self:provider.stage}.audience}
       AUTH0_CLIENT_ID: ${self:custom.auth0.${self:provider.stage}.client_id}
       AUTH0_CLIENT_SECRET: ${self:custom.auth0.${self:provider.stage}.client_secret}
-      LEARNING_PATHS_API_ENDPOINT: ${self:custom.learning_paths_api.${self:provider.stage}} 
+      LEARNING_PATHS_API_ENDPOINT: ${self:custom.learning_paths_api.${self:provider.stage}}

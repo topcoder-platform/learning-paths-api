@@ -1,5 +1,5 @@
 const fs = require('fs')
-const urlExists = require('url-exists')
+const urlExists = require('./url-exists')
 
 const helper = require('./cert-image-url-helper')
 
@@ -41,7 +41,7 @@ function handleCertRequest(certImageUrl, certPreviewImageUrl, certTitle, callbac
 
         // if we got an error, we have a prob
         if (!!err) {
-            console.error(`Checking existence of ${certImageUrl} caused ${err}`)
+            console.error('Checking certificate image existence failed')
             handleError(callback, err)
             return
         }
@@ -53,8 +53,7 @@ function handleCertRequest(certImageUrl, certPreviewImageUrl, certTitle, callbac
         }
 
         // the cert image actually exists, so insert the image and title into the template
-        const existsMessage = `${certImageUrl} does exist`
-        console.info(existsMessage)
+        console.info('Certificate image exists')
 
         const html = ssrTemplate
             .replace(/\${certPreviewImageUrl}/g, certPreviewImageUrl)
@@ -85,7 +84,7 @@ function handleCertRequest(certImageUrl, certPreviewImageUrl, certTitle, callbac
 function handleError(callback, message, suppressError) {
 
     // log the error
-    console.error(message)
+    console.error('Certificate request failed')
 
     // return the error w/a 404, regardless of the type of error
     callback(suppressError ? undefined : message, {

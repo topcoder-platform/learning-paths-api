@@ -62,7 +62,7 @@
     "sequelize": "6.37.8",
     "stripe": "^11.3.0",
     "swagger-ui-express": "^4.4.0",
-    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/58de37670180e183e8378c3d203df0112a0414f6",
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c2df92b2227089909ab6e229df0ec6b658bb431a",
     "uuid": "^11.1.1",
     "winston": "^3.7.2",
     "xss": "^1.0.11",

@@ -18,7 +18,7 @@ let machineIssuer
 
 function token (claims, secret = process.env.AUTH_SECRET) {
   const header = Buffer.from(JSON.stringify(claims.gty ? { alg: 'RS256', typ: 'JWT', kid: 'fixture' } : { alg: 'HS256', typ: 'JWT' })).toString('base64url')
-  const payload = Buffer.from(JSON.stringify({ iss: claims.gty ? machineIssuer : 'https://issuer.test.invalid/', exp: Math.floor(Date.now() / 1000) + 60, ...claims })).toString('base64url')
+  const payload = Buffer.from(JSON.stringify({ emailVerified: true, iss: claims.gty ? machineIssuer : 'https://issuer.test.invalid/', exp: Math.floor(Date.now() / 1000) + 60, ...claims })).toString('base64url')
   const data = `${header}.${payload}`
   const signature = claims.gty ? sign('RSA-SHA256', Buffer.from(data), privateKey).toString('base64url') : createHmac('sha256', secret).update(data).digest('base64url')
   return `${data}.${signature}`

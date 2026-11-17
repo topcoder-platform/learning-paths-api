@@ -37,6 +37,9 @@ jobs:
     - setup_remote_docker
     - checkout-suite
     - run:
+        name: Verify browser audience binding and deployment safeguards offline
+        command: python3 -m unittest discover -s deploy/tests -v
+    - run:
         name: Build committed source without AWS or broker credentials
         command: |
           set -euo pipefail

@@ -39,3 +39,13 @@ Source checkout uses the public HTTPS repository and verifies the exact CircleCI
 ## Reviewed health-check bootstrap
 
 The release wrapper passes the environment-specific health-check JSON to v2.0.10. A missing check is added with the new scanned image; the old image is not restarted with a new probe. An identical existing check is preserved, and a different existing check stops the release. Role, runtime-secret reference, scan, concurrency and healthy-digest checks remain enforced.
+
+## Browser JWT audience (PM-6770)
+
+The shared JWT verifier requires `JWT_AUDIENCE` for Academy's RS256 browser tokens, separately from the machine audience in `AUTH0_AUDIENCE`. On 2026-11-17 the dev service's task revision 303 omitted `JWT_AUDIENCE`, so authenticated certification progress requests returned 401 while public course listings still loaded. The shared dev parameter already exists and the ECS execution role can read it. The recorded production audience repair already includes the same reference in its own account.
+
+`release.py` now adapts the pinned suite's task request to add `JWT_AUDIENCE` from `arn:aws:ssm:<region>:<accountId>:parameter/config/common/global-appvar/JWT_AUDIENCE` to the application container when absent. It preserves an existing matching ARN or parameter path and rejects conflicting, duplicate or plaintext bindings before publishing an image. No parameter values are read by CI. Other secret references, roles, sidecars and task settings are preserved; the suite still controls OIDC authentication, scans, image promotion, registered-task readback, concurrent deployment checks and healthy rollout verification.
+
+Merging to `develop` applies the missing reference with the next normal dev release. The existing shared parameter must contain the browser client audience and remain readable by the execution role. Do not substitute `AUTH0_AUDIENCE`, disable audience verification or deploy an old task baseline over the repaired configuration. The production workflow retains its existing approval gate.
+
+With the pinned suite checked out at `/tmp/tc-deploy-scripts`, run `python3 -m unittest discover -s deploy/tests -v` to exercise task preservation, binding conflicts and a mocked full release including registered-task readback. CircleCI runs these checks before building. `pnpm run test:security` exercises both affected progress routes with signed browser fixtures, reproduces the missing-audience 401, and checks invalid signatures, audiences, issuers, expiry, email verification, roles and machine scopes. These route tests replace database-backed controllers; after deployment, verify both progress requests with a real Academy login and confirm the ECS rollout remains healthy.

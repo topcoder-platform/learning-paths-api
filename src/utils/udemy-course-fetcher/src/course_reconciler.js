@@ -1,7 +1,8 @@
 
-const { PrismaClient, CourseStatus } = require('@prisma/client');
+const { CourseStatus } = require('@prisma/client');
+const createPrismaClient = require('./prisma-client');
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 /**
  * Updates the list of Udemy courses available in Topcoder 

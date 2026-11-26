@@ -5,12 +5,10 @@ generator client {
 generator externalClient {
   provider      = "prisma-client-js"
   output        = "../packages/academy-prisma-client"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model CertificationCategory {

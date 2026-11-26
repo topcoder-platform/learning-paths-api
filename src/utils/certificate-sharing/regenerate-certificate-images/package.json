@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Handles the regeneration of missing completed certificate images",
   "main": "RegenerateCertificateImagesService.js",
-  "scripts": { },
+  "scripts": {},
   "author": "Brooke Souza",
   "license": "ISC",
   "dependencies": {
@@ -13,6 +13,6 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": "22"
+    "node": "26.13.1"
   }
 }

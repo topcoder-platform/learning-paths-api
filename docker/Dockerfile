@@ -13,7 +13,7 @@ ARG NODE_VERSION
 ENV NODE_ENV=production
 WORKDIR /learning-paths-api
 RUN apk upgrade --no-cache \
-    && apk add --no-cache 'libcrypto3>=3.5.9-r1' 'libssl3>=3.5.9-r1' ca-certificates "nodejs-current~${NODE_VERSION%%.*}" "nodejs-current>=26.13.1-r0" "zlib>=1.4-r0" \
+    && apk add --no-cache 'libcrypto3>=3.5.9-r1' 'libssl3>=3.5.9-r1' ca-certificates 'nodejs-current~26.13.1' "zlib>=1.4-r0" \
     && addgroup -S -g 10001 app \
     && adduser -S -D -u 10001 -G app -h /home/app app
 COPY --from=dependencies --chown=app:app /learning-paths-api/node_modules ./node_modules

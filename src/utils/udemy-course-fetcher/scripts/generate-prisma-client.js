@@ -10,7 +10,7 @@ const temporarySchemaPath = path.join(temporaryDirectory, 'schema.prisma')
 /**
  * The repository schema defines multiple generated clients. The Udemy Lambda
  * needs the same models, but its client must be generated inside this service's
- * node_modules with the AWS Lambda query engine. Strip only the top-level
+ * node_modules with the PostgreSQL driver adapter. Strip only the top-level
  * generator blocks before adding that service-specific generator.
  */
 function withoutGeneratorBlocks(schema) {
@@ -36,8 +36,7 @@ function withoutGeneratorBlocks(schema) {
 }
 
 const lambdaGenerator = `generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }`
 
 let exitCode = 1

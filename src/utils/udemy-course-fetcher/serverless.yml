@@ -5,7 +5,7 @@ provider:
   name: aws
   region: us-east-1
   stage: ${opt:stage,'dev'} 
-  runtime: nodejs22.x
+  runtime: nodejs26.x
   memorySize: 1024
   timeout: 900
   environment:
@@ -36,8 +36,6 @@ package:
     - '!node_modules/.bin/prisma'
     - '!node_modules/@prisma/engines/**'
     - '!node_modules/prisma/**'
-    - '!node_modules/.prisma/client/libquery_engine-*'
-    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'
     - '!course-files/**'
     - '!test/**'
     - '!*.sh'

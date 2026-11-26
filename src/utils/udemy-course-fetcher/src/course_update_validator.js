@@ -1,6 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const createPrismaClient = require('./prisma-client');
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 // The maximum valid percentage decrease in incoming course count 
 // compared to the current course count, to prevent a bad (partial)

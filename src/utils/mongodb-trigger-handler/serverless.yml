@@ -6,7 +6,7 @@ provider:
   name: aws
   region: us-east-1
   stage: ${opt:stage,'dev'}
-  runtime: nodejs24.x
+  runtime: nodejs26.x
 
 custom:
   aws:

@@ -1,7 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
+const createPrismaClient = require('./prisma-client');
 const CourseVersion = require('./course_version');
 
-const prisma = new PrismaClient()
+const prisma = createPrismaClient()
 
 async function updateCourses(courseData) {
     const updateResult = replaceCourseData(courseData)

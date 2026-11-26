@@ -4,7 +4,7 @@
   "description": "Lambda function to load Udemy Business course data",
   "main": "fetcher.js",
   "engines": {
-    "node": ">=22.17.0"
+    "node": "26.13.1"
   },
   "scripts": {
     "postinstall": "node scripts/generate-prisma-client.js",
@@ -15,9 +15,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.1104.0",
     "@aws-sdk/lib-storage": "3.1104.0",
-    "@prisma/client": "6.19.3",
+    "@prisma/client": "7.10.1",
     "axios": "1.20.0",
-    "prisma": "6.19.3"
+    "prisma": "7.10.1",
+    "@prisma/adapter-pg": "7.10.1"
   },
   "overrides": {
     "axios": "$axios",

@@ -4,6 +4,7 @@
   "description": "Topcoder Learning Paths V5 API",
   "main": "app.js",
   "scripts": {
+    "prisma:generate": "prisma generate --generator externalClient",
     "start": "node app.js",
     "start:debug": "DEBUG=express:* node app.js",
     "dev": "nodemon app.js",
@@ -24,6 +25,8 @@
   "license": "UNLICENSED",
   "repository": "https://github.com/topcoder-platform/learning-paths-api",
   "devDependencies": {
+    "@prisma/client": "7.10.1",
+    "prisma": "7.10.1",
     "@babel/core": "^7.18.5",
     "@babel/eslint-parser": "^7.18.2",
     "chai": "^4.3.6",
@@ -77,10 +80,10 @@
     ]
   },
   "engines": {
-    "node": "26.x"
+    "node": "26.13.1"
   },
   "volta": {
-    "node": "26.12.1"
+    "node": "26.13.1"
   },
   "packageManager": "pnpm@11.15.1"
 }

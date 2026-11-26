@@ -1,11 +1,13 @@
 packages:
-- .
+  - .
 allowBuilds:
   '@datadog/native-appsec': true
   '@datadog/native-iast-taint-tracking': true
   '@datadog/native-metrics': true
   '@datadog/pprof': true
+  '@prisma/engines@7.10.1': true
   '@scarf/scarf': false
+  'prisma@7.10.1': true
   protobufjs: true
 overrides:
   '@opentelemetry/core@<2.8.0': 2.8.0
